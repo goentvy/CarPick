@@ -1,0 +1,84 @@
+# -------------------------
+# Node.js / React (frontend)
+# -------------------------
+node_modules/
+dist/
+*.local
+.env
+.env.*.local
+
+# Vite cache
+.vite/
+
+# Editor configs
+.vscode/
+.idea/
+
+# -------------------------
+# Java / Spring Boot (backend with Gradle)
+# -------------------------
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# Spring Boot specific
+*.log
+*.tmp
+
+# Gradle
+.gradle/
+build/
+
+# -------------------------
+# Docker
+# -------------------------
+docker-compose.override.yml
+.env.docker
+.docker/
+*.pid
+
+# -------------------------
+# GitHub Actions / CI/CD
+# -------------------------
+.github/tmp/
+*.workflow.log
+
+# -------------------------
+# Build / Packaging Artifacts
+# -------------------------
+*.tar
+*.zip
+*.gz
+
+# -------------------------
+# IDE / Editor (추가)
+# -------------------------
+*.iml
+.project
+.classpath
+.settings/
+
+# -------------------------
+# OS / Misc
+# -------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+logs/
+
+# -------------------------
+# Coverage / Test Reports
+# -------------------------
+coverage/
+*.lcov
+test-output/
