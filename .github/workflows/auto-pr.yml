@@ -17,6 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: 강제 변경 유도 (PR 트리거용 파일 생성)
+        run: |
+          echo "PR 트리거: $(date)" >> .pr-trigger.txt
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -37,3 +41,11 @@ jobs:
             자동PR
           assignees: goentvy
           draft: false
+
+      - name: PR 트리거 파일 삭제 및 커밋
+        run: |
+          git rm .pr-trigger.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: PR 트리거 파일 삭제"
+          git push origin pr/${{ github.ref_name }}
