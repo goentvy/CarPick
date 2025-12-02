@@ -1,0 +1,25 @@
+name: Auto PR to dev
+
+on:
+  push:
+    branches:
+      - dev-*
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: dev
+          branch: ${{ github.ref_name }}
+          title: "자동 PR: ${{ github.ref_name }} → dev"
+          body: |
+            ## 자동 생성된 PR입니다
+            - 브랜치: ${{ github.ref_name }}
+            - 기준 브랜치: dev
