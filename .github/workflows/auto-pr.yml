@@ -8,18 +8,32 @@ on:
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: 자동 PR 생성"
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          branch: pr/${{ github.ref_name }}
+          delete-branch: true
           base: dev
-          branch: ${{ github.ref_name }}
           title: "자동 PR: ${{ github.ref_name }} → dev"
           body: |
             ## 자동 생성된 PR입니다
-            - 브랜치: ${{ github.ref_name }}
+            - 원본 브랜치: ${{ github.ref_name }}
             - 기준 브랜치: dev
+            - 생성 시각: $(date)
+          labels: |
+            자동PR
+          assignees: goentvy
+          draft: false
