@@ -1,0 +1,110 @@
+@charset "utf-8";
+@import url("./common.css");
+
+#head.intro {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:20px 0; 
+    max-width:824px;
+    background:#fff;
+    position:relative;
+    z-index:1000; 
+}
+
+#head.intro .m{display:none; }
+
+.intro-container{
+    max-width:1200px; 
+    height:100vh; 
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin:auto; 
+}
+
+.intro-row{
+    width:90%; 
+    max-width:824px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    min-height:140px; 
+    position:relative;
+}
+.intro-container .col-card{
+    display:flex;
+    width:100%; 
+    flex-direction:column;
+    border-radius:10px;
+    overflow: hidden;
+}
+
+.intro-container .col-card .image img{
+    width:100%; 
+}
+
+.intro-container .col-card .txtbox{
+    color:#fff;
+    padding:9px 16px 20px 16px;
+    background:var(--logo-blue);
+}
+
+.intro-container .col-card .txtbox .title{
+    font-size:24px; 
+    margin-bottom:3px;
+    font-weight:600; 
+}
+
+.intro-container .col-card .txtbox .sub{
+    font-size:14px; 
+    margin-bottom:22px;
+}
+
+.intro-container .col-card .txtbox .btn{
+    font-size:14px;
+    font-weight:600;  
+    border-radius:50px;
+    width:166px; 
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    background:#fff;
+    color:var(--logo-blue);
+}
+
+.intro-container .col-card .txtbox .btn::after{
+    content:'';
+    display:inline-block; 
+    background:url(../images/common/next.svg) no-repeat center center;
+    background-size:8px 30px; 
+    width:8px; 
+    height:30px;
+}
+
+.intro-container .col-card .txtbox .btn:hover{
+    background:var(--logo-yellow);
+    color:var(--logo-blue);
+}
+
+@media (max-width: 850px) {
+    #head.intro{
+        width:100%; 
+        background:var(--menu-bg);
+        position:fixed; top:0; left:0; 
+        padding:20px 25px; 
+    }
+    #head.intro .pc{display:none; }
+    #head.intro .m{display:block; }
+
+    .intro-container{height:auto; }
+    .intro-row {
+        margin-top:130px;
+        margin-bottom:100px; 
+        grid-template-columns: 1fr;
+    }
+    .intro-container .col-card .txtbox{
+        padding:20px 16px 30px; 
+    }
+}
