@@ -1,51 +1,70 @@
-name: Auto PR to dev
+name: CI/CD Build
 
 on:
   push:
     branches:
+      - dev
+      - main
       - dev-*
+  pull_request:
+    branches:
+      - dev
+      - main
 
 jobs:
-  create-pull-request:
+  # ---------------------------
+  # Frontend (React + Vite)
+  # ---------------------------
+  frontend-build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 강제 변경 유도 (PR 트리거용 파일 생성)
-        run: |
-          echo "PR 트리거: $(date)" >> .pr-trigger.txt
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: 자동 PR 생성"
-          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-          branch: pr/${{ github.ref_name }}
-          delete-branch: true
-          base: dev
-          title: "자동 PR: ${{ github.ref_name }} → dev"
-          body: |
-            ## 자동 생성된 PR입니다
-            - 원본 브랜치: ${{ github.ref_name }}
-            - 기준 브랜치: dev
-            - 생성 시각: $(date)
-          labels: |
-            자동PR
-          assignees: goentvy
-          draft: false
+          node-version: 20
 
-      - name: PR 트리거 파일 삭제 및 커밋
-        run: |
-          git rm .pr-trigger.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: PR 트리거 파일 삭제"
-          git push origin pr/${{ github.ref_name }}
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run build
+        run: npm run build
+        working-directory: frontend
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+        working-directory: frontend
+
+  # ---------------------------
+  # Backend (Spring Boot)
+  # ---------------------------
+  backend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: ./gradlew build
+        working-directory: backend
