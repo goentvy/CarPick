@@ -4,7 +4,7 @@ function App() {
   return (
     <>
       <div>
-        <h3>메인페이지 push 자동 PR 확인</h3>
+        <h3>장경건 공지사항 DB설계중 ...</h3>
       </div>
     </>
   )
