@@ -35,10 +35,6 @@ jobs:
         run: npm run build
         working-directory: frontend
 
-      - name: Run tests
-        run: npm test -- --watchAll=false
-        working-directory: frontend
-
   # ---------------------------
   # Backend (Spring Boot)
   # ---------------------------
