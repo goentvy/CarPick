@@ -4,7 +4,7 @@ function App() {
   return (
     <>
       <div>
-        <h2>메인페이지</h2>
+        <h3>장경건 공지사항 DB설계중 ...</h3>
       </div>
     </>
   )
