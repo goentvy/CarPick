@@ -12,81 +12,88 @@
 
     <!-- js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="./js/commons.js"></script>
 </head>
 
 <body>
     <div id="wrap">
-       <div class="intro-container">
-            <header id="head" class="intro">
-                <div class="logo">
-                    <a href="./intro.html"><img src="./images/common/logo_w.svg" alt="CarPick Logo" class="m"><img src="./images/common/logo_b.svg" alt="CarPick Logo" class=-"pc"></a>
-                </div>
-                <nav class="menu">
-                    <button id="btnMenuOpen" class="btn btn-link"><img src="./images/common/menu_w.svg" alt="CarPick Menu" class="w"><img src="./images/common/menu_b.svg" alt="CarPick Menu" class="pc"></button>
-                </nav>
-            </header>
-            <div id="menuDim"></div>
-            <aside id="navMenu">
-                <div class="inner">
-                    <div class="menu_top">
-                        <a href="/"><img src="./images/common/logo_b.svg" alt="CarPick Logo"></a>
-                        <button id="btnMenuClose" class="btn btn-close"><img src="./images/common/close.svg" alt="Menu Close"></button>
-                    </div>
-                    <div class="member_info">
-                        <h3><span class="userName">홍길동</span>님 환영합니다!</h3>
-                        <button class="btn btn-mypage">마이페이지</button>
-                    </div>
-                    <nav class="menu_list">
-                        <ul>
-                            <li><a href="">AI PICK</a></li>
-                            <li><a href="">단기렌트</a></li>
-                            <li><a href="">장기렌트</a></li>
-                            <li><a href="">카픽존</a></li>
-                            <li><a href="">예약조회</a></li>
-                            <li><a href="">이벤트</a></li>
-                            <li><a href="">고객센터</a></li>
-                        </ul>
-                    </nav>
-                    <div class="menu_bottom">
-                        <a href="" class="btn btn-logout">로그아웃</a>
-                    </div>
-                </div>
-            </aside>
-           <div class="row intro-row">
-               <div class="col-card col-ai">
-                    <div class="image">
-                        <img src="./images/intro/intro_ai.jpg" alt="AI PICK">
-                    </div>
-                   <div class="txtbox">
-                        <h1 class="title">AI PICK</h1>
-                        <p class="sub">어떤 차를 골라야 할지 고민된다면?</p>
-                        <button class="btn" onclick="location.href=''">AI PICK 바로가기</button>
-                   </div>
-                </div>
-                <div class="col-card col-day">
-                    <div class="image">
-                        <img src="./images/intro/intro_day.jpg" alt="단기렌트">
-                    </div>
-                   <div class="txtbox">
-                        <h1 class="title">단기렌트</h1>
-                        <p class="sub">하루부터 며칠만 렌트를 원한다면?</p>
-                        <button class="btn" onclick="location.href=''">단기렌트 바로가기</button>
-                   </div>
-                </div>
-                <div class="col-card col-month">
-                    <div class="image">
-                        <img src="./images/intro/intro_month.jpg" alt="장기렌트">
-                    </div>
-                   <div class="txtbox">
-                        <h1 class="title">장기렌트</h1>
-                        <p class="sub">몇달 이상 장기 렌트를 원한다면?</p>
-                        <button class="btn" onclick="location.href=''">장기렌트 바로가기</button>
-                   </div>
-                </div>
+       <div class="intro_container">
+            <div class="title">
+                <h2>차에 대해 몰라도 괜찮아요.<br/>AI가 추천해드릴게요.</h2>
+                <h4><img src="./images/common/logo_w.svg" class="logo_icon"/> AI가<br/>당신에게 맞는 차량을 추천할 수 있도록<br/>취향을 몇 가지 골라주세요.</h4>
+                <p class="green">최소 3개 이상 선택해주세요.</p>
             </div>
-       </div>
+            <div class="checkbox_container">
+                <ul class="checkbox_list">
+                    <li><input type="checkbox" id="pick1"><label for="pick1">🚗 도심운전</label></li>
+                    <li><input type="checkbox" id="pick2"><label for="pick2">🛣️ 장거리여행</label></li>
+                    <li><input type="checkbox" id="pick3"><label for="pick3">👨‍👩‍👧‍👦 가족여행</label></li>
+                    <li><input type="checkbox" id="pick4"><label for="pick4">🏕️ 레저 · 차박</label></li>
+                    <li><input type="checkbox" id="pick5"><label for="pick5">📦 짐이 많아요</label></li>
+                    <li><input type="checkbox" id="pick6"><label for="pick6">✨ 최신모델선호</label></li>
+                    <li><input type="checkbox" id="pick7"><label for="pick7">💸 가성비 중요</label></li>
+                    <li><input type="checkbox" id="pick8"><label for="pick8">⛽ 저렴한 기름값</label></li>
+                    <li><input type="checkbox" id="pick9"><label for="pick9">🎨 예쁜 디자인</label></li>
+                    <li><input type="checkbox" id="pick10"><label for="pick10">🔌 전기차(EV) 선호</label></li>
+                    <li><input type="checkbox" id="pick11"><label for="pick11">🚘 세단 선호</label></li>
+                    <li><input type="checkbox" id="pick12"><label for="pick12">🚙 SUV가 좋아요</label></li>
+                    <li><input type="checkbox" id="pick13"><label for="pick13">🚗 소형차</label></li>
+                    <li><input type="checkbox" id="pick14"><label for="pick14">🆕 초보운전</label></li>
+                    <li><input type="checkbox" id="pick15"><label for="pick15">🛋️ 승차감 중시</label></li>
+                    <li><input type="checkbox" id="pick16"><label for="pick16">❄️ 눈길 · 비길</label></li>
+                    <li><input type="checkbox" id="pick17"><label for="pick17">🚀 고속도로</label></li>
+                    <li><input type="checkbox" id="pick18"><label for="pick18">🎧 음악감상 중요</label></li>
+                    <li><input type="checkbox" id="pick19"><label for="pick19">⛰️ 경사/산길</label></li>
+                    <li><input type="checkbox" id="pick20"><label for="pick20">🅿️ 쉬운 주차</label></li>
+                    <li><input type="checkbox" id="pick21"><label for="pick21">🏢 출퇴근 목적</label></li>
+                    <li><input type="checkbox" id="pick22"><label for="pick22">🚐 MVV/밴 스타일</label></li>
+                    <li><input type="checkbox" id="pick23"><label for="pick23">🧭 주행보조기능(ADAS) 중요</label></li>
+                    <li><input type="checkbox" id="pick24"><label for="pick24">🧑‍🤝‍🧑 5인승이상</label></li>
+                </ul>
+            </div>
+            <div class="btn_container">
+                <div class="info">
+                    <p class="selno"><span>0</span>개 선택됨</p>
+                    <a href="" class="pass">건너뛰기</a>
+                </div>
+                <button class="nextBtn"><img src="./images/intro/intro_btn.svg"/></button>
+            </div>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const checkboxes = document.querySelectorAll(".checkbox_list input[type='checkbox']");
+            const selnoSpan = document.querySelector(".selno span");
+            const selno = document.querySelector(".selno");
+            const nextBtn = document.querySelector(".nextBtn");
+
+            function updateSelection() {
+                const count = document.querySelectorAll(".checkbox_list input[type='checkbox']:checked").length;
+
+                // 개수 표시
+                selnoSpan.textContent = count;
+
+                // 1개 이상 선택 시 selno 활성화
+                if (count > 0) {
+                    selno.classList.add("active");
+                } else {
+                    selno.classList.remove("active");
+                }
+
+                // 3개 이상 선택 시 nextBtn 활성화
+                if (count >= 3) {
+                    nextBtn.classList.add("active");
+                } else {
+                    nextBtn.classList.remove("active");
+                }
+            }
+
+            // 체크박스 변화 감지
+            checkboxes.forEach(cb => {
+                cb.addEventListener("change", updateSelection);
+            });
+        });
+    </script>
 </body>
 
 </html>
