@@ -1,10 +1,10 @@
-package com.example.demo.service;
+package com.carpick.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.mapper.CarMapper;
-import com.example.demo.model.Car;
+import com.carpick.mapper.CarMapper;
+import com.carpick.model.Car;
 
 import java.util.List;
 

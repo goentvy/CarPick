@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.carpick.model;
 
 import lombok.Data;
 import java.time.LocalDateTime;

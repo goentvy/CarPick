@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.carpick.controller;
 
 import lombok.RequiredArgsConstructor;
 
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.example.demo.service.CarService;
+import com.carpick.service.CarService;
 
 @Controller
 @RequiredArgsConstructor

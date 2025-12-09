@@ -1,10 +1,10 @@
-package com.example.demo.controller;
+package com.carpick.controller;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.service.RecommendService;
+import com.carpick.service.RecommendService;
 
 import java.util.List;
 import java.util.Map;
