@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarPick</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./css/lee.css" />
+
+    <!-- js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./js/commons.js"></script>
+</head>
+
+<body>
+    <div id="wrap">
+       <div class="intro-container">
+            <header id="head" class="intro">
+                <div class="logo">
+                    <a href="./intro.html"><img src="./images/common/logo_w.svg" alt="CarPick Logo"></a>
+                </div>
+                <nav class="menu">
+                    <button id="btnMenuOpen" class="btn btn-link"><img src="./images/common/menu_w.svg" alt="CarPick Menu"></button>
+                </nav>
+            </header>
+            <div id="menuDim"></div>
+            <aside id="navMenu">
+                <div class="inner">
+                    <div class="menu_top">
+                        <a href="/"><img src="./images/common/logo_b.svg" alt="CarPick Logo"></a>
+                        <button id="btnMenuClose" class="btn btn-close"><img src="./images/common/close.svg" alt="Menu Close"></button>
+                    </div>
+                    <div class="member_info">
+                        <h3><span class="userName">홍길동</span>님 환영합니다!</h3>
+                        <button class="btn btn-mypage">마이페이지</button>
+                    </div>
+                    <nav class="menu_list">
+                        <ul>
+                            <li><a href="">AI PICK</a></li>
+                            <li><a href="">단기렌트</a></li>
+                            <li><a href="">장기렌트</a></li>
+                            <li><a href="">카픽존</a></li>
+                            <li><a href="">예약조회</a></li>
+                            <li><a href="">이벤트</a></li>
+                            <li><a href="">고객센터</a></li>
+                        </ul>
+                    </nav>
+                    <div class="menu_bottom">
+                        <a href="" class="btn btn-logout">로그아웃</a>
+                    </div>
+                </div>
+            </aside>
+           <div class="row agree-row">
+                <h2>이용약관</h2>
+                <p id="agreeText"></p>
+           </div>
+       </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("./txt/agree1.txt")
+                .then(response => response.text())
+                .then(text => {
+                    document.getElementById("agreeText").innerText = text;
+                })
+                .catch(err => {
+                    console.error("약관 파일을 불러오지 못했습니다:", err);
+                });
+        });
+    </script>
+</body>
+
+</html>
+

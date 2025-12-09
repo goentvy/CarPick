@@ -1,18 +1,22 @@
-import CarDetailPage from './pages/CarDetailPage.jsx';
-import './App.css'
-import { Outlet, Link } from 'react-router-dom'
+import React from "react";
+import { Outlet, Link } from "react-router-dom";
+import "./App.css";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
 
 function App() {
   return (
-    <div>
-      <nav>
-        <Link to="/">홈</Link> | <Link to="/login">로그인</Link> | <Link to="/profile">프로필</Link>
-      </nav>
-      <hr />
-      <CarDetailPage />;
-      {/* 자식 라우트가 렌더링되는 자리 */}
+    <div className="App">
+      {/* 공통 헤더 */}
+      <Header />
+
+      {/* 자식 라우트 출력 */}
       <Outlet />
+
+      {/* 공통 폿더 */}
+      <Footer />
     </div>
-  )
+  );
 }
-export default App
+
+export default App;

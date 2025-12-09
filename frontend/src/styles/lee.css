@@ -1,0 +1,8 @@
+@charset "utf-8";
+@import url("./common.css");
+
+.agree-row{width:100%; padding:30px 15px; margin:80px auto 0; }
+.agree-row h2{font-size:20px; font-weight:800; margin-bottom:10px; }
+.agree-row p{font-size:16px; line-height:1.6; margin-bottom:15px; white-space: pre-wrap; word-break: keep-all;}
+.agree-row button{margin-top:40px; background:var(--menu-bg); border-radius:10px; color:#fff; width:100%; font-size:14px; font-weight:500; }
+.agree-row button:hover{color:#fff; }
