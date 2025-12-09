@@ -2,7 +2,7 @@
 
 .intro_container{
     background:var(--logo-blue);
-    max-width:470px;
+    max-width:var(--pc-width);
     margin:auto;
     height:100vh;
     overflow: hidden;

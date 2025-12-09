@@ -6,6 +6,11 @@ function Header() {
 
   const openMenu = () => setMenuOpen(true);
   const closeMenu = () => setMenuOpen(false);
+  const [activeMenu, setActiveMenu] = useState(null);
+
+  const handleToggle = (menuName) => {
+    setActiveMenu(activeMenu === menuName ? null : menuName);
+  };
 
   return (
     <>
@@ -48,17 +53,76 @@ function Header() {
             <button className="btn btn-mypage">마이페이지</button>
           </div>
 
-          <nav className="menu_list">
-            <ul>
-              <li><a href="">AI PICK</a></li>
-              <li><a href="">단기렌트</a></li>
-              <li><a href="">장기렌트</a></li>
-              <li><a href="">카픽존</a></li>
-              <li><a href="">예약조회</a></li>
-              <li><a href="">이벤트</a></li>
-              <li><a href="">고객센터</a></li>
-            </ul>
-          </nav>
+         <nav className="gnb">
+          <ul className="gnb-list">
+            
+            <li className="gnb-item">
+              <a href="" className="gnb-link">AI PICK</a>
+            </li>
+
+            <li className="gnb-item">
+              <a href="" className="gnb-link">단기렌트</a>
+            </li>
+
+            <li className="gnb-item">
+              <a href="" className="gnb-link">장기렌트</a>
+            </li>
+
+            {/* 카픽존 */}
+            <li className={`gnb-item has-submenu ${activeMenu === "카픽존" ? "active" : ""}`}>
+              <div className="submenu">
+                <button
+                  className="gnb-link submenu-trigger"
+                  onClick={() => handleToggle("카픽존")}
+                >
+                  카픽존
+                </button>
+
+                <ul className="submenu-list">
+                  <li className="submenu-item">
+                    <a href="" className="submenu-link">픽쳐카존</a>
+                  </li>
+                  <li className="submenu-item">
+                    <a href="" className="submenu-link">지도기반 검색</a>
+                  </li>
+                  <li className="submenu-item">
+                    <a href="" className="submenu-link">픽업안내</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+
+            <li className="gnb-item">
+              <a href="" className="gnb-link">예약조회</a>
+            </li>
+
+            <li className="gnb-item">
+              <a href="" className="gnb-link">이벤트</a>
+            </li>
+
+            {/* 고객센터 */}
+            <li className={`gnb-item has-submenu ${activeMenu === "고객센터" ? "active" : ""}`}>
+              <div className="submenu">
+                <button
+                  className="gnb-link submenu-trigger"
+                  onClick={() => handleToggle("고객센터")}
+                >
+                  고객센터
+                </button>
+
+                <ul className="submenu-list">
+                  <li className="submenu-item"><a href="" className="submenu-link">자주묻는질문</a></li>
+                  <li className="submenu-item"><a href="" className="submenu-link">일대일문의</a></li>
+                  <li className="submenu-item"><a href="" className="submenu-link">공지사항</a></li>
+                  <li className="submenu-item"><a href="" className="submenu-link">회사소개</a></li>
+                  <li className="submenu-item"><a href="" className="submenu-link">이용가이드</a></li>
+                  <li className="submenu-item"><a href="" className="submenu-link">긴급지원서비스</a></li>
+                </ul>
+              </div>
+            </li>
+
+          </ul>
+        </nav>
 
           <div className="menu_bottom">
             <a href="" className="btn btn-logout">로그아웃</a>
