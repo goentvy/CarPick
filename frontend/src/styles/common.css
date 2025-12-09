@@ -73,6 +73,7 @@ input, button, select, textarea {
 :root {
     /* viewport */
     --header-height: 80px;
+    --pc-width:640px;
     --nav-width:300px; 
     --view-height: calc(var(--vh, 1vh) * 100);
     --sticky-offeset-top: var(--stickyTop);
@@ -167,10 +168,18 @@ select, input{height:40px; }
 
 #head{
     width:100%; 
-    background:var(--menu-bg);
-    padding:20px 25px; 
     position:fixed; top:0; left:0;
     z-index:1000; 
+    flex-direction: row;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#head .inner{
+    width:var(--pc-width);
+    background:var(--menu-bg);
+    padding:20px 25px; 
     flex-direction: row;
     display: flex;
     justify-content: space-between;
@@ -279,3 +288,68 @@ select, input{height:40px; }
     }
 }
 
+
+/* 로딩 오버레이 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* 스피너 */
+.spinner {
+  border: 8px solid var(--logo-blue); /* 밝은 회색 */
+  border-top: 8px solid var(--logo-yellow); /* 파란색 */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#content{
+    max-width:640px; 
+    margin:80px auto; 
+}
+
+#footer{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%; 
+}
+
+#footer .inner{
+    max-width:var(--pc-width);
+    width:100%; 
+    margin:auto;
+    background:var(--menu-bg);
+    height:72px;
+    color:#fff; 
+    display: flex;
+    align-items: center;
+}
+
+#footer .inner .btns{
+    width:90%;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+}
+#footer .inner .btns button{
+    background-color: transparent;
+    border:0;
+    color:#fff;
+}

@@ -1,35 +1,4 @@
 @charset "utf-8";
-@import url("./common.css");
-
-/* 로딩 오버레이 */
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-/* 스피너 */
-.spinner {
-  border: 8px solid var(--logo-blue); /* 밝은 회색 */
-  border-top: 8px solid var(--logo-yellow); /* 파란색 */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 
 .intro_container{
     background:var(--logo-blue);
@@ -153,6 +122,8 @@
     top:0; 
     color: var(--logo-yellow);
     text-decoration: underline;
+    background:transparent;
+    border:0;
 }
 
 .btn_container .nextBtn{
@@ -163,7 +134,10 @@
     height:54px; 
     border-radius:30px; 
     pointer-events: none;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
 }
 
 .btn_container .nextBtn.active{

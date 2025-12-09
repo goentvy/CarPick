@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import '../css/intro.css';
+import { useNavigate } from "react-router-dom";
+import styles from "../styles/Intro.module.css";
+
+import { createGlobalStyle } from "styled-components";
+
+const HideHeaderFooter = createGlobalStyle`
+  #head, #footer {
+    display: none !important;
+  }
+`;
 
 const optionsList = [
   { id: "pick1", label: "🚗 도심운전", value: "도심운전" },
@@ -31,11 +40,17 @@ const optionsList = [
 export default function Intro() {
   const [selected, setSelected] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
 
   const toggleOption = (value) => {
     setSelected((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
+  };
+
+  const goHome = () => {
+    navigate("/home"); // 홈으로 이동
   };
 
   const handleSubmit = async (e) => {
@@ -64,6 +79,7 @@ export default function Intro() {
         `추천 차종: ${result.segment}\n추천 이유: ${result.reason}\n메인 AI 추천 AJAX URL: /carpick?seg=${result.segment}`
       );
       console.log("추천 결과:", data);
+      goHome();
     } catch (err) {
       console.error(err);
       alert("서버 요청 중 오류가 발생했습니다.");
@@ -74,32 +90,33 @@ export default function Intro() {
 
   return (
     <div id="wrap">
+        <HideHeaderFooter />
         {isSubmitting && (
-            <div className="loading-overlay">
-            <div className="spinner"></div>
+            <div className={styles.loading-overlay}>
+            <div className={styles.spinner}></div>
             </div>
         )}
         <form onSubmit={handleSubmit}>
-            <div className="intro_container">
-                <div className="title">
+            <div className={styles.intro_container}>
+                <div className={styles.title}>
                 <h2>
                     차에 대해 몰라도 괜찮아요.
                     <br />
                     AI가 추천해드릴게요.
                 </h2>
                 <h4>
-                    <img src="./images/common/logo_w.svg" className="logo_icon" alt="logo" />
+                    <img src="./images/common/logo_w.svg" className={styles.logo_icon} alt="logo" />
                     AI가
                     <br />
                     당신에게 맞는 차량을 추천할 수 있도록
                     <br />
                     취향을 몇 가지 골라주세요.
                 </h4>
-                <p className="green">최소 3개 이상 선택해주세요.</p>
+                <p className={styles.green}>최소 3개 이상 선택해주세요.</p>
                 </div>
 
-                <div className="checkbox_container">
-                <ul className="checkbox_list">
+                <div className={styles.checkbox_container}>
+                <ul className={styles.checkbox_list}>
                     {optionsList.map((opt) => (
                     <li key={opt.id}>
                         <input
@@ -114,23 +131,24 @@ export default function Intro() {
                 </ul>
                 </div>
 
-                <div className="btn_container">
-                <div className={`info ${selected.length > 0 ? "active" : ""}`}>
-                    <p className="selno">
-                    <span>{selected.length}</span>개 선택됨
+                <div className={styles.btn_container}>
+                  <div className={`${styles.info} ${selected.length > 0 ? styles.active : ""}`}>
+                    <p className={styles.selno}>
+                      <span>{selected.length}</span>개 선택됨
                     </p>
-                    <a href="#" className="pass">
-                    건너뛰기
-                    </a>
-                </div>
-                <button
+                    <button type="button" onClick={goHome} className={styles.pass}>
+                      건너뛰기
+                    </button>
+                  </div>
+
+                  <button
                     type="submit"
-                    className={`nextBtn ${selected.length >= 3 ? "active" : ""}`}
+                    className={`${styles.nextBtn} ${selected.length >= 3 ? styles.nextBtnActive : ""}`}
                     disabled={isSubmitting}
-                    >
+                  >
                     {isSubmitting ? "로딩 중..." : <img src="./images/intro/intro_btn.svg" alt="next" />}
-                </button>
-                </div>
+                  </button>
+              </div>
             </div>
         </form>
     </div>
