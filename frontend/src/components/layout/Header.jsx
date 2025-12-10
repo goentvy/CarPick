@@ -49,7 +49,7 @@ function Header() {
           </div>
 
           <div className="member_info">
-            <h3><span className="userName">홍길동</span>님 환영합니다!</h3>
+            <h3><a href="" className="userName">홍길동</a>님 환영합니다!</h3>
             <button className="btn btn-mypage">마이페이지</button>
           </div>
 

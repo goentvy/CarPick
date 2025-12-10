@@ -61,9 +61,10 @@ export default function Intro() {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true); // 🔥 로딩 시작
 
     try {
+      // 서버 요청
       const res = await fetch("http://3.236.8.244:8080/api/recommend-cars", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,26 +76,30 @@ export default function Intro() {
       const data = await res.json();
       const result = data.recommendedSegment;
 
-      alert(
-        `추천 차종: ${result.segment}\n추천 이유: ${result.reason}\n메인 AI 추천 AJAX URL: /carpick?seg=${result.segment}`
-      );
-      console.log("추천 결과:", data);
-      goHome();
+      navigate("/home", {
+        state: {
+          segment: result.segment,
+          reason: result.reason
+        }
+      });
+
     } catch (err) {
       console.error(err);
       alert("서버 요청 중 오류가 발생했습니다.");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); 
     }
   };
 
+
   return (
+    
     <div id="wrap">
         <HideHeaderFooter />
         {isSubmitting && (
-            <div className={styles.loading-overlay}>
+          <div className={styles.loadingOverlay}>
             <div className={styles.spinner}></div>
-            </div>
+          </div>
         )}
         <form onSubmit={handleSubmit}>
             <div className={styles.intro_container}>
@@ -143,10 +148,10 @@ export default function Intro() {
 
                   <button
                     type="submit"
-                    className={`${styles.nextBtn} ${selected.length >= 3 ? styles.nextBtnActive : ""}`}
+                    className={`${styles.nextBtn} ${selected.length >= 3 ? styles.active : ""}`}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "로딩 중..." : <img src="./images/intro/intro_btn.svg" alt="next" />}
+                    {isSubmitting ? "생각 중..." : <img src="./images/intro/intro_btn.svg" alt="next" />}
                   </button>
               </div>
             </div>
