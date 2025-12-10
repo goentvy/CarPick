@@ -101,7 +101,7 @@ export default function Intro() {
             <div className={styles.spinner}></div>
           </div>
         )}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className={styles.intro_form}>
             <div className={styles.intro_container}>
                 <div className={styles.title}>
                 <h2>

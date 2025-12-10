@@ -246,6 +246,9 @@ select, input{height:40px; }
     background:var(--logo-blue);
     color:#fff; 
     border-radius:100px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #navMenu .menu_list ul li{
