@@ -1,32 +1,5 @@
 /* src/CarDetailPage.css */
 
-:root {
-  --kp-bg: #f5f6f8;
-  --kp-surface: #ffffff;
-  --kp-border: #e2e4ea;
-  --kp-primary: #2a62ff;
-  --kp-primary-soft: #e4ecff;
-  --kp-text: #14151a;
-  --kp-text-sub: #6b6e7a;
-  --kp-radius-lg: 16px;
-  --kp-radius-md: 12px;
-  --kp-radius-sm: 8px;
-  --kp-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
-  background: var(--kp-bg);
-  color: var(--kp-text);
-}
-
 /* 페이지 레이아웃 */
 
 .kp-page {
