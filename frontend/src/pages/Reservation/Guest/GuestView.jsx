@@ -36,6 +36,13 @@ const GuestView = () => {
                     className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition">
                     예약조회
                 </button>
+                <div className="flex justify-center items-center">
+                    <button 
+                        onClick={() => navigate('/login')}
+                        className="bg-emerald-400 text-white px-11 py-2 mt-4 rounded-xl hover:bg-emerald-500 transition">
+                        로그인으로 이동하기
+                    </button>
+                </div>
             </div>
         </div>
     );
