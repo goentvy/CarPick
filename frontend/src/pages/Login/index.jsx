@@ -1,13 +1,15 @@
-import Logo from '/src/assets/logo.svg';
+import { useNavigate } from 'react-router-dom';
+import ContentTopLogo from '../../components/common/ContentTopLogo';
 
 const Login = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex justify-center min-h-screen w-full mt-20">
       <div className="w-full max-w-md bg-white p-8">
-        <div className="flex justify-center my-3">
-          <img src={Logo} alt="logo" className=""/>
-        </div>
-        <p className="text-center mb-4 text-xl font-bold">로그인하세요</p>
+        <ContentTopLogo 
+          title="로그인 하세요" 
+          titleStyle={"text-center mb-4 text-xl font-bold"}
+        />
 
         <input
           type="email"
@@ -38,9 +40,22 @@ const Login = () => {
         <p className="text-base text-center font-medium mt-6">
           need help for signing in ?
         </p>
-        <p className="text-xs text-center text-gray-400 mt-1">
+        <p className="text-xs text-center text-gray-400 my-3">
           By signing up you are creating an account and
         </p>
+        <div className="flex flex-row mt-8 gap-4">
+          <button 
+            className="w-full bg-emerald-500 text-white py-2 rounded-xl hover:bg-emerald-600 transition"
+            onClick={() => navigate('/findid')}>
+            아이디 찾기
+          </button>
+
+          <button 
+            className="w-full bg-indigo-400 text-white py-2 rounded-xl hover:bg-indigo-500 transition"
+            onClick={() => navigate('/resetpassword')}>
+            비밀번호 찾기
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import Logo from '/src/assets/logo.svg';
+import ContentTopLogo from '../../../components/common/ContentTopLogo';
 
 const GuestCancelComplete = () => {
     const navigate = useNavigate();
     return (
         <div className="flex justify-center min-h-screen w-full mt-20">
             <div className="w-full max-w-md p-8">
-                <div className="flex justify-center my-3">
-                    <img src={Logo} alt="logo" className=""/>
-                </div>
-                <h2 className="text-xl font-bold mb-4">예약이 성공적으로 취소되었습니다.</h2>
+                <ContentTopLogo 
+                    title="예약이 성공적으로 취소되었습니다."
+                    titleStyle={"text-xl font-bold mb-4"}
+                />
                 <p className="text-gray-700 mb-2">
                     다시 예약하시려면 아래 버튼을 눌러주세요.
                 </p>

@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckboxToggle from '../../components/common/CheckboxToggle';
 import StepProgress from '../../components/common/StepProgress';
-import Logo from '/src/assets/logo.svg';
 import termText from '/src/components/txt/agree1.txt?raw';
 import privacyText from '/src/components/txt/agree2.txt?raw';
+import ContentTopLogo from '../../components/common/ContentTopLogo';
 
 const SignupAgree = () => {
   const [agreeAll, setAgreeAll] = useState(false);
@@ -31,10 +31,11 @@ const SignupAgree = () => {
   return (
     <div className="min-h-screen flex justify-center mt-10 px-4">
       <div className="w-full max-w-2xl bg-white p-6 sm:p-8">
-        <div className="flex justify-center my-3">
-          <img src={Logo} alt="logo" className="h-10 sm:h-12" />
-        </div>
-        <p className="text-2xl text-center font-semibold my-6">회원가입</p>
+        <ContentTopLogo 
+          title="회원가입" 
+          logoStyle={"h-10 sm:h-12"}
+          titleStyle={"text-2xl text-center font-semibold my-6"}
+        />
 
         <StepProgress step={1} />
 
