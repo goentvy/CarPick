@@ -1,0 +1,44 @@
+import { useNavigate } from 'react-router-dom';
+import Logo from '/src/assets/logo.svg';
+
+const GuestView = () => {
+    const navigate = useNavigate();
+    return (
+        <div className="flex justify-center min-h-screen w-full mt-20">
+            <div className="w-full max-w-md p-8">
+                <div className="flex justify-center my-3">
+                    <img src={Logo} alt="logo" className=""/>
+                </div>
+                <p className="text-center mb-4 text-xl font-bold">비회원 예약조회</p>
+                <div className="mb-2">
+                    <label htmlFor="email" className="font-semibold">이메일</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="이메일을 입력하세요"
+                        autoComplete="email"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="mb-2">
+                    <label htmlFor="reservationNumber" className="font-semibold">예약번호</label>
+                    <input
+                        type="text"
+                        id="reservationNumber"
+                        placeholder="예약번호"
+                        autoComplete="off"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+        
+                <button 
+                    onClick={() => navigate('/guest/cancel')}
+                    className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition">
+                    예약조회
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default GuestView;
