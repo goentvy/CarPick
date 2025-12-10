@@ -1,6 +1,7 @@
 @charset "utf-8";
 @import url("./fonts.css");
 
+body{overflow-x: hidden;}
 body,h1,h2,h3,h4,h5,h6,th,td,input,textarea,select,option,div,button{font-family: 'Pretendard'; font-weight:400;}
 
 :root {
@@ -114,6 +115,10 @@ body {
     align-items: center;
 }
 
+.App{
+    width:100vw; 
+}
+
 .row{
     margin-top:var(--header-height); 
     display: flex; 
@@ -196,6 +201,9 @@ body {
     height:32px; 
     padding:0 15px;
     cursor:pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #navMenu .gnb .gnb-item{
@@ -208,6 +216,7 @@ body {
     color:var(--gray-400);
 }
 
+#navMenu .gnb .gnb-item.active .gnb-link,
 #navMenu .gnb .gnb-item .gnb-link:hover{
     color:var(--black-200)
 }
@@ -224,6 +233,7 @@ body {
     background:#fff; 
     text-align: left;
     cursor:pointer;
+    color: var(--gray-400);
 }
 
 #navMenu .gnb .gnb-item.has-submenu.active .submenu .submenu-trigger{
@@ -272,6 +282,7 @@ body {
     color:var(--gray-400);
 }
 
+#navMenu .gnb .gnb-item.has-submenu .submenu .submenu-list .submenu-item .submenu-link.active,
 #navMenu .gnb .gnb-item.has-submenu .submenu .submenu-list .submenu-item .submenu-link:hover{
     color:var(--black-200)
 }
@@ -355,8 +366,81 @@ body {
     align-items: center;
     margin: auto;
 }
-#footer .inner .btns button{
+#footer .inner .btns .btn{
     background-color: transparent;
     border:0;
     color:#fff;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor:pointer;
+}
+#footer .inner .btns .btn span::before{
+    content:'';
+    width:42px;
+    height:25px; 
+    margin-bottom:6px; 
+    display:flex;
+    align-items: center;
+}
+#footer .inner .btns .btn_ai span::before{
+    background: url(../images/common/btm_ai.svg) no-repeat center;
+    background-size:22px 24px;
+}
+#footer .inner .btns .btn_ai.active span::before,
+#footer .inner .btns .btn_ai:hover span::before{
+    background: url(../images/common/btm_ai_o.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_car span::before{
+    background: url(../images/common/btm_car.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_car:hover span::before{
+    background: url(../images/common/btm_car_o.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_car.active span::before{
+    background: url(../images/common/btm_car_o.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_cal span::before{
+    background: url(../images/common/btm_cal.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_cal.active span::before,
+#footer .inner .btns .btn_cal:hover span::before{
+    background: url(../images/common/btm_cal_o.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_my span::before{
+    background: url(../images/common/btm_my.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn_my.active span::before,
+#footer .inner .btns .btn_my:hover span::before{
+    background: url(../images/common/btm_my_o.svg) no-repeat center;
+    background-size:22px 24px;
+}
+
+#footer .inner .btns .btn span{
+    display:flex;
+    font-size:14px;
+    color:#fff; 
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#footer .inner .btns .btn.active span,
+#footer .inner .btns .btn:hover span{
+    color:var(--logo-yellow);
 }
