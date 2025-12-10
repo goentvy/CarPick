@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import Logo from '/src/assets/logo.svg';
+import ContentTopLogo from '../../../components/common/ContentTopLogo';
 
 const GuestView = () => {
     const navigate = useNavigate();
     return (
         <div className="flex justify-center min-h-screen w-full mt-20">
             <div className="w-full max-w-md p-8">
-                <div className="flex justify-center my-3">
-                    <img src={Logo} alt="logo" className=""/>
-                </div>
-                <p className="text-center mb-4 text-xl font-bold">비회원 예약조회</p>
+                <ContentTopLogo 
+                    title="비회원 예약조회"
+                    titleStyle={"text-center mb-4 text-xl font-bold"}
+                />
                 <div className="mb-2">
                     <label htmlFor="email" className="font-semibold">이메일</label>
                     <input

@@ -11,6 +11,8 @@ import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
 
 import Login from './pages/Login'
+import FindIdPage from './pages/User/FindIdPage.jsx'
+import ResetPasswordPage from './pages/User/ResetPasswordPage.jsx'
 import SignupAgree from './pages/Signup/SignupAgree.jsx'
 import SignupJoinus from './pages/Signup/SignupJoinus.jsx'
 import SignupComplete from './pages/Signup/SignupComplete.jsx'
@@ -36,6 +38,8 @@ createRoot(document.getElementById('root')).render(
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
+          <Route path="findid" element={<FindIdPage />} />
+          <Route path="resetpassword" element={<ResetPasswordPage />} />
           <Route path="signup/agree" element={<SignupAgree />} />
           <Route path="signup/joinus" element={<SignupJoinus />} />
           <Route path="signup/complete" element={<SignupComplete />} />
