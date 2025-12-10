@@ -1,1 +1,0 @@
-# 정적 파일 (favicon, robots.txt 등)
