@@ -82,3 +82,9 @@ logs/
 coverage/
 *.lcov
 test-output/
+
+# -------------------------
+/backend/src/main/resources/application.yml
+.metadata/
+/backend/.metadata
+# -------------------------
