@@ -1,75 +1,8 @@
 @charset "utf-8";
 @import url("./fonts.css");
 
-/*Common*/
-.animate-box{opacity:0;}
-*{margin:0;padding:0}
-/*Layer*/
-html{overflow: scroll; overflow-x: hidden;}
-body{width:100%; padding:0px!important; background-color:#fff;*word-break:break-all;-ms-word-break:break-all}
 body,h1,h2,h3,h4,h5,h6,th,td,input,textarea,select,option,div,button{font-family: 'Pretendard'; font-weight:400;}
-img,fieldset,iframe{border:0 none}
-ul,ol,li{list-style:none}
-em,address{font-style:normal}
-img,input,select,textarea{vertical-align:middle}
-a{color:var(--black-300); text-decoration:none;cursor:pointer}
-a:hover{color:var(--black-300); text-decoration:none}
-button,label{cursor:pointer;_cursor /**/:hand}
-button *{position:relative;outline: none;}
-textarea{overflow:auto}
-*{ box-sizing: border-box; }
-input::-ms-clear,input::-ms-reveal{display:none;width:0;height:0;}
-input::-webkit-search-decoration,input::-webkit-search-cancel-button,
-input::-webkit-search-results-button,input::-webkit-search-results-decoration{display:none;}
-input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0;}
-#ui-datepicker-div{z-index:999 !important;}
 
-
-.bold{font-weight:600;}
-.medi{font-weight:500;}
-.regu{font-weight:400;}
-.demi{font-weight:300;}
-.light{font-weight:100;}
-
-/* 폰트스타일 끝 */
-input:focus, 
-textarea:focus, 
-button.btn:focus{box-shadow:none; outline:none; }
-
-input[type="search"] {
-    padding: 0 10px;
-    background-image: var(--appearance-search);
-    background-position: left 8px center;
-    background-repeat: no-repeat;
-}
-
-input[type="search"].search-right {
-    padding-left: 8px;
-    padding-right: 36px;
-    background-image: var(--appearance-search);
-    background-position: right 8px center;
-    background-repeat: no-repeat;
-}
-
-input[type=search]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    width: 24px;
-    height: 24px;
-    background: var(--appearance-clear);
-    background-size: cover;
-    cursor: pointer;
-}
-input, select, textarea, button {
-    font-size: 16px;
-    border: var(--border-solid);
-    border-radius: var(--border-radius);
-    background: #fff;
-    padding: 4px 8px;
-}
-
-input, button, select, textarea {
-    height: 40px;
-}
 :root {
     /* viewport */
     --header-height: 80px;
@@ -159,12 +92,7 @@ body {
     position: relative;
 }
 
-#root{width:100%; }
-
-ul, li{padding:0; margin:0; }
-
-button{outline: none !important; border:0; }
-select, input{height:40px; }
+/*헤더 풋더 메뉴*/
 
 #head{
     width:100%; 
@@ -192,6 +120,10 @@ select, input{height:40px; }
     flex-direction: column; 
 }
 
+#head .btn{
+    cursor:pointer;
+}
+
 #navMenu {
     position:fixed; 
     top:0; 
@@ -212,6 +144,7 @@ select, input{height:40px; }
 
 #navMenu .btn-close{
     padding:0;
+    cursor:pointer;
 }
 
 #menuDim {
@@ -260,6 +193,9 @@ select, input{height:40px; }
     background:var(--logo-blue);
     color:#fff; 
     border-radius:100px; 
+    height:32px; 
+    padding:0 15px;
+    cursor:pointer;
 }
 
 #navMenu .gnb .gnb-item{
@@ -287,6 +223,7 @@ select, input{height:40px; }
     position:relative;
     background:#fff; 
     text-align: left;
+    cursor:pointer;
 }
 
 #navMenu .gnb .gnb-item.has-submenu.active .submenu .submenu-trigger{
@@ -360,7 +297,7 @@ select, input{height:40px; }
 
 
 /* 로딩 오버레이 */
-.loading-overlay {
+.loadingOverlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -374,7 +311,7 @@ select, input{height:40px; }
 }
 
 /* 스피너 */
-.spinner {
+.loadingOverlay .spinner {
   border: 8px solid var(--logo-blue); /* 밝은 회색 */
   border-top: 8px solid var(--logo-yellow); /* 파란색 */
   border-radius: 50%;
