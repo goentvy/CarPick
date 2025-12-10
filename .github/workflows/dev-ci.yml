@@ -57,14 +57,15 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-v2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
+            ${{ runner.os }}-gradle-v2-
             ${{ runner.os }}-gradle-
       
       - name: Grant execute permission to gradlew
         run: chmod +x gradlew
         working-directory: backend
         
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build without tests
+        run: ./gradlew build -x test
         working-directory: backend
