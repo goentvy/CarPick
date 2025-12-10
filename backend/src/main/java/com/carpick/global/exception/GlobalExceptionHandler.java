@@ -2,11 +2,9 @@ package com.carpick.global.exception;
 
 import java.nio.file.AccessDeniedException;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -18,7 +16,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import jakarta.persistence.PersistenceException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -113,29 +110,29 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.badRequest().body(response);
 	}
 
-	/**
-	 * 🔍 MyBatis / SQL Exception
-	 * 
-	 * MyBatis, JDBC, DataSource 관련 예외들을 포괄적으로 처리한다. - PersistenceException:
-	 * MyBatis에서 매핑/실행 오류 발생 시 던짐. - DataAccessException: Spring의 데이터 접근 계층 예외
-	 * 추상화(모든 JDBC 관련 예외의 상위 타입). - BadSqlGrammarException: SQL 문법 오류 등.
-	 *
-	 * 처리 방식: - 내부 에러(데이터베이스/SQL 문제)이므로 클라이언트에는 일반화된 에러 코드와 메시지로 응답(500). - 상세한 예외
-	 * 메시지/스택트레이스는 서버 로그에 남기고, 외부에 노출하지 않음(보안/정보 노출 방지).
-	 *
-	 * 운영 팁: - 운영 환경에서는 DB 연결 실패/쿼리 에러에 대해 알림(모니터링) 설정을 해두는 것이 좋음. - 재시도 로직이 필요한
-	 * 작업(특정 transient 오류)인지 판단 후 처리.
-	 */
-	@ExceptionHandler({ PersistenceException.class, DataAccessException.class, BadSqlGrammarException.class })
-	protected ResponseEntity<ErrorResponse> handleDatabaseException(Exception e, HttpServletRequest request) {
-
-		log.error("[Database Error] {}", e.getMessage(), e);
-
-		ErrorResponse response = ErrorResponse.of(ErrorCode.DATABASE_ERROR.getCode(),
-				ErrorCode.DATABASE_ERROR.getMessage(), request.getRequestURI());
-
-		return ResponseEntity.internalServerError().body(response);
-	}
+//	/**
+//	 * 🔍 MyBatis / SQL Exception
+//	 * 
+//	 * MyBatis, JDBC, DataSource 관련 예외들을 포괄적으로 처리한다. - PersistenceException:
+//	 * MyBatis에서 매핑/실행 오류 발생 시 던짐. - DataAccessException: Spring의 데이터 접근 계층 예외
+//	 * 추상화(모든 JDBC 관련 예외의 상위 타입). - BadSqlGrammarException: SQL 문법 오류 등.
+//	 *
+//	 * 처리 방식: - 내부 에러(데이터베이스/SQL 문제)이므로 클라이언트에는 일반화된 에러 코드와 메시지로 응답(500). - 상세한 예외
+//	 * 메시지/스택트레이스는 서버 로그에 남기고, 외부에 노출하지 않음(보안/정보 노출 방지).
+//	 *
+//	 * 운영 팁: - 운영 환경에서는 DB 연결 실패/쿼리 에러에 대해 알림(모니터링) 설정을 해두는 것이 좋음. - 재시도 로직이 필요한
+//	 * 작업(특정 transient 오류)인지 판단 후 처리.
+//	 */
+//	@ExceptionHandler({ PersistenceException.class, DataAccessException.class, BadSqlGrammarException.class })
+//	protected ResponseEntity<ErrorResponse> handleDatabaseException(Exception e, HttpServletRequest request) {
+//
+//		log.error("[Database Error] {}", e.getMessage(), e);
+//
+//		ErrorResponse response = ErrorResponse.of(ErrorCode.DATABASE_ERROR.getCode(),
+//				ErrorCode.DATABASE_ERROR.getMessage(), request.getRequestURI());
+//
+//		return ResponseEntity.internalServerError().body(response);
+//	}
 
 	/**
 	 * 🔍 허용되지 않은 HTTP Method 예외
