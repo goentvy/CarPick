@@ -18,6 +18,7 @@ import SignupComplete from './pages/Signup/SignupComplete.jsx'
 import GuestView from './pages/Reservation/Guest/GuestView.jsx'
 import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
+import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -43,6 +44,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="guest/view" element={<GuestView />} />
           <Route path="guest/cancel" element={<GuestCancel />} />
           <Route path="guest/cancel/complete" element={<GuestCancelComplete />} />
+
+          {/* 예약하기 */}
+          <Route path="reservation" element={<ReservationPage />} />
 
           {/* 이용약관 & 개인정보취급약관 */}
           <Route path="agree1" element={<Agree1 />} />
