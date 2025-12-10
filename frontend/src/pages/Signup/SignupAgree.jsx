@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import CheckboxToggle from '../../components/common/CheckboxToggle';
 import StepProgress from '../../components/common/StepProgress';
 import Logo from '/src/assets/logo.svg';
+import termText from '/src/components/txt/agree1.txt?raw';
+import privacyText from '/src/components/txt/agree2.txt?raw';
 
 const SignupAgree = () => {
   const [agreeAll, setAgreeAll] = useState(false);
@@ -55,7 +57,7 @@ const SignupAgree = () => {
             </p>
           </label>
           <div className="h-24 overflow-y-scroll border p-2 text-sm text-gray-600 rounded">
-            Contents of Terms of Service<br />Contents of Terms of Service<br />Contents of Terms of Service<br />Contents of Terms of Service
+            {termText}
           </div>
         </div>
 
@@ -68,7 +70,7 @@ const SignupAgree = () => {
             </p>
           </label>
           <div className="h-24 overflow-y-scroll border p-2 text-sm text-gray-600 rounded">
-            Contents of Privacy Policy<br />Contents of Privacy Policy<br />Contents of Privacy Policy<br />Contents of Privacy Policy
+            {privacyText}
           </div>
         </div>
 
