@@ -24,6 +24,11 @@ import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
 import MyPageHome from "./pages/mypage/MyPageHome.jsx";
 import ChangeHistoryPage from './pages/mypage/ChangeHistoryPage.jsx';
+import ReviewHistory from "./pages/Mypage/ReviewHistory";
+import QnAlist from "./pages/Mypage/QnAlist";
+import Favorites from "./pages/Mypage/Favorites";
+import MyLicense from "./pages/Mypage/MyLicense";
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -56,7 +61,12 @@ createRoot(document.getElementById('root')).render(
 
           {/* 마이페이지 */}
           <Route path="mypage" element={<MyPageHome />} />
-          {/* 마이페이지 - 취소/변경 내역 */}
+            
+          {/* 마이페이지내 버튼*/}
+          <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
+          <Route path="mypage/qna" element={<QnAlist />} />
+          <Route path="mypage/favorites" element={<Favorites />} />
+          <Route path="mypage/license" element={<MyLicense />} />
           <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
 
           {/* 이용약관 & 개인정보취급약관 */}
