@@ -42,7 +42,7 @@ function MyPageHome() {
                         <button
                             type="button"
                             style={btnStyle}
-                            onClick={() => navigate("/mypage/profileedit")}
+                            onClick={() => navigate("/mypage/")}
                         >
                             개인정보 수정
                         </button>
@@ -51,7 +51,7 @@ function MyPageHome() {
                         <button
                             type="button"
                             style={btnStyle}
-                            onClick={() => navigate("/mypage/reservations")}
+                            onClick={() => navigate("/mypage/")}
                         >
                             예약 내역
                         </button>

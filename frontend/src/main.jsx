@@ -61,8 +61,6 @@ createRoot(document.getElementById('root')).render(
 
           {/* 마이페이지 */}
           <Route path="mypage" element={<MyPageHome />} />
-            
-          {/* 마이페이지내 버튼*/}
           <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
           <Route path="mypage/qna" element={<QnAlist />} />
           <Route path="mypage/favorites" element={<Favorites />} />
