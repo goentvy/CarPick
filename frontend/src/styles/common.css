@@ -2,7 +2,7 @@
 @import url("./fonts.css");
 
 body{overflow-x: hidden;}
-body,h1,h2,h3,h4,h5,h6,th,td,input,textarea,select,option,div,button{font-family: 'Pretendard'; font-weight:400;}
+body,h1,h2,h3,h4,h5,h6,th,td,input,textarea,select,option,div,button{font-family: 'Pretendard';}
 
 :root {
     /* viewport */
@@ -96,7 +96,7 @@ body {
 /*헤더 풋더 메뉴*/
 
 #head{
-    width:100%; 
+    width:100vw; 
     position:fixed; top:0; left:0;
     z-index:1000; 
     flex-direction: row;
@@ -338,14 +338,14 @@ body {
 
 #content{
     max-width:640px; 
-    margin:80px auto; 
+    margin:67px auto; 
 }
 
 #footer{
     position:fixed;
     bottom:0;
     left:0;
-    width:100%; 
+    width:100vw; 
 }
 
 #footer .inner{
@@ -385,49 +385,49 @@ body {
     align-items: center;
 }
 #footer .inner .btns .btn_ai span::before{
-    background: url(../images/common/btm_ai.svg) no-repeat center;
+    background: url(/images/common/btm_ai.svg) no-repeat center;
     background-size:22px 24px;
 }
 #footer .inner .btns .btn_ai.active span::before,
 #footer .inner .btns .btn_ai:hover span::before{
-    background: url(../images/common/btm_ai_o.svg) no-repeat center;
+    background: url(/images/common/btm_ai_o.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_car span::before{
-    background: url(../images/common/btm_car.svg) no-repeat center;
+    background: url(/images/common/btm_car.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_car:hover span::before{
-    background: url(../images/common/btm_car_o.svg) no-repeat center;
+    background: url(/images/common/btm_car_o.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_car.active span::before{
-    background: url(../images/common/btm_car_o.svg) no-repeat center;
+    background: url(/images/common/btm_car_o.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_cal span::before{
-    background: url(../images/common/btm_cal.svg) no-repeat center;
+    background: url(/images/common/btm_cal.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_cal.active span::before,
 #footer .inner .btns .btn_cal:hover span::before{
-    background: url(../images/common/btm_cal_o.svg) no-repeat center;
+    background: url(/images/common/btm_cal_o.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_my span::before{
-    background: url(../images/common/btm_my.svg) no-repeat center;
+    background: url(/images/common/btm_my.svg) no-repeat center;
     background-size:22px 24px;
 }
 
 #footer .inner .btns .btn_my.active span::before,
 #footer .inner .btns .btn_my:hover span::before{
-    background: url(../images/common/btm_my_o.svg) no-repeat center;
+    background: url(/images/common/btm_my_o.svg) no-repeat center;
     background-size:22px 24px;
 }
 
