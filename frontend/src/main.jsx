@@ -22,6 +22,9 @@ import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
+import EventList from './pages/Event/EventList.jsx'
+import EventView from './pages/Event/EventView.jsx'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -55,6 +58,10 @@ createRoot(document.getElementById('root')).render(
           {/* 이용약관 & 개인정보취급약관 */}
           <Route path="agree1" element={<Agree1 />} />
           <Route path="agree2" element={<Agree2 />} />
+
+          {/* 이벤트 */}
+          <Route path="event/list" element={<EventList />}/>
+          <Route path="event/view/:id" element={<EventView />}/>
 
         </Route>
       </Routes>
