@@ -22,12 +22,12 @@ import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
-import MyPageHome from "./pages/mypage/MyPageHome.jsx";
-import ChangeHistoryPage from './pages/mypage/ChangeHistoryPage.jsx';
-import ReviewHistory from "./pages/Mypage/ReviewHistory";
-import QnAlist from "./pages/Mypage/QnAlist";
-import Favorites from "./pages/Mypage/Favorites";
-import MyLicense from "./pages/Mypage/MyLicense";
+import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
+import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
+import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
+import QnAlist from "./pages/Mypage/QnAlist.jsx";
+import Favorites from "./pages/Mypage/Favorites.jsx";
+import MyLicense from "./pages/Mypage/MyLicense.jsx";
 
 import EventList from './pages/Event/EventList.jsx'
 import EventView from './pages/Event/EventView.jsx'
