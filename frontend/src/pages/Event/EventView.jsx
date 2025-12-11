@@ -5,7 +5,6 @@ import axios from "axios";
 export default function EventView() {
   const { id } = useParams();       // URL에서 :id 가져오기
   const [event, setEvent] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // /api/event/{id} 호출
@@ -13,20 +12,14 @@ export default function EventView() {
       .get(`http://3.236.8.244:8080/api/event/${id}`)
       .then((res) => {
         setEvent(res.data);   // 받아온 데이터 저장
-        setLoading(false);
       })
       .catch((err) => {
         console.error(err);
-        setLoading(false);
       });
   }, [id]);
 
-  if (loading) {
-    return <p className="text-gray-500">로딩 중...</p>;
-  }
-
   if (!event) {
-    return <p className="text-red-500">이벤트 정보를 불러올 수 없습니다.</p>;
+    return <p className="text-red-500"></p>;
   }
 
   return (
