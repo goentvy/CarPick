@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StepProgress from '../../components/common/StepProgress';
-import Logo from '/src/assets/logo.svg';
+import ContentTopLogo from '../../components/common/ContentTopLogo';
 
 const SignupJoinus = () => {
   const [formData, setFormData] = useState({
@@ -42,10 +42,10 @@ const SignupJoinus = () => {
   return (
     <div className="min-h-screen flex justify-center mt-20 mb-20">
       <div className="w-full max-w-2xl bg-white p-8">
-        <div className="flex justify-center my-3">
-          <img src={Logo} alt="logo" className=""/>
-        </div>
-        <p className="text-2xl text-center font-semibold my-6">회원가입</p>
+        <ContentTopLogo 
+          title="회원가입"
+          titleStyle={"text-2xl text-center font-semibold my-6"}
+        />
 
         <StepProgress step={2} />
 
