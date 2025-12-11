@@ -10,7 +10,7 @@ export default function EventView() {
   useEffect(() => {
     // /api/event/{id} 호출
     axios
-      .get(`http://localhost:8080/api/event/${id}`)
+      .get(`http://3.236.8.244:8080/api/event/${id}`)
       .then((res) => {
         setEvent(res.data);   // 받아온 데이터 저장
         setLoading(false);
