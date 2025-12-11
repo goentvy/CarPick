@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarPick</title>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/intro.css" />
+</head>
+
+<body>
+    <div id="wrap">
+		<form id="cars" method="post">
+		<div class="intro_container">
+            <div class="title">
+                <h2>차에 대해 몰라도 괜찮아요.<br/>AI가 추천해드릴게요.</h2>
+                <h4><img src="./images/common/logo_w.svg" class="logo_icon"/> AI가<br/>당신에게 맞는 차량을 추천할 수 있도록<br/>취향을 몇 가지 골라주세요.</h4>
+                <p class="green">최소 3개 이상 선택해주세요.</p>
+            </div>
+            <div class="checkbox_container">
+				<ul class="checkbox_list">
+				    <li><input type="checkbox" id="pick1" name="options" value="도심운전"><label for="pick1">🚗 도심운전</label></li>
+				    <li><input type="checkbox" id="pick2" name="options" value="장거리여행"><label for="pick2">🛣️ 장거리여행</label></li>
+				    <li><input type="checkbox" id="pick3" name="options" value="가족여행"><label for="pick3">👨‍👩‍👧‍👦 가족여행</label></li>
+				    <li><input type="checkbox" id="pick4" name="options" value="레저/차박"><label for="pick4">🏕️ 레저 · 차박</label></li>
+				    <li><input type="checkbox" id="pick5" name="options" value="짐이 많아요"><label for="pick5">📦 짐이 많아요</label></li>
+				    <li><input type="checkbox" id="pick6" name="options" value="최신모델선호"><label for="pick6">✨ 최신모델선호</label></li>
+				    <li><input type="checkbox" id="pick7" name="options" value="가성비 중요"><label for="pick7">💸 가성비 중요</label></li>
+				    <li><input type="checkbox" id="pick8" name="options" value="저렴한 기름값"><label for="pick8">⛽ 저렴한 기름값</label></li>
+				    <li><input type="checkbox" id="pick9" name="options" value="예쁜 디자인"><label for="pick9">🎨 예쁜 디자인</label></li>
+				    <li><input type="checkbox" id="pick10" name="options" value="전기차(EV) 선호"><label for="pick10">🔌 전기차(EV) 선호</label></li>
+				    <li><input type="checkbox" id="pick11" name="options" value="세단 선호"><label for="pick11">🚘 세단 선호</label></li>
+				    <li><input type="checkbox" id="pick12" name="options" value="SUV 선호"><label for="pick12">🚙 SUV가 좋아요</label></li>
+				    <li><input type="checkbox" id="pick13" name="options" value="소형차"><label for="pick13">🚗 소형차</label></li>
+				    <li><input type="checkbox" id="pick14" name="options" value="초보운전"><label for="pick14">🆕 초보운전</label></li>
+				    <li><input type="checkbox" id="pick15" name="options" value="승차감 중시"><label for="pick15">🛋️ 승차감 중시</label></li>
+				    <li><input type="checkbox" id="pick16" name="options" value="눈길/비길"><label for="pick16">❄️ 눈길 · 비길</label></li>
+				    <li><input type="checkbox" id="pick17" name="options" value="고속도로"><label for="pick17">🚀 고속도로</label></li>
+				    <li><input type="checkbox" id="pick18" name="options" value="음악감상 중요"><label for="pick18">🎧 음악감상 중요</label></li>
+				    <li><input type="checkbox" id="pick19" name="options" value="경사/산길"><label for="pick19">⛰️ 경사/산길</label></li>
+				    <li><input type="checkbox" id="pick20" name="options" value="쉬운 주차"><label for="pick20">🅿️ 쉬운 주차</label></li>
+				    <li><input type="checkbox" id="pick21" name="options" value="출퇴근 목적"><label for="pick21">🏢 출퇴근 목적</label></li>
+				    <li><input type="checkbox" id="pick22" name="options" value="MVV/밴 스타일"><label for="pick22">🚐 MVV/밴 스타일</label></li>
+				    <li><input type="checkbox" id="pick23" name="options" value="주행보조기능(ADAS) 중요"><label for="pick23">🧭 주행보조기능(ADAS) 중요</label></li>
+				    <li><input type="checkbox" id="pick24" name="options" value="5인승 이상"><label for="pick24">🧑‍🤝‍🧑 5인승이상</label></li>
+				</ul>
+            </div>
+            <div class="btn_container">
+                <div class="info">
+                    <p class="selno"><span>0</span>개 선택됨</p>
+                    <a href="" class="pass">건너뛰기</a>
+                </div>
+                <button type="submit" class="nextBtn"><img src="./images/intro/intro_btn.svg"/></button>
+            </div>
+        </div>
+		</form>
+    </div>
+	
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+		    const checkboxes = document.querySelectorAll(".checkbox_list input[type='checkbox']");
+		    const selnoSpan = document.querySelector(".selno span");
+		    const selno = document.querySelector(".selno");
+		    const nextBtn = document.querySelector(".nextBtn");
+
+		    function updateSelection() {
+		        const count = document.querySelectorAll(".checkbox_list input[type='checkbox']:checked").length;
+
+		        selnoSpan.textContent = count;
+
+		        selno.classList.toggle("active", count > 0);
+		        nextBtn.classList.toggle("active", count >= 3);
+		    }
+
+		    checkboxes.forEach(cb => cb.addEventListener("change", updateSelection));
+		});
+
+		document.getElementById("cars").addEventListener("submit", function(e) {
+		    e.preventDefault();
+
+		    const checked = [...document.querySelectorAll("input[name='options']:checked")];
+		    const selectedValues = checked.map(cb => cb.value);
+
+		    if (selectedValues.length < 3) {
+		        alert("최소 3개 이상 선택해주세요!");
+		        return;
+		    }
+
+		    const requestBody = {
+		        options: selectedValues
+		    };
+
+		    console.log("요청 데이터:", requestBody);
+
+		    fetch("/api/recommend-cars", {
+		        method: "POST",
+		        headers: {
+		            "Content-Type": "application/json"
+		        },
+		        body: JSON.stringify(requestBody)
+		    })
+		    .then(res => res.json())
+		    .then(data => {
+				const result = data.recommendedSegment;
+				alert(`추천 차종: ${result.segment}\n추천 이유: ${result.reason}\n메인 AI 추천 AJAX URL: /carpick?seg=${result.segment}`);
+		        console.log("추천 결과:", data);
+		        // 추천 결과 페이지로 이동시키고 싶다면:
+		        // window.location.href = `/result?segment=${data.segment}`;
+		    })
+		    .catch(err => {
+		        console.error(err);
+		        alert("서버 요청 중 오류가 발생했습니다.");
+		    });
+		});
+
+
+	</script>
+
+</body>
+
+</html>
+
