@@ -1,0 +1,78 @@
+@charset "utf-8";
+
+:root {
+    /* viewport */
+    --header-height: 80px;
+    --nav-width:300px; 
+    --view-height: calc(var(--vh, 1vh) * 100);
+    --sticky-offeset-top: var(--stickyTop);
+
+    --black: #000;
+    --black-100: #111;
+    --black-200: #222;
+    --black-300: #333;
+    --black-400: #444;
+    --black-500: #505050;
+    --black-600: #666;
+    --black-700: #777;
+    --black-800: #888;
+    --black-900: #999;
+    --menu-bg:#2D2F33; 
+
+    --gray-100: #FAFAFA;
+    --gray-200: #F2F2F2;
+    --gray-300: #E0E0E0;
+    --gray-400: #7A7A7A;
+    --gray-500: #4B4B4B;
+    --gray-600: #1A1A1A;
+
+    /* placeholder*/
+    --placeholder-color: #999;
+    --disabled-color: #666;
+    --disabled-bg: #EAEAEA;
+    --disabled-bd: #EAEAEA;
+
+
+    /*border*/
+    --border-color: #EAEAEA;
+    --border-solid: 1px solid var(--border-color);
+    --border-focus: 1px solid transparent;
+    --border-radius: 4px;
+    --border-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.08);
+    --border-shadow2: 0px 5px 10px 0px rgba(0, 0, 0, 0.04);
+    --border-shadow2-top: 0px -5px 10px 0px rgba(0, 0, 0, 0.04);
+
+    /* transition */
+    --transition-duration-300: 300ms;
+    --transition-duration-500: 500ms;
+
+    /*logo Color*/
+    --logo-blue:#1D6BF3;
+    --logo-yellow:#C6FF35;
+
+    /* Main Blue */
+    --main-blue: #0A56FF;
+    --main-blue-300: #2E73FF;
+    --main-blue-200: #E7EEFF;
+    --main-blue-100: #F3F7FF;
+
+    /* Main Lime */
+    --main-lime: #C8FF48;
+    --main-lime-300: #D8FF7A;
+    --main-lime-200: #F3FFD1;
+
+    /* Status Colors */
+    --success: #2ECC71;
+    --success-light: #E9F9F1;
+
+    --warning: #F5C542;
+    --warning-light: #FFF7D7;
+
+    --error: #FF5151;
+    --error-light: #FFE5E5;
+
+    /* Event Colors */
+    --event: #FF7A5F;
+    --event-light: #FFE4DE;
+}
+
