@@ -1,0 +1,38 @@
+{
+    "folders": [
+        {
+            "name": "CarPick Root",
+            "path": "."
+        },
+        {
+            "name": "Backend (Spring Boot)",
+            "path": "./backend"
+        },
+        {
+            "name": "Frontend (React)",
+            "path": "./frontend"
+        }
+    ],
+    "settings": {
+        "java.configuration.workspaceCacheLimit": 90,
+        "java.import.gradle.enabled": true,
+        "java.import.gradle.wrapper.enabled": true,
+        "java.compile.nullAnalysis.mode": "automatic",
+        "spring-boot.ls.java.home": null,
+        "files.exclude": {
+            "**/node_modules": true,
+            "**/build": true,
+            "**/.gradle": true,
+            "**/dist": true
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "vscjava.vscode-java-pack",
+            "vmware.vscode-spring-boot",
+            "vscjava.vscode-gradle",
+            "ms-vscode.vscode-typescript-next",
+            "esbenp.prettier-vscode"
+        ]
+    }
+}
