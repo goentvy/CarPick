@@ -1,7 +1,29 @@
 @charset "utf-8";
 
-.agree-row{width:100%; padding:30px 15px; margin:80px auto 0; }
+.agree-row{width:100%; padding:30px 15px; margin:67px auto 0; }
 .agree-row h2{font-size:20px; font-weight:800; margin-bottom:10px; }
 .agree-row p{font-size:16px; line-height:1.6; margin-bottom:15px; white-space: pre-wrap; word-break: keep-all;}
 .agree-row button{margin-top:40px; height:40px; background:var(--menu-bg); border-radius:10px; color:#fff; width:100%; font-size:14px; font-weight:500; }
 .agree-row button:hover{color:#fff; }
+
+.event-row{width:100%; padding:0; margin:67px auto; }
+.event-row .title{padding:20px 15px; height: 67px; border-bottom:1px solid var(--gray-300); display: flex; justify-content: space-between; align-items: center;}
+.event-row .title h2{font-size:20px; font-weight:600; }
+
+.eventWrap{width:100%; margin:auto; }
+.endEvent{display: flex;justify-content: flex-end;align-items: center; }
+.endEvent .text{cursor:pointer; display:inline-block; margin-right:10px;  }
+
+.event-view-top.title{padding:0 15px; }
+.event-view-top .btn-list{background:var(--gray-200); padding: 0 10px; height:40px; border-radius:4px; display:flex; align-items: center; justify-content: center; width:76px; }
+
+.eventList{width:90%; margin:auto; }
+.eventList .txtbox h3{font-size:20px }
+
+.eventInfo h3{font-size:20px; }
+
+
+
+
+
+

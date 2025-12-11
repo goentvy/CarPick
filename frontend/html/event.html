@@ -54,24 +54,34 @@
                     </div>
                 </div>
             </aside>
-           <div class="row agree-row">
-                <h2>이용약관</h2>
-                <p id="agreeText"></p>
+           <div class="row event-row">
+                <div class="title">
+					<h2>이벤트</h2>
+				</div>
+				<div class="eventWrap">
+					<div class="endEvent">
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked">
+							<label class="form-check-label" for="switchCheckChecked">종료된 이벤트 보기</label>
+						</div>
+					</div>
+					<div class="eventList">
+						<ul>
+							<li>
+								<div class="thumb">
+									<img src="./images/sub/event/event1.png"/>
+								</div>
+								<div class="txtbox">
+									<h3>[안내] 카픽 홈페이지 리뉴얼 OPEN!</h3>
+									<span class="date">2025-05-17 11:12:00 ~ 2025-12-31 23:59:00</span>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
            </div>
        </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            fetch("./txt/agree1.txt")
-                .then(response => response.text())
-                .then(text => {
-                    document.getElementById("agreeText").innerText = text;
-                })
-                .catch(err => {
-                    console.error("약관 파일을 불러오지 못했습니다:", err);
-                });
-        });
-    </script>
 </body>
 
 </html>

@@ -134,7 +134,7 @@ const handleToggleMenu = (menuName) => {
               </li>
 
               <li className={`gnb-item ${location.pathname.includes("event") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/event" className="gnb-link">이벤트</Link>
+                <Link to="/event/list" className="gnb-link">이벤트</Link>
               </li>
 
               {/* 고객센터 */}
