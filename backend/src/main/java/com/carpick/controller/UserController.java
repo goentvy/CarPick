@@ -1,11 +1,10 @@
-package com.example;
+package com.carpick.controller;
 
-import com.example.user.NoticeNtt;
-import com.example.user.NoticeRepository;
+import com.carpick.ntt.NoticeNtt;
+import com.carpick.repository.NoticeRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
