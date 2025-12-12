@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carpick.ntt.NoticeNtt;
+
 public interface NoticeRepository extends JpaRepository<NoticeNtt, Long> {
 	
 	@Query("SELECT n FROM NoticeNtt n WHERE n.deleted = false ORDER BY n.createdAt DESC")
