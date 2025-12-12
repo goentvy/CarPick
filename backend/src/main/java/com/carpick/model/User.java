@@ -1,15 +1,21 @@
 package com.carpick.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     private Long id;
     private String email;
-    private String passwordHash;
+    private String password_hash;
 
     private String provider;
     private String providerId;
