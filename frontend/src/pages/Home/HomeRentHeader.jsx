@@ -44,7 +44,7 @@ const HomeRentHeader = () => {
             <div className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm">
               {/* 왼쪽 아이콘 */}
               <img
-                src="/src/assets/location.svg"
+                src="./images/common/location.svg"
                 alt="location"
                 className="w-6 h-6 mr-3"
               />
@@ -60,7 +60,7 @@ const HomeRentHeader = () => {
           <div className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm">
             {/* 왼쪽 아이콘 */}
             <img
-              src="/src/assets/calendar.svg"
+              src="./images/common/calendar.svg"
               alt="calendar"
               className="w-6 h-6 mr-3"
             />

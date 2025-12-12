@@ -1,4 +1,4 @@
-import Logo from '/src/assets/logo.svg';
+import Logo from '/public/images/common/logo.svg';
 
 const ContentTopLogo = ({title, logoStyle="", titleStyle=""}) => {
     return (

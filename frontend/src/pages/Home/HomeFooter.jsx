@@ -11,7 +11,7 @@ const HomeFooter = () => {
 
         {/* 회사 정보 */}
         <div className="my-6">
-          <img src="/src/assets/logo.svg" alt="logo" />
+          <img src="./images/common/logo.svg" alt="logo" />
         </div>
         <p className="mb-1">주소 : 경기 안산시 단원구 적금로 93</p>
         <p className="mb-1">문의 : 031-410-0311</p>

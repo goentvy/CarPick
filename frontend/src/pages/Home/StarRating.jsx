@@ -7,11 +7,11 @@ const StarRating = ({ rating }) => {
     return (
     <div className="flex gap-[2px]">
         {[...Array(fullStars)].map((_, i) => (
-        <img key={`full-${i}`} src="/src/assets/star-full.svg" alt="★" width={18} height={18} />
+        <img key={`full-${i}`} src="./images/common/star-full.svg" alt="★" width={18} height={18} />
         ))}
-        {hasHalf && <img src="/src/assets/star-half.svg" alt="☆" width={18} height={18} />}
+        {hasHalf && <img src="./images/common/star-half.svg" alt="☆" width={18} height={18} />}
         {[...Array(emptyStars)].map((_, i) => (
-        <img key={`empty-${i}`} src="/src/assets/star-empty.svg" alt="☆" width={18} height={18} />
+        <img key={`empty-${i}`} src="./images/common/star-empty.svg" alt="☆" width={18} height={18} />
         ))}
     </div>
     );
