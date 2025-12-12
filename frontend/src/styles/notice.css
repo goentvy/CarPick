@@ -1,0 +1,39 @@
+.notice-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notice-item {
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+
+.notice-item-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.notice-item-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #777;
+}
+
+/* 모바일 */
+@media (max-width: 640px) {
+  .notice-item-title {
+    font-size: 16px;
+  }
+}
