@@ -17,7 +17,7 @@ const ResetPasswordPage = () => {
     };
 
     return (
-    <div className="flex flex-col items-center p-6 mt-20">
+    <div className="flex flex-col items-center p-6 mt-[67px]">
         <ContentTopLogo title="비밀번호 찾기"/>
         <input
             type="email"

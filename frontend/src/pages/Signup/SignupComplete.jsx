@@ -5,7 +5,7 @@ import ContentTopLogo from "../../components/common/ContentTopLogo";
 const SignupComplete = ({ userName = '홍길동' }) => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex justify-center mt-20">
+    <div className="min-h-screen flex justify-center mt-[67px]">
       <div className="w-full max-w-2xl bg-white p-8">
         <ContentTopLogo 
           title="가입완료"

@@ -6,7 +6,7 @@ import AgreementSection from "./AgreementSection";
 
 const ReservationPage = () => {
   return (
-    <div className="flex flex-col justify-center items-center mt-20">
+    <div className="flex flex-col justify-center items-center mt-[67px]">
         {/* 대여/반납 방식 선택 (업체 방문 vs 배송), 지점 정보, 운영시간, 주소 표시 */}
         <PickupReturnSection />
         {/* 운전자 정보 입력 (성, 이름, 생년월일, 휴대폰, 이메일, 인증요청 버튼 포함) */}
