@@ -4,7 +4,7 @@ const HomeRentHeader = () => {
   const [rentType, setRentType] = useState('short'); // short or long
 
   return (
-    <section className="bg-blue-500 py-10 px-6 text-center rounded-b-4xl">
+    <section className="bg-blue-500 pb-10 px-6 text-center rounded-b-4xl">
       {/* 프로모션 문구 */}
       <button className="border border-lime-300 rounded-4xl bg-sky-700 px-3 my-3">
         <img src="" alt="" />
@@ -18,7 +18,7 @@ const HomeRentHeader = () => {
       </p>
 
       {/* 렌트 타입 선택 */}
-      <div className="bg-gray-50">
+      <div className="bg-gray-50 rounded-4xl pb-2">
         <div className="flex p-4 justify-center gap-4">
           <button
             onClick={() => setRentType('short')}

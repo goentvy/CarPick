@@ -4,7 +4,7 @@ import ContentTopLogo from '../../../components/common/ContentTopLogo';
 const GuestCancelComplete = () => {
     const navigate = useNavigate();
     return (
-        <div className="flex justify-center min-h-screen w-full mt-20">
+        <div className="flex justify-center min-h-screen w-full mt-[67px]">
             <div className="w-full max-w-md p-8">
                 <ContentTopLogo 
                     title="예약이 성공적으로 취소되었습니다."
