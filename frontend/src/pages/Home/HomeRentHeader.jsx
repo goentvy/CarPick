@@ -7,8 +7,7 @@ const HomeRentHeader = () => {
     <section className="bg-blue-500 pb-10 px-6 text-center rounded-b-4xl">
       {/* 프로모션 문구 */}
       <button className="border border-lime-300 rounded-4xl bg-sky-700 px-3 my-3">
-        <img src="" alt="" />
-        <span className="text-xs! text-lime-300">AI 기반 즉시 픽업</span>
+        <span className="text-xs! text-lime-300">✧ AI 기반 즉시 픽업</span>
       </button>
       <p className="text-4xl sm:text-4xl font-bold text-white mb-2">
         도착하면 바로 카픽!

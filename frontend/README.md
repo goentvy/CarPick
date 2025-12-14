@@ -13,6 +13,7 @@ CarPick은 AI 기능을 탑재한 렌트카 서비스를 제공하는 웹 애플
 - **UI Library**: TailwindCSS
 - **State Management**: React Query / Zustand
 - **Build Tool**: Vite
+- **Form State Management**: React Hook Form + Yup
 
 ```text
 frontend/
