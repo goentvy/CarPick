@@ -1,5 +1,5 @@
-import CheckboxDefault from '/public/images/common/checkbox-default.svg';
-import CheckboxSelect from '/public/images/common/checkbox-select.svg';
+import CheckboxDefault from '/images/common/checkbox-default.svg?url';
+import CheckboxSelect from '/images/common/checkbox-select.svg?url';
 
 const CheckboxToggle = ({ checked, onClick }) => {
   return (

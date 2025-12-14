@@ -1,13 +1,12 @@
-import NumberCheck from '/public/images/common/number-check.svg';
-
-
-import Number1Select from '/public/images/common/number1-select.svg';
-import Number2Select from '/public/images/common/number2-select.svg';
-import Number3Select from '/public/images/common/number3-select.svg';
-import Number2Default from '/public/images/common/number2-default.svg';
-import Number3Default from '/public/images/common/number3-default.svg';
+import NumberCheck from '/images/common/number-check.svg?url';
+import Number1Select from '/images/common/number1-select.svg?url';
+import Number2Select from '/images/common/number2-select.svg?url';
+import Number3Select from '/images/common/number3-select.svg?url';
+import Number2Default from '/images/common/number2-default.svg?url';
+import Number3Default from '/images/common/number3-default.svg?url';
 
 const StepProgress = ({ step }) => {
+  console.log(NumberCheck);
   const getIcon = (index) => {
     if (index < step) return NumberCheck;
     if (index === step) return [Number1Select, Number2Select, Number3Select][index - 1];
