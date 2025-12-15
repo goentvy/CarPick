@@ -1,8 +1,8 @@
+// src/pages/mypage/MyPageHome.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const menuItems = [
-    // { label: "개인정보 수정", path: "/mypage/profile" },  // 제거
     { label: "예약 내역", path: "/mypage/reservations" },
     { label: "취소 · 변경 내역", path: "/mypage/change-history" },
     { label: "리뷰 관리", path: "/mypage/reviewhistory" },
@@ -10,7 +10,6 @@ const menuItems = [
     { label: "면허 관리", path: "/mypage/license" },
     { label: "선호 차량", path: "/mypage/favorites" },
 ];
-
 
 function MyPageHome({ userName = "UserName" }) {
     const navigate = useNavigate();
@@ -50,7 +49,8 @@ function MyPageHome({ userName = "UserName" }) {
                     </button>
                 </div>
             </div>
-            {/* 리스트 영역 */}
+
+            {/* 리스트 영역 (이 컴포넌트에서만 반응형 폭) */}
             <div className="px-4 pt-5 pb-4 lg:pb-2">
                 <div className="flex flex-col items-center space-y-3">
                     {menuItems.map((item) => (
@@ -58,12 +58,21 @@ function MyPageHome({ userName = "UserName" }) {
                             key={item.path}
                             type="button"
                             onClick={() => navigate(item.path)}
-                            className="w-full max-w-md flex items-center justify-between px-4 py-3 rounded-2xl bg-white text-sm font-medium text-[#1A1A1A] shadow-sm"
+                            className="
+                w-full
+                max-w-md
+                sm:max-w-lg
+                md:max-w-xl
+                lg:max-w-2xl
+                flex items-center justify-between
+                px-4 py-3 rounded-2xl bg-white
+                text-sm font-medium text-[#1A1A1A] shadow-sm
+              "
                         >
                             <span>{item.label}</span>
                             <span className="text-[#C8FF48] text-lg font-bold leading-none">
-          ›
-                </span>
+                ›
+              </span>
                         </button>
                     ))}
                 </div>
