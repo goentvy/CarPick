@@ -1,9 +1,11 @@
 package com.carpick.service;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import com.carpick.model.EventDTO;
+import com.carpick.util.FileProperties;
 import com.carpick.mapper.EventMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class EventServiceImpl implements EventService {
 
     private final EventMapper eventMapper;
+    private final FileProperties fileProperties;
 
     @Override
     public List<EventDTO> getList() {
@@ -43,6 +46,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void deleteEvent(int id) {
+    	EventDTO event = eventMapper.getEvent(id);
+
+        String filePath = fileProperties.getUploadPath() + "event/" + event.getThumbnail();
+
+        new File(filePath).delete();
+
         eventMapper.deleteEvent(id);
     }
 }

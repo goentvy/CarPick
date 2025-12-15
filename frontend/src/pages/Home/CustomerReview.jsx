@@ -29,7 +29,7 @@ const CustomerReview = () => {
           <div key={r.id} className="bg-blue-50 rounded-lg shadow-sm p-3">
             <p className="font-semibold mb-1">{r.model}</p>
             <StarRating rating={r.rating} />
-            <p className="text-gray-600 text-sm! my-3">{r.comment}</p>
+            <p className="text-gray-600 text-sm my-3">{r.comment}</p>
           </div>
         ))}
       </div>

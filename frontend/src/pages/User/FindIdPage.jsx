@@ -19,7 +19,9 @@ const FindIdPage = () => {
 
     return (
     <div className="flex flex-col items-center p-6 mt-[67px]">
-        <ContentTopLogo title="아이디 찾기"/>
+        <ContentTopLogo 
+            title="아이디 찾기"
+            titleStyle="text-center mb-4 text-xl font-bold"/>
         <input
             type="text"
             placeholder="이름"
