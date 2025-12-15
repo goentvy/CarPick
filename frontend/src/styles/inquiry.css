@@ -1,0 +1,174 @@
+/* 전체 페이지 공통 래퍼 (로그인 페이지 느낌) */
+.page-wrapper {
+  width: 100%;
+  min-height: calc(100vh - 67px); /* 로그인 페이지 mt-[67px] 대응 */
+  display: flex;
+  justify-content: center;
+  padding-top: 60px;
+  box-sizing: border-box;
+}
+
+/* 문의 페이지 컨테이너 */
+.inquiry-container {
+  width: 100%;
+  max-width: 448px;      /* 로그인 max-w-md 느낌 */
+  padding: 32px 24px;    /* p-8 대응 */
+  box-sizing: border-box;
+}
+
+/* 제목 */
+.inquiry-container h2 {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/* form 기본 간격 */
+.inquiry-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 50px;
+}
+
+/* label */
+.inquiry-container label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+/* input / select / textarea 공통 */
+.inquiry-container input,
+.inquiry-container select,
+.inquiry-container textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* textarea */
+.inquiry-container textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* 버튼 공통 */
+.inquiry-container button {
+  height: 42px;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* 제출 버튼 */
+.inquiry-container button[type="submit"] {
+  background-color: #3b82f6; /* blue-500 */
+  color: #fff;
+  border: none;
+}
+
+/* 취소 버튼 */
+.inquiry-container button[type="button"] {
+  background-color: #e5e7eb; /* gray-200 */
+  border: none;
+  margin-top: 4px;
+}
+
+/* 비회원 설명 문구 */
+.guest-desc {
+  text-align: center;
+  font-size: 16px;
+  color: #6b7280; /* gray-500 */
+  margin-bottom: 24px;
+}
+
+/* 비회원 버튼 래퍼 */
+.guest-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 메인 버튼 (로그인) */
+.btn-primary {
+  width: 100%;
+  height: 42px;
+  background-color: #3b82f6; /* blue-500 */
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* 보조 버튼 (회원가입) */
+.btn-secondary {
+  width: 100%;
+  height: 42px;
+  background-color: #e5e7eb; /* gray-200 */
+  color: #111827;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* 개인정보처리방침 안내 문구 */
+.privacy-note {
+  margin-top: 24px;              /* 버튼이랑 거리 벌리기 */
+  font-size: 13px;
+  color: #6b7280;                /* gray-500 */
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 개인정보처리방침 링크 */
+.privacy-note .link {
+  color: #3b82f6;                /* blue-500 */
+  text-decoration: underline;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* 마우스 올렸을 때 */
+.privacy-note .link:hover {
+  color: #2563eb;                /* blue-600 */
+}
+
+
+/* 개인정보처리방침 전용 */
+.inquiry-container.privacy {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 본문 */
+.privacy-content p {
+  color: #374151; /* gray-700 */
+  margin-bottom: 16px;
+}
+
+/* 소제목 */
+.privacy-content h4 {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827; /* gray-900 */
+}
+
+/* 리스트 */
+.privacy-content ul {
+  padding-left: 18px;
+  margin-bottom: 16px;
+}
+
+.privacy-content li {
+  list-style: disc;
+  margin-bottom: 4px;
+}
