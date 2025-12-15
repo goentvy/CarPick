@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 30rem; /* 480px = 30rem */
+  --breakpoint-xx: 20rem; /* 320px = 20rem */
+}
+
 body {
     font-family: 'Pretendard', sans-serif;
 }

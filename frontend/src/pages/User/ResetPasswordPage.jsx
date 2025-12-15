@@ -18,7 +18,9 @@ const ResetPasswordPage = () => {
 
     return (
     <div className="flex flex-col items-center p-6 mt-[67px]">
-        <ContentTopLogo title="비밀번호 찾기"/>
+        <ContentTopLogo 
+            title="비밀번호 찾기"
+            titleStyle="text-center mb-4 text-xl font-bold"/>
         <input
             type="email"
             placeholder="가입 이메일"
