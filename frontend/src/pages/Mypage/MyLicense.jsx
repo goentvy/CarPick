@@ -55,13 +55,11 @@ function MyLicense() {
         setLoading(true);
         setResult("");
 
-        // 실제로는 여기서 백엔드 호출 후 성공 시 setLicenseData 호출
+        // 실제로는 백엔드 호출 후 성공 시 setLicenseData 불러오기
         setTimeout(() => {
             setLicenseData(data);
             setResult(
-                "입력하신 정보 형식이 유효합니다.\n\n" +
-                "실제 운전 가능 여부는 차량 수령 시 실물 운전면허증으로 최종 확인합니다.\n" +
-                "입력 정보와 실물 면허증이 일치하지 않을 경우 예약이 취소되거나 이용이 제한될 수 있습니다."
+            "차량 수령시 입력 정보와 실물/전자 면허증이 일치하지 않을 경우 \n 예약이 취소되거나 이용이 제한될 수 있습니다."
             );
             setModalStep("done");
             setLoading(false);
@@ -126,7 +124,7 @@ function MyLicense() {
                         <div className="mt-3 flex justify-end gap-2 text-xs">
                             <button
                                 onClick={openModal}
-                                className="px-3 py-1.5 rounded-full border border-[#2C7FFF] text-[#2C7FFF] font-medium"
+                                className="px-3 py-1.5 rounded-full bg-[#E7F1FF] text-[#2C7FFF] font-medium border border-transparent hover:bg-[#D3E4FF]"
                             >
                                 수정하기
                             </button>
@@ -156,6 +154,13 @@ function MyLicense() {
                     운전 면허 추가하기
                 </button>
             </div>
+            {/* 안내 문구 */}
+            <p className="text-[11px] text-[#666666] leading-relaxed">
+                ※ 실제 운전할 모든 운전자의 면허 정보를 등록해 주세요.
+                <br />
+                대여 계약서에 등록되지 않은 운전자가 운전할 경우, 사고 시 렌터카 회사의
+                보험·면책 보장이 제한되거나 적용되지 않을 수 있습니다.
+            </p>
 
             {/* 모달 */}
             {isModalOpen && (
@@ -167,8 +172,7 @@ function MyLicense() {
                                     운전면허 정보 입력
                                 </h3>
                                 <p className="mt-2 text-xs text-[#666666]">
-                                    입력하신 운전면허 정보는 형식만 확인하며, 실제 진위 여부는 차량
-                                    수령 시 실물 운전면허증으로 최종 확인합니다.
+                                    차량 수령 시 실물/전자 운전면허증과 확인합니다.
                                 </p>
 
                                 <div className="mt-5 space-y-3">
@@ -275,7 +279,7 @@ function MyLicense() {
                         {modalStep === "done" && (
                             <>
                                 <h3 className="text-base font-semibold text-[#1A1A1A]">
-                                    운전면허 정보 등록 완료
+                                    운전면허 등록 완료
                                 </h3>
                                 <div className="mt-3 rounded-lg border border-[#C8FF48] bg-[#F5FFE0] px-3 py-3 text-xs text-[#2F3B13] whitespace-pre-line">
                                     {result}
