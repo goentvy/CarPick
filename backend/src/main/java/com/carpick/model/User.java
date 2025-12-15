@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    private Long id;
+    private Long user_id;
     private String email;
     private String password_hash;
 
@@ -31,4 +31,6 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+
+    private Role role;   // ✅ 권한 Enum
 }

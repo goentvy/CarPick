@@ -1,2 +1,5 @@
 openai:
   api-key: sk-
+
+jwt:
+  secret: carpick-super-secret-key-change-this-now-2025

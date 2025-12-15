@@ -37,9 +37,5 @@ public class AuthController {
         return authService.signup(request);
     }
 
-    // GET 회원가입 (테스트)
-    @GetMapping("/signuptest")
-    public User signupTest() {
-        return authService.getLatestSignupUser();
-    }
+
 }
