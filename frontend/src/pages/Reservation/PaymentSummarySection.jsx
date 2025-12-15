@@ -1,6 +1,6 @@
 const PaymentSummarySection = () => {
   return (
-    <section className="mt-6">
+    <section className="w-full max-w-[640px] mt-6">
       <h2 className="text-lg font-semibold mb-4">결제정보</h2>
 
       <div className="p-4 border rounded-lg bg-gray-50 space-y-2">

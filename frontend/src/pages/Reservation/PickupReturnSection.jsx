@@ -4,7 +4,7 @@ const PickupReturnSection = () => {
     const [method, setMethod] = useState("visit");
 
     return (
-        <section className="mt-6">
+        <section className="w-full max-w-[640px] mt-6">
             <h2 className="text-lg font-semibold mb-2">대여/반납 방식</h2>
             <div className="flex space-x-4 mt-1">
             <button

@@ -1,10 +1,10 @@
 const InsuranceInfoSection = () => {
   return (
-    <section className="mt-6">
+    <section className="w-full max-w-[640px] mt-6">
       <h2 className="text-lg font-semibold mb-4">보험정보</h2>
 
       {/* 기본 보험 안내 */}
-      <div className="space-y-2 p-4 border rounded-lg bg-gray-50">
+      <div className="space-y-2 p-4 border border-blue-500 rounded-lg bg-gray-50">
         <p className="text-sm">
           <strong>일반면책:</strong> 10,000원
         </p>
