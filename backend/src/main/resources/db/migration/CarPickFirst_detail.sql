@@ -3,7 +3,7 @@
    - FK/INDEX 뒤에 COMMENT 붙이지 않음
    - created_at/updated_at: CURRENT_TIMESTAMP 통일
    ========================================================= */
-
+use carpick;
 SET FOREIGN_KEY_CHECKS = 0;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -12,13 +12,14 @@ SET FOREIGN_KEY_CHECKS = 1;
    ================================================== */
 
 
-    use carpick;
+
 /* 차량 스펙/모델 정보 */
 CREATE TABLE IF NOT EXISTS CAR_SPEC (
                                         spec_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
                                         brand VARCHAR(50) NOT NULL COMMENT '브랜드 (현대, 기아)',
                                         model_name VARCHAR(100) NOT NULL COMMENT '모델명 (소나타, 아반떼)',
                                         car_class VARCHAR(20) NOT NULL COMMENT '차급 (경차, SUV, 대형)',
+                                        main_image_url VARCHAR(255) NULL COMMENT '차량 대표 이미지 URL (수정)',
                                         fuel_type VARCHAR(20) NOT NULL COMMENT '연료 (가솔린, 전기, 하이브리드)',
                                         model_year_base VARCHAR(4) NOT NULL COMMENT '대표 연식 (구형/신형 구분용)',
                                         seating_capacity INT NOT NULL COMMENT '승차 정원',
