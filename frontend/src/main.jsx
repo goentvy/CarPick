@@ -31,6 +31,10 @@ import MyLicense from "./pages/Mypage/MyLicense.jsx";
 
 import EventList from './pages/Event/EventList.jsx'
 import EventView from './pages/Event/EventView.jsx'
+import PaymentTestSection from './pages/Payment/PaymentTestSection.jsx'
+import PaymentCallback from './pages/Payment/PaymentCallback.jsx'
+import OrderFail from './pages/Payment/OrderFail.js'
+import OrderComplete from './pages/Payment/OrderComplete.jsx'
 
 
 createRoot(document.getElementById('root')).render(
@@ -63,6 +67,12 @@ createRoot(document.getElementById('root')).render(
           {/* 예약하기 */}
           <Route path="reservation" element={<ReservationPage />} />
 
+          {/* 결제서비스 */}
+          <Route path="payment" element={<PaymentTestSection />} />
+          <Route path="payment/callback/:provider" element={<PaymentCallback />} />
+          <Route path="order/complete" element={<OrderComplete />} />
+          <Route path="order/fail" element={<OrderFail />} />
+          
           {/* 마이페이지 */}
           <Route path="mypage" element={<MyPageHome />} />
           <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
