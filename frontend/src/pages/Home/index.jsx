@@ -8,7 +8,7 @@ import HomeFooter from "./HomeFooter";
 const Home = () => {
     const location = useLocation();
 
-    const segment = location.state?.segment || "정보 없음";
+    // const segment = location.state?.segment || "정보 없음";
     const reason = location.state?.reason || "추천 이유를 불러올 수 없습니다.";
     const features = {
         title: '가족여행에 최적화 된 공간',
@@ -20,34 +20,36 @@ const Home = () => {
             {/* Promo */}
             <HomeRentHeader />
 
-            <AIRecommendation content={reason}/>
-
             {/* AI 추천 차량 */}
-            <div className="text-2xl! font-bold! mb-2">AI 추천차량</div>
-            <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <VehicleCard
-                    discount={true}
-                    imageSrc="./images/common/car.png"
-                    title="Carnival High- Limousine"
-                    features={features}
-                    price={128000}
-                />
-                <VehicleCard
-                    discount={false}
-                    imageSrc="./images/common/car.png"
-                    title="Carnival High- Limousine"
-                    features={features}
-                    price={128000}
-                />
+            <div className="p-6">
+                <div className="text-2xl font-bold mt-2">AI 추천차량</div>
+                <AIRecommendation content={reason}/>
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                    <VehicleCard
+                        discount={true}
+                        imageSrc="./images/common/car.png"
+                        title="Carnival High- Limousine"
+                        features={features}
+                        price={128000}
+                        selected={true}
+                    />
+                    <VehicleCard
+                        discount={false}
+                        imageSrc="./images/common/car.png"
+                        title="Carnival High- Limousine"
+                        features={features}
+                        price={128000}
+                    />
+                </div>
+
+                {/* 카픽존 찾기 */}
+                <h2 className="text-2xl font-bold mb-2">카픽존 찾기</h2>
+                <CarPickZone />
+
+                {/* 고객 후기 */}
+                <h2 className="text-2xl font-bold mb-4">고객후기</h2>
+                <CustomerReview />
             </div>
-
-            {/* 카픽존 찾기 */}
-            <h2 className="text-2xl! font-bold! mb-2">카픽존 찾기</h2>
-            <CarPickZone />
-
-            {/* 고객 후기 */}
-            <h2 className="text-2xl! font-bold! mb-4">고객후기</h2>
-            <CustomerReview />
 
             {/* Footer */}
             <HomeFooter />

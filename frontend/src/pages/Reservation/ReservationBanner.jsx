@@ -47,7 +47,7 @@ const ReservationBanner = () => {
                 </div>
             </div>
             <p className="text-gray-500">
-                <span className="text-xl! font-semibold text-gray-400">55,000/day</span>
+                <span className="text-xl font-semibold text-gray-400">55,000/day</span>
             </p>
           </div>
           <hr className="border border-gray-200"/>
@@ -57,7 +57,7 @@ const ReservationBanner = () => {
         <div className="flex flex-row justify-between items-end">
           <div className="flex flex-col flex-1 text-sm text-gray-500 mb-2">
             <span>총 이용 금액:</span>
-            <span className="text-4xl! font-bold text-blue-500">128,000원</span>
+            <span className="text-4xl font-bold text-blue-500">128,000원</span>
           </div>
           <button
             type="button"

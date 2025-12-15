@@ -106,11 +106,16 @@ const Login = () => {
           카카오로 로그인하기
         </button>
 
-        <p className="text-base text-center font-medium mt-6">
+        <p 
+          className="text-base text-center font-medium mt-6 cursor-pointer"
+          onClick={() => navigate('/signup/agree')}>
           need help for signing in ?
         </p>
         <p className="text-xs text-center text-gray-400 my-3">
           By signing up you are creating an account and
+        </p>
+        <p className="text-xs text-center text-gray-400 my-3">
+          agree to our Term’s and Privacy policy
         </p>
 
         {/* 아이디/비밀번호 찾기 */}
