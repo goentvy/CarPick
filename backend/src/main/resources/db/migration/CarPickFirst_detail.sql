@@ -3,7 +3,7 @@
    - FK/INDEX 뒤에 COMMENT 붙이지 않음
    - created_at/updated_at: CURRENT_TIMESTAMP 통일
    ========================================================= */
-
+use carpick;
 SET FOREIGN_KEY_CHECKS = 0;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -12,7 +12,7 @@ SET FOREIGN_KEY_CHECKS = 1;
    ================================================== */
 
 
-    use carpick;
+
 /* 차량 스펙/모델 정보 */
 CREATE TABLE IF NOT EXISTS CAR_SPEC (
                                         spec_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
