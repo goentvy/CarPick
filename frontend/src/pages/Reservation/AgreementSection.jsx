@@ -1,6 +1,6 @@
 const AgreementSection = ({ isLoggedIn }) => {
   return (
-    <section className="mt-6 mb-20">
+    <section className="w-full max-w-[640px] mt-6 mb-20">
       <h2 className="text-lg font-semibold mb-4">약관 및 결제 동의</h2>
 
       {/* 약관 목록 */}

@@ -10,7 +10,7 @@ const DriverInfoSection = () => {
     });
 
     return (
-    <section className="mt-6">
+    <section className="w-full max-w-[640px] mt-6">
         <h2 className="text-lg font-semibold mb-4">운전자 정보</h2>
         <div className="space-y-4">
         {/* 성 / 이름 */}

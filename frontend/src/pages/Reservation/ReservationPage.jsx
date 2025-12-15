@@ -19,7 +19,7 @@ const ReservationPage = () => {
         {/* 결제 요금 요약 (차량 요금, 보험 요금, 총 결제금액, 포인트 적립 등) */}
         <PaymentSummarySection />
         {/* 약관 확인 및 결제 동의 체크박스, 결제 버튼 (회원/비회원) */}
-        <AgreementSection isLoggedIn={false}/>
+        <AgreementSection isLoggedIn={true}/>
     </div>
   );
 }

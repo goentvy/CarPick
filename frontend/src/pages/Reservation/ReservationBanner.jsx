@@ -18,12 +18,12 @@ const ReservationBanner = () => {
 
       {/* 차량 정보 */}
       <div className="p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-1">Carnival High-Limousine</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">Carnival High-Limousine</h2>
         <p className="text-sm text-gray-600 mb-3">가족여행에 최적화 된 공간</p>
       </div>
 
       {/* 하단 옵션 및 결제 영역 */}
-      <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="px-6 pb-6 grid grid-cols-1 gap-6">
         {/* 옵션 및 요금 */}
         <div className="space-y-2 text-sm text-gray-700">
           <div className="space-y-1 text-right">
