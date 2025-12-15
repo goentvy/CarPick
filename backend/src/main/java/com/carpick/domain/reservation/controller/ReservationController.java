@@ -1,8 +1,8 @@
-package com.carpick.controller.reservation;
+package com.carpick.domain.reservation.controller;
 
-import com.carpick.dto.reservation.CancelRequest;
-import com.carpick.dto.reservation.ReservationDto;
-import com.carpick.service.reservation.ReservationService;
+import com.carpick.domain.reservation.dto.CancelRequest;
+import com.carpick.domain.reservation.dto.ReservationDto;
+import com.carpick.domain.reservation.service.ReservationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

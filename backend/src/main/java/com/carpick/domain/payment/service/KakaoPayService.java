@@ -1,7 +1,7 @@
-package com.carpick.service.payment;
+package com.carpick.domain.payment.service;
 
-import com.carpick.dto.payment.PaymentApproveResponse;
-import com.carpick.dto.payment.PaymentReadyResponse;
+import com.carpick.domain.payment.dto.PaymentApproveResponse;
+import com.carpick.domain.payment.dto.PaymentReadyResponse;
 import org.springframework.stereotype.Service;
 
 @Service
