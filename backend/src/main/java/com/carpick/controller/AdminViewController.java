@@ -15,7 +15,7 @@ public class AdminViewController {
         this.noticeRepository = noticeRepository;
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/admin/login")
     public String adminLogin() {
         return "admin-login";
     }
