@@ -56,86 +56,130 @@
 	                </div>
 	            </div>
 	            <div class="col-sm-6 clearfix">
-	                <div class="user-profile pull-right">
-	                    <h4 class="user-name dropdown-toggle" data-toggle="dropdown">최고관리자 <i class="fa fa-angle-down"></i></h4>
-	                    <div class="dropdown-menu">
-	                        <a class="dropdown-item" href="#">관리자 정보수정</a>
-	                        <a class="dropdown-item" href="#">로그아웃</a>
-	                    </div>
-	                </div>
+					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/reserve_write'">
+						예약 등록
+	                </button>
 	            </div>
 	        </div>
 	    </div>
 	    <!-- page title area end -->
 	    <div class="main-content-inner">
 			<div class="main-content-inner">
-                <div class="row">
-                    <!-- basic table start -->
-                    <div class="col-lg-12 mt-5">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="header-title">예약 관리</h4>
-                                <div class="single-table">
-                                    <div class="table-responsive">
-                                        <table class="table text-center">
-                                            <thead class="text-uppercase">
-                                                <tr>
-                                                    <th scope="col">NO</th>
-                                                    <th scope="col">차량명</th>
-                                                    <th scope="col">예약자명</th>
-                                                    <th scope="col">결제가격</th>
+				<form>
+					<div class="col-lg-12 mt-4">
+						<div class="row">
+							<div class="form-group mr-1">
+		                        <select class="form-control">
+		                            <option>예약상태 검색</option>
+		                            <option>결제완료</option>
+		                            <option>예약취소</option>
+									<option>예약변경</option>
+									<option>픽업완료</option>
+		                        </select>
+		                    </div>
+							<div class="search-box pull-left mr-1">
+		                        <input type="text" name="search" placeholder="Search..." required>
+		                    </div>
+							<div class="search-btn">
+								<button type="button" class="btn btn-light mb-3"><i class="ti-search"></i></button>
+							</div>
+						</div>
+					</div>
+				</form>
+	            <div class="row">
+	                <!-- basic table start -->
+	                <div class="col-lg-12 mt-3 mb-4">
+	                    <div class="card">
+	                        <div class="card-body">
+	                            <h4 class="header-title">예약 관리</h4>
+	                            <div class="single-table">
+	                                <div class="table-responsive">
+	                                    <table class="table text-center">
+	                                        <thead class="text-uppercase">
+	                                            <tr>
+	                                                <th scope="col">NO</th>
+	                                                <th scope="col">차량명</th>
+	                                                <th scope="col">예약자명</th>
+	                                                <th scope="col">결제가격</th>
 													<th scope="col">예약날짜</th>
 													<th scope="col">예약상태</th>
-                                                    <th scope="col">관리</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>Mark</td>
-                                                    <td>09 / 07 / 2018</td>
-                                                    <td>$120</td>
-													<td>$120</td>
+	                                                <th scope="col">관리</th>
+	                                            </tr>
+	                                        </thead>
+	                                        <tbody>
+	                                            <tr>
+	                                                <th scope="row">1</th>
+	                                                <td onclick="location.href='./reserve_write?id=1'">Mark</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">09 / 07 / 2018</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">$120</td>
+													<td onclick="location.href='./reserve_write?id=1'">$120</td>
 													<td><span class="status-p bg-primary">결제완료</span></td>
-                                                    <td><i class="ti-trash"></i></td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>jone</td>
-                                                    <td>09 / 07 / 2018</td>
-                                                    <td>$150</td>
-													<td>$150</td>
+	                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(4)"><i class="ti-trash"></i></button></td>
+	                                            </tr>
+	                                            <tr onclick="location.href='./reserve_write?id=1'">
+	                                                <th scope="row">1</th>
+	                                                <td onclick="location.href='./reserve_write?id=1'">jone</tdonclick="location.href='./reserve_write?id=1'">
+	                                                <td onclick="location.href='./reserve_write?id=1'">09 / 07 / 2018</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">$150</td>
+													<td onclick="location.href='./reserve_write?id=1'">$150</td>
 													<td><span class="status-p bg-warning">예약취소</span></td>
-                                                    <td><i class="ti-trash"></i></td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>Mark</td>
-                                                    <td>09 / 07 / 2018</td>
-                                                    <td>$120</td>
-													<td>$150</td>
+	                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(3)"><i class="ti-trash"></i></button></td>
+	                                            </tr>
+	                                            <tr>
+	                                                <th scope="row">1</th>
+	                                                <td onclick="location.href='./reserve_write?id=1'">Mark</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">09 / 07 / 2018</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">$120</td>
+													<td onclick="location.href='./reserve_write?id=1'">$150</td>
 													<td><span class="status-p bg-success">픽업완료</span></td>
-                                                    <td><i class="ti-trash"></i></td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>jone</td>
-                                                    <td>09 / 07 / 2018</td>
-                                                    <td>$150</td>
-													<td>$150</td>
+	                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(2)"><i class="ti-trash"></i></button></td>
+	                                            </tr>
+	                                            <tr>
+	                                                <th scope="row">1</th>
+	                                                <td onclick="location.href='./reserve_write?id=1'">jone</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">09 / 07 / 2018</td>
+	                                                <td onclick="location.href='./reserve_write?id=1'">$150</td>
+													<td onclick="location.href='./reserve_write?id=1'">$150</td>
 													<td><span class="status-p bg-warning">예약취소</span></td>
-                                                    <td><i class="ti-trash"></i></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-	    </div>
+	                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(1)"><i class="ti-trash"></i></button></td>
+	                                            </tr>
+	                                        </tbody>
+				                        </table>
+				                     </div>
+				                  </div>
+				              </div>
+				          </div>
+				      </div>
+	    		</div>
+			</div>
+		<nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
 	</div>
 	<!-- main content area end -->
+	
+	<script>
+	function deleteItem(id) {
+	    if (confirm('정말 삭제하시겠습니까?')) {
+	        // 삭제 처리 로직
+	        // 예: 폼 submit, AJAX 호출, location 이동 등
+	        console.log('삭제 진행');
+	    } else {
+	        console.log('삭제 취소');
+	    }
+	}
+	</script>
+
 
     <!-- ⭐ footer include -->
     <div th:replace="fragments/fragments :: footer"></div>
