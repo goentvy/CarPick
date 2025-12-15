@@ -48,16 +48,16 @@
 	        <div class="row align-items-center">
 	            <div class="col-sm-6">
 	                <div class="breadcrumbs-area clearfix">
-	                    <h4 class="page-title pull-left">고객 관리</h4>
+	                    <h4 class="page-title pull-left">지점 관리</h4>
 	                    <ul class="breadcrumbs pull-left">
 	                        <li><a href="/admin">홈</a></li>
-	                        <li><span>고객 관리</span></li>
+	                        <li><span>지점 관리</span></li>
 	                    </ul>
 	                </div>
 	            </div>
 	            <div class="col-sm-6 clearfix">
-					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/user_write'">
-	                    고객 등록
+					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/spot_write'">
+	                    지점 등록
 	                </button>
 	            </div>
 	        </div>
@@ -81,17 +81,16 @@
                 <div class="col-lg-12 mt-4">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="header-title">고객 관리</h4>
+                            <h4 class="header-title">지점 관리</h4>
                             <div class="single-table">
                                 <div class="table-responsive">
                                     <table class="table text-center">
                                         <thead class="text-uppercase">
                                             <tr>
                                                 <th scope="col">NO</th>
-                                                <th scope="col">아이디</th>
-                                                <th scope="col">이름</th>
-                                                <th scope="col">휴대폰</th>
-												<th scope="col">가입일</th>
+                                                <th scope="col">지점명</th>
+                                                <th scope="col">지점구분</th>
+                                                <th scope="col">주소</th>
                                                 <th scope="col">관리</th>
                                             </tr>
                                         </thead>
@@ -101,32 +100,28 @@
                                                 <td onclick="location.href='./user_write?id=1'">Mark</td>
                                                 <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
                                                 <td onclick="location.href='./user_write?id=1'">$120</td>
-												<td onclick="location.href='./user_write?id=1'">$120</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(4)"><i class="ti-trash"></i></button></td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(1)"><i class="ti-trash"></i></button></td>
                                             </tr>
                                             <tr onclick="location.href='./user_write?id=1'">
                                                 <th scope="row">1</th>
                                                 <td onclick="location.href='./user_write?id=1'">jone</td>
                                                 <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
                                                 <td onclick="location.href='./user_write?id=1'">$150</td>
-												<td onclick="location.href='./user_write?id=1'">$150</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(3)"><i class="ti-trash"></i></button></td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(2)"><i class="ti-trash"></i></button></td>
                                             </tr>
                                             <tr onclick="location.href='./user_write?id=1'">
                                                 <th scope="row">1</th>
                                                 <td onclick="location.href='./user_write?id=1'">Mark</td>
                                                 <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
-                                                <td onclick="location.href='./user_write?id=1'">120</td>
-												<td onclick="location.href='./user_write?id=1'">$150</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(2)"><i class="ti-trash"></i></button></td>
+                                                <td onclick="location.href='./user_write?id=1'">$120</td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(3)"><i class="ti-trash"></i></button></td>
                                             </tr>
                                             <tr onclick="location.href='./user_write?id=1'">
                                                 <th scope="row">1</th>
                                                 <td onclick="location.href='./user_write?id=1'">jone</td>
                                                 <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
                                                 <td onclick="location.href='./user_write?id=1'">$150</td>
-												<td onclick="location.href='./user_write?id=1'">$150</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(1)"><i class="ti-trash"></i></button></td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(4)"><i class="ti-trash"></i></button></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -154,12 +149,12 @@
 	
 	<script>
 	function deleteItem(id) {
-	    if (confirm('정말 탈퇴 처리를 하시겠습니까?')) {
-	        // 탈퇴 처리 로직
+	    if (confirm('정말 삭제하시겠습니까?')) {
+	        // 삭제 처리 로직
 	        // 예: 폼 submit, AJAX 호출, location 이동 등
-	        console.log('탈퇴 진행');
+	        console.log('삭제 진행');
 	    } else {
-	        console.log('탈퇴 취소');
+	        console.log('삭제 취소');
 	    }
 	}
 	</script>

@@ -113,10 +113,5 @@ public class EventController {
         return ResponseEntity.ok("success");
     }
 
-    // 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteEvent(@PathVariable int id) {
-        eventService.deleteEvent(id);
-        return ResponseEntity.ok("success");
-    }
+    
 }
