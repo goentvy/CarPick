@@ -81,15 +81,8 @@ body,h1,h2,h3,h4,h5,h6,th,td,input,textarea,select,option,div,button{font-family
     --event-light: #FFE4DE;
 }
 
-* {
-    font-size: 16px;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
-}
-
 body {
     color: var(--black-300);
-    line-height: 1.3em;
     position: relative;
 }
 
@@ -264,10 +257,10 @@ body {
     transition: all 0.25s ease;
 }
 #navMenu .gnb .gnb-item:nth-child(4).has-submenu.active .submenu .submenu-list{
-    height:125px;
+    height:135px;
 }
 #navMenu .gnb .gnb-item:nth-child(7).has-submenu.active .submenu .submenu-list{
-    height:250px;
+    height:275px;
 }
 #navMenu .gnb .gnb-item.has-submenu.active .submenu .submenu-list{
     background:var(--gray-100);
