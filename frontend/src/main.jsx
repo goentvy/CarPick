@@ -32,6 +32,9 @@ import MyLicense from "./pages/Mypage/MyLicense.jsx";
 import EventList from './pages/Event/EventList.jsx'
 import EventView from './pages/Event/EventView.jsx'
 
+import InquiryPage from './pages/Inquiry/inquiry.jsx'
+import InquirySuccess from './pages/Inquiry/inquirySuccess.jsx'
+import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -43,7 +46,7 @@ createRoot(document.getElementById('root')).render(
           <Route index element={<Intro />} />
 
           {/* 메인 */}
-          <Route path="home" element={<Home />}/>
+          <Route path="home" element={<Home />} />
           <Route path="profile" element={<Profile />} />
           <Route path="detail" element={<CarDetailPage />} />
 
@@ -76,8 +79,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="agree2" element={<Agree2 />} />
 
           {/* 이벤트 */}
-          <Route path="event/list" element={<EventList />}/>
-          <Route path="event/view/:id" element={<EventView />}/>
+          <Route path="event/list" element={<EventList />} />
+          <Route path="event/view/:id" element={<EventView />} />
+
+          {/* 일대일문의 */}
+          <Route path="inquiry" element={<InquiryPage />} />
+          <Route path="inquiry/success" element={<InquirySuccess />} />
+          <Route path="inquiry/privacy" element={<InquiryPrivacy />} />
 
         </Route>
       </Routes>
