@@ -1,38 +1,39 @@
+// src/pages/inquiry/Inquiry.jsx
 import { useState } from "react";
-import { useNavigate , Link} from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import ContentTopLogo from "../../components/common/ContentTopLogo";
 import "../../styles/inquiry.css";
+
+// 🔹 파일 상단에 전역 Mock 배열 (나중에 API로 대체) 임승우 작업 지현님이 문의하기 작업하신거 프론트 메모리에 저장되서 Mock 볼수있게 수정 했습니다 
+export const mockInquiries = [];
 
 export default function InquiryPage() {
     const isLogin = true;
     const navigate = useNavigate();
 
-    // 문의 form state
     const [category, setCategory] = useState("");
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
-    // 비회원 화면
     if (!isLogin) {
         return (
             <div className="page-wrapper">
                 <div className="inquiry-container guest">
-
                     <ContentTopLogo
                         title="일대일 문의하기"
-                        //logoStyle={"h-10 sm:h-12"}
                         titleStyle={"text-center mb-6 text-xl font-bold"}
                     />
 
                     <p className="guest-desc">로그인 후 이용해주세요.</p>
 
                     <div className="guest-buttons">
-                        <button className="btn-primary"
-                            onClick={() => navigate("/login")}>
+                        <button className="btn-primary" onClick={() => navigate("/login")}>
                             로그인
                         </button>
-                        <button className="btn-secondary"
-                            onClick={() => navigate("/signup/agree")}>
+                        <button
+                            className="btn-secondary"
+                            onClick={() => navigate("/signup/agree")}
+                        >
                             회원가입
                         </button>
                     </div>
@@ -41,14 +42,23 @@ export default function InquiryPage() {
         );
     }
 
-    // 제출하기
+    // 제출하기 (임시로 mockInquiries에 저장)
     const submitInquiry = async ({ category, title, content }) => {
-        // 🔥 지금은 가짜 응답
-        await new Promise((resolve) => setTimeout(resolve, 500)); // 서버 느낌
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
+        const newItem = {
+            id: Date.now(),
+            category,
+            title,
+            content,
+            createdAt: new Date().toISOString(),
+            status: "PENDING",
+        };
+
+        mockInquiries.unshift(newItem); // 가장 최근 것이 위로 오게[web:1021]
         return {
             success: true,
-            inquiryId: Date.now(),
+            inquiryId: newItem.id,
         };
     };
 
@@ -59,9 +69,7 @@ export default function InquiryPage() {
             const result = await submitInquiry({ category, title, content });
 
             if (result.success) {
-                navigate("/inquiry/success", {
-                    state: { inquiryId: result.inquiryId },
-                });
+                navigate("/mypage/qna"); // 성공 후 내역 화면으로 바로 이동
             } else {
                 alert("문의 등록에 실패했습니다.");
             }
@@ -71,19 +79,15 @@ export default function InquiryPage() {
         }
     };
 
-
-    // 취소하기
     const handleCancel = () => {
         navigate("/home");
     };
 
-    //회원 화면
     return (
         <div className="page-wrapper">
             <div className="inquiry-container">
                 <ContentTopLogo
                     title="일대일 문의하기"
-                    //logoStyle={"h-10 sm:h-12"}
                     titleStyle={"text-center mb-6 text-xl font-bold"}
                 />
 
@@ -122,10 +126,7 @@ export default function InquiryPage() {
                         />
                     </div>
 
-                    <button type="submit">
-                        제출
-                    </button>
-
+                    <button type="submit">제출</button>
                     <button type="button" onClick={handleCancel}>
                         취소
                     </button>
@@ -138,8 +139,7 @@ export default function InquiryPage() {
                     </Link>
                     에 따라 처리됩니다.
                 </p>
-
             </div>
         </div>
     );
-}   
+}
