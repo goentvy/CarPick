@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>카픽 - 고객관리</title>
+    <title>카픽 - 이벤트 관리</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- CSS -->
 	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
@@ -48,16 +48,16 @@
 	        <div class="row align-items-center">
 	            <div class="col-sm-6">
 	                <div class="breadcrumbs-area clearfix">
-	                    <h4 class="page-title pull-left">고객 관리</h4>
+	                    <h4 class="page-title pull-left">이벤트 관리</h4>
 	                    <ul class="breadcrumbs pull-left">
 	                        <li><a href="/admin">홈</a></li>
-	                        <li><span>고객 관리</span></li>
+	                        <li><span>이벤트 관리</span></li>
 	                    </ul>
 	                </div>
 	            </div>
-	            <div class="col-sm-6 clearfix">
-					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/user_write'">
-	                    고객 등록
+				<div class="col-sm-6 clearfix">
+					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/spot_write'">
+	                    이벤트 등록
 	                </button>
 	            </div>
 	        </div>
@@ -67,6 +67,22 @@
 			<form>
 				<div class="col-lg-12 mt-4">
 					<div class="row">
+						<button class="btn btn-light dropdown-toggle btn-event mr-1"
+						        type="button"
+						        data-toggle="dropdown">
+
+						    <span th:text="${type == 'end' ? '마감된 이벤트' : '진행중 이벤트'}"></span>
+						</button>
+
+						<div class="dropdown-menu">
+						    <a class="dropdown-item" th:href="@{/admin/event(type='end')}">
+						        마감된 이벤트
+						    </a>
+						    <a class="dropdown-item" th:href="@{/admin/event}">
+						        진행중 이벤트
+						    </a>
+						</div>
+						
 						<div class="search-box pull-left mr-1">
 	                        <input type="text" name="search" placeholder="Search..." required>
 	                    </div>
@@ -81,54 +97,47 @@
                 <div class="col-lg-12 mt-4">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="header-title">고객 관리</h4>
+                            <h4 class="header-title">이벤트 관리</h4>
                             <div class="single-table">
                                 <div class="table-responsive">
                                     <table class="table text-center">
                                         <thead class="text-uppercase">
                                             <tr>
                                                 <th scope="col">NO</th>
-                                                <th scope="col">아이디</th>
-                                                <th scope="col">이름</th>
-                                                <th scope="col">휴대폰</th>
-												<th scope="col">가입일</th>
+                                                <th scope="col">썸네일</th>
+                                                <th scope="col">제목</th>
+												<th scope="col">이벤트기간</th>
                                                 <th scope="col">관리</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <td onclick="location.href='./user_write?id=1'">Mark</td>
-                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
-                                                <td onclick="location.href='./user_write?id=1'">$120</td>
-												<td onclick="location.href='./user_write?id=1'">$120</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(4)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                            <tr onclick="location.href='./user_write?id=1'">
-                                                <th scope="row">1</th>
-                                                <td onclick="location.href='./user_write?id=1'">jone</td>
-                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
-                                                <td onclick="location.href='./user_write?id=1'">$150</td>
-												<td onclick="location.href='./user_write?id=1'">$150</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(3)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                            <tr onclick="location.href='./user_write?id=1'">
-                                                <th scope="row">1</th>
-                                                <td onclick="location.href='./user_write?id=1'">Mark</td>
-                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
-                                                <td onclick="location.href='./user_write?id=1'">120</td>
-												<td onclick="location.href='./user_write?id=1'">$150</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(2)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                            <tr onclick="location.href='./user_write?id=1'">
-                                                <th scope="row">1</th>
-                                                <td onclick="location.href='./user_write?id=1'">jone</td>
-                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
-                                                <td onclick="location.href='./user_write?id=1'">$150</td>
-												<td onclick="location.href='./user_write?id=1'">$150</td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(1)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                        </tbody>
+										<tbody>
+										<tr th:each="event, stat : ${eventList}">
+										    <th scope="row" th:text="${stat.count}">1</th>
+
+										    <td th:onclick="|location.href='@{/event_write(id=${event.id})}'|">
+												<img th:src="@{/upload/event/{file}(file=${event.thumbnail})}"
+												     alt="썸네일"
+												     style="width:80px; height:60px; object-fit:cover;">
+										    </td>
+
+										    <td th:text="${event.title}"
+										        th:onclick="|location.href='@{/event_write(id=${event.id})}'|">
+										        제목
+										    </td>
+
+											<td th:text="|${event.startDate} ~ ${event.endDate}|">
+											    2025-01-01 ~ 2025-01-31
+											</td>
+
+										    <td>
+										        <button type="button"
+										                class="btn btn-light"
+										                th:onclick="|deleteItem(${event.id})|">
+										            <i class="ti-trash"></i>
+										        </button>
+										    </td>
+										</tr>
+										</tbody>
                                     </table>
                                 </div>
                             </div>
@@ -154,15 +163,30 @@
 	
 	<script>
 	function deleteItem(id) {
-	    if (confirm('정말 탈퇴 처리를 하시겠습니까?')) {
-	        // 탈퇴 처리 로직
-	        // 예: 폼 submit, AJAX 호출, location 이동 등
-	        console.log('탈퇴 진행');
-	    } else {
-	        console.log('탈퇴 취소');
+	    if (!confirm('정말 삭제하시겠습니까?')) {
+	        return;
 	    }
+
+	    fetch(`/admin/event_delete/${id}`, {
+	        method: 'DELETE'
+	    })
+	    .then(response => {
+	        if (!response.ok) {
+	            throw new Error('삭제 실패');
+	        }
+	        return response.text();
+	    })
+	    .then(result => {
+	        alert('정상적으로 삭제가 되었습니다.');
+	        location.reload(); // 또는 해당 행만 제거
+	    })
+	    .catch(error => {
+	        alert('삭제 중 오류가 발생했습니다.');
+	        console.error(error);
+	    });
 	}
 	</script>
+
 
     <!-- ⭐ footer include -->
     <div th:replace="fragments/fragments :: footer"></div>

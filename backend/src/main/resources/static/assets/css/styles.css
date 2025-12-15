@@ -440,13 +440,13 @@
 
 .search-box input {
     width: 350px;
-    border-radius: 33px;
-    border: none;
+    border-radius: .25rem;
+    border: 1px solid rgba(170, 170, 170, .3);
     height: 40px;
     padding-left: 20px;
     padding-right: 40px;
     letter-spacing: 0;
-    background: #f3eeff;
+    background: #fff;
 }
 
 .search-box input::-webkit-input-placeholder {
@@ -648,6 +648,10 @@
     padding: 0 30px;
     background: #fff;
     position: relative;
+	height:58px;
+	display:flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .page-title-area:before {
@@ -716,6 +720,12 @@ ul.breadcrumbs {
     background: var(--logo-blue);
     padding: 17px 38px;
     position: relative;
+}
+
+.user-profile.user_writeBtn{
+	color:#fff;
+	border:0; 
+	font-size: 16px;
 }
 
 .user-profile img.avatar {
@@ -1782,6 +1792,7 @@ table.dbkit-table tr td {
     padding: 11px 17px;
     font-size: 13px;
     letter-spacing: 0;
+	border: 1px solid rgba(170, 170, 170, .3);
 }
 
 .btn-xl {
@@ -2828,3 +2839,13 @@ table.dataTable thead td {
 }
 
 /*-------------------- END Offset Sidebar ------------------- */
+
+
+/*--- car --- */
+
+#car .card{position:relative;}
+#car .card .status-p{position:absolute; right:10px; top:10px; width:100px; text-align: center;}
+#car .pagination{margin-top:40px; }
+
+.search-btn{height:40px; }
+.table td{cursor:pointer;}
