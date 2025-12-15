@@ -1,4 +1,4 @@
-package com.carpick.dto.reservation;
+package com.carpick.domain.reservation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
