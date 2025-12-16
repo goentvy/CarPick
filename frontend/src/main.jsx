@@ -39,6 +39,7 @@ import OrderComplete from './pages/Payment/OrderComplete.jsx'
 import InquiryPage from './pages/Inquiry/Inquiry.jsx'
 import InquirySuccess from './pages/Inquiry/InquiryPrivacy.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
+import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -75,6 +76,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="payment/callback/:provider" element={<PaymentCallback />} />
           <Route path="order/complete" element={<OrderComplete />} />
           <Route path="order/fail" element={<OrderFail />} />
+          <Route path="/mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
           
           {/* 마이페이지 */}
           <Route path="mypage" element={<MyPageHome />} />

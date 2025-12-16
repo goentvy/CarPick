@@ -21,7 +21,6 @@ const SignupAgree = () => {
 
   const handleSubmit = () => {
     if (terms && privacy) {
-      alert('본인인증 단계로 이동합니다.');
       navigate("/signup/joinus");
     } else {
       alert('필수 약관에 모두 동의해주세요.');
@@ -29,11 +28,11 @@ const SignupAgree = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center mt-10 px-4">
+    <div className="min-h-screen flex justify-center mt-20 px-4">
       <div className="w-full max-w-2xl bg-white p-6 sm:p-8">
         <ContentTopLogo 
           title="회원가입" 
-          logoStyle={"h-10 sm:h-12"}
+          logoStyle={"xx:h-6 xs:h-10 sm:h-12"}
           titleStyle={"text-2xl text-center font-semibold my-6"}
         />
 

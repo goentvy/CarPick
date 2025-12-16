@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class KakaoPayService {
     public PaymentReadyResponse ready(String orderId, int amount) {
         // 실제 카카오페이 API 호출 로직 필요
-        return new PaymentReadyResponse(orderId, amount, "https://kakaopay.com/redirect");
+        return new PaymentReadyResponse(orderId, amount, "http://localhost:8080/mock/kakaopay/redirect");
     }
 
     public PaymentApproveResponse approve(String pgToken) {
