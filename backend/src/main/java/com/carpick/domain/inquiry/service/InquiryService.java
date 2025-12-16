@@ -24,7 +24,6 @@ public class InquiryService {
 	inquiry.setTitle(req.getTitle());
 	inquiry.setContent(req.getContent());
 	
-	
 	inquiryMapper.insertInquiry(inquiry);
 	}
 }
