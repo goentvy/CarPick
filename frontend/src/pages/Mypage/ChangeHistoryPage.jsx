@@ -60,7 +60,7 @@ function ChangeHistoryPage() {
                 {filteredItems.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm px-5 py-10 flex flex-col items-center justify-center text-center">
                         <p className="text-sm text-[#666666] leading-relaxed">
-                            선택하신 조건에 해당하는 취소 또는 변경 내역이 없습니다.
+                            해당하는 내역이 없습니다.
                         </p>
                     </div>
                 ) : (

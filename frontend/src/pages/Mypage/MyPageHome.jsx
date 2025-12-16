@@ -8,7 +8,7 @@ const menuItems = [
     { label: "리뷰 관리", path: "/mypage/reviewhistory" },
     { label: "문의 내역", path: "/mypage/qna" },
     { label: "면허 관리", path: "/mypage/license" },
-    { label: "카드 관리", path: "/mypage/payment" },
+    { label: "결제 수단", path: "/mypage/payment" },
     { label: "선호 차량", path: "/mypage/favorites" },
 ];
 
@@ -55,7 +55,7 @@ setOngoingOrder(null)
                 minHeight: contentMinHeight,
             }}
         >
-            {/* 상단 인사 바 */}
+            {/* 상단 바 */}
             <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-white">
@@ -65,7 +65,7 @@ setOngoingOrder(null)
                     <button
                         type="button"
                         onClick={() => navigate("/mypage/profile")}
-                        className="text-[11px] px-2 py-1 rounded-full border border-white/70 text-white/90 bg-white/10"
+                        className="text-[11px] px-2 py-2 rounded-full border border-white/70 text-white/90 bg-white/10"
                     >
                         개인정보 수정
                     </button>
