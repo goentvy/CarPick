@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항</title>
+    <link rel="stylesheet" th:href="@{/css/user-notice.css(v=${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')})}">
+</head>
+<body>
+    <div class="notice-container">
+        <div class="notice-list-header">
+            <img src="/images/Logo.png" alt="로고" class="notice-logo" onclick="goToMainPage()" style="cursor: pointer;" />
+            <h2 class="notice-title">공지사항</h2>
+        </div>
+
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" placeholder="제목 또는 내용으로 검색..." class="search-input" />
+                <span class="search-icon" onclick="performSearch()">🔍</span>
+            </div>
+        </div>
+
+        <table class="notice-table">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>제목</th>
+                    <th>이름</th>
+                    <th>조회수</th>
+                    <th>등록일</th>
+                </tr>
+            </thead>
+            <tbody id="noticeTableBody">
+                <tr>
+                    <td colspan="5">로딩 중...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script>
+        let notices = [];
+        let filteredNotices = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        async function fetchNotices() {
+            try {
+                const response = await fetch('/api/user/notices');
+                notices = await response.json();
+                filteredNotices = notices;
+                renderNotices();
+            } catch (error) {
+                console.error('공지사항 불러오기 실패', error);
+                document.getElementById('noticeTableBody').innerHTML = 
+                    '<tr><td colspan="5">공지사항을 불러오는데 실패했습니다.</td></tr>';
+            }
+        }
+
+        function renderNotices() {
+            const tbody = document.getElementById('noticeTableBody');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageNotices = filteredNotices.slice(startIndex, endIndex);
+            const visitedNotices = getVisitedNotices();
+
+            if (pageNotices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">공지사항이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pageNotices.map(notice => {
+                const isVisited = visitedNotices.includes(notice.id.toString());
+                const rowClass = isVisited ? 'notice-row-visited' : '';
+                const titleColor = isVisited ? '#6c757d' : '#007bff';
+                
+                return `
+                    <tr class="${rowClass}">
+                        <td><span class="notice-badge">공지</span></td>
+                        <td class="notice-subject" onclick="viewNotice(${notice.id})" style="cursor: pointer; color: ${titleColor};">
+                            ${notice.title}
+                        </td>
+                        <td>관리자</td>
+                        <td>${notice.viewCount || 0}</td>
+                        <td>${new Date(notice.createdAt).toLocaleDateString('ko-KR')}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredNotices.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="pagination-btn">이전</button>
+                <div class="pagination-pages">
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="goToPage(${i})" class="pagination-page ${currentPage === i ? 'active' : ''}">${i}</button>`;
+            }
+
+            html += `
+                </div>
+                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="pagination-btn">다음</button>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredNotices.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                localStorage.setItem('currentNoticePage', currentPage);
+                renderNotices();
+            }
+        }
+
+        function getVisitedNotices() {
+            const visited = localStorage.getItem('visitedNotices');
+            return visited ? JSON.parse(visited) : [];
+        }
+
+        function addVisitedNotice(id) {
+            const visited = getVisitedNotices();
+            if (!visited.includes(id.toString())) {
+                visited.push(id.toString());
+                localStorage.setItem('visitedNotices', JSON.stringify(visited));
+            }
+        }
+
+        async function viewNotice(id) {
+            try {
+                // 현재 페이지 정보 저장
+                localStorage.setItem('currentNoticePage', currentPage);
+                addVisitedNotice(id);
+                await fetch(`/api/user/notices/hit/${id}`);
+                window.location.href = `/notice/${id}`;
+            } catch (error) {
+                console.error('조회수 증가 실패:', error);
+                localStorage.setItem('currentNoticePage', currentPage);
+                addVisitedNotice(id);
+                window.location.href = `/notice/${id}`;
+            }
+        }
+
+        function performSearch() {
+            const searchIcon = document.querySelector('.search-icon');
+            const noticeTable = document.querySelector('.notice-table');
+            const noticeContainer = document.querySelector('.notice-container');
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            
+            // 로딩 애니메이션 시작
+            searchIcon.classList.add('loading');
+            noticeTable.classList.add('loading');
+            noticeContainer.classList.add('loading-overlay');
+            
+            // 1초 후 검색 실행
+            setTimeout(() => {
+                filteredNotices = notices.filter(notice =>
+                    notice.title.toLowerCase().includes(keyword) ||
+                    notice.content.toLowerCase().includes(keyword)
+                );
+                currentPage = 1;
+                renderNotices();
+                
+                // 로딩 애니메이션 종료
+                searchIcon.classList.remove('loading');
+                noticeTable.classList.remove('loading');
+                noticeContainer.classList.remove('loading-overlay');
+            }, 1000);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            filteredNotices = notices.filter(notice =>
+                notice.title.toLowerCase().includes(keyword) ||
+                notice.content.toLowerCase().includes(keyword)
+            );
+            currentPage = 1;
+            renderNotices();
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 페이지 로드 시 저장된 페이지로 이동
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pageParam = urlParams.get('page');
+            if (pageParam) {
+                currentPage = parseInt(pageParam);
+            } else {
+                const savedPage = localStorage.getItem('currentNoticePage');
+                if (savedPage) {
+                    currentPage = parseInt(savedPage);
+                }
+            }
+        });
+        
+        function goToMainPage() {
+            // 페이지네이션을 1로 초기화하고 메인페이지로 이동
+            localStorage.setItem('currentNoticePage', '1');
+            currentPage = 1;
+            renderNotices();
+        }
+        
+        fetchNotices();
+    </script>
+</body>
+</html>

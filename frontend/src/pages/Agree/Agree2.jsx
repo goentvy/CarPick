@@ -12,7 +12,7 @@ function AgreeRow() {
 
   return (
     <div id="content">
-        <div className="row agree-row">
+        <div className="agree-row">
         <h2>개인정보처리방침</h2>
         <p>{agreeTextFile}</p>
         <button className="btn" onClick={goBack}>돌아가기</button>

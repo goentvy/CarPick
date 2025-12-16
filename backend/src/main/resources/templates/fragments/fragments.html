@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- ⭐ SIDEBAR -->
+<div th:fragment="sidebar">
+    <div class="sidebar-menu">
+        <div class="sidebar-header">
+            <div class="logo">
+                <a th:href="@{/admin}">
+                    <img th:src="@{/assets/images/common/logo_w.svg}" alt="logo">
+                </a>
+            </div>
+        </div>
+
+        <div class="main-menu">
+            <div class="menu-inner">
+                <nav>
+                    <ul class="metismenu" id="menu">
+                        <li><a th:href="@{/admin}"><i class="fa ti-dashboard"></i><span>관리자 메인</span></a></li>
+                        <li><a th:href="@{/admin/car}"><i class="fa ti-car"></i><span>차량관리</span></a></li>
+                        <li><a th:href="@{/admin/user}"><i class="fa ti-user"></i><span>고객관리</span></a></li>
+                        <li><a th:href="@{/admin/reserve}"><i class="fa ti-view-grid"></i><span>예약관리</span></a></li>
+						<li><a th:href="@{/admin/spot}"><i class="fa ti-view-grid"></i><span>지점관리</span></a></li>
+                        <hr/>
+                        <li><a href="#"><i class="fa ti-headphone"></i><span>문의관리</span></a>
+							<ul class="collapse">
+								<li><a th:href="@{/admin/inquiry}">일대일문의 관리</a></li>
+								<li><a th:href="@{/admin/faq}">FAQ 관리</a></li>
+							</ul>
+						</li>
+                        <li><a th:href="@{/admin/event}"><i class="fa ti-bolt"></i><span>이벤트 관리</span></a></li>
+                        <li><a th:href="@{/admin/notice}"><i class="fa fa-table"></i><span>공지사항 관리</span></a></li>
+						<hr>
+						<li> <a href="#"><i class="ti-files"></i> <span>통계관리</span></a> 
+							<ul class="collapse"> 
+								<li><a href="#">차량별 이용 통계</a></li> 
+								<li><a href="#">매출 통계</a></li>
+							 </ul> 
+						 </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ⭐ HEADER -->
+<div th:fragment="header">
+    <div class="header-area">
+        <div class="row align-items-center">
+            <div class="col-md-6 col-sm-8 clearfix">
+                <div class="nav-btn pull-left">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-4 clearfix">
+                <ul class="notification-area pull-right">
+                    <li id="full-view"><i class="ti-fullscreen"></i></li>
+                    <li id="full-view-exit"><i class="ti-zoom-out"></i></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ⭐ FOOTER -->
+<div th:fragment="footer">
+    <footer>
+        <div class="footer-area">
+            <p>© Copyright 2025. All right reserved.</p>
+        </div>
+    </footer>
+</div>
+
+</html>

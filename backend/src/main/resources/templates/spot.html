@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 고객관리</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- CSS -->
+	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/common.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+	<!-- amchart css (CDN) -->
+	<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+	<!-- Others CSS -->
+	<link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+	<!-- JS -->
+	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- ⭐ 사이드바 include -->
+    <div th:replace="fragments/fragments :: sidebar"></div>
+
+
+    <!-- ⭐ header include -->
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <!-- ⭐ 본문 영역 -->
+    <!-- main content area start -->
+	<div class="main-content">
+	    <!-- page title area start -->
+	    <div class="page-title-area">
+	        <div class="row align-items-center">
+	            <div class="col-sm-6">
+	                <div class="breadcrumbs-area clearfix">
+	                    <h4 class="page-title pull-left">지점 관리</h4>
+	                    <ul class="breadcrumbs pull-left">
+	                        <li><a href="/admin">홈</a></li>
+	                        <li><span>지점 관리</span></li>
+	                    </ul>
+	                </div>
+	            </div>
+	            <div class="col-sm-6 clearfix">
+					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/spot_write'">
+	                    지점 등록
+	                </button>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- page title area end -->
+		<div class="main-content-inner">
+			<form>
+				<div class="col-lg-12 mt-4">
+					<div class="row">
+						<div class="search-box pull-left mr-1">
+	                        <input type="text" name="search" placeholder="Search..." required>
+	                    </div>
+						<div class="search-btn">
+							<button type="button" class="btn btn-light mb-3"><i class="ti-search"></i></button>
+						</div>
+					</div>
+				</div>
+			</form>
+            <div class="row mb-4">
+                <!-- basic table start -->
+                <div class="col-lg-12 mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">지점 관리</h4>
+                            <div class="single-table">
+                                <div class="table-responsive">
+                                    <table class="table text-center">
+                                        <thead class="text-uppercase">
+                                            <tr>
+                                                <th scope="col">NO</th>
+                                                <th scope="col">지점명</th>
+                                                <th scope="col">지점구분</th>
+                                                <th scope="col">주소</th>
+                                                <th scope="col">관리</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">1</th>
+                                                <td onclick="location.href='./user_write?id=1'">Mark</td>
+                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
+                                                <td onclick="location.href='./user_write?id=1'">$120</td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(1)"><i class="ti-trash"></i></button></td>
+                                            </tr>
+                                            <tr onclick="location.href='./user_write?id=1'">
+                                                <th scope="row">1</th>
+                                                <td onclick="location.href='./user_write?id=1'">jone</td>
+                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
+                                                <td onclick="location.href='./user_write?id=1'">$150</td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(2)"><i class="ti-trash"></i></button></td>
+                                            </tr>
+                                            <tr onclick="location.href='./user_write?id=1'">
+                                                <th scope="row">1</th>
+                                                <td onclick="location.href='./user_write?id=1'">Mark</td>
+                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
+                                                <td onclick="location.href='./user_write?id=1'">$120</td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(3)"><i class="ti-trash"></i></button></td>
+                                            </tr>
+                                            <tr onclick="location.href='./user_write?id=1'">
+                                                <th scope="row">1</th>
+                                                <td onclick="location.href='./user_write?id=1'">jone</td>
+                                                <td onclick="location.href='./user_write?id=1'">09 / 07 / 2018</td>
+                                                <td onclick="location.href='./user_write?id=1'">$150</td>
+                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(4)"><i class="ti-trash"></i></button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+			</div>
+			<nav aria-label="Page navigation example">
+	            <ul class="pagination justify-content-center">
+	                <li class="page-item disabled">
+	                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+	                </li>
+	                <li class="page-item"><a class="page-link" href="#">1</a></li>
+	                <li class="page-item"><a class="page-link" href="#">2</a></li>
+	                <li class="page-item"><a class="page-link" href="#">3</a></li>
+	                <li class="page-item">
+	                    <a class="page-link" href="#">Next</a>
+	                </li>
+	            </ul>
+	        </nav>
+	</div>
+	<!-- main content area end -->
+	
+	<script>
+	function deleteItem(id) {
+	    if (confirm('정말 삭제하시겠습니까?')) {
+	        // 삭제 처리 로직
+	        // 예: 폼 submit, AJAX 호출, location 이동 등
+	        console.log('삭제 진행');
+	    } else {
+	        console.log('삭제 취소');
+	    }
+	}
+	</script>
+
+    <!-- ⭐ footer include -->
+    <div th:replace="fragments/fragments :: footer"></div>
+
+</div>
+
+<!-- jquery latest version -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+
+<!-- bootstrap 4 js -->
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+
+<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+
+<!-- start chart js (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+<!-- start highcharts js (CDN) -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<!-- start zingchart js (CDN) -->
+<script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+<script>
+    zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
+    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];
+</script>
+
+<!-- all line chart activation -->
+<script th:src="@{/assets/js/line-chart.js}"></script>
+
+<!-- all bar chart activation -->
+<script th:src="@{/assets/js/bar-chart.js}"></script>
+
+<!-- all pie chart -->
+<script th:src="@{/assets/js/pie-chart.js}"></script>
+
+<!-- others plugins -->
+<script th:src="@{/assets/js/plugins.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+</body>
+</html>
