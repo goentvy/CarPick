@@ -10,4 +10,5 @@ public interface EventService {
     void insertEvent(EventDTO event);
     void updateEvent(EventDTO event);
     void deleteEvent(int id);
+	List<EventDTO> searchEvents(String search, String type);
 }

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>카픽 - 이벤트 관리</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
 	<!-- CSS -->
 	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
 	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
@@ -56,7 +57,7 @@
 	                </div>
 	            </div>
 				<div class="col-sm-6 clearfix">
-					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/spot_write'">
+					<button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/event_write'">
 	                    이벤트 등록
 	                </button>
 	            </div>
@@ -64,7 +65,7 @@
 	    </div>
 	    <!-- page title area end -->
 		<div class="main-content-inner">
-			<form>
+			<form method="get" action="/admin/event">
 				<div class="col-lg-12 mt-4">
 					<div class="row">
 						<button class="btn btn-light dropdown-toggle btn-event mr-1"
@@ -84,10 +85,10 @@
 						</div>
 						
 						<div class="search-box pull-left mr-1">
-	                        <input type="text" name="search" placeholder="Search..." required>
+	                        <input type="text" name="search" placeholder="Search..." th:value="${search}" required>
 	                    </div>
 						<div class="search-btn">
-							<button type="button" class="btn btn-light mb-3"><i class="ti-search"></i></button>
+							<button type="submit" class="btn btn-light mb-3"><i class="ti-search"></i></button>
 						</div>
 					</div>
 				</div>
@@ -114,16 +115,15 @@
 										<tr th:each="event, stat : ${eventList}">
 										    <th scope="row" th:text="${stat.count}">1</th>
 
-										    <td th:onclick="|location.href='@{/event_write(id=${event.id})}'|">
-												<img th:src="@{/upload/event/{file}(file=${event.thumbnail})}"
-												     alt="썸네일"
-												     style="width:80px; height:60px; object-fit:cover;">
-										    </td>
+											<td th:onclick="|location.href='@{/admin/event_write/{id}(id=${event.id})}'|">
+											    <img th:src="@{/upload/event/{file}(file=${event.thumbnail})}"
+											         alt="썸네일"
+											         style="width:80px; height:60px; object-fit:cover;">
+											</td>
 
-										    <td th:text="${event.title}"
-										        th:onclick="|location.href='@{/event_write(id=${event.id})}'|">
-										        제목
-										    </td>
+											<td th:text="${event.title}"
+											    th:onclick="|location.href='@{/admin/event_write/{id}(id=${event.id})}'|">
+											</td>
 
 											<td th:text="|${event.startDate} ~ ${event.endDate}|">
 											    2025-01-01 ~ 2025-01-31
@@ -145,46 +145,22 @@
                     </div>
                 </div>
 			</div>
-			<nav aria-label="Page navigation example">
-	            <ul class="pagination justify-content-center">
-	                <li class="page-item disabled">
-	                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-	                </li>
-	                <li class="page-item"><a class="page-link" href="#">1</a></li>
-	                <li class="page-item"><a class="page-link" href="#">2</a></li>
-	                <li class="page-item"><a class="page-link" href="#">3</a></li>
-	                <li class="page-item">
-	                    <a class="page-link" href="#">Next</a>
-	                </li>
-	            </ul>
-	        </nav>
+
 	</div>
 	<!-- main content area end -->
 	
 	<script>
-	function deleteItem(id) {
-	    if (!confirm('정말 삭제하시겠습니까?')) {
-	        return;
-	    }
+		function deleteItem(id) {
+		    if (!confirm('정말 삭제하시겠습니까?')) return;
 
-	    fetch(`/admin/event_delete/${id}`, {
-	        method: 'DELETE'
-	    })
-	    .then(response => {
-	        if (!response.ok) {
-	            throw new Error('삭제 실패');
-	        }
-	        return response.text();
-	    })
-	    .then(result => {
-	        alert('정상적으로 삭제가 되었습니다.');
-	        location.reload(); // 또는 해당 행만 제거
-	    })
-	    .catch(error => {
-	        alert('삭제 중 오류가 발생했습니다.');
-	        console.error(error);
-	    });
-	}
+		    fetch(`/admin/event_delete/${id}`, { method: 'DELETE' })
+		        .then(res => {
+		            if (!res.ok) throw new Error('삭제 실패');
+		            return res.text();
+		        })
+		        .then(() => location.reload())
+		        .catch(err => alert(err.message));
+		}
 	</script>
 
 
