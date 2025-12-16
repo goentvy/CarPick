@@ -20,15 +20,12 @@ function MyPageHome({ userName = "UserName" }) {
     // 진행중 주문 mock
     useEffect(() => {
         console.log(`
-🚀 === 진행중인 주문 Mock 데이터 설정 ===
-setOngoingOrder({ id: 123, carName: 'K5', pickupDate: '2025-12-20', status: '예약완료' })
-setOngoingOrder(null)
         `);
 
         const timeout = setTimeout(() => {
             setOngoingOrder({
                 id: 123,
-                carName: "진행중인 주문 테스트용",
+                carName: "Test Name",
                 pickupDate: "픽업 날짜 : 2025-12-20 (토)",
                 status: "예약완료",
                 pickupLocation: "서울역 카픽존",
