@@ -7,11 +7,14 @@ import com.carpick.dto.LoginResponse;
 import com.carpick.dto.SignupRequest;
 import com.carpick.dto.SignupResponse;
 import com.carpick.mapper.UserMapper;
+import com.carpick.model.Role;
 import com.carpick.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +40,14 @@ public class AuthService {
             );
         }
 
+        String role = Optional.ofNullable(user.getRole())
+                .orElse(Role.USER)
+                .name();
+
+
         String accessToken = jwtProvider.generateToken(
                 user.getUser_id(),
-                user.getRole().name()
+                role
         );
 
         return new LoginResponse(
