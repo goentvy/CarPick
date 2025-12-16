@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: carpick
+  datasource:
+    url: jdbc:mariadb://localhost:3306/carpick
+    username: root
+    password: 1234
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  mvc:
+    servlet: 
+      throw-exception-if-no-handler-found: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+
+  web:
+    resources:
+      add-mappings: false
+
+# 전역에서의 업로드 파일 크기 제한 / 악의적인 요청 방어 용도
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+server:
+  port: 8080
+
+
+
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.example.demo.model
+
+springdoc:
+  swagger-ui:
+    # Swagger UI의 기본 접속 경로
+    path: /swagger-ui.html 
+    # 컨트롤러 태그를 알파벳 순으로 정렬
+    tags-sorter: alpha
+    # 오퍼레이션(메서드)을 HTTP 메서드 순으로 정렬 (개인적으로 method를 더 선호)
+    # alpha로 유지해도 무방합니다.
+    operations-sorter: method 
+  api-docs:
+    # API 문서를 위한 JSON/YAML 파일 경로
+    path: /v3/api-docs 
+  # API의 기본 Request/Response 미디어 타입을 JSON으로 명시
+  default-consumes-media-type: application/json 
+  default-produces-media-type: application/json
+
+
