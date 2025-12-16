@@ -20,10 +20,6 @@ function ChangeHistoryPage() {
             className="font-pretendard"
             style={{ minHeight: contentMinHeight, backgroundColor: "#E7EEFF" }}
         >
-            {/* 상단 바 */}
-            <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
-                <p className="text-sm text-white font-semibold">취소 · 변경 내역</p>
-            </div>
 
             <div className="px-4 py-4 space-y-4">
                 {/* 필터 탭 */}

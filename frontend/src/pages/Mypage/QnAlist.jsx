@@ -52,10 +52,7 @@ function QnAlist() {
                     backgroundColor: "#E7EEFF",
                 }}
             >
-                {/* 상단 바 */}
-                <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
-                    <p className="text-sm text-white font-semibold">1:1 문의 내역</p>
-                </div>
+
 
                 {/* 빈 상태 카드 */}
                 <div className="px-4 py-6">

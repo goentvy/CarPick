@@ -70,7 +70,7 @@ function MyPageHome({ userName = "UserName" }) {
               "
                         >
                             <span>{item.label}</span>
-                            <span className="text-[#C8FF48] text-lg font-bold leading-none">
+                            <span className="text-[#2C7FFF] text-lg font-bold leading-none">
                 ›
               </span>
                         </button>
