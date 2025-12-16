@@ -1,6 +1,6 @@
-package com.carpick.service.reservation;
+package com.carpick.domain.reservation.service;
 
-import com.carpick.dto.reservation.ReservationDto;
+import com.carpick.domain.reservation.dto.ReservationDto;
 import org.springframework.stereotype.Service;
 
 @Service

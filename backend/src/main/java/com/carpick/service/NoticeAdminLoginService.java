@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class NoticeAdminLoginService {
     private final NoticeAdminRepository noticeAdminRepository;
 
-    public AdminService(NoticeAdminRepository noticeAdminRepository) {
+    public NoticeAdminLoginService(NoticeAdminRepository noticeAdminRepository) {
         this.noticeAdminRepository = noticeAdminRepository;
     }
 

@@ -1,4 +1,4 @@
-package com.carpick.dto.payment;
+package com.carpick.domain.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
