@@ -21,9 +21,16 @@ public interface EventMapper {
 
     @Select("SELECT * FROM event WHERE id = #{id}")
     EventDTO getEvent(int id);
+    
+    @Select("SELECT * FROM event WHERE (title LIKE CONCAT('%', #{search}, '%') OR content LIKE CONCAT('%', #{search}, '%'))")
+    List<EventDTO> searchOngoingEvents(String search);
+
+    @Select("SELECT * FROM event WHERE (title LIKE CONCAT('%', #{search}, '%') OR content LIKE CONCAT('%', #{search}, '%'))")
+    List<EventDTO> searchEndEvents(String search);
+
 
     @Insert("""
-        INSERT INTO event(title, content, start_date, end_date, thumbnail, created_at, updated_at)
+        INSERT INTO event(title, content, startDate, endDate, thumbnail, created_at, updated_at)
         VALUES(#{title}, #{content}, #{startDate}, #{endDate}, #{thumbnail},NOW(),NOW())
     """)
     void insertEvent(EventDTO event);
@@ -32,8 +39,8 @@ public interface EventMapper {
         UPDATE event SET
         title=#{title},
         content=#{content},
-        start_date=#{startDate},
-        end_date=#{endDate},
+        startDate=#{startDate},
+        endDate=#{endDate},
         thumbnail=#{thumbnail},
         updated_at=NOW()
         WHERE id=#{id}

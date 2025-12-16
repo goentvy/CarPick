@@ -1,6 +1,9 @@
 package com.carpick.domain.event.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,14 @@ public class EventServiceImpl implements EventService {
     public List<EventDTO> getEndList() {
         return eventMapper.getEndList();
     }
+    
+    public List<EventDTO> searchEvents(String search, String type) {
+        if ("end".equals(type)) {
+            return eventMapper.searchEndEvents(search);
+        } else {
+            return eventMapper.searchOngoingEvents(search);
+        }
+    }
 
     @Override
     public EventDTO getEvent(int id) {
@@ -46,12 +57,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void deleteEvent(int id) {
-    	EventDTO event = eventMapper.getEvent(id);
+        EventDTO event = eventMapper.getEvent(id);
+        if (event == null) return;
 
-        String filePath = fileProperties.getUploadPath() + "event/" + event.getThumbnail();
-
-        new File(filePath).delete();
+        String filePath = Paths.get(fileProperties.getUploadPath(), "event", event.getThumbnail()).toString();
+        try {
+            Files.deleteIfExists(Paths.get(filePath));
+        } catch (IOException e) {
+            e.printStackTrace(); // 로그만 남김
+        }
 
         eventMapper.deleteEvent(id);
     }
+
 }
