@@ -8,6 +8,6 @@ public class InquiryCreateRequest {
 	private Long userId;
 	private String category;
 	private String title;
-	private String TEXT;
+	private String content;
 
 }

@@ -13,7 +13,7 @@ public class Inquiry {
 	
 	private String category;
 	private String title;
-	private String TEXT;
+	private String content;
 	
 	private String status;
 	private String adminReply;
