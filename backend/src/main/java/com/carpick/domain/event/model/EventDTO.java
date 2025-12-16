@@ -1,4 +1,4 @@
-package com.carpick.model;
+package com.carpick.domain.event.model;
 
 import java.time.LocalDateTime;
 

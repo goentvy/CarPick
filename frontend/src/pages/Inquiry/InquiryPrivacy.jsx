@@ -51,7 +51,7 @@ export default function InquiryPrivacy() {
         <button
           type="button"
           className="btn-secondary back-btn"
-          onClick={() => navigate("/inquiry")}
+          onClick={() => navigate("/cs/inquiry")}
         >
             돌아가기
         </button>

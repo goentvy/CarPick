@@ -1,12 +1,12 @@
-package com.carpick.service;
+package com.carpick.domain.event.service;
 
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
-import com.carpick.model.EventDTO;
+import com.carpick.domain.event.model.EventDTO;
 import com.carpick.util.FileProperties;
-import com.carpick.mapper.EventMapper;
+import com.carpick.domain.event.mapper.EventMapper;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -1,4 +1,4 @@
-package com.carpick.controller;
+package com.carpick.domain.event.controller;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.carpick.model.EventDTO;
-import com.carpick.service.EventService;
+import com.carpick.domain.event.model.EventDTO;
+import com.carpick.domain.event.service.EventService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -3,6 +3,7 @@ package com.carpick.config;
 import com.carpick.ntt.AdminNotice;
 import com.carpick.repository.NoticeAdminRepository;
 import com.carpick.repository.NoticeRepository;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
