@@ -82,3 +82,8 @@ logs/
 coverage/
 *.lcov
 test-output/
+
+# -------------------------
+.metadata/
+/backend/.metadata
+# -------------------------

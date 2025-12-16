@@ -1,0 +1,43 @@
+.detail-container {
+    width: 1200px;
+    margin: 50px auto;
+    font-family: "Noto Sans KR", sans-serif;
+}
+
+.detail-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.detail-info {
+    color: #777;
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+.detail-info .divider {
+    margin: 0 10px;
+    color: #ccc;
+}
+
+.detail-body {
+    min-height: 300px;
+    line-height: 1.7;
+    font-size: 17px;
+    white-space: pre-line;
+    margin-bottom: 40px;
+}
+
+.back-btn {
+    padding: 12px 22px;
+    font-size: 15px;
+    background: #444;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    background: #000;
+}
