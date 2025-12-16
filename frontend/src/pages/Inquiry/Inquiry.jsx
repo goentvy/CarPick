@@ -134,7 +134,7 @@ export default function InquiryPage() {
 
                 <p className="privacy-note">
                     문의 접수 시 개인정보는{" "}
-                    <Link to="/inquiry/privacy" className="link">
+                    <Link to="/cs/inquiry/privacy" className="link">
                         개인정보처리방침
                     </Link>
                     에 따라 처리됩니다.

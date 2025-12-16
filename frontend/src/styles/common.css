@@ -101,7 +101,8 @@ body {
 #head .inner{
     width:var(--pc-width);
     background:var(--menu-bg);
-    padding:20px 25px; 
+    padding:15px 25px;
+    height:60px; 
     flex-direction: row;
     display: flex;
     justify-content: space-between;
@@ -331,10 +332,12 @@ body {
 
 #content{
     max-width:640px; 
-    margin:67px auto; 
+    margin:60px auto 0; 
+    min-height: calc(100vh - 67px);
 }
 
 #footer{
+    display:none; 
     position:fixed;
     bottom:0;
     left:0;
@@ -346,7 +349,7 @@ body {
     width:100%; 
     margin:auto;
     background:var(--menu-bg);
-    height:72px;
+    height:60px;
     color:#fff; 
     display: flex;
     align-items: center;
@@ -373,7 +376,7 @@ body {
     content:'';
     width:42px;
     height:25px; 
-    margin-bottom:6px; 
+    margin-bottom:3px; 
     display:flex;
     align-items: center;
 }
@@ -436,4 +439,10 @@ body {
 #footer .inner .btns .btn.active span,
 #footer .inner .btns .btn:hover span{
     color:var(--logo-yellow);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    #footer {
+        display: block;
+    }
 }
