@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.carpick.model.EventDTO;
 import com.carpick.service.EventService;
+import com.carpick.domain.notice.ntt.NoticeNtt;
+import com.carpick.domain.notice.repository.NoticeRepository;
 
 
 @Controller
@@ -24,6 +26,7 @@ import com.carpick.service.EventService;
 public class AdminController {
 	
 	private final EventService eventService;
+	private final NoticeRepository noticeRepository;
 	
 	@GetMapping()
 	public String adminMain() {
@@ -159,13 +162,19 @@ public class AdminController {
     
     // 공지사항 관리
     @GetMapping("/notice")
-    public String noticeList() {
+    public String noticeList(Model model) {
+        List<NoticeNtt> list = noticeRepository.findByDeletedFalseOrderByCreatedAtDesc();
+        model.addAttribute("noticeList", list);
         return "notice";
     }
     
     // 공지사항 상세보기
     @GetMapping("/notice_write")
-    public String noticeWrite() {
+    public String noticeWrite(@RequestParam(value = "id", required = false) Long id, Model model) {
+        if (id != null) {
+            NoticeNtt notice = noticeRepository.findById(id).orElse(null);
+            model.addAttribute("notice", notice);
+        }
         return "noticeWrite";
     }
     
