@@ -4,8 +4,8 @@ springdoc:
     enabled: true
 
 mybatis:
-  mapper-locations: classpath:/Xmlmapper/*.xml
-  type-aliases-package: com.carpick.domain.car.entity
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.carpick.domain.**.entity
 
 
 logging:

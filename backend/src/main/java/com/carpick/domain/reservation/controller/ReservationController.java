@@ -1,40 +1,54 @@
 package com.carpick.domain.reservation.controller;
 
-import com.carpick.domain.reservation.dto.CancelRequest;
-import com.carpick.domain.reservation.dto.ReservationDto;
-import com.carpick.domain.reservation.service.ReservationService;
+import com.carpick.domain.reservation.dto.ReservationRequest;
+import com.carpick.domain.reservation.dto.ReservationRequest.CardPayment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/guest/reservation")
+@RequestMapping("/api/reservation")
 public class ReservationController {
 
-    private final ReservationService reservationService;
-
-    public ReservationController(ReservationService reservationService) {
-        this.reservationService = reservationService;
-    }
-
-    // 조회
-    @GetMapping
-    public ResponseEntity<ReservationDto> getReservation(
-            @RequestParam String email,
-            @RequestParam String reservationNumber) {
-        ReservationDto reservation = reservationService.findByEmailAndNumber(email, reservationNumber);
-        if (reservation == null) {
-            return ResponseEntity.notFound().build();
+    @PostMapping("/pay")
+    public ResponseEntity<?> processPayment(@RequestBody ReservationRequest request) {
+        // 1. 카드정보 존재 여부 확인
+        CardPayment card = request.getCardPayment();
+        if (card == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "DECLINED",
+                    "message", "결제정보가 누락되었습니다."
+            ));
         }
-        return ResponseEntity.ok(reservation);
+
+        // 2. 약관 동의 여부 확인
+        if (!request.isAgreement() || !card.isAgree()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "DECLINED",
+                    "message", "약관 동의가 필요합니다."
+            ));
+        }
+
+        // 3. 결제 처리 로직 (예: PG 연동)
+        boolean paymentSuccess = mockPayment(card);
+
+        if (paymentSuccess) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "APPROVED",
+                    "message", "결제 완료"
+            ));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "DECLINED",
+                    "message", "결제 실패"
+            ));
+        }
     }
 
-    // 취소
-    @PostMapping("/cancel")
-    public ResponseEntity<ReservationDto> cancelReservation(@RequestBody CancelRequest request) {
-        ReservationDto canceled = reservationService.cancelReservation(
-                request.getReservationNumber(),
-                request.getReason()
-        );
-        return ResponseEntity.ok(canceled);
+    private boolean mockPayment(CardPayment card) {
+        // 실제 PG 연동 대신 카드번호 앞자리로 승인 여부 판단
+        return card.getCardNumber() != null && card.getCardNumber().startsWith("1234");
     }
 }
