@@ -1,5 +1,5 @@
 // src/pages/mypage/MyPageHome.jsx
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const menuItems = [
@@ -8,14 +8,36 @@ const menuItems = [
     { label: "리뷰 관리", path: "/mypage/reviewhistory" },
     { label: "문의 내역", path: "/mypage/qna" },
     { label: "면허 관리", path: "/mypage/license" },
+    { label: "카드 관리", path: "/mypage/payment" },
     { label: "선호 차량", path: "/mypage/favorites" },
 ];
 
 function MyPageHome({ userName = "UserName" }) {
     const navigate = useNavigate();
+    const [ongoingOrder, setOngoingOrder] = useState(null);
     const contentMinHeight = "calc(100vh - 80px - 72px)";
 
-    // 이 화면에서만 전체 배경 E7EEFF
+    // 진행중 주문 mock
+    useEffect(() => {
+        console.log(`
+🚀 === 진행중인 주문 Mock 데이터 설정 ===
+setOngoingOrder({ id: 123, carName: 'K5', pickupDate: '2025-12-20', status: '예약완료' })
+setOngoingOrder(null)
+        `);
+
+        const timeout = setTimeout(() => {
+            setOngoingOrder({
+                id: 123,
+                carName: "현대 K5",
+                pickupDate: "픽업 날짜 : 2025-12-20 (토)",
+                status: "예약완료 | 서울역 카픽존",
+            });
+        }, 1500);
+
+        return () => clearTimeout(timeout);
+    }, []);
+
+    // 배경색 유지
     useEffect(() => {
         const prevBodyBg = document.body.style.backgroundColor;
         document.body.style.backgroundColor = "#E7EEFF";
@@ -50,8 +72,58 @@ function MyPageHome({ userName = "UserName" }) {
                 </div>
             </div>
 
-            {/* 리스트 영역 (이 컴포넌트에서만 반응형 폭) */}
-            <div className="px-4 pt-5 pb-4 lg:pb-2">
+            {/* 진행중 주문 카드 */}
+            {ongoingOrder && (
+                <div className="px-4 pt-6">
+                    <div className="flex flex-col items-center">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/mypage/reservations")}
+                            className="
+                                w-full
+                                max-w-md
+                                sm:max-w-lg
+                                md:max-w-xl
+                                lg:max-w-2xl
+                                rounded-2xl
+                                bg-gradient-to-r from-[#0A56FF] to-white
+                                text-white shadow-lg border-0 hover:shadow-xl transition-all
+                            "
+                        >
+                            <div className="flex items-center px-4 py-8">
+                                {/* 왼쪽 텍스트 */}
+                                <div className="flex flex-col text-left mr-4">
+                                    <span className="text-[11px] font-semibold">
+                                        진행중인 주문
+                                    </span>
+                                    <span className="text-sm font-bold mt-1">
+                                        {ongoingOrder.carName}
+                                    </span>
+                                    <div className="text-[11px] mt-1 opacity-90">
+                                        <div>{ongoingOrder.pickupDate}</div>
+                                        <div>{ongoingOrder.status}</div>
+                                    </div>
+                                </div>
+
+                                {/* 오른쪽 이미지 + 화살표 */}
+                                <div className="ml-auto flex items-center">
+                                    <div className="mr-10 w-30 h-15 rounded-xl  overflow-hidden flex items-center justify-center">
+                                        <img
+                                            src="/images/common/car1.svg"
+                                            alt="car"
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </div>
+                                    <span className="text-base font-bold text-[#2C7FFF]">›</span>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 리스트 영역 */}
+            <div className="px-4 pt-4 pb-4 lg:pb-2">
                 <div className="flex flex-col items-center space-y-3">
                     {menuItems.map((item) => (
                         <button
@@ -59,20 +131,21 @@ function MyPageHome({ userName = "UserName" }) {
                             type="button"
                             onClick={() => navigate(item.path)}
                             className="
-                w-full
-                max-w-md
-                sm:max-w-lg
-                md:max-w-xl
-                lg:max-w-2xl
-                flex items-center justify-between
-                px-4 py-3 rounded-2xl bg-white
-                text-sm font-medium text-[#1A1A1A] shadow-sm
-              "
+                                w-full
+                                max-w-md
+                                sm:max-w-lg
+                                md:max-w-xl
+                                lg:max-w-2xl
+                                flex items-center justify-between
+                                px-4 py-3 rounded-2xl bg-white
+                                text-sm font-medium text-[#1A1A1A] shadow-sm
+                                hover:shadow-md transition-all
+                            "
                         >
                             <span>{item.label}</span>
                             <span className="text-[#2C7FFF] text-lg font-bold leading-none">
-                ›
-              </span>
+                                ›
+                            </span>
                         </button>
                     ))}
                 </div>
