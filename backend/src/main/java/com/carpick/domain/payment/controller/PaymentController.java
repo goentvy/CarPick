@@ -1,9 +1,9 @@
-package com.carpick.controller.payment;
+package com.carpick.domain.payment.controller;
 
-import com.carpick.dto.payment.PaymentApproveResponse;
-import com.carpick.dto.payment.PaymentReadyResponse;
-import com.carpick.service.payment.InicisPayService;
-import com.carpick.service.payment.KakaoPayService;
+import com.carpick.domain.payment.dto.PaymentApproveResponse;
+import com.carpick.domain.payment.dto.PaymentReadyResponse;
+import com.carpick.domain.payment.service.InicisPayService;
+import com.carpick.domain.payment.service.KakaoPayService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
