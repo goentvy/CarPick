@@ -32,7 +32,7 @@ function QnAlist() {
     const navigate = useNavigate();
     const items = mockInquiries; // 임시 데이터
 
-    const contentMinHeight = "calc(100vh - 80px - 72px)";
+    const contentMinHeight = "calc(100vh - 60px)";
 
     const formatCategory = (c) => {
         if (c === "reservation") return "예약 문의";
@@ -70,7 +70,7 @@ function QnAlist() {
                         </p>
                         <button
                             type="button"
-                            onClick={() => navigate("/inquiry")}
+                            onClick={() => navigate("/cs/inquiry")}
                             className="h-11 px-6 rounded-xl bg-[#2E73FF] text-white text-sm font-medium shadow-sm"
                         >
                             1:1 문의하기

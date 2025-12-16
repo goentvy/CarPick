@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "../styles/Intro.module.css";
+import styles from "../../styles/Intro.module.css";
 
 import { createGlobalStyle } from "styled-components";
 
@@ -128,9 +128,10 @@ export default function Intro() {
                         type="checkbox"
                         id={opt.id}
                         checked={selected.includes(opt.value)}
+                        className={styles.opt_chk}
                         onChange={() => toggleOption(opt.value)}
                         />
-                        <label htmlFor={opt.id}>{opt.label}</label>
+                        <label htmlFor={opt.id} className={styles.opt_label}>{opt.label}</label>
                     </li>
                     ))}
                 </ul>
