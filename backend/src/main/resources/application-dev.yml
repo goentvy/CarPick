@@ -1,4 +1,15 @@
 # application-dev.yml
 springdoc:
   swagger-ui:
-    enabled: true	
+    enabled: true
+
+mybatis:
+  mapper-locations: classpath:/Xmlmapper/*.xml
+  type-aliases-package: com.carpick.domain.car.entity
+
+
+logging:
+  level:
+    org.mybatis: DEBUG
+    org.mybatis.spring: DEBUG
+    com.carpick.domain.car.mapper: DEBUG
