@@ -28,9 +28,10 @@ setOngoingOrder(null)
         const timeout = setTimeout(() => {
             setOngoingOrder({
                 id: 123,
-                carName: "현대 K5",
+                carName: "진행중인 주문 테스트용",
                 pickupDate: "픽업 날짜 : 2025-12-20 (토)",
-                status: "예약완료 | 서울역 카픽존",
+                status: "예약완료",
+                pickupLocation: "서울역 카픽존",
             });
         }, 1500);
 
@@ -101,6 +102,7 @@ setOngoingOrder(null)
                                     </span>
                                     <div className="text-[11px] mt-1 opacity-90">
                                         <div>{ongoingOrder.pickupDate}</div>
+                                        <div>{ongoingOrder.pickupLocation}</div>
                                         <div>{ongoingOrder.status}</div>
                                     </div>
                                 </div>
