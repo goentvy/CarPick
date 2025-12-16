@@ -1,12 +1,13 @@
-package com.carpick.controller;
+package com.carpick.domain.car.controller;
 
+
+import com.carpick.domain.car.service.CarService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.carpick.service.CarService;
 
 @Controller
 @RequiredArgsConstructor
