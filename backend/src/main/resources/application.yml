@@ -66,5 +66,5 @@ openai:
 #  api-key: dummy
 
 file:
-  upload
-    path=C:/upload/
+  upload:
+    path: C:/upload
