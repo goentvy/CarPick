@@ -1,4 +1,4 @@
-package com.carpick.auth.jwt;
+package com.carpick.domain.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

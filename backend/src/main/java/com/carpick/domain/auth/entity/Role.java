@@ -1,4 +1,4 @@
-package com.carpick.model;
+package com.carpick.domain.auth.entity;
 
 public enum Role {
     USER,

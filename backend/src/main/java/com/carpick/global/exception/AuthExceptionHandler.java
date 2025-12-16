@@ -1,6 +1,5 @@
-package com.carpick.auth.handler;
+package com.carpick.global.exception;
 
-import com.carpick.auth.exception.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

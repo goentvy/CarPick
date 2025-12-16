@@ -1,14 +1,14 @@
-package com.carpick.service;
+package com.carpick.domain.auth.service;
 
-import com.carpick.auth.exception.AuthenticationException;
-import com.carpick.auth.jwt.JwtProvider;
-import com.carpick.dto.LoginRequest;
-import com.carpick.dto.LoginResponse;
-import com.carpick.dto.SignupRequest;
-import com.carpick.dto.SignupResponse;
-import com.carpick.mapper.UserMapper;
-import com.carpick.model.Role;
-import com.carpick.model.User;
+import com.carpick.global.exception.AuthenticationException;
+import com.carpick.domain.auth.jwt.JwtProvider;
+import com.carpick.domain.auth.dto.LoginRequest;
+import com.carpick.domain.auth.dto.LoginResponse;
+import com.carpick.domain.auth.dto.SignupRequest;
+import com.carpick.domain.auth.dto.SignupResponse;
+import com.carpick.domain.auth.mapper.UserMapper;
+import com.carpick.domain.auth.entity.Role;
+import com.carpick.domain.auth.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

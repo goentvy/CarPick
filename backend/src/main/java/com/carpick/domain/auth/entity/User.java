@@ -1,4 +1,4 @@
-package com.carpick.model;
+package com.carpick.domain.auth.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
