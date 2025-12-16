@@ -1,4 +1,4 @@
-package com.carpick.model;
+package com.carpick.domain.car.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleStatusHistory {
+public class CarStatusHistory {
     private Long historyId;
     private Long vehicleId;
 
