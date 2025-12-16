@@ -1,4 +1,4 @@
-package com.carpick.model;
+package com.carpick.domain.reservation.entity;
 
 
 import lombok.*;

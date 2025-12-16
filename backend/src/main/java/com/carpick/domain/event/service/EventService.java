@@ -1,7 +1,7 @@
-package com.carpick.service;
+package com.carpick.domain.event.service;
 
 import java.util.List;
-import com.carpick.model.EventDTO;
+import com.carpick.domain.event.model.EventDTO;
 
 public interface EventService {
     List<EventDTO> getList();

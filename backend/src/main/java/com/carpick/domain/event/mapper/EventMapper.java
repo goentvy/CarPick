@@ -1,4 +1,4 @@
-package com.carpick.mapper;
+package com.carpick.domain.event.mapper;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import com.carpick.model.EventDTO;
+import com.carpick.domain.event.model.EventDTO;
 
 @Mapper
 public interface EventMapper {
