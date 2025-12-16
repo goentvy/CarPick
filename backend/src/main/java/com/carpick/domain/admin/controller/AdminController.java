@@ -1,4 +1,4 @@
-package com.carpick.controller;
+package com.carpick.domain.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.carpick.model.EventDTO;
-import com.carpick.service.EventService;
+import com.carpick.domain.event.model.EventDTO;
+import com.carpick.domain.event.service.EventService;
 
 
 @Controller
