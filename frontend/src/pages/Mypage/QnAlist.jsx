@@ -52,10 +52,7 @@ function QnAlist() {
                     backgroundColor: "#E7EEFF",
                 }}
             >
-                {/* 상단 바 */}
-                <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
-                    <p className="text-sm text-white font-semibold">1:1 문의 내역</p>
-                </div>
+
 
                 {/* 빈 상태 카드 */}
                 <div className="px-4 py-6">
@@ -133,7 +130,7 @@ function QnAlist() {
                 <div className="pt-2">
                     <button
                         type="button"
-                        onClick={() => navigate("/inquiry")}
+                        onClick={() => navigate("/cs/inquiry")}
                         className="w-full h-11 rounded-xl bg-[#2E73FF] text-white text-sm font-medium shadow-sm"
                     >
                         새 문의 남기기
