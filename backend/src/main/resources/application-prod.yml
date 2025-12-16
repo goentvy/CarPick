@@ -1,0 +1,4 @@
+# application-prod.yml
+springdoc:
+  swagger-ui:
+    enabled: false
