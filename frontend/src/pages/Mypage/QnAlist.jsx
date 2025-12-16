@@ -130,7 +130,7 @@ function QnAlist() {
                 <div className="pt-2">
                     <button
                         type="button"
-                        onClick={() => navigate("/inquiry")}
+                        onClick={() => navigate("/cs/inquiry")}
                         className="w-full h-11 rounded-xl bg-[#2E73FF] text-white text-sm font-medium shadow-sm"
                     >
                         새 문의 남기기
