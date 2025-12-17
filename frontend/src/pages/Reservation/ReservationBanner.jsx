@@ -1,4 +1,7 @@
+import { useLocation } from "react-router-dom";
+
 const ReservationBanner = () => {
+  const location = useLocation();
   return (
     <section className="max-w-[640px] w-full mx-auto bg-white shadow-md overflow-hidden mb-8">
       {/* 상단 차량 예약 현황 */}
@@ -54,6 +57,7 @@ const ReservationBanner = () => {
         </div>
 
         {/* 총 금액 및 버튼 */}
+        { location === "reservation" ? 
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-col flex-1 text-sm text-gray-500 mb-2">
             <span>총 이용 금액:</span>
@@ -66,6 +70,8 @@ const ReservationBanner = () => {
             선택하기
           </button>
         </div>
+        : <span></span>
+        }
       </div>
     </section>
   );
