@@ -1,4 +1,4 @@
-package com.carpick.dto;
+package com.carpick.domain.notice.dto;
 
 import java.time.LocalDateTime;
 

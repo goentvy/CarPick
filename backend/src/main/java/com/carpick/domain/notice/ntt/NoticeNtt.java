@@ -1,4 +1,4 @@
-package com.carpick.ntt;
+package com.carpick.domain.notice.ntt;
 
 import java.time.LocalDateTime;
 

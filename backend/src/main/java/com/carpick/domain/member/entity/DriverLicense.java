@@ -1,5 +1,5 @@
 // com/carpick/domain/member/entity/DriverLicense.java
-package com.carpick.domain.member.entitiy;
+package com.carpick.domain.member.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

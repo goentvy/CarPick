@@ -1,15 +1,29 @@
 package com.carpick.domain.admin.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import lombok.RequiredArgsConstructor;
+
+import java.io.File;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.carpick.domain.event.model.EventDTO;
+import com.carpick.domain.event.service.EventService;
+
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
+	
+	private final EventService eventService;
 	
 	@GetMapping()
 	public String adminMain() {
@@ -87,7 +101,6 @@ public class AdminController {
     public String faqWrite() {
         return "faqWrite";
     }
-
     
     // 공지사항 관리
     @GetMapping("/notice")
@@ -96,7 +109,7 @@ public class AdminController {
     }
     
     // 공지사항 상세보기
-    @GetMapping("/notice_write")
+    @GetMapping("/notice_detail")
     public String noticeWrite() {
         return "noticeWrite";
     }

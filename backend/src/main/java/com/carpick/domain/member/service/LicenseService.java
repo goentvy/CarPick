@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.carpick.domain.member.dto.LicenseDto;
 import com.carpick.domain.member.dto.LicenseRegisterDto;
-import com.carpick.domain.member.entitiy.DriverLicense;
+import com.carpick.domain.member.entity.DriverLicense;
 import com.carpick.domain.member.repository.DriverLicenseRepository;
 
 import lombok.RequiredArgsConstructor;

@@ -30,7 +30,10 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RestControllerAdvice(basePackages = "com.carpick.domain")
+@RestControllerAdvice(basePackages = {
+				"com.carpick.domain",
+				"com.carpick.test"
+		})
 public class ApiExceptionHandler {
 
 	/**

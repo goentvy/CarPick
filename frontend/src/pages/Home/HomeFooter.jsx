@@ -1,12 +1,14 @@
+import { Link } from "react-router-dom";
+
 const HomeFooter = () => {
   return (
     <footer className="bg-gray-100 text-gray-600 text-xs py-6 mb-5 rounded-t-4xl">
       <div className="max-w-[640px] mx-auto px-6">
         {/* 링크 */}
         <div className="flex gap-4 mb-2 text-[13px] font-medium">
-          <a href="/terms" className="hover:underline">이용약관</a>
+          <Link to="/terms" className="hover:underline">이용약관</Link>
           <span className="text-gray-300">|</span>
-          <a href="/privacy" className="hover:underline">개인정보취급방침</a>
+          <Link to="/privacy" className="hover:underline">개인정보취급방침</Link>
         </div>
 
         {/* 회사 정보 */}

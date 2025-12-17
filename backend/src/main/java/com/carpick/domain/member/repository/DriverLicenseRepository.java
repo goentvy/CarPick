@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.carpick.domain.member.entitiy.DriverLicense;
+import com.carpick.domain.member.entity.DriverLicense;
 
 public interface DriverLicenseRepository extends JpaRepository<DriverLicense, Long> {
     List<DriverLicense> findByUserId(Long userId);

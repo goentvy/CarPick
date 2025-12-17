@@ -1,8 +1,12 @@
+import { useLocation } from "react-router-dom";
+
 const ReservationBanner = () => {
+  const location = useLocation();
+  console.log(location.pathname);
   return (
-    <section className="max-w-[640px] w-full mx-auto bg-white shadow-md overflow-hidden mb-8">
+    <section className="max-w-[640px] w-full overflow-hidden">
       {/* 상단 차량 예약 현황 */}
-      <div className="bg-sky-500 px-6 py-3 text-sm text-white text-center">
+      <div className="bg-sky-500 py-3 text-sm text-white text-center">
         <span>총 19대의 차량 중 </span>
         <span className="bg-white px-2 rounded-4xl font-semibold text-blue-600">11대</span>가 예약 가능합니다.
       </div>
@@ -17,13 +21,13 @@ const ReservationBanner = () => {
       </div>
 
       {/* 차량 정보 */}
-      <div className="p-6">
-        <h2 className="xx:text-xl sm:text-2xl font-bold text-gray-800 mb-1">Carnival High-Limousine</h2>
-        <p className="text-sm text-gray-600 mb-3">가족여행에 최적화 된 공간</p>
+      <div className="xx:p-2 sm:p-4 space-y-1 mb-2">
+        <h2 className="xx:text-xl sm:text-2xl font-bold text-gray-800">Carnival High-Limousine</h2>
+        <p className="text-sm text-gray-600">가족여행에 최적화 된 공간</p>
       </div>
 
       {/* 하단 옵션 및 결제 영역 */}
-      <div className="px-6 pb-3 grid grid-cols-1 gap-3">
+      <div className="xx:px-2 sm:px-4 pb-3 grid grid-cols-1 gap-3">
         {/* 옵션 및 요금 */}
         <div className="space-y-2 text-sm text-gray-700">
           <div className="space-y-1 text-right">
@@ -54,18 +58,22 @@ const ReservationBanner = () => {
         </div>
 
         {/* 총 금액 및 버튼 */}
-        <div className="flex flex-row justify-between items-center">
-          <div className="flex flex-col flex-1 text-sm text-gray-500 mb-2">
-            <span>총 이용 금액:</span>
-            <span className="xx:text-2xl text-4xl font-bold text-blue-500">128,000원</span>
+        { location.pathname === "/reservation" ? 
+          <span></span>
+        : 
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-col flex-1 text-sm text-gray-500 mb-2">
+              <span>총 이용 금액:</span>
+              <span className="xx:text-2xl text-4xl font-bold text-blue-500">128,000원</span>
+            </div>
+            <button
+              type="button"
+              className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200"
+            >
+              선택하기
+            </button>
           </div>
-          <button
-            type="button"
-            className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200"
-          >
-            선택하기
-          </button>
-        </div>
+        }
       </div>
     </section>
   );
