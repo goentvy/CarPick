@@ -24,7 +24,7 @@ public class User {
     private String phone;
     private Date birth;
 
-    private String gender;
+    private Gender gender;
     private Integer marketingAgree;
     private String membershipGrade;
 

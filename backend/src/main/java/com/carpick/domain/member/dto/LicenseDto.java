@@ -2,6 +2,7 @@
 package com.carpick.domain.member.dto;
 
 import com.carpick.domain.member.entity.DriverLicense;
+
 import lombok.Getter;
 import lombok.Setter;
 
