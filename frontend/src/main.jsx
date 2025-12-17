@@ -37,7 +37,7 @@ import OrderFail from './pages/Payment/OrderFail.js'
 import OrderComplete from './pages/Payment/OrderComplete.jsx'
 
 import InquiryPage from './pages/Inquiry/Inquiry.jsx'
-import InquirySuccess from './pages/Inquiry/InquiryPrivacy.jsx'
+import InquirySuccess from './pages/Inquiry/InquirySuccess.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
 import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 

@@ -5,13 +5,16 @@ import PaymentSummarySection from "./PaymentSummarySection";
 import AgreementSection from "./AgreementSection";
 import ReservationBanner from "./ReservationBanner";
 import CardPaymentForm from "../Payment/CardPaymentForm";
+import ReservationInsurance from "./ReservationInsurance";
 
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useState } from "react";
 
 // ✅ Yup 스키마 정의
 const schema = yup.object().shape({
+  // 카드 정보
   cardNumber: yup
     .string()
     .matches(/^\d{4}-\d{4}-\d{4}-\d{4}$/, "카드번호 형식이 올바르지 않습니다")
@@ -35,12 +38,27 @@ const schema = yup.object().shape({
   cardType: yup.string().oneOf(["personal", "corporate"]).required(),
   installment: yup.string().required("할부기간을 선택해주세요"),
   agree: yup.boolean().oneOf([true], "개인정보 수집 및 이용에 동의해주세요"),
+
+  // 운전자 정보
+  lastName: yup.string().required("성을 입력해주세요"),
+  firstName: yup.string().required("이름을 입력해주세요"),
+  birth: yup
+    .string()
+    .matches(/^\d{8}$/, "생년월일은 YYYYMMDD 형식이어야 합니다")
+    .required("생년월일은 필수입니다"),
+  phone: yup
+    .string()
+    .matches(/^01[016789]-\d{3,4}-\d{4}$/, "휴대폰 번호 형식이 올바르지 않습니다")
+    .required("휴대폰 번호는 필수입니다"),
+  email: yup.string().email("올바른 이메일 주소를 입력해주세요").required("이메일은 필수입니다"),
 });
+
 
 const ReservationPage = () => {
   const methods = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
+      // 카드 정보
       cardNumber: "",
       expiry: "",
       cvc: "",
@@ -48,8 +66,17 @@ const ReservationPage = () => {
       cardType: "personal",
       installment: "일시불",
       agree: false,
+
+      // 운전자 정보
+      lastName: "",
+      firstName: "",
+      birth: "",
+      phone: "",
+      email: "",
     },
   });
+  
+  const [insurance, setInsurance] = useState("full"); // 보험 선택 상태 추가
 
   return (
     <FormProvider {...methods}>
@@ -60,6 +87,11 @@ const ReservationPage = () => {
           <PickupReturnSection />
           {/* 운전자 정보 입력 (성, 이름, 생년월일, 휴대폰, 이메일, 인증요청 버튼 포함) */}
           <DriverInfoSection />
+          {/* 보험 선택 UI */}
+          <ReservationInsurance
+            selected={insurance}
+            onSelect={(id) => setInsurance(id)}
+          />
           {/* 보험 정보 안내 (보상한도, 자기부담금, 자손/대물/대인 설명 등) */}
           <InsuranceInfoSection />
           {/* 결제 요금 요약 (차량 요금, 보험 요금, 총 결제금액, 포인트 적립 등) */}
