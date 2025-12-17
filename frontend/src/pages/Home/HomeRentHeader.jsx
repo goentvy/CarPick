@@ -12,9 +12,6 @@ const HomeRentHeader = () => {
       <p className="xx:text-xl xs:text-3xl sm:text-4xl font-bold text-white mb-2">
         도착하면 바로 카픽!
       </p>
-      <p className="text-red-500 xs:text-gray-500 sm:text-green-500">
-        반응형 색상 테스트
-      </p>
       <p className="text-white text-xs sm:text-base mb-6">
         여행의 시작을 가장 가볍게 만드는 AI 모빌리티
       </p>
