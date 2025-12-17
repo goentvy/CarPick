@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.6' // 요청하신 3.3.6으로 수정
-    id 'io.spring.dependency-management' version '1.1.6' // 3.3.x대와 호환되는 버전
+    id 'org.springframework.boot' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'eclipse'
     id 'idea'
 }
@@ -21,41 +21,35 @@ repositories {
 }
 
 dependencies {
-
-    // Spring Boot Starters
-    // 2. Validation (유효성 검사: @NotNull, @Size 등을 쓸 때 필수)
+// 2. Validation (유효성 검사: @NotNull, @Size 등을 쓸 때 필수)
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.0'
 
-    // MyBatis (3.3.x 버전에 안정적인 3.0.3 또는 3.0.4 권장)
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+    // Swagger(OpenAPI)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
-    // Swagger (Springdoc OpenAPI) - 3.3.6에 최적화된 최신 버전
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-
-    // Lombok
     compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    // Database & DevTools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-
-    // AI & Security Crypto
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:4.0.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'com.azure:azure-ai-openai:1.0.0-beta.10'
+
+    // BCrypt (비밀번호 보안)
     implementation 'org.springframework.security:spring-security-crypto'
 
-    // JWT (0.12.x 버전이 최신이나, 기존 코드 호환성을 위해 0.11.5 유지)
+    // JWT 토큰 관련
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-    // Test
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
