@@ -1,7 +1,8 @@
-package com.carpick.controller;
+package com.carpick.domain.notice.controller;
 
-import com.carpick.ntt.NoticeNtt;
-import com.carpick.repository.NoticeRepository;
+import com.carpick.domain.notice.ntt.NoticeNtt;
+import com.carpick.domain.notice.repository.NoticeRepository;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +42,8 @@ public class UserController {
             
             // 이전/다음 공지사항 조회
             try {
-                NoticeNtt prevNotice = noticeRepository.findPrevNotice(notice.getCreatedAt());
-                NoticeNtt nextNotice = noticeRepository.findNextNotice(notice.getCreatedAt());
+                NoticeNtt prevNotice = noticeRepository.findTop1ByDeletedFalseAndCreatedAtGreaterThanOrderByCreatedAtAsc(notice.getCreatedAt());
+                NoticeNtt nextNotice = noticeRepository.findTop1ByDeletedFalseAndCreatedAtLessThanOrderByCreatedAtDesc(notice.getCreatedAt());
                 
                 model.addAttribute("prevNotice", prevNotice);
                 model.addAttribute("nextNotice", nextNotice);
