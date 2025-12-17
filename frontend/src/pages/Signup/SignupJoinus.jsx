@@ -22,7 +22,10 @@ const schema = yup.object().shape({
     .required("휴대폰 번호는 필수입니다"),
   birth: yup.date().required("생년월일은 필수입니다"),
   gender: yup.string().required("성별을 선택해주세요"),
-  consent: yup.string().required("정보제공 수신 여부를 선택해주세요"),
+  marketingAgree: yup
+    .string()
+    .oneOf(["agree"], "회원가입은 수신동의 시에만 가능합니다")
+    .required("정보제공 수신 여부를 선택해주세요"),
 });
 
 const SignupJoinus = () => {
@@ -45,7 +48,7 @@ const SignupJoinus = () => {
       phone: '',
       birth: null,
       gender: '',
-      consent: 'agree',
+      marketingAgree: 'agree',
     },
   });
 
@@ -58,7 +61,7 @@ const SignupJoinus = () => {
     try {
       const data = await signup({
         ...payload,
-        marketingAgree: formData.consent === 'agree',
+        marketingAgree: formData.marketingAgree === 'agree',
       });
 
       if (data.success) {
@@ -161,9 +164,9 @@ const SignupJoinus = () => {
             <div className="flex space-x-4 mt-1">
               <button
                 type="button"
-                onClick={() => setValue("gender", "male", { shouldValidate: true })}
+                onClick={() => setValue("gender", "M", { shouldValidate: true })}
                 className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                  gender === "male"
+                  gender === "M"
                     ? "bg-blue-100 text-blue-500 border-blue-500"
                     : "bg-white text-blue-500 border-gray-300 hover:bg-blue-100"
                 }`}
@@ -172,9 +175,9 @@ const SignupJoinus = () => {
               </button>
               <button
                 type="button"
-                onClick={() => setValue("gender", "female", { shouldValidate: true })}
+                onClick={() => setValue("gender", "F", { shouldValidate: true })}
                 className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                  gender === "female"
+                  gender === "F"
                     ? "bg-blue-100 text-blue-500 border-blue-500"
                     : "bg-white text-blue-500 border-gray-300 hover:bg-blue-100"
                 }`}
@@ -190,15 +193,15 @@ const SignupJoinus = () => {
             <label className="block font-semibold mb-1">정보제공 수신 *</label>
             <div className="flex space-x-4 mt-1">
               <label className="flex items-center space-x-1">
-                <input type="radio" value="agree" {...register("consent")} />
+                <input type="radio" value="agree" {...register("marketingAgree")} />
                 <span>수신동의</span>
               </label>
               <label className="flex items-center space-x-1">
-                <input type="radio" value="disagree" {...register("consent")} />
+                <input type="radio" value="disagree" {...register("marketingAgree")} />
                 <span>수신거부</span>
               </label>
             </div>
-            {errors.consent && <p className="text-red-500 text-sm mt-1">{errors.consent.message}</p>}
+            {errors.marketingAgree && <p className="text-red-500 text-sm mt-1">{errors.marketingAgree.message}</p>}
           </div>
 
           {/* 버튼 */}

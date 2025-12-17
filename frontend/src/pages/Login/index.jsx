@@ -3,9 +3,10 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useEffect } from 'react';
-
 import ContentTopLogo from '../../components/common/ContentTopLogo';
 import { login } from '../../services/auth';
+import useUserStore from '../../store/useUserStore';
+
 
 // Yup 스키마 정의
 const schema = yup.object().shape({
@@ -43,9 +44,17 @@ const Login = () => {
   const onSubmit = async (formData) => {
     try {
       const data = await login(formData.email, formData.password);
+
       if (data.success) {
-        localStorage.setItem("token", data.token);
-        alert("로그인 성공");
+        useUserStore.getState().login({ 
+          user: { 
+            email: data.email,
+            name: data.name,
+            membershipGrade: data.membershipGrade,
+          },
+          accessToken: data.accessToken,
+        });
+        
         navigate("/home");
       } else {
         alert(data.message || "로그인 실패");
