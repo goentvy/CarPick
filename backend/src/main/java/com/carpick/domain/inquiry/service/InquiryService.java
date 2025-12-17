@@ -16,8 +16,7 @@ public class InquiryService {
 	private final InquiryMapper inquiryMapper;
 	
 	@Transactional
-	public void createInquiry(InquiryCreateRequest req) {
-	
+	public Long createInquiry(InquiryCreateRequest req) {
 	Inquiry inquiry = new Inquiry();
 	inquiry.setUserId(req.getUserId());
 	inquiry.setCategory(req.getCategory());
@@ -25,5 +24,6 @@ public class InquiryService {
 	inquiry.setContent(req.getContent());
 	
 	inquiryMapper.insertInquiry(inquiry);
+	return inquiry.getId();
 	}
 }

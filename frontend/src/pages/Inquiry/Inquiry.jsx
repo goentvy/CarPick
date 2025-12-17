@@ -3,18 +3,26 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import ContentTopLogo from "../../components/common/ContentTopLogo";
 import "../../styles/inquiry.css";
+import useUserStore from "../../store/useUserStore";
+import axios from "axios";
 
-// 🔹 파일 상단에 전역 Mock 배열 (나중에 API로 대체) 임승우 작업 지현님이 문의하기 작업하신거 프론트 메모리에 저장되서 Mock 볼수있게 수정 했습니다 
+// ⭐ 임시 mock (QnAlist에서 사용 중)
 export const mockInquiries = [];
 
+
 export default function InquiryPage() {
-    const isLogin = true;
     const navigate = useNavigate();
 
+    // 로그인 정보
+    const { user, isLoggedIn } = useUserStore();
+    const isLogin = isLoggedIn;
+
+    // form state
     const [category, setCategory] = useState("");
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
+    // 비로그인 화면
     if (!isLogin) {
         return (
             <div className="page-wrapper">
@@ -42,34 +50,27 @@ export default function InquiryPage() {
         );
     }
 
-    // 제출하기 (임시로 mockInquiries에 저장)
-    const submitInquiry = async ({ category, title, content }) => {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-
-        const newItem = {
-            id: Date.now(),
+    // inquiry api 호출
+    const submitInquiry = async () => {
+        const response = await axios.post("/api/inquiry", {
+            userId: user.id,
             category,
             title,
-            content,
-            createdAt: new Date().toISOString(),
-            status: "PENDING",
-        };
+            content
+        });
 
-        mockInquiries.unshift(newItem); // 가장 최근 것이 위로 오게[web:1021]
-        return {
-            success: true,
-            inquiryId: newItem.id,
-        };
+        return response.data;
     };
 
+    // submit handler
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const result = await submitInquiry({ category, title, content });
+            const result = await submitInquiry();
 
             if (result.success) {
-                navigate("/mypage/qna"); // 성공 후 내역 화면으로 바로 이동
+                navigate("/cs/inquiry/success");
             } else {
                 alert("문의 등록에 실패했습니다.");
             }
@@ -79,6 +80,7 @@ export default function InquiryPage() {
         }
     };
 
+    // cancel handler
     const handleCancel = () => {
         navigate("/home");
     };

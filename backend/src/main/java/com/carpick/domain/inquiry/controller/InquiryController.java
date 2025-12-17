@@ -20,8 +20,10 @@ public class InquiryController {
 	private final InquiryService inquiryService;
 	
 	@PostMapping
-	public InquiryCreateResponse(@RequestBody InquiryCreateRequest req) {
-		InquiryService.createInquiry(req);
-		return new InquiryCreateResponse(true);
+	public InquiryCreateResponse create(
+	        @RequestBody InquiryCreateRequest req
+	) {
+	    Long id = inquiryService.createInquiry(req);
+	    return new InquiryCreateResponse(true, id);
 	}
 }

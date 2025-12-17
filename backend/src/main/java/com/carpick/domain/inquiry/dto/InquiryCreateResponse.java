@@ -8,4 +8,5 @@ import lombok.Getter;
 public class InquiryCreateResponse {
 
 	private boolean success;
+	private Long inquiryId;
 }

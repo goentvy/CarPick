@@ -13,11 +13,13 @@ keyProperty="id">
 		category,
 		title,
 		content,
+		status
 	) VALUES (
 		#{userId},
 		#{category},
 		#{title},
-		#{content}
+		#{content},
+		'pending'
 	)
 </insert>
 
