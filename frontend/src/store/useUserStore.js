@@ -1,17 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// 회원 정보 store
 const useUserStore = create(
   persist(
     (set) => ({
-      user: null, // { id, name, email } 형태로 저장
+      user: null,              // { id, name, email, membershipGrade } 등
+      accessToken: null,       // JWT 토큰
       isLoggedIn: false,
 
-      // 로그인 시 회원 정보 저장
-      login: (userData) =>
+      // 로그인 시 회원 정보 + 토큰 저장
+      login: ({ user, accessToken }) =>
         set({
-          user: userData,
+          user,
+          accessToken,
           isLoggedIn: true,
         }),
 
@@ -19,6 +20,7 @@ const useUserStore = create(
       logout: () =>
         set({
           user: null,
+          accessToken: null,
           isLoggedIn: false,
         }),
 
