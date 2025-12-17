@@ -13,10 +13,10 @@
     cs.car_class        AS carClass,
     cs.fuel_type        AS fuelType,
     cs.seating_capacity AS seatingCapacity,
-    cs.main_image_url   AS mainImageUrl,
+--     cs.main_image_url   AS mainImageUrl,
     p.standard_price    AS standardPrice,
     b.branch_name       AS branchName,
-    vi.status           AS status
+    vi.status           AS status,
 
 
 

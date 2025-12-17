@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 공지사항 등록/수정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+</head>
+<body>
+<div class="page-container">
+
+    <div th:replace="fragments/fragments :: sidebar"></div>
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <div class="main-content">
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left" th:text="${notice.id} != null ? '공지사항 수정' : '공지사항 등록'">공지사항 등록</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">홈</a></li>
+                            <li><a href="/admin/notice">공지사항 관리</a></li>
+                            <li><span th:text="${notice.id} != null ? '수정' : '등록'">등록</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12 mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/admin/notice_save}" method="post">
+                                <input type="hidden" name="id" th:value="${notice.id}">
+                                <div class="form-group">
+                                    <label>제목</label>
+                                    <input type="text" name="title" th:value="${notice.title}" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>작성자</label>
+                                    <input type="text" name="author" th:value="${notice.author}" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>내용</label>
+                                    <textarea name="content" class="form-control" rows="10" required
+                                              th:text="${notice.content}"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">저장</button>
+                                <button type="button" class="btn btn-secondary" onclick="location.href='/admin/notice'">취소</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="fragments/fragments :: footer"></div>
+</div>
+</body>
+</html>
