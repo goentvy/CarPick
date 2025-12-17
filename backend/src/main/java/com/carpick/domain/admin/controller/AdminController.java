@@ -164,7 +164,7 @@ public class AdminController {
     }
     
     // 공지사항 상세보기
-    @GetMapping("/notice_write")
+    @GetMapping("/notice_detail")
     public String noticeWrite() {
         return "noticeWrite";
     }
