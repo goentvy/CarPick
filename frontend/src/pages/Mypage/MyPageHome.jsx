@@ -1,6 +1,7 @@
 // src/pages/mypage/MyPageHome.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useUserStore from "../../store/useUserStore";
 
 const menuItems = [
     { label: "예약 내역", path: "/mypage/reservations" },
@@ -12,16 +13,16 @@ const menuItems = [
     { label: "선호 차량", path: "/mypage/favorites" },
 ];
 
-function MyPageHome({ userName = "UserName" }) {
+function MyPageHome() {
     const navigate = useNavigate();
+    const { user } = useUserStore();                 // 로그인한 유저
+    const userName = user?.name ?? "UserName";       // 이름 없으면 기본값
+
     const [ongoingOrder, setOngoingOrder] = useState(null);
     const contentMinHeight = "calc(100vh - 80px - 72px)";
 
     // 진행중 주문 mock
     useEffect(() => {
-        console.log(`
-        `);
-
         const timeout = setTimeout(() => {
             setOngoingOrder({
                 id: 123,
@@ -78,25 +79,25 @@ function MyPageHome({ userName = "UserName" }) {
                             type="button"
                             onClick={() => navigate("/mypage/reservations")}
                             className="
-                                w-full
-                                max-w-md
-                                sm:max-w-lg
-                                md:max-w-xl
-                                lg:max-w-2xl
-                                rounded-2xl
-                                bg-gradient-to-r from-[#0A56FF] to-white
-                                text-white shadow-lg border-0 hover:shadow-xl transition-all
-                            "
+                w-full
+                max-w-md
+                sm:max-w-lg
+                md:max-w-xl
+                lg:max-w-2xl
+                rounded-2xl
+                bg-gradient-to-r from-[#0A56FF] to-white
+                text-white shadow-lg border-0 hover:shadow-xl transition-all
+              "
                         >
                             <div className="flex items-center px-4 py-8">
                                 {/* 왼쪽 텍스트 */}
                                 <div className="flex flex-col text-left mr-4">
-                                    <span className="text-[11px] font-semibold">
-                                        진행중인 주문
-                                    </span>
+                  <span className="text-[11px] font-semibold">
+                    진행중인 주문
+                  </span>
                                     <span className="text-sm font-bold mt-1">
-                                        {ongoingOrder.carName}
-                                    </span>
+                    {ongoingOrder.carName}
+                  </span>
                                     <div className="text-[11px] mt-1 opacity-90">
                                         <div>{ongoingOrder.pickupDate}</div>
                                         <div>{ongoingOrder.pickupLocation}</div>
@@ -106,7 +107,7 @@ function MyPageHome({ userName = "UserName" }) {
 
                                 {/* 오른쪽 이미지 + 화살표 */}
                                 <div className="ml-auto flex items-center">
-                                    <div className="mr-10 w-30 h-15 rounded-xl  overflow-hidden flex items-center justify-center">
+                                    <div className="mr-10 w-30 h-15 rounded-xl overflow-hidden flex items-center justify-center">
                                         <img
                                             src="/images/common/car1.svg"
                                             alt="car"
@@ -130,21 +131,21 @@ function MyPageHome({ userName = "UserName" }) {
                             type="button"
                             onClick={() => navigate(item.path)}
                             className="
-                                w-full
-                                max-w-md
-                                sm:max-w-lg
-                                md:max-w-xl
-                                lg:max-w-2xl
-                                flex items-center justify-between
-                                px-4 py-3 rounded-2xl bg-white
-                                text-sm font-medium text-[#1A1A1A] shadow-sm
-                                hover:shadow-md transition-all
-                            "
+                w-full
+                max-w-md
+                sm:max-w-lg
+                md:max-w-xl
+                lg:max-w-2xl
+                flex items-center justify-between
+                px-4 py-3 rounded-2xl bg-white
+                text-sm font-medium text-[#1A1A1A] shadow-sm
+                hover:shadow-md transition-all
+              "
                         >
                             <span>{item.label}</span>
                             <span className="text-[#2C7FFF] text-lg font-bold leading-none">
-                                ›
-                            </span>
+                ›
+              </span>
                         </button>
                     ))}
                 </div>
