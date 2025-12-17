@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.carpick.global.enums.ErrorCode;
 import com.carpick.global.exception.BusinessException;
-import com.carpick.global.exception.ErrorCode;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

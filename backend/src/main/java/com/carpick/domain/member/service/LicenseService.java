@@ -1,15 +1,18 @@
 // com/carpick/domain/member/service/LicenseService.java
 package com.carpick.domain.member.service;
 
-import com.carpick.domain.member.dto.LicenseDto;
-import com.carpick.domain.member.dto.LicenseRegisterDto;
-import com.carpick.domain.member.entity.DriverLicense;
-import com.carpick.domain.member.repository.DriverLicenseRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.carpick.domain.member.dto.LicenseDto;
+import com.carpick.domain.member.dto.LicenseRegisterDto;
+import com.carpick.domain.member.entitiy.DriverLicense;
+import com.carpick.domain.member.repository.DriverLicenseRepository;
+
+import lombok.RequiredArgsConstructor;
 
 // com.carpick.domain.member.service.LicenseService.java
 @Service
