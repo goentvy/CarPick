@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.6'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.spring.dependency-management' version '1.1.6'
     id 'eclipse'
     id 'idea'
 }
@@ -25,30 +25,28 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.0'
 
-    // Swagger(OpenAPI)
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+    // MyBatis Spring Boot 3.3.6 호환
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'  // 4.0.0 → 3.0.3
+
+    // Swagger Spring Boot 3.3.6 호환
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:4.0.0'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     implementation 'com.azure:azure-ai-openai:1.0.0-beta.10'
-
-    // BCrypt (비밀번호 보안)
     implementation 'org.springframework.security:spring-security-crypto'
-
-    // JWT 토큰 관련
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring-boot:mybatis-spring-boot-starter-test:3.0.3'  // 4.0.0 → 3.0.3
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
