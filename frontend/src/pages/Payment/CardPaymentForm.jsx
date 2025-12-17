@@ -22,7 +22,7 @@ const CardPaymentForm = () => {
   }, [cardPayment, reset]);
 
   return (
-    <div className="w-full max-w-[640px] mt-6 sm:shadow-md sm:p-4">
+    <div className="w-full max-w-[640px] xx:p-2 sm:p-4">
       <div className="w-full space-y-3">
         <h2 className="text-xl font-bold text-gray-800 border-b pb-4">카드결제</h2>
 
