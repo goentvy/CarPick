@@ -5,7 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import Home from './pages/Home'
 import Profile from './pages/Profile'
-import Intro from './pages/Intro'
+import Intro from './pages/Intro/Intro.jsx'
 import CarDetailPage from "./pages/CarDetailPage";
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
@@ -36,9 +36,10 @@ import PaymentCallback from './pages/Payment/PaymentCallback.jsx'
 import OrderFail from './pages/Payment/OrderFail.js'
 import OrderComplete from './pages/Payment/OrderComplete.jsx'
 
-import InquiryPage from './pages/Inquiry/inquiry.jsx'
-import InquirySuccess from './pages/Inquiry/inquirySuccess.jsx'
+import InquiryPage from './pages/Inquiry/Inquiry.jsx'
+import InquirySuccess from './pages/Inquiry/InquiryPrivacy.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
+import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -75,6 +76,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="payment/callback/:provider" element={<PaymentCallback />} />
           <Route path="order/complete" element={<OrderComplete />} />
           <Route path="order/fail" element={<OrderFail />} />
+          <Route path="/mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
           
           {/* 마이페이지 */}
           <Route path="mypage" element={<MyPageHome />} />
@@ -93,9 +95,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="event/view/:id" element={<EventView />} />
 
           {/* 일대일문의 */}
-          <Route path="inquiry" element={<InquiryPage />} />
-          <Route path="inquiry/success" element={<InquirySuccess />} />
-          <Route path="inquiry/privacy" element={<InquiryPrivacy />} />
+          <Route path="cs/inquiry" element={<InquiryPage />} />
+          <Route path="cs/inquiry/success" element={<InquirySuccess />} />
+          <Route path="cs/inquiry/privacy" element={<InquiryPrivacy />} />
 
         </Route>
       </Routes>

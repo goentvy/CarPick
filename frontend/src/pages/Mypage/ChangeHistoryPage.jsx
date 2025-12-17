@@ -20,10 +20,6 @@ function ChangeHistoryPage() {
             className="font-pretendard"
             style={{ minHeight: contentMinHeight, backgroundColor: "#E7EEFF" }}
         >
-            {/* 상단 바 */}
-            <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
-                <p className="text-sm text-white font-semibold">취소 · 변경 내역</p>
-            </div>
 
             <div className="px-4 py-4 space-y-4">
                 {/* 필터 탭 */}
@@ -64,7 +60,7 @@ function ChangeHistoryPage() {
                 {filteredItems.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm px-5 py-10 flex flex-col items-center justify-center text-center">
                         <p className="text-sm text-[#666666] leading-relaxed">
-                            선택하신 조건에 해당하는 취소 또는 변경 내역이 없습니다.
+                            해당하는 내역이 없습니다.
                         </p>
                     </div>
                 ) : (

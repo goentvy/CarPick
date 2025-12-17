@@ -6,7 +6,6 @@ import Number2Default from '/images/common/number2-default.svg?url';
 import Number3Default from '/images/common/number3-default.svg?url';
 
 const StepProgress = ({ step }) => {
-  console.log(NumberCheck);
   const getIcon = (index) => {
     if (index < step) return NumberCheck;
     if (index === step) return [Number1Select, Number2Select, Number3Select][index - 1];
@@ -41,7 +40,6 @@ const StepProgress = ({ step }) => {
             ))}
         </div>
     </div>
-
   );
 };
 
