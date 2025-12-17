@@ -1,7 +1,7 @@
 const PaymentSummarySection = () => {
   return (
-    <section className="w-full max-w-[640px] mt-6">
-      <h2 className="text-lg font-semibold mb-4">결제정보</h2>
+    <section className="w-full max-w-[640px] xx:p-2 sm:p-4">
+      <h2 className="xx:text-base sm:text-lg font-semibold mb-4">결제정보</h2>
 
       <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
         <div className="flex justify-between text-sm">
