@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import useUserStore from "../../store/useUserStore";
 
 import "../../styles/common.css"; 
 
 function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // zustand 전역상태 로그인 정보 및 로그아웃
+  const { user, isLoggedIn } = useUserStore();
+  const logout = useUserStore((state) => state.logout);
 
   const openMenu = () => setMenuOpen(true);
   const closeMenu = () => setMenuOpen(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
 
   const location = useLocation();
@@ -23,12 +29,24 @@ const handleToggleMenu = (menuName) => {
   setActiveMenu(activeMenu === menuName ? null : menuName);
 };
 
+// 로그아웃 핸들링
+const handleLogout = () => {
+  // zustand store 초기화
+  logout();
+  // localStorage 토큰 삭제
+  localStorage.removeItem("user-storage");
+  // 로그인 페이지로 이동
+  navigate("/login");
+  // 사이드메뉴 닫기
+  closeMenu();
+}
+
   return (
     <>
       <header id="head" className="intro">
         <div className="inner">
           <div className="logo">
-            <a href="/home"><img src="/images/common/logo_w.svg" alt="CarPick Logo" /></a>
+            <Link to="/home"><img src="/images/common/logo_w.svg" alt="CarPick Logo" /></Link>
           </div>
           <nav className="menu">
             <button onClick={openMenu} className="btn btn-link">
@@ -51,19 +69,28 @@ const handleToggleMenu = (menuName) => {
       <aside id="navMenu" className={menuOpen ? "active" : ""}>
         <div className="inner">
           <div className="menu_top">
-            <a href="/">
+            <Link to="/">
               <img src="/images/common/logo_b.svg" alt="CarPick Logo" />
-            </a>
+            </Link>
             <button className="btn btn-close" onClick={closeMenu}>
               <img src="/images/common/close.svg" alt="Menu Close" />
             </button>
           </div>
 
+          {/* 로그인 상태 및 마이페이지, 회원가입 버튼 */}
           <div className="member_info">
-            {/* <h3><a href="/login" className="userName">홍길동</a>님 환영합니다!</h3>
-            <button className="btn btn-mypage">마이페이지</button> */}
-            <h3><Link to="/login" className="gnb-link userName" onClick={closeMenu}>로그인을 해주세요.</Link></h3>
-            <Link to="/signup/agree" className="btn btn-mypage" onClick={closeMenu}>회원가입</Link>
+            <h3>
+              {isLoggedIn ? 
+                <span>{user?.name ?? ""}님 환영합니다.</span>
+              : 
+                <Link to="/login" className="gnb-link userName" onClick={closeMenu}>로그인을 해주세요.</Link>
+              }
+            </h3>
+              {isLoggedIn ? 
+                <Link to="/mypage" className="btn btn-mypage" onClick={closeMenu}>마이페이지</Link>
+              : 
+                <Link to="/signup/agree" className="btn btn-mypage" onClick={closeMenu}>회원가입</Link>
+              }
           </div>
 
          <nav className="gnb">
@@ -225,7 +252,11 @@ const handleToggleMenu = (menuName) => {
           </nav>
 
           <div className="menu_bottom">
-            <a href="" className="btn btn-logout">로그아웃</a>
+            {isLoggedIn && (
+              <span className="btn btn-logout cursor-pointer" onClick={handleLogout}>
+                로그아웃 
+              </span>
+            )}
           </div>
         </div>
       </aside>
