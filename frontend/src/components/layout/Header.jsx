@@ -169,8 +169,8 @@ const handleToggleMenu = (menuName) => {
 
                     <li className="submenu-item">
                       <Link
-                        to="/cs/qna"
-                        className={`submenu-link ${location.pathname === "/cs/qna" ? "active" : ""}`}
+                        to="/cs/inquiry"
+                        className={`submenu-link ${location.pathname === "/cs/inquiry" ? "active" : ""}`}
                         onClick={closeMenu}
                       >
                         일대일문의

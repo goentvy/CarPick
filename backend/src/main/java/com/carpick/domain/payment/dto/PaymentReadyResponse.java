@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class PaymentReadyResponse {
     private String orderId;
     private int amount;
-    private String redirectUrl;
+    private String next_redirect_pc_url;
 }
