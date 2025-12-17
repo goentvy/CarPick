@@ -102,61 +102,6 @@ public class AdminController {
         return "faqWrite";
     }
     
-    // 이벤트 관리
-    @GetMapping("/event")
-    public String eventList(
-            @RequestParam(value = "type", defaultValue = "ongoing") String type,
-            Model model) {
-
-        List<EventDTO> list;
-
-        if ("end".equals(type)) {
-            list = eventService.getEndList();
-        } else {
-            list = eventService.getList();
-        }
-
-        model.addAttribute("eventList", list);
-        model.addAttribute("type", type); // 버튼 텍스트용
-
-        return "event";
-    }
-
-
-    
-    // 이벤트 상세보기
-    @GetMapping("/event_write")
-    public String eventWrite() {
-        return "eventWrite";
-    }
-    
-    @DeleteMapping("/event_delete/{id}")
-    public ResponseEntity<String> deleteEvent(@PathVariable int id) {
-
-        // 1. 이벤트 정보 조회 (썸네일 파일명)
-        EventDTO event = eventService.getEvent(id);
-        if (event == null) {
-            return ResponseEntity.badRequest().body("not found");
-        }
-
-        // 2. DB 삭제
-        eventService.deleteEvent(id);
-
-        // 3. 썸네일 파일 삭제
-        String uploadDir = "/home/ec2-user/upload/event/";
-        String thumbnail = event.getThumbnail();
-
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            File file = new File(uploadDir + thumbnail);
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-
-        return ResponseEntity.ok("success");
-    }
-
-    
     // 공지사항 관리
     @GetMapping("/notice")
     public String noticeList() {
