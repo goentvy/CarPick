@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 
 const menuItems = [
-    { label: "예약 내역", path: "/mypage/reservations" },
+    { label: "예약 내역", path: "/mypage/reservationslist" },
     { label: "취소 · 변경 내역", path: "/mypage/change-history" },
     { label: "리뷰 관리", path: "/mypage/reviewhistory" },
     { label: "문의 내역", path: "/mypage/qna" },
@@ -77,7 +77,7 @@ function MyPageHome() {
                     <div className="flex flex-col items-center">
                         <button
                             type="button"
-                            onClick={() => navigate("/mypage/reservations")}
+                            onClick={() => navigate("/mypage/reservationslist")}
                             className="
                 w-full
                 max-w-md

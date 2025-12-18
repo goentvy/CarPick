@@ -61,9 +61,9 @@ function QnAlist() {
                             아직 등록된 문의가 없어요
                         </h2>
                         <p className="text-sm text-[#666666] mb-6">
-                            궁금한 점이 있다면
+                            1:1 문의를 남겨주시면 직원이 확인 후
                             <br />
-                            1:1 문의를 통해 빠르게 답변을 받아보세요.
+                            빠르게 답변을 해드리겠습니다.
                         </p>
                         <button
                             type="button"
