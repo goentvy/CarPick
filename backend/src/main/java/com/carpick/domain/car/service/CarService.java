@@ -99,6 +99,12 @@ year.setIcon("year");
         LocationDto location = new LocationDto();
         location.setPickup(pickup);
         location.setDropoff(dropoff);
+//11.가격
+        PriceSummaryDto price = new PriceSummaryDto();
+        price.setEstimatedTotalPrice(BigDecimal.valueOf(128000));
+        price.setCurrency("KRW");
+
+
 //        최종응답
         CarDetailResponseDto response = new CarDetailResponseDto();
         response.setCarId(carId);
@@ -106,6 +112,7 @@ year.setIcon("year");
         response.setCarCardSectionDto(cardSection);
         response.setSanitizationDto(sanitization);
         response.setLocationDto(location);
+        response.setPriceSummary(price);
         return response;
 
 

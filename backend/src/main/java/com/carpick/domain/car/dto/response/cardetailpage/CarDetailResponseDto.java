@@ -12,6 +12,8 @@ public class CarDetailResponseDto {
     private  CarNoticeDto carNoticeDto;
     private SanitizationDto sanitizationDto;
     private LocationDto locationDto;
+    private PriceSummaryDto priceSummary;
+
 
 
 }
