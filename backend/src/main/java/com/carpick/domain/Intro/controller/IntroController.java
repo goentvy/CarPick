@@ -1,4 +1,4 @@
-package com.carpick.controller;
+package com.carpick.domain.Intro.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -8,3 +8,8 @@
 body {
     font-family: 'Pretendard', sans-serif;
 }
+
+/* 날짜달력 커스터마이징 */
+.rdrMonthPicker select {
+  @apply border border-gray-300 rounded-md px-2 py-1 bg-white;
+}

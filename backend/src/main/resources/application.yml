@@ -8,6 +8,8 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   profiles:
     default: dev
+  resources:
+    static-locations=classpath:/static/:
 
   mvc:
     servlet:
@@ -27,7 +29,7 @@ spring:
 
   web:
     resources:
-      add-mappings: false
+      add-mappings: true
 
   # 전역에서의 업로드 파일 크기 제한 / 악의적인 요청 방어 용도
   servlet:
@@ -63,8 +65,8 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 
-openai:
-  api-key: sk-
+#openai:
+#  api-key: sk-
 
 #openai:
 #  api-key: dummy
@@ -72,6 +74,7 @@ openai:
 file:
   upload:
     path: C:/upload
+
 
 # JWT 설정 추가
 jwt:

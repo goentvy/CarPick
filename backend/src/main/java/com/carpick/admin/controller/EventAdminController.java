@@ -1,4 +1,4 @@
-package com.carpick.domain.admin.controller;
+package com.carpick.admin.controller;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class EventAdminController {
-	
+
 	@Value("${file.upload.path}")
     private String uploadPath;
 	// 첨부 이미지 경로
