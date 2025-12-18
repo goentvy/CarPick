@@ -1,20 +1,23 @@
 package com.carpick.domain.auth.service;
 
-import com.carpick.global.exception.AuthenticationException;
-import com.carpick.domain.auth.jwt.JwtProvider;
+import java.util.Optional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.carpick.domain.auth.dto.LoginRequest;
 import com.carpick.domain.auth.dto.LoginResponse;
 import com.carpick.domain.auth.dto.SignupRequest;
 import com.carpick.domain.auth.dto.SignupResponse;
-import com.carpick.domain.auth.mapper.UserMapper;
 import com.carpick.domain.auth.entity.Role;
 import com.carpick.domain.auth.entity.User;
+import com.carpick.domain.auth.jwt.JwtProvider;
+import com.carpick.domain.auth.mapper.UserMapper;
+import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.exception.AuthenticationException;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +38,8 @@ public class AuthService {
                 )
         ) {
             // ✅ 예외 기반 처리
-            throw new AuthenticationException(
-                    "아이디 또는 비밀번호가 올바르지 않습니다."
-            );
+        	throw new AuthenticationException(ErrorCode.UNAUTHORIZED);
+
         }
 
         String role = Optional.ofNullable(user.getRole())

@@ -26,13 +26,25 @@ public class DomainApiExceptionHandler {
 	 * - 사용자 인증이 필요한 상황에서 발생하는 예외
 	 */
 	@ExceptionHandler(AuthenticationException.class)
-	protected ResponseEntity<ApiErrorResponse> handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
-		log.warn("[Domain-AuthenticationException] {}", e.getMessage());
+	protected ResponseEntity<ApiErrorResponse> handleAuthenticationException(
+	        AuthenticationException e, HttpServletRequest request) {
 
-		ApiErrorResponse response = ApiErrorResponse.of(ErrorCode.UNAUTHORIZED.code(), e.getMessage(), request.getRequestURI());
+	    log.info("[Auth-Fail] code={}, path={}",
+	            e.getErrorCode(),
+	            request.getRequestURI());
 
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+	    ApiErrorResponse response = ApiErrorResponse.of(
+	        e.getErrorCode().code(),
+	        e.getErrorCode().message(),
+	        request.getRequestURI()
+	    );
+
+	    return ResponseEntity
+	        .status(e.getErrorCode().getHttpStatus())
+	        .body(response);
 	}
+
+
 
 	/**
 	 * 🔍 2. BusinessException (사용자 정의 예외)
