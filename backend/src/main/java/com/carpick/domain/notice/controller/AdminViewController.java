@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/admin/notices")
+@RequestMapping("/admin/notice")
 public class AdminViewController {
 
     private final NoticeService noticeService;
@@ -23,8 +23,8 @@ public class AdminViewController {
      */
     @GetMapping
     public String list(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
             Model model) {
 
         Page<NoticeNtt> noticePage =
@@ -51,14 +51,17 @@ public class AdminViewController {
      * ✅ 수정 화면
      */
     @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
+    public String editForm(@PathVariable("id") Long id, Model model) {
+
         NoticeNtt notice = noticeService.getNotice(id).orElse(null);
         if (notice == null) {
-            return "redirect:/admin/notices";
+            return "redirect:/admin/notice";
         }
+
         model.addAttribute("notice", notice);
         return "noticeForm";
     }
+
 
     /**
      * 💾 등록 / 수정 처리
@@ -66,17 +69,17 @@ public class AdminViewController {
     @PostMapping("/save")
     public String save(@ModelAttribute NoticeNtt notice) {
         noticeService.save(notice);
-        return "redirect:/admin/notices";
+        return "redirect:/admin/notice";
     }
 
     /**
      * 🔍 상세 조회
      */
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, Model model) {
+    public String detail(@PathVariable("id") Long id, Model model) {
         NoticeNtt notice = noticeService.getNotice(id).orElse(null);
         if (notice == null) {
-            return "redirect:/admin/notices";
+            return "redirect:/admin/notice";
         }
         model.addAttribute("notice", notice);
         return "noticeDetail";
@@ -87,8 +90,9 @@ public class AdminViewController {
      */
     @PostMapping("/delete/{id}")
     @ResponseBody
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable("id") Long id) {
         boolean result = noticeService.softDeleteNotice(id);
         return result ? "OK" : "FAIL";
     }
+
 }
