@@ -27,7 +27,7 @@ spring:
 
   web:
     resources:
-      add-mappings: false
+      add-mappings: true
 
   # 전역에서의 업로드 파일 크기 제한 / 악의적인 요청 방어 용도
   servlet:

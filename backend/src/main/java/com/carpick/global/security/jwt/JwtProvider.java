@@ -1,7 +1,8 @@
-package com.carpick.domain.auth.jwt;
+package com.carpick.global.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,8 @@ public class JwtProvider {
     }
 
     /**
-     * ✅ 토큰 생성
+     * ✅ AuthService와 100% 호환
+     * subject = userId
      */
     public String generateToken(Long userId, String role) {
         return Jwts.builder()
@@ -44,29 +46,33 @@ public class JwtProvider {
     }
 
     /**
-     * ✅ 토큰 검증 (위조 / 만료 여부)
+     * ✅ 토큰 검증
      */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key)   // 🔥 secretKey ❌ → key ⭕
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
             return true;
-
         } catch (ExpiredJwtException e) {
-            // 만료된 토큰
             return false;
-
         } catch (JwtException | IllegalArgumentException e) {
-            // 위조, 서명 오류, 형식 오류
             return false;
         }
     }
 
     /**
-     * 내부 공통 파서
+     * ✅ Authorization 헤더에서 Bearer 토큰 추출
      */
+    public String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
+    }
+
     private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
