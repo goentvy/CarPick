@@ -53,6 +53,11 @@ public class WebExceptionHandler {
 	    return "error/500";
 	}
 
+	/**
+	 * 🔍 2. 웹 페이지 접근 거부 예외 처리 (Access Denied)
+	 * - 권한이 없는 웹 페이지 접근 시
+	 * - 403 에러 페이지로 리다이렉트
+	 */
 	@ExceptionHandler(AccessDeniedException.class)
 	public String handleAccessDenied(
 	        AccessDeniedException e,
@@ -76,6 +81,11 @@ public class WebExceptionHandler {
 	    return "error/403";
 	}
 	
+	/**
+	 * 🔍 3. 웹 페이지 404 Not Found 예외 처리
+	 * - 존재하지 않는 웹 페이지 요청 시
+	 * - 404 에러 페이지로 리다이렉트
+	 */
 	@ExceptionHandler(NoHandlerFoundException.class)
 	public String handleNotFound(
 	        NoHandlerFoundException e,
@@ -99,6 +109,11 @@ public class WebExceptionHandler {
 	    return "error/404";
 	}
 
+	/**
+	 * 🔍 4. 웹 페이지 HTTP 상태 예외 처리
+	 * - ResponseStatusException 발생 시
+	 * - 상태 코드에 따른 적절한 에러 페이지로 리다이렉트
+	 */
 	@ExceptionHandler(ResponseStatusException.class)
 	public String handleResponseStatusException(
 	        ResponseStatusException e,
