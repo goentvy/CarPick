@@ -1,13 +1,22 @@
 package com.carpick.domain.inquiry.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class InquiryCreateRequest {
 	
-	private Long userId;
-	private String category;
-	private String title;
-	private String content;
+	@NotNull
+    private Long userId;
+
+    @NotBlank
+    private String category;
+
+    @NotBlank
+    private String title;
+
+    @NotBlank
+    private String content;
 
 }
