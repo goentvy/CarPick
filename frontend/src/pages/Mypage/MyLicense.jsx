@@ -1,11 +1,9 @@
 // src/pages/mypage/MyLicense.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "../../store/useUserStore";
 
 function MyLicense() {
     const navigate = useNavigate();
-    const { accessToken } = useUserStore();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState("form");
@@ -16,30 +14,15 @@ function MyLicense() {
 
     useEffect(() => {
         fetchLicenses();
-    }, [accessToken]);
+    }, []);
 
     const fetchLicenses = async () => {
         try {
-            if (!accessToken) {
-                setLicenses([]);
-                return;
-            }
-
-            const response = await fetch("/api/licenses/me", {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-
-            if (!response.ok) {
-                setLicenses([]);
-                return;
-            }
-
+            const response = await fetch('/api/licenses/me');
             const data = await response.json();
             if (data?.data && Array.isArray(data.data)) {
                 setLicenses(
-                    data.data.map((item) => ({
+                    data.data.map(item => ({
                         id: item.id,
                         name: item.driverName,
                         birthday: item.birthday,
@@ -51,7 +34,7 @@ function MyLicense() {
                 setLicenses([]);
             }
         } catch (error) {
-            console.error("면허 조회 실패:", error);
+            console.error('면허 조회 실패:', error);
             setLicenses([]);
         }
     };
@@ -73,12 +56,10 @@ function MyLicense() {
             if (selected >= today) newErrors.birthday = "생년월일을 다시 확인해주세요";
         }
         if (!license || !/^\d{12}$/.test(license)) {
-            newErrors.license =
-                "면허번호는 하이픈 제외 12자리 숫자여야 합니다 (예: 119012345600)";
+            newErrors.license = "면허번호는 하이픈 제외 12자리 숫자여야 합니다 (예: 119012345600)";
         }
         if (!serial || !/^[A-Za-z0-9]{6}$/.test(serial)) {
-            newErrors.serial =
-                "일련번호는 숫자/영문 6자리입니다 (뒷면 작은 사진 아래)";
+            newErrors.serial = "일련번호는 숫자/영문 6자리입니다 (뒷면 작은 사진 아래)";
         }
 
         setErrors(newErrors);
@@ -97,27 +78,23 @@ function MyLicense() {
     const registerLicense = async () => {
         const { ok, data } = validateInputs();
         if (!ok) return;
-        if (!accessToken) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
 
         setLoading(true);
         setResult("");
 
         try {
-            const response = await fetch("/api/licenses", {
-                method: "POST",
+            const response = await fetch('/api/licenses', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken') || 'test'}`
                 },
                 body: JSON.stringify({
                     driverName: data.driverName,
                     birthday: data.birthday,
-                    licenseNumber: data.licenseNumber.replace(/-/g, ""),
-                    serialNumber: data.serialNumber,
-                }),
+                    licenseNumber: data.licenseNumber.replace(/-/g, ''),
+                    serialNumber: data.serialNumber
+                })
             });
 
             const resultData = await response.json();
@@ -128,60 +105,54 @@ function MyLicense() {
                     name: resultData.data.driverName,
                     birthday: resultData.data.birthday,
                     licenseNumber: resultData.data.licenseNumber,
-                    serialNumber: resultData.data.serialNumber,
+                    serialNumber: resultData.data.serialNumber
                 };
-                setLicenses((prev) => [newLicense, ...prev]);
+                setLicenses(prev => [newLicense, ...prev]);
 
                 setResult(
                     "차량 수령시 입력 정보와 실물/전자 면허증이 일치하지 않을 경우 \n 예약이 취소되거나 이용이 제한될 수 있습니다."
                 );
                 setModalStep("done");
             } else {
-                alert(resultData.message || "등록에 실패했습니다.");
+                alert(resultData.message || '등록에 실패했습니다.');
             }
         } catch (error) {
-            console.error("API 오류:", error);
-            alert("네트워크 오류가 발생했습니다.");
+            console.error('API 오류:', error);
+            alert('네트워크 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
     };
 
     const deleteLicense = async (licenseId) => {
-        if (!confirm("이 면허 정보를 삭제하시겠습니까?")) return;
-        if (!accessToken) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
+        if (!confirm('이 면허 정보를 삭제하시겠습니까?')) return;
 
         try {
             const response = await fetch(`/api/licenses/${licenseId}`, {
-                method: "DELETE",
+                method: 'DELETE',
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken') || 'test'}`
+                }
             });
 
             if (response.ok) {
-                setLicenses((prev) => prev.filter((l) => l.id !== licenseId));
-                alert("면허 정보가 삭제되었습니다.");
+                setLicenses(prev => prev.filter(l => l.id !== licenseId));
+                alert('면허 정보가 삭제되었습니다.');
             } else {
-                alert("삭제에 실패했습니다.");
+                alert('삭제에 실패했습니다.');
             }
         } catch (error) {
-            console.error("삭제 오류:", error);
-            alert("네트워크 오류");
+            console.error('삭제 오류:', error);
+            alert('네트워크 오류');
         }
     };
 
     const openModal = () => {
         setTimeout(() => {
-            ["driverName", "driverBirthday", "licenseNumber", "serialNumber"].forEach(
-                (id) => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = "";
-                }
-            );
+            ["driverName", "driverBirthday", "licenseNumber", "serialNumber"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
         }, 0);
 
         setIsModalOpen(true);
@@ -207,6 +178,9 @@ function MyLicense() {
                 backgroundColor: "#E7EEFF",
             }}
         >
+
+
+            {/* 본문 영역 */}
             <div className="px-4 py-6 space-y-4">
                 {licenses.length > 0 ? (
                     licenses.map((license, index) => (
@@ -214,9 +188,9 @@ function MyLicense() {
                             key={license.id || index}
                             className="bg-white rounded-2xl shadow-sm px-5 py-4 flex flex-col"
                         >
-              <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
-                {license.name}
-              </span>
+                            <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
+                                {license.name}
+                            </span>
                             <div className="text-sm text-[#333333] space-y-1.5 leading-snug">
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">생년월일</span>
@@ -229,11 +203,12 @@ function MyLicense() {
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">일련번호</span>
                                     <span className="tracking-[0.15em] font-medium">
-                    {license.serialNumber}
-                  </span>
+                                        {license.serialNumber}
+                                    </span>
                                 </p>
                             </div>
 
+                            {/* 카드 우측 하단 작은 버튼들 */}
                             <div className="mt-3 flex justify-end gap-2 text-xs">
                                 <button
                                     onClick={() => deleteLicense(license.id)}
@@ -254,6 +229,7 @@ function MyLicense() {
                     </div>
                 )}
 
+                {/* 카드 밑 배경 영역: 추가하기는 항상 노출 */}
                 <button
                     onClick={openModal}
                     className="w-full h-11 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#215FCC]"
@@ -262,6 +238,7 @@ function MyLicense() {
                 </button>
             </div>
 
+            {/* 모달 */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50">
                     <div className="w-[90%] max-w-md rounded-2xl bg-white px-5 py-6">

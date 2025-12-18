@@ -1,6 +1,6 @@
 // src/pages/mypage/QnAlist.jsx
 import { useNavigate } from "react-router-dom";
-import { mockInquiries } from "../Inquiry/Inquiry.jsx";
+import { mockInquiries } from "../inquiry/Inquiry";
 
 // 상태 코드 → 라벨/색 매핑
 const getStatusMeta = (status) => {

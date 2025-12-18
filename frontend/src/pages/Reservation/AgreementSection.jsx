@@ -1,7 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import useReservationStore from "../../store/useReservationStore";
 import axios from "axios";
-import { Link } from "react-router-dom";
 
 const AgreementSection = ({ isLoggedIn }) => {
   const { handleSubmit } = useFormContext();
@@ -32,22 +31,22 @@ const AgreementSection = ({ isLoggedIn }) => {
   };
 
   return (
-    <section className="w-full max-w-[640px] xx:p-2 sm:p-4 mb-[60px]">
+    <section className="w-full max-w-[640px] shadow-md mt-6 mb-20 sm:p-4">
       <h2 className="text-lg font-semibold mb-4">약관 및 결제 동의</h2>
 
       {/* 약관 목록 */}
       <ul className="space-y-2">
-        <li><Link to="/agree1">서비스 이용약관</Link></li>
-        <li><Link to="/agree2">개인정보 수집 이용 동의</Link></li>
-        <li><Link to="">개인정보 제3자 제공 동의</Link></li>
-        <li><Link to="">이용 안내</Link></li>
-        <li><Link to="">취소 안내</Link></li>
-        <li><Link to="">자동차 대여 표준 약관</Link></li>
+        <li><a href="#">서비스 이용약관</a></li>
+        <li><a href="#">자동차 대여 표준 약관</a></li>
+        <li><a href="#">취소 안내</a></li>
+        <li><a href="#">개인정보 제3자 제공 동의</a></li>
+        <li><a href="#">개인정보 수집 이용 동의</a></li>
+        <li><a href="#">이용 안내</a></li>
       </ul>
 
       {/* 결제 동의 체크박스 */}
       <div className="mt-4">
-          <p className="xx:text-sm sm:text-base text-center text-blue-500 font-bold">위 내용을 모두 확인하였으며, 결제에 동의합니다.</p>
+          <p className="text-center text-blue-500 font-bold">위 내용을 모두 확인하였으며, 결제에 동의합니다.</p>
       </div>
 
       {/* 결제 버튼 */}

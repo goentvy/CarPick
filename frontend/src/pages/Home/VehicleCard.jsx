@@ -1,6 +1,6 @@
-const VehicleCard = ({ discount, imageSrc, title, features, price }) => {
+const VehicleCard = ({ discount, imageSrc, title, features, price, selected }) => {
   return (
-    <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[48%] hover:border-3 hover:border-lime-300">
+    <div className={`relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[48%] ${selected ? "border-3 border-lime-300" : ""}`}>
       {/* 할인 라벨 */}
       {discount && (
         <div className="absolute top-3 right-2 bg-lime-300 text-xs font-bold px-2 py-1 rounded-lg">
@@ -14,8 +14,8 @@ const VehicleCard = ({ discount, imageSrc, title, features, price }) => {
       {/* 차량 정보 */}
       <div className="p-3">
         <h3 className="text-base font-semibold mb-1">{title}</h3>
-        <p className="xx:mb-4 sm:mb-8 xx:text-sm sm:text-base">{features.title}</p>
-        <p className="xx:text-xs sm:text-sm text-gray-600 mb-2 space-y-1 space-x-2">
+        <p className="mb-8">{features.title}</p>
+        <p className="text-sm text-gray-600 mb-2 space-y-1 space-x-2">
           {features.option.map((item, idx) => (
               <button key={idx} className="rounded-4xl bg-gray-200 px-3 py-1">{item}</button>
           ))}

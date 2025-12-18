@@ -9,9 +9,9 @@ const PickupReturnSection = () => {
   };
 
   return (
-    <section className="w-full max-w-[640px] xx:p-2 sm:p-4">
-      <h2 className="xx:text-base sm:text-lg font-semibold mb-2">대여/반납 방식</h2>
-      <div className="flex xx:justify-center sm:justify-normal space-x-2 mt-1">
+    <section className="w-full max-w-[640px] mt-6">
+      <h2 className="text-lg font-semibold mb-2">대여/반납 방식</h2>
+      <div className="flex space-x-4 mt-1">
         <button
           type="button"
           onClick={() => handleMethodChange("visit")}

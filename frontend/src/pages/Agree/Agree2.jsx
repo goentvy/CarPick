@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import agreeTextFile from '../../components/txt/agree2.txt?raw';
 import "../../styles/lee.css";
