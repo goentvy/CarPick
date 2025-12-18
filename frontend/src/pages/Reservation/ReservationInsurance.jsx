@@ -1,5 +1,6 @@
-import { useState } from "react";
 import InsuranceDetailModal from "./InsuranceDetailModal";
+import useReservationStore from "../../store/useReservationStore";
+import { useState } from "react";
 
 const insuranceOptions = [
   {
@@ -22,19 +23,24 @@ const insuranceOptions = [
   },
 ];
 
-const ReservationInsurance = ({ selected, onSelect }) => {
-  const [selectedOption, setSelectedOption] = useState(selected || "full");
+const ReservationInsurance = () => {
+  const { insuranceInfo, setInsuranceInfo } = useReservationStore();
+  const selectedOption = insuranceInfo?.type || "full";
   const [showModal, setShowModal] = useState(false);
 
   const handleSelect = (id) => {
-    setSelectedOption(id);
-    onSelect?.(id);
+    const option = insuranceOptions.find((opt) => opt.id === id);
+    if (option) {
+      setInsuranceInfo({ type: id, price: option.price });
+    }
   };
 
   return (
     <div className="w-full max-w-[640px] xx:p-2 sm:p-4 xx:space-y-3 sm:space-y-4">
       <h2 className="xx:text-base sm:text-lg font-bold">어떤 보험을 선택할까요?</h2>
-      <p className="xx:text-sm sm:text-base text-gray-600">상대방과 나를 보호하는 종합보험이 포함되어 있어요.</p>
+      <p className="xx:text-sm sm:text-base text-gray-600">
+        상대방과 나를 보호하는 종합보험이 포함되어 있어요.
+      </p>
 
       <ul className="xx:space-y-3 sm:space-y-4">
         {insuranceOptions.map((option) => (
@@ -59,11 +65,12 @@ const ReservationInsurance = ({ selected, onSelect }) => {
           </li>
         ))}
       </ul>
-      
+
       <div className="text-center">
-        <span 
+        <span
           className="text-sm text-blue-600 cursor-pointer hover:underline"
-          onClick={() => setShowModal(true)}>
+          onClick={() => setShowModal(true)}
+        >
           보장내용을 알아볼까요?
         </span>
       </div>

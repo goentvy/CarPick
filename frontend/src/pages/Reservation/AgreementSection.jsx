@@ -1,9 +1,10 @@
 import { useFormContext } from "react-hook-form";
 import useReservationStore from "../../store/useReservationStore";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const AgreementSection = ({ isLoggedIn }) => {
+  const navigate = useNavigate();
   const { handleSubmit } = useFormContext();
   const setCardPayment = useReservationStore((state) => state.setCardPayment);
   const getReservationData = useReservationStore((state) => state.getReservationData);
@@ -22,6 +23,7 @@ const AgreementSection = ({ isLoggedIn }) => {
       const res = await axios.post("http://localhost:8080/api/reservation/pay", reservationData);
       if (res.data.status === "APPROVED") {
         alert("결제가 완료되었습니다!");
+        navigate("/order/complete");
       } else {
         alert("결제 실패: " + res.data.message);
       }

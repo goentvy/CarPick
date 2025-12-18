@@ -32,7 +32,7 @@ const PickupReturnSection = () => {
               : "bg-white text-blue-500 border-gray-300 hover:bg-blue-100"
           }`}
         >
-          배송 서비스
+          탁송 서비스
         </button>
       </div>
 
