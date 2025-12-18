@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-security' //security 추가
 
     // MyBatis (안정적인 최신 버전 선택: 3.0.4)
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
@@ -44,6 +45,7 @@ dependencies {
     // AI & Security Crypto
     implementation 'com.azure:azure-ai-openai:1.0.0-beta.10'
     implementation 'org.springframework.security:spring-security-crypto'
+    
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

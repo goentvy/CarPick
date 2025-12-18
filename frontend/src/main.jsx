@@ -3,10 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import Intro from './pages/Intro/Intro.jsx'
 import CarDetailPage from "./pages/CarDetailPage";
+
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
 
@@ -31,15 +33,19 @@ import MyLicense from "./pages/Mypage/MyLicense.jsx";
 
 import EventList from './pages/Event/EventList.jsx'
 import EventView from './pages/Event/EventView.jsx'
+
 import PaymentTestSection from './pages/Payment/PaymentTestSection.jsx'
 import PaymentCallback from './pages/Payment/PaymentCallback.jsx'
 import OrderFail from './pages/Payment/OrderFail.js'
 import OrderComplete from './pages/Payment/OrderComplete.jsx'
+import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 
 import InquiryPage from './pages/Inquiry/Inquiry.jsx'
 import InquirySuccess from './pages/Inquiry/InquirySuccess.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
-import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
+
+import Notice from './pages/Notice/Notice.jsx'
+import NoticeDetail from './pages/Notice/NoticeDetail.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -47,6 +53,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         {/* 기본 레이아웃 */}
         <Route path="/" element={<App />}>
+          
           {/* 인트로 */}
           <Route index element={<Intro />} />
 
@@ -68,16 +75,16 @@ createRoot(document.getElementById('root')).render(
           <Route path="guest/cancel" element={<GuestCancel />} />
           <Route path="guest/cancel/complete" element={<GuestCancelComplete />} />
 
-          {/* 예약하기 */}
+          {/* 예약 */}
           <Route path="reservation" element={<ReservationPage />} />
 
-          {/* 결제서비스 */}
+          {/* 결제 */}
           <Route path="payment" element={<PaymentTestSection />} />
           <Route path="payment/callback/:provider" element={<PaymentCallback />} />
           <Route path="order/complete" element={<OrderComplete />} />
           <Route path="order/fail" element={<OrderFail />} />
-          <Route path="/mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
-          
+          <Route path="mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
+
           {/* 마이페이지 */}
           <Route path="mypage" element={<MyPageHome />} />
           <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
@@ -86,7 +93,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="mypage/license" element={<MyLicense />} />
           <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
 
-          {/* 이용약관 & 개인정보취급약관 */}
+          {/* 약관 */}
           <Route path="agree1" element={<Agree1 />} />
           <Route path="agree2" element={<Agree2 />} />
 
@@ -94,13 +101,17 @@ createRoot(document.getElementById('root')).render(
           <Route path="event/list" element={<EventList />} />
           <Route path="event/view/:id" element={<EventView />} />
 
-          {/* 일대일문의 */}
+          {/* 고객센터 */}
           <Route path="cs/inquiry" element={<InquiryPage />} />
           <Route path="cs/inquiry/success" element={<InquirySuccess />} />
           <Route path="cs/inquiry/privacy" element={<InquiryPrivacy />} />
 
+          {/* 공지사항 */}
+          <Route path="notice" element={<Notice />} />
+          <Route path="notice/:id" element={<NoticeDetail />} />
+
         </Route>
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 )
