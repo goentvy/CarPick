@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.userinfo.mapper.UserInfoMapper">
+
+    <!-- 개인정보 조회 (JWT 인증용) -->
+    <select id="selectByUserId"
+            parameterType="long"
+            resultType="com.carpick.domain.userinfo.entity.UserInfo">
+
+        SELECT
+            user_id         AS userId,
+            email,
+            password_hash   AS passwordHash,
+            name,
+            phone,
+            birth,
+            gender,
+            marketing_agree AS marketingAgree,
+            membership_grade AS membershipGrade,
+            deleted_at      AS deletedAt
+        FROM users
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
+
+    </select>
+
+    <!-- 개인정보 수정 -->
+    <update id="updateUserInfo">
+        UPDATE users
+        SET
+            name = #{name},
+            phone = #{phone},
+            birth = #{birth},
+            marketing_agree = #{marketingAgree},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
+    <!-- 회원 탈퇴 -->
+    <update id="withdrawUser">
+        UPDATE users
+        SET deleted_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>
