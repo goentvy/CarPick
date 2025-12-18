@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.useradmin.mapper.UserAdminMapper">
+
+    <select id="findUsers" resultType="com.carpick.admin.useradmin.entity.UserAdmin">
+        SELECT user_id AS userId,
+        email,
+        name,
+        phone,
+        created_at AS createdAt
+        FROM users
+        <where>
+            <if test="search != null and search != ''">
+                (email LIKE CONCAT('%', #{search}, '%')
+                OR name LIKE CONCAT('%', #{search}, '%'))
+            </if>
+        </where>
+        ORDER BY user_id DESC
+    </select>
+
+    <select id="findUserById" resultType="com.carpick.admin.useradmin.entity.UserAdmin">
+        SELECT user_id AS userId,
+               email,
+               name,
+               phone,
+               created_at AS createdAt
+        FROM users
+        WHERE user_id = #{id}
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO users (email, name, phone)
+        VALUES (#{email}, #{name}, #{phone})
+    </insert>
+
+    <update id="updateUser">
+        UPDATE users
+        SET email = #{email},
+            name = #{name},
+            phone = #{phone}
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteUser">
+        DELETE FROM users WHERE user_id = #{id}
+    </delete>
+
+</mapper>
