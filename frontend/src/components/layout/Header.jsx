@@ -206,8 +206,8 @@ const handleLogout = () => {
 
                     <li className="submenu-item">
                       <Link
-                        to="/cs/notice"
-                        className={`submenu-link ${location.pathname === "/cs/notice" ? "active" : ""}`}
+                        to="/notice"
+                        className={`submenu-link ${location.pathname === "/notice" ? "active" : ""}`}
                         onClick={closeMenu}
                       >
                         공지사항
@@ -216,8 +216,8 @@ const handleLogout = () => {
 
                     <li className="submenu-item">
                       <Link
-                        to="/cs/company"
-                        className={`submenu-link ${location.pathname === "/cs/company" ? "active" : ""}`}
+                        to="/company"
+                        className={`submenu-link ${location.pathname === "/company" ? "active" : ""}`}
                         onClick={closeMenu}
                       >
                         회사소개
@@ -226,8 +226,8 @@ const handleLogout = () => {
 
                     <li className="submenu-item">
                       <Link
-                        to="/cs/guide"
-                        className={`submenu-link ${location.pathname === "/cs/guide" ? "active" : ""}`}
+                        to="/guide"
+                        className={`submenu-link ${location.pathname === "/guide" ? "active" : ""}`}
                         onClick={closeMenu}
                       >
                         이용가이드
@@ -236,8 +236,8 @@ const handleLogout = () => {
 
                     <li className="submenu-item">
                       <Link
-                        to="/cs/emergency"
-                        className={`submenu-link ${location.pathname === "/cs/emergency" ? "active" : ""}`}
+                        to="/emergency"
+                        className={`submenu-link ${location.pathname === "/emergency" ? "active" : ""}`}
                         onClick={closeMenu}
                       >
                         긴급지원서비스

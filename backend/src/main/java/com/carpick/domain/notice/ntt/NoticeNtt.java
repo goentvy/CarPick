@@ -1,95 +1,43 @@
 package com.carpick.domain.notice.ntt;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notice")
+@Getter
+@Setter
 public class NoticeNtt {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
 
-	@Column(nullable = false)
-	private String title;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(columnDefinition = "TEXT", nullable = false)
-	private String content;
+    @Column(nullable = false, length = 255)
+    private String title;
 
-	private String category;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt;
+    @Column(length = 255)
+    private String category;
 
-	@Column(name = "updated_at")
-	private LocalDateTime updatedAt;
+    // DB에서 자동 관리
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-	@Column(name = "writer_id")
-	private Long writerId;
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private LocalDateTime updatedAt;
 
-	@Column(nullable = false)
-	private Boolean deleted = false;
+    @Column(name = "writer_id")
+    private Long writerId;
 
-	@Column(nullable = false)
-	private Long views = 0L;
+    @Column(nullable = false)
+    private Boolean deleted;
 
-	public NoticeNtt() {}
-
-	// getters & setters
-	public Long getId() { return id; }
-	public void setId(Long id) { this.id = id; }
-
-	public String getTitle() { return title; }
-	public void setTitle(String title) { this.title = title; }
-
-	public String getContent() { return content; }
-	public void setContent(String content) { this.content = content; }
-
-	public String getCategory() { return category; }
-	public void setCategory(String category) { this.category = category; }
-
-	public LocalDateTime getCreatedAt() { return createdAt; }
-	public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-	public LocalDateTime getUpdatedAt() { return updatedAt; }
-	public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-	public Long getWriterId() { return writerId; }
-	public void setWriterId(Long writerId) { this.writerId = writerId; }
-
-	public Boolean getDeleted() { return deleted; }
-	public void setDeleted(Boolean deleted) { this.deleted = deleted; }
-
-	public Long getViews() { return views; }
-	public void setViews(Long views) { this.views = views; }
-
-	// viewCount getter/setter for compatibility
-	public Long getViewCount() { return views; }
-	public void setViewCount(Long viewCount) { this.views = viewCount; }
-
-	@JsonIgnore
-	public boolean isDeleted() {
-		return deleted != null && deleted;
-	}
-
-	@PrePersist
-	protected void onCreate() {
-		createdAt = LocalDateTime.now();
-		if (deleted == null) deleted = false;
-		if (views == null) views = 0L;
-	}
-
-	@PreUpdate
-	protected void onUpdate() {
-		updatedAt = LocalDateTime.now();
-	}
+    @Column(nullable = false)
+    private Long views;
 }
