@@ -1,16 +1,16 @@
-// src/pages/mypage/MyPageHome.jsx
+// src/pages/Mypage/MyPageHome.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 
 const menuItems = [
-    { label: "예약 내역", path: "/mypage/reservationslist" },
-    { label: "취소 · 변경 내역", path: "/mypage/change-history" },
-    { label: "리뷰 관리", path: "/mypage/reviewhistory" },
-    { label: "문의 내역", path: "/mypage/qna" },
-    { label: "면허 관리", path: "/mypage/license" },
-    { label: "결제 수단", path: "/mypage/payment" },
-    { label: "선호 차량", path: "/mypage/favorites" },
+    { label: "예약 내역", path: "/Mypage/ReservationsList" },
+    { label: "취소 · 변경 내역", path: "/Mypage/ChangeHistoryPage" },
+    { label: "리뷰 관리", path: "/Mypage/ReviewHistory" },
+    { label: "문의 내역", path: "/Mypage/QnAlist" },
+    { label: "면허 관리", path: "/Mypage/license" },
+    { label: "결제 수단", path: "/Mypage/Payment" },
+    { label: "선호 차량", path: "/Mypage/Favorites" },
 ];
 
 function MyPageHome() {
@@ -85,7 +85,7 @@ function MyPageHome() {
                 md:max-w-xl
                 lg:max-w-2xl
                 rounded-2xl
-                bg-gradient-to-r from-[#0A56FF] to-white
+                bg-linear-to-r from-[#0A56FF] to-white
                 text-white shadow-lg border-0 hover:shadow-xl transition-all
               "
                         >
