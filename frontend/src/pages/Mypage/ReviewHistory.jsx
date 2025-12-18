@@ -51,14 +51,12 @@ function ReviewHistory() {
         ]);
     }, []);
 
-    // 수정 시작
     const handleEdit = (review) => {
         setEditingReview(review);
         setEditContent(review.content);
         setEditingRating(review.rating);
     };
 
-    // 수정 완료
     const handleSave = () => {
         setReviews(reviews.map(r =>
             r.id === editingReview.id
@@ -70,20 +68,20 @@ function ReviewHistory() {
         setEditingRating(0);
     };
 
-    // 수정 취소
     const handleCancel = () => {
         setEditingReview(null);
         setEditContent("");
         setEditingRating(0);
     };
 
-    // 별 클릭으로 0.5 단위 설정
     const handleStarClick = (starIndex, position) => {
         const starValue = starIndex + 1;
-        // position 0=왼쪽(0.5), 1=오른쪽(정수)
         const newRating = position === 0 ? starValue - 0.5 : starValue;
         setEditingRating(Math.max(0.5, Math.min(newRating, 5)));
     };
+
+    // ✅ footer 높이에 맞춰 한 번에 관리 (예: 72px)
+    const FOOTER_HEIGHT = 72;
 
     if (reviews.length === 0) {
         return (
@@ -91,8 +89,10 @@ function ReviewHistory() {
                 id="content"
                 className="font-pretendard"
                 style={{
-                    minHeight: "calc(100vh - 80px - 72px)",
+                    minHeight: "100vh",
+                    paddingBottom: `${FOOTER_HEIGHT}px`,
                     backgroundColor: "#E7EEFF",
+                    boxSizing: "border-box",
                 }}
             >
                 <div className="px-4 py-6">
@@ -124,20 +124,22 @@ function ReviewHistory() {
                 id="content"
                 className="font-pretendard"
                 style={{
-                    minHeight: "calc(100vh - 80px - 72px)",
+                    minHeight: "100vh",
+                    paddingBottom: `${FOOTER_HEIGHT}px`, // ✅ footer에 안 가리도록 여유
                     backgroundColor: "#E7EEFF",
+                    boxSizing: "border-box",
                 }}
             >
                 <div className="px-4 py-6">
-                    <h1 className="text-xl font-bold text-[#1A1A1A] mb-6">
-                        작성한 리뷰
+                    <h1 className="text-xl font-bold text-[#1A1A1A] mb-4 pl-2">
+                        내가 쓴 리뷰
                     </h1>
 
                     <div className="space-y-4">
                         {reviews.map((review) => (
                             <div
                                 key={review.id}
-                                className="bg-white rounded-2xl shadow-sm p-6"
+                                className="bg-white rounded-2xl shadow-sm px-4 py-4"
                             >
                                 <div className="flex items-start justify-between mb-3">
                                     <div>
@@ -182,15 +184,17 @@ function ReviewHistory() {
                 </div>
             </div>
 
-            {/* 수정 모달 */}
             {editingReview && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                        <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">리뷰 수정</h3>
+                        <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">
+                            리뷰 수정
+                        </h3>
 
-                        {/* 별 클릭 방식 별점 - 2배 큰 별! */}
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-[#1A1A1A] mb-4">별점</label>
+                            <label className="block text-sm font-medium text-[#1A1A1A] mb-4">
+                                별점
+                            </label>
 
                             <div className="flex gap-4 justify-center mb-4">
                                 {[...Array(5)].map((_, starIndex) => {
@@ -198,31 +202,25 @@ function ReviewHistory() {
                                     const fullStars = Math.floor(editingRating);
                                     const hasHalf = editingRating % 1 >= 0.5;
 
-                                    // StarRating과 동일한 로직!
                                     let starSrc = "/images/common/star-empty.svg";
                                     if (editingRating >= starValue) {
-                                        starSrc = "/images/common/star-full.svg";  // 전체 채움
+                                        starSrc = "/images/common/star-full.svg";
                                     } else if (hasHalf && editingRating >= starValue - 0.5) {
-                                        starSrc = "/images/common/star-half.svg";  // 반만 채움
+                                        starSrc = "/images/common/star-half.svg";
                                     }
 
                                     return (
                                         <div key={starIndex} className="relative w-[56px] h-[56px]">
-                                            {/* 왼쪽 반 클릭 (.5점) */}
                                             <button
                                                 type="button"
                                                 onClick={() => handleStarClick(starIndex, 0)}
                                                 className="absolute left-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]"
                                             />
-
-                                            {/* 오른쪽 반 클릭 (정수점) */}
                                             <button
                                                 type="button"
                                                 onClick={() => handleStarClick(starIndex, 1)}
                                                 className="absolute right-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]"
                                             />
-
-                                            {/* 별 이미지 - 2배 크기 (56x56px) */}
                                             <img
                                                 src={starSrc}
                                                 alt=""
@@ -235,7 +233,6 @@ function ReviewHistory() {
                                 })}
                             </div>
 
-                            {/* 현재 점수 표시 */}
                             <div className="text-center">
                                 <span className="text-lg font-semibold text-[#2C7FFF]">
                                     {editingRating.toFixed(1)}점
@@ -243,9 +240,10 @@ function ReviewHistory() {
                             </div>
                         </div>
 
-                        {/* 내용 수정 */}
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-[#1A1A1A] mb-2">리뷰 내용</label>
+                            <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
+                                리뷰 내용
+                            </label>
                             <textarea
                                 value={editContent}
                                 onChange={(e) => setEditContent(e.target.value)}
