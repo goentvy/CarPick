@@ -13,41 +13,36 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtFilter;
+	private final JwtAuthenticationFilter jwtFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-                // 프론트 분리 → CSRF 보통 OFF
-                .csrf(csrf -> csrf.disable())
+		http
+				// CSRF 비활성화
+				.csrf(csrf -> csrf.disable())
 
-                // CORS 허용
-                .cors(cors -> {
-                })
+				// CORS 활성화
+				.cors(cors -> {
+				})
 
-                // 세션 안 씀 (JWT)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+				// JWT → 세션 미사용
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 접근 제어
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/signup"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
+				// ⭐ 접근 제어 (핵심)
+				.authorizeHttpRequests(auth -> auth
+						// 🔓 인증 없이 접근 가능
+						.requestMatchers("/api/auth/login", "/api/auth/signup").permitAll()
 
-                // JWT 필터
-                .addFilterBefore(
-                        jwtFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+						// 🆕 🔓 유저 공지사항 API
+						.requestMatchers("/api/notice/**").permitAll()
 
-        return http.build();
-    }
+						// 🔐 나머지는 JWT 필요
+						.anyRequest().authenticated())
 
+				// JWT 필터
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
+		return http.build();
+	}
 }
