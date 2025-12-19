@@ -7,7 +7,7 @@ import App from './App.jsx'
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import Intro from './pages/Intro/Intro.jsx'
-import CarDetailPage from "./pages/CarDetailPage";
+import CarDetailPage from "./pages/Car/CarDetailpage.jsx";
 
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
