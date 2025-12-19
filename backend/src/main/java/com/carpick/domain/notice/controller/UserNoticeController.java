@@ -24,7 +24,7 @@ public class UserNoticeController {
     @GetMapping("/page")
     public ResponseEntity<Page<NoticeNtt>> list(
             @RequestParam(required = false) String keyword,
-            @PageableDefault(page = 0, size = 10) Pageable pageable) {
+            @PageableDefault(page = 0, size = 7) Pageable pageable) {
 
         Page<NoticeNtt> noticePage = noticeService.searchNotices(keyword, pageable);
         return ResponseEntity.ok(noticePage);
