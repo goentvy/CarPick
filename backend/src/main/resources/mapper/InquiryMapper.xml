@@ -23,4 +23,23 @@ keyProperty="id">
 	)
 </insert>
 
+<!--마이페이지 문의내역-->
+
+<select id="findByUserId"
+	parameterType="long"
+	resultType="com.carpick.domain.inquiry.vo.Inquiry">
+	SELECT
+		id,
+		user_id,
+		category,
+		title,
+		content,
+		status,
+		admin_reply AS adminReply,
+		created_at AS createdAt
+	FROM inquiry
+	WHERE user_id = #{userId}
+	ORDER BY created_at DESC
+</select>
+
 </mapper>
