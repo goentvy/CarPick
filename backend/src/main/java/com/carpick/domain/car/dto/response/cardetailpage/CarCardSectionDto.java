@@ -9,5 +9,5 @@ public class CarCardSectionDto {
 
     List<CarInfoCardDto> cards;
 
-    CarInfoNotice notice;
+
 }

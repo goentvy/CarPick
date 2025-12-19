@@ -72,14 +72,7 @@ year.setIcon("year");
         fuelEff.setValue("15");
         fuelEff.setUnit("km/L");
         fuelEff.setIcon("fuel_eff");
-        // 7. 카드 섹션 공지
-        CarInfoNotice notice = new CarInfoNotice();
-        notice.setTitle("주행 거리 요금제 안내");
-        notice.setContent("주행거리에 따라 요금이 산정되며, 주행거리 요금 외 주유비 또는 충전료는 발생하지 않아요.");
-//        8. 카드 섹션
-        CarCardSectionDto cardSection = new CarCardSectionDto();
-        cardSection.setCards(List.of(fuel, year, seat, career, age, fuelEff));
-        cardSection.setNotice(notice);
+
 //        9.살균
         SanitizationDto sanitization = new SanitizationDto();
         sanitization.setTitle("99.9% 살균 세차");
@@ -109,7 +102,7 @@ year.setIcon("year");
         CarDetailResponseDto response = new CarDetailResponseDto();
         response.setCarId(carId);
         response.setTopCarDetailDto(top);
-        response.setCarCardSectionDto(cardSection);
+
         response.setSanitizationDto(sanitization);
         response.setLocationDto(location);
         response.setPriceSummary(price);
