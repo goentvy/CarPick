@@ -12,7 +12,7 @@ public class ReservationFormResponseDto {
     private  BranchSummaryDto dropoffBranch;
     private  PaymentSummaryDto paymentSummary;
     private List<InsuranceOptionDto> insuranceOptions;
-    private List<CarBadgeDto> badges;
+//    private List<CarBadgeDto> badges;
     // ===== 차량 요약 =====
     @Data
     public static class CarSummaryDto{
@@ -28,11 +28,11 @@ public class ReservationFormResponseDto {
 
     }
     // ===== 차량 뱃지 =====
-    @Data
-    public static class CarBadgeDto{
-        private String icon; // "fuel" / "seats" / "carType" 같은 키
-        private String text;  // "Petrol" / "4" / "Hatchback"
-    }
+//    @Data
+//    public static class CarBadgeDto{
+//        private String icon; // "fuel" / "seats" / "carType" 같은 키
+//        private String text;  // "Petrol" / "4" / "Hatchback"
+//    }
     // ===== 지점 정보 =====
     @Data
     public static class BranchSummaryDto{

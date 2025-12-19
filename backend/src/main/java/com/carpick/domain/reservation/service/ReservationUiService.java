@@ -34,8 +34,6 @@ public class ReservationUiService {
         car.setTitle(detail.getTopCarDetailDto().getTitle());
         car.setSubtitle(detail.getTopCarDetailDto().getSubtitle());
         car.setImageUrl(detail.getTopCarDetailDto().getImageUrls().get(0));
-        car.setDailyPrice(dailyPrice);
-        car.setCurrency(detail.getPriceSummary().getCurrency()); // KRW
         res.setCar(car);
 
         // ===== 지점 정보 (pickup / dropoff기준) =====
@@ -60,13 +58,13 @@ public class ReservationUiService {
         res.setDropoffBranch(dropoff);
         // ===== 차량 뱃지(상단 아이콘 줄) =====
         // 지금은 mock로 고정 (추후 detail 카드섹션에서 추출해도 됨)
-        res.setBadges(List.of(
-                badge("car", "자동차"),
-                badge("insurance", "보험"),
-                badge("location", "지역"),
-                badge("payment", "결제")
-
-        ));
+//        res.setBadges(List.of(
+//                badge("car", "자동차"),
+//                badge("insurance", "보험"),
+//                badge("location", "지역"),
+//                badge("payment", "결제")
+//
+//        ));
         // ===== 보험 옵션 =====
         res.setInsuranceOptions(List.of(
                 insurance("NONE", "선택안함", "선택안함", "사고 시 고객부담금 전액", 0, true),
@@ -165,12 +163,12 @@ public class ReservationUiService {
 
 
 
-    private ReservationFormResponseDto.CarBadgeDto badge(String icon, String text) {
-        ReservationFormResponseDto.CarBadgeDto badge = new ReservationFormResponseDto.CarBadgeDto();
-        badge.setIcon(icon);
-        badge.setText(text);
-        return badge;
-
-    }
+//    private ReservationFormResponseDto.CarBadgeDto badge(String icon, String text) {
+//        ReservationFormResponseDto.CarBadgeDto badge = new ReservationFormResponseDto.CarBadgeDto();
+//        badge.setIcon(icon);
+//        badge.setText(text);
+//        return badge;
+//
+//    }
 
 }
