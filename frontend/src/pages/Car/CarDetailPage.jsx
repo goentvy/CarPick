@@ -277,10 +277,10 @@ export default function CarDetailPage() {
               </div>
             ))}
           </div>
-            {/* 대여 및 반납장소 */}
+          {/* 대여 및 반납장소 */}
           <SectionTitle>대여 및 반납장소</SectionTitle>
           <div className="mt-3 rounded-2xl h-40 bg-white border border-black/5 p-4">
-           
+
           </div>
 
           {/* FAQ */}
@@ -320,14 +320,10 @@ export default function CarDetailPage() {
       </div>
 
       {/* Bottom Sticky CTA */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-black/5">
-        <div className="mx-auto w-full max-w-[640px] px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-[#6B6B6B]">예상 결제 금액</div>
-            <div className="text-lg font-bold text-[#0A56FF]">128,000원</div>
-          </div>
-          <button className="mt-3 w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold">
-            예약 하기
+      <footer className="fixed bottom-0 left-0 right-0 z-40">
+        <div className="mx-auto max-w-[640px] bg-white border-t border-black/5 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+          <button className=" w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition">
+            예약하기
           </button>
         </div>
       </footer>
