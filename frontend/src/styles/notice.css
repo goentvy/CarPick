@@ -1,17 +1,21 @@
-.notice-container {
-  width: 1200px;
-  margin: 60px auto;
+.notice-container,
+.notice-container-detail {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 60px 16px 80px; /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
   font-family: "Noto Sans KR", sans-serif;
 }
 
 .notice-list-header {
   position: relative;
   width: 100%;
-  height: 80px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
+  padding: 20px 0;
 }
 
 .notice-logo {
@@ -23,30 +27,35 @@
 }
 
 .notice-title {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-align: center;
 }
 
 .search-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  flex-direction: column;
 }
 
 .search-input-wrapper {
   position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
 }
 
 .search-input {
-  width: 300px;
+  width: 100%;
   padding: 10px 40px 10px 15px;
+  padding-right: 44px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
@@ -62,6 +71,10 @@
 .search-icon {
   position: absolute;
   right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
   font-size: 16px;
   color: #6c757d;
   cursor: pointer;
@@ -113,8 +126,8 @@
 
 .notice-table {
   width: 100%;
-  border-collapse: collapse;
-  background-color: #e9f7fc;
+  table-layout: fixed;
+  background-color: #ffffff;
 }
 
 .notice-table thead {
@@ -127,31 +140,46 @@
   padding: 14px;
   font-size: 15px;
   font-weight: 600;
+  word-break: break-word;
 }
 
 .notice-table td {
-  padding: 14px;
-  border-bottom: 1px solid #ddd;
+  padding: 14px 12px;
   text-align: center;
   font-size: 14px;
+  word-break: break-word;
+  border: none; /* ❗ 기존 border 제거 */
+  vertical-align: middle;
+  border-bottom:1px solid #eee;
 }
 
-.notice-table tr {
+.notice-table tbody tr {
+  position: relative;
+  background-color: #ffffff;
   transition: background-color 0.2s ease;
 }
 
+.notice-table tbody tr:hover {
+  background-color: #e9f7fc;
+}
+
 .notice-subject {
+  font-size: 15px;
+  line-height: 1.4;
   text-align: left;
   cursor: pointer;
   color: #007bff;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  display: inline-block;   /* ❗ block → inline-block */
+  width: 100%;
+  padding: 4px 0;          /* ❗ 여백 최소화 */
+  transition: color 0.2s ease;
 }
 
 .notice-subject:hover {
   text-decoration: underline;
   color: #0056b3;
-  background-color: #f8f9fa;
+  background-color: transparent;
 }
 
 .notice-row-visited {
@@ -178,12 +206,6 @@
   min-width: 60px;
 }
 
-.notice-container-detail {
-  width: 1200px;
-  margin: 60px auto;
-  font-family: "Noto Sans KR", sans-serif;
-}
-
 /* ============================= */
 /*            헤더 영역           */
 /* ============================= */
@@ -191,14 +213,16 @@
 .notice-detail-header {
   position: relative;
   width: 100%;
-  height: 80px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 30px;
+  padding: 20px 0;
 }
 
 .notice-logo {
+  width: 110px;
   position: absolute;
   left: 0;
   width: 140px;
@@ -336,15 +360,16 @@
 
 /* 작성일 · 수정일 · 조회수 */
 .notice-detail-info {
+  flex-direction: column;
   background: white;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 12px;
   border-bottom: 1px solid #ccc;
 }
 
@@ -372,6 +397,7 @@
 }
 
 .notice-detail-info .info-item:not(:last-child)::after {
+  display: none;
   content: '';
   position: absolute;
   right: -10px;
@@ -421,8 +447,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
-  gap: 10px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  gap: 6px;
 }
 
 .pagination-btn {
@@ -457,10 +484,11 @@
   background-color: #fff;
   border: 1px solid #dee2e6;
   color: #007bff;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  min-width: 36px;
   min-width: 40px;
   transition: all 0.2s ease;
 }
@@ -545,4 +573,34 @@
 .pagination-page.active:hover {
   background-color: #0056b3;
   border-color: #0056b3;
+}
+
+@media (max-width: 640px) {
+
+  /* 번호 컬럼 축소 */
+  .notice-table th:nth-child(1),
+  .notice-table td:nth-child(1) {
+    width: 50px;
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  
+
+  /* 작성일 작게 */
+  .notice-table th:nth-child(3),
+  .notice-table td:nth-child(3) {
+    width: 90px;
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  /* 제목 중심 레이아웃 */
+  .notice-subject {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* 행 구분 더 명확하게 */
+  
 }
