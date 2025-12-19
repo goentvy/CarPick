@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.faq.mapper.FaqMapper">
+
+<select id="search"
+resultType="com.carpick.domain.faq.dto.FaqResponse">
+	
+	SELECT
+		category,
+		question,
+		answer
+	FROM faq
+	where 1=1
+	
+<!--카테고리 필터-->
+<if test="category != null and category !=''">
+	AND category = #{category}
+</if>
+
+<!--검색어 (질문 or 답변)-->
+<if test="keyword != null and keyword != ''">
+	AND (
+		question Like CONCAT('%', #{keyword}, '%')
+		or answer Like CONCAT('%', #{keyword}, '%')
+	)
+</if> 
+	ORDER BY id ASC
+</select>
+</mapper>
