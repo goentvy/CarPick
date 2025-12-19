@@ -3,24 +3,34 @@ import useReservationStore from "../../store/useReservationStore";
 import axios from "axios";
 
 const AgreementSection = ({ isLoggedIn }) => {
+  const navigate = useNavigate();
   const { handleSubmit } = useFormContext();
+
+  // Zustand 액션
   const setCardPayment = useReservationStore((state) => state.setCardPayment);
+  const setDriverInfo = useReservationStore((state) => state.setDriverInfo);
   const getReservationData = useReservationStore((state) => state.getReservationData);
 
   // 결제 버튼 클릭 시 실행
   const onSubmit = async (formData) => {
-    // 1. Zustand에 카드결제 정보 저장
-    setCardPayment(formData);
+    // 1. 운전자 정보 추출 및 저장
+    const { birth, email, firstName, lastName, phone } = formData;
+    setDriverInfo({ birth, email, firstName, lastName, phone });
 
-    // 2. 최종 예약 데이터 모으기
+    // 2. 카드 결제 정보 추출 및 저장
+    const { cardNumber, expiry, cvc, password2, cardType, installment, agree } = formData;
+    setCardPayment({ cardNumber, expiry, cvc, password2, cardType, installment, agree });
+
+    // 3. 최종 예약 데이터 모으기
     const reservationData = getReservationData();
     console.log("최종 결제 데이터:", reservationData);
 
-    // 3. API 호출
+    // 4. API 호출
     try {
       const res = await axios.post("http://localhost:8080/api/reservation/pay", reservationData);
       if (res.data.status === "APPROVED") {
         alert("결제가 완료되었습니다!");
+        navigate("/order/complete");
       } else {
         alert("결제 실패: " + res.data.message);
       }
@@ -44,7 +54,7 @@ const AgreementSection = ({ isLoggedIn }) => {
         <li><a href="#">이용 안내</a></li>
       </ul>
 
-      {/* 결제 동의 체크박스 */}
+      {/* 결제 동의 문구 */}
       <div className="mt-4">
           <p className="text-center text-blue-500 font-bold">위 내용을 모두 확인하였으며, 결제에 동의합니다.</p>
       </div>

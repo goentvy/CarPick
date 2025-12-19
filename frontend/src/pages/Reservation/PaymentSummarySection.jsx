@@ -1,4 +1,15 @@
+import { useEffect } from "react";
+import useReservationStore from "../../store/useReservationStore";
+
 const PaymentSummarySection = () => {
+  const { paymentSummary, calculatePaymentSummary, vehiclePrice, insuranceInfo } = useReservationStore();
+
+  useEffect(() => {
+    calculatePaymentSummary();
+  }, [insuranceInfo, vehiclePrice, calculatePaymentSummary]);
+
+  if (!paymentSummary) return null;
+
   return (
     <section className="w-full max-w-[640px] mt-6">
       <h2 className="text-lg font-semibold mb-4">결제정보</h2>
@@ -6,19 +17,19 @@ const PaymentSummarySection = () => {
       <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
         <div className="flex justify-between text-sm">
           <span>차량 대여 요금</span>
-          <span className="font-medium">39,900원</span>
+          <span className="font-medium">{paymentSummary.vehiclePrice.toLocaleString()}원</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>보험 요금 (일반면책)</span>
-          <span className="font-medium">10,000원</span>
+          <span>보험 요금</span>
+          <span className="font-medium">{paymentSummary.insurancePrice.toLocaleString()}원</span>
         </div>
         <div className="flex justify-between text-base font-semibold border-t pt-2">
           <span>총 결제금액</span>
-          <span className="text-blue-600">49,900원</span>
+          <span className="text-blue-600">{paymentSummary.totalPrice.toLocaleString()}원</span>
         </div>
         <div className="flex justify-between text-xs text-gray-500">
           <span>포인트 적립</span>
-          <span>1% → 499원</span>
+          <span>1% → {paymentSummary.point.toLocaleString()}원</span>
         </div>
       </div>
     </section>

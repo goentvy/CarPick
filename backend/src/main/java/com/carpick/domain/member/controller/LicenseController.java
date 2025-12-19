@@ -3,7 +3,7 @@ package com.carpick.domain.member.controller;
 import com.carpick.domain.member.dto.LicenseDto;
 import com.carpick.domain.member.dto.LicenseRegisterDto;
 import com.carpick.domain.member.service.LicenseService;
-import com.carpick.domain.auth.jwt.JwtProvider;
+import com.carpick.global.security.jwt.JwtProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
