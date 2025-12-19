@@ -41,22 +41,30 @@ export default function Notice() {
 
   return (
     <div className="notice-container">
-      <h2 className="notice-title">공지사항</h2>
+      <h2 className="notice-title">공지사항📌</h2>
 
       {/* 검색 */}
       <div className="search-container">
-        <input
-          className="search-input"
-          placeholder="검색어를 입력하세요"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        />
-        <button className="search-btn" onClick={handleSearch}>🔍</button>
+        <div className="search-input-wrapper">
+          <input
+            className="search-input"
+            placeholder="검색어를 입력하세요"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+          <button className="search-icon" onClick={handleSearch}>🔍</button>
+        </div>
       </div>
+
 
       {/* 공지사항 테이블 */}
       <table className={`notice-table ${loading ? "loading" : ""}`}>
+        <colgroup>
+          <col width="100"/>
+          <col/>
+          <col width="120"/>
+        </colgroup>
         <thead>
           <tr>
             <th>번호</th>
@@ -68,14 +76,19 @@ export default function Notice() {
           {(notices || []).map((n) => (
             <tr key={n.id}>
               <td>{n.id}</td>
-              <td
-                className="notice-subject"
-                onClick={() => handleClickNotice(n.id)}
-              >
-                {n.title}
+
+              <td>
+                <span
+                  className="notice-subject"
+                  onClick={() => handleClickNotice(n.id)}
+                >
+                  {n.title}
+                </span>
               </td>
+
               <td>{n.createdAt?.slice(0, 10)}</td>
             </tr>
+
           ))}
         </tbody>
       </table>
