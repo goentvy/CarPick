@@ -1,7 +1,7 @@
 package com.carpick.domain.auth.service;
 
 import com.carpick.global.exception.AuthenticationException;
-import com.carpick.domain.auth.jwt.JwtProvider;
+import com.carpick.global.security.jwt.JwtProvider;
 import com.carpick.domain.auth.dto.LoginRequest;
 import com.carpick.domain.auth.dto.LoginResponse;
 import com.carpick.domain.auth.dto.SignupRequest;
