@@ -90,7 +90,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
                 <Route index element={<MyPageHome />} />
                 <Route path="reviewhistory" element={<ReviewHistory />} />
-                <Route path="Qna" element={<QnAlist />} />
+                <Route path="QnAlist" element={<QnAlist />} />
                 <Route path="favorites" element={<Favorites />} />
                 <Route path="license" element={<MyLicense />} />
                 <Route path="changehistorypage" element={<ChangeHistoryPage />} />

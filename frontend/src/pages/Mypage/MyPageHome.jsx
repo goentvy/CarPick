@@ -7,7 +7,7 @@ const menuItems = [
     { label: "예약 내역", path: "/Mypage/ReservationsList" },
     { label: "취소 · 변경 내역", path: "/Mypage/ChangeHistoryPage" },
     { label: "리뷰 관리", path: "/Mypage/ReviewHistory" },
-    { label: "문의 내역", path: "/Mypage/QnAlist" },
+    { label: "문의 내역", path: "/mypage/QnAlist" },
     { label: "면허 관리", path: "/Mypage/license" },
     { label: "결제 수단", path: "/Mypage/Payment" },
     { label: "선호 차량", path: "/Mypage/Favorites" },
