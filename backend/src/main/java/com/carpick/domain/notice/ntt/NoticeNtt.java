@@ -38,6 +38,7 @@ public class NoticeNtt {
     @Column(nullable = false)
     private Boolean deleted;
 
+    // ✅ views 기본값 0L
     @Column(nullable = false)
-    private Long views;
+    private Long views = 0L;
 }

@@ -11,19 +11,15 @@ import com.carpick.domain.inquiry.service.InquiryService;
 
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequestMapping("/api/inquiry")
 @RequiredArgsConstructor
 public class InquiryController {
 
 	private final InquiryService inquiryService;
-	
+
 	@PostMapping
-	public InquiryCreateResponse create(
-	        @RequestBody InquiryCreateRequest req
-	) {
-	    Long id = inquiryService.createInquiry(req);
-	    return new InquiryCreateResponse(true, id);
+	public InquiryCreateResponse create(@RequestBody InquiryCreateRequest req) {
+		return inquiryService.createInquiry(req);
 	}
 }
