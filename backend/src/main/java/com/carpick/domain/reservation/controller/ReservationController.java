@@ -2,6 +2,13 @@ package com.carpick.domain.reservation.controller;
 
 import com.carpick.domain.reservation.dto.ReservationRequest;
 import com.carpick.domain.reservation.dto.ReservationRequest.CardPayment;
+import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
+import com.carpick.domain.reservation.dto.request.ReservationPriceRequestDto;
+import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
+import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
+import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
+import com.carpick.domain.reservation.service.ReservationUiService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,8 +17,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reservation")
+@RequiredArgsConstructor
 public class ReservationController {
-
+    private final ReservationUiService reservationUiService;
     @PostMapping("/pay")
     public ResponseEntity<?> processPayment(@RequestBody ReservationRequest request) {
         // 1. 카드정보 존재 여부 확인
@@ -51,4 +59,32 @@ public class ReservationController {
         // 실제 PG 연동 대신 카드번호 앞자리로 승인 여부 판단
         return card.getCardNumber() != null && card.getCardNumber().startsWith("1234");
     }
+    /**
+     * 예약 페이지 초기 데이터 내려주기
+     * 예: GET /api/reservation/form?carId=1
+     */
+    @GetMapping("/form")
+    public ReservationFormResponseDto getForm(@RequestParam Long carId){
+        return reservationUiService.getForm(carId);
+
+    }
+    /**
+     * 보험 선택 시 가격 재계산
+     * 예: POST /api/reservation/price?carId=1
+     * Body: { "insuranceCode": "FULL" }
+     */
+    @PostMapping("/price")
+    private ReservationPriceResponseDto calcPrice(@RequestParam Long carId
+            , @RequestBody(required = false) ReservationPriceRequestDto req){
+        return reservationUiService.calcPrice(carId, req);
+    }
+    @PostMapping("/create")
+    private ReservationCreateResponseDto createDemo(
+            @RequestBody ReservationCreateRequestDto req
+            ){
+        return reservationUiService.createDemo(req);
+
+    }
+
+
 }

@@ -1,48 +1,51 @@
 package com.carpick.global.config;
 
+import com.carpick.domain.userinfo.mapper.UserInfoMapper;
 import com.carpick.global.security.filter.JwtAuthenticationFilter;
+import com.carpick.global.security.jwt.JwtProvider;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtFilter;
+    private final JwtProvider jwtProvider;
+    private final UserInfoMapper userInfoMapper;
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtProvider, userInfoMapper);
+    }
 
-		http
-				// CSRF 비활성화
-				.csrf(csrf -> csrf.disable())
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-				// CORS 활성화
-				.cors(cors -> {
-				})
+        http
+                // ✅ CORS 활성화
+                .cors(cors -> {})
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(s ->
+                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/notice/**").permitAll()
+                        .requestMatchers("/api/users/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .addFilterBefore(
+                        jwtAuthenticationFilter(),
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
-				// JWT → 세션 미사용
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-				// ⭐ 접근 제어 (핵심)
-				.authorizeHttpRequests(auth -> auth
-						// 🔓 인증 없이 접근 가능
-						.requestMatchers("/api/auth/login", "/api/auth/signup").permitAll()
-
-						// 🆕 🔓 유저 공지사항 API
-						.requestMatchers("/api/notice/**").permitAll()
-
-						// 🔐 나머지는 JWT 필요
-						.anyRequest().authenticated())
-
-				// JWT 필터
-				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return http.build();
-	}
+        return http.build();
+    }
 }

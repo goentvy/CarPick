@@ -8,7 +8,6 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   profiles:
     default: dev
-
   mvc:
     servlet:
       throw-exception-if-no-handler-found: true
@@ -27,7 +26,8 @@ spring:
 
   web:
     resources:
-      add-mappings: false
+      add-mappings: true
+      static-locations: classpath:/static/
 
   # 전역에서의 업로드 파일 크기 제한 / 악의적인 요청 방어 용도
   servlet:
@@ -72,6 +72,7 @@ springdoc:
 file:
   upload:
     path: C:/upload
+
 
 # JWT 설정 추가
 jwt:

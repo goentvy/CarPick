@@ -13,24 +13,14 @@ import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<NoticeNtt, Long> {
 
-    /* =========================
-     * 공통 / 유저 / 관리자
-     * ========================= */
-
-    // 삭제되지 않은 전체 목록 (비페이징)
+    // 전체 공지 목록
     List<NoticeNtt> findByDeletedFalseOrderByCreatedAtDesc();
 
-    // 삭제되지 않은 전체 목록 (페이징)
     Page<NoticeNtt> findByDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 
-    // ✅ 삭제되지 않은 단건 조회 (유저/관리자 공통)
     Optional<NoticeNtt> findByIdAndDeletedFalse(Long id);
 
-    /* =========================
-     * 조회수
-     * ========================= */
-
-    // ✅ 조회수 증가
+    // 조회수 증가
     @Modifying
     @Transactional
     @Query("""
@@ -40,37 +30,19 @@ public interface NoticeRepository extends JpaRepository<NoticeNtt, Long> {
     """)
     int incrementViewCount(@Param("id") Long id);
 
-    /* =========================
-     * 관리자 검색
-     * ========================= */
-
+    // 검색 (관리자/유저 공용)
     @Query("""
         SELECT n FROM NoticeNtt n
         WHERE n.deleted = false
-          AND (
-                :keyword IS NULL
-             OR :keyword = ''
-             OR n.title LIKE %:keyword%
-             OR n.content LIKE %:keyword%
-          )
+          AND (:keyword IS NULL OR :keyword = ''
+               OR n.title LIKE %:keyword%
+               OR n.content LIKE %:keyword%)
         ORDER BY n.createdAt DESC
     """)
-    Page<NoticeNtt> searchAdmin(
-            @Param("keyword") String keyword,
-            Pageable pageable
-    );
+    Page<NoticeNtt> search(@Param("keyword") String keyword, Pageable pageable);
 
-    /* =========================
-     * 이전 / 다음글 (유저 상세)
-     * ========================= */
+    // 이전/다음글
+    NoticeNtt findTop1ByDeletedFalseAndCreatedAtLessThanOrderByCreatedAtDesc(LocalDateTime createdAt);
 
-    // 이전글
-    NoticeNtt findTop1ByDeletedFalseAndCreatedAtLessThanOrderByCreatedAtDesc(
-            LocalDateTime createdAt
-    );
-
-    // 다음글
-    NoticeNtt findTop1ByDeletedFalseAndCreatedAtGreaterThanOrderByCreatedAtAsc(
-            LocalDateTime createdAt
-    );
+    NoticeNtt findTop1ByDeletedFalseAndCreatedAtGreaterThanOrderByCreatedAtAsc(LocalDateTime createdAt);
 }

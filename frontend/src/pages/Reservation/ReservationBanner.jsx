@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 
 const ReservationBanner = () => {
   const location = useLocation();
-  console.log(location.pathname);
+  
   return (
     <section className="max-w-[640px] w-full overflow-hidden">
       {/* 상단 차량 예약 현황 */}
