@@ -1,5 +1,7 @@
 package com.carpick.domain.inquiry.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import com.carpick.domain.inquiry.vo.Inquiry;
 
@@ -7,4 +9,7 @@ import com.carpick.domain.inquiry.vo.Inquiry;
 public interface InquiryMapper {
 
 	void insertInquiry(Inquiry inquiry);
+	
+	//마이페이지 문의내역 조회
+	List<Inquiry> findByUserId(Long userId);
 }
