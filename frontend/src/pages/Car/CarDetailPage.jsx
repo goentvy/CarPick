@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
+import carDetailMock from "@/mocks/carDetail.json";
+
 
 const InfoTile = ({ icon, title }) => (
   <div className="rounded-2xl bg-[#EEF3FF] p-4 min-h-[138px] flex flex-col justify-between">
@@ -26,6 +28,7 @@ const SectionTitle = ({ children }) => (
 );
 
 export default function CarDetailPage() {
+  const data = carDetailMock;
   const nav = useNavigate();
 
   const spinRef = useRef(null);
@@ -71,7 +74,6 @@ export default function CarDetailPage() {
         {/* Top App Bar */}
         <header className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-black/5">
           <div className="h-12 px-4 flex items-center justify-between">
-            {/* ✅ 변경: 뒤로가기 동작 */}
             <button
               type="button"
               onClick={() => nav(-1)}
@@ -132,10 +134,10 @@ export default function CarDetailPage() {
           {/* Title */}
           <div className="mt-4">
             <h1 className="text-[20px] font-bold text-[#111] leading-snug">
-              더 뉴 쏘렌토 4세대 (MQ4) HEV 1.6 2WD 그래비티
+              {data.topCardDetailDto.title}
             </h1>
             <p className="mt-1 text-xs text-[#7A7A7A]">
-              2024년식 · 5인승 · 하이브리드 SUV
+              {data.topCardDetailDto.subtitle}
             </p>
           </div>
 
