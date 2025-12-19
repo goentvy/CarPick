@@ -1,10 +1,12 @@
 package com.carpick.domain.userinfo.service;
 
-import com.carpick.domain.user.dto.UserInfoResponse;
-import com.carpick.domain.userinfo.dto.UserInfoUpdateRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.carpick.domain.userinfo.dto.UserInfoResponse;
+import com.carpick.domain.userinfo.dto.UserInfoUpdateRequest;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

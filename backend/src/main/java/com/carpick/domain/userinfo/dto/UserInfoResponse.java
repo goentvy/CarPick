@@ -1,4 +1,4 @@
-package com.carpick.domain.user.dto;
+package com.carpick.domain.userinfo.dto;
 
 import java.time.LocalDate;
 

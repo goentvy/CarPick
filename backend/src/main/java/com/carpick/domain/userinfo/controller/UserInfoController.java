@@ -1,14 +1,19 @@
 package com.carpick.domain.userinfo.controller;
 
-import com.carpick.domain.user.dto.UserInfoResponse;
-
-
-import com.carpick.domain.userinfo.service.UserInfoService;
-import com.carpick.domain.userinfo.dto.UserInfoUpdateRequest;
-import com.carpick.global.security.details.CustomUserDetails;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.carpick.domain.userinfo.dto.UserInfoResponse;
+import com.carpick.domain.userinfo.dto.UserInfoUpdateRequest;
+import com.carpick.domain.userinfo.service.UserInfoService;
+import com.carpick.global.security.details.CustomUserDetails;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
