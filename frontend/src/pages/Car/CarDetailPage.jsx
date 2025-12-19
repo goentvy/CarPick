@@ -1,6 +1,6 @@
 // src/CarDetailPage.jsx
 import { useState, useRef } from "react";
-import "../components/CarDetailPage.css";
+import "../../components/CarDetailPage.css";
 
 /**
  * 360도 차량 뷰어

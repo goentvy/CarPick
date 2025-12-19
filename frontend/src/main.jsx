@@ -7,7 +7,9 @@ import App from './App.jsx'
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import Intro from './pages/Intro/Intro.jsx'
-import CarDetailPage from "./pages/CarDetailPage";
+
+import CarList from "./pages/Car/CarList";
+import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
@@ -60,7 +62,10 @@ createRoot(document.getElementById('root')).render(
           {/* 메인 */}
           <Route path="home" element={<Home />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="detail" element={<CarDetailPage />} />
+
+          {/* 차량 목록 */}
+          <Route path="car/list" element={<CarList />} />
+          <Route path="car/detail" element={<CarDetailPage />} />
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
@@ -94,8 +99,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
 
           {/* 약관 */}
-          <Route path="agree1" element={<Agree1 />} />
-          <Route path="agree2" element={<Agree2 />} />
+          <Route path="terms" element={<Agree1 />} />
+          <Route path="privacy" element={<Agree2 />} />
 
           {/* 이벤트 */}
           <Route path="event/list" element={<EventList />} />
