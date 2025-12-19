@@ -91,7 +91,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="mypage/qna" element={<QnAlist />} />
           <Route path="mypage/favorites" element={<Favorites />} />
           <Route path="mypage/license" element={<MyLicense />} />
-          <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
+          <Route path="mypage/changehistorypage" element={<ChangeHistoryPage />} />
 
           {/* 약관 */}
           <Route path="agree1" element={<Agree1 />} />
