@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
@@ -24,6 +24,7 @@ import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
+import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
 import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
 import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
@@ -85,15 +86,17 @@ createRoot(document.getElementById('root')).render(
           <Route path="order/fail" element={<OrderFail />} />
           <Route path="mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
 
-          {/* 마이페이지 */}
-          <Route path="mypage" element={<MyPageHome />} />
-          <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
-          <Route path="mypage/qna" element={<QnAlist />} />
-          <Route path="mypage/favorites" element={<Favorites />} />
-          <Route path="mypage/license" element={<MyLicense />} />
-          <Route path="mypage/changehistorypage" element={<ChangeHistoryPage />} />
+            {/* 마이페이지  */}
+            <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+                <Route index element={<MyPageHome />} />
+                <Route path="reviewhistory" element={<ReviewHistory />} />
+                <Route path="qna" element={<QnAlist />} />
+                <Route path="favorites" element={<Favorites />} />
+                <Route path="license" element={<MyLicense />} />
+                <Route path="changehistorypage" element={<ChangeHistoryPage />} />
+            </Route>
 
-          {/* 약관 */}
+            {/* 약관 */}
           <Route path="agree1" element={<Agree1 />} />
           <Route path="agree2" element={<Agree2 />} />
 
