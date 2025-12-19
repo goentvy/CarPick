@@ -1,7 +1,6 @@
-// src/pages/Notice/Notice.jsx (공지사항 목록)
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/services/api";
+import { fetchNotices } from "@/services/noticeApi";
 import "@/styles/notice.css";
 
 export default function Notice() {
@@ -12,41 +11,51 @@ export default function Notice() {
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
 
-  useEffect(() => {
-    fetchNotices();
-  }, [page]);
-
-  const fetchNotices = async () => {
+  const loadNotices = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/notice", {
-        params: { page: page - 1, keyword },
-      });
-      setNotices(res.data);
+      const res = await fetchNotices(page - 1, keyword);
+      setNotices(res.data.content || []);
+      setTotalPages(res.data.totalPages || 1);
+    } catch (err) {
+      console.error("공지사항 로딩 실패:", err);
+      setNotices([]);
       setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadNotices();
+  }, [page, keyword]);
+
+  const handleSearch = () => {
+    setPage(1);
+    loadNotices();
+  };
+
+  const handleClickNotice = (id) => {
+    navigate(`/notice/${id}?page=${page}&keyword=${keyword}`);
+  };
+
   return (
     <div className="notice-container">
-      <div className="notice-list-header">
-        <h2 className="notice-title">공지사항</h2>
-      </div>
+      <h2 className="notice-title">공지사항</h2>
 
+      {/* 검색 */}
       <div className="search-container">
-        <div className="search-input-wrapper">
-          <input
-            className="search-input"
-            placeholder="검색어를 입력하세요"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-          <span className="search-icon" onClick={fetchNotices}>🔍</span>
-        </div>
+        <input
+          className="search-input"
+          placeholder="검색어를 입력하세요"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        />
+        <button className="search-btn" onClick={handleSearch}>🔍</button>
       </div>
 
+      {/* 공지사항 테이블 */}
       <table className={`notice-table ${loading ? "loading" : ""}`}>
         <thead>
           <tr>
@@ -56,12 +65,12 @@ export default function Notice() {
           </tr>
         </thead>
         <tbody>
-          {notices.map((n) => (
+          {(notices || []).map((n) => (
             <tr key={n.id}>
               <td>{n.id}</td>
               <td
                 className="notice-subject"
-                onClick={() => navigate(`/notice/${n.id}`)}
+                onClick={() => handleClickNotice(n.id)}
               >
                 {n.title}
               </td>
@@ -71,6 +80,7 @@ export default function Notice() {
         </tbody>
       </table>
 
+      {/* 버튼형 페이징 */}
       <div className="pagination">
         <button
           className="pagination-btn"

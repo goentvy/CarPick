@@ -29,12 +29,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                // ✅ CORS 활성화
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/notice/**").permitAll()
                         .requestMatchers("/api/users/**").authenticated()
                         .anyRequest().permitAll()
                 )
