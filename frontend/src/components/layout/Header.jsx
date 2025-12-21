@@ -19,10 +19,10 @@ function Header() {
   const location = useLocation();
   const hideOnDetail =
     location.pathname.startsWith("/car/") || 
+    location.pathname.startsWith("/cars/") || 
     location.pathname.includes("/detail");     
 
   if (hideOnDetail) return null;
-
   useEffect(() => {
   if (location.pathname.includes("zone")) {
     setActiveMenu("카픽존");
