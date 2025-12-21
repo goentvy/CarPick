@@ -385,6 +385,8 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            base_insurance_fee_snapshot INT NOT NULL COMMENT '원 보험료(할인 전, 스냅샷)',
                                            insurance_discount_amount_snapshot INT NOT NULL DEFAULT 0 COMMENT '보험 할인 금액(스냅샷)',
                                            applied_insurance_fee_snapshot INT NOT NULL COMMENT '적용된 보험료(할인 후, 스냅샷)',
+                                           member_grade_code_snapshot VARCHAR(20) NULL COMMENT '예약 당시 회원등급(스냅샷)',
+                                         member_discount_rate_snapshot DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '예약 당시 회원할인율%(스냅샷)',
 
     /* 이벤트/쿠폰 스냅샷 */
                                            event_discount_amount_snapshot INT NOT NULL DEFAULT 0 COMMENT '이벤트/쿠폰 할인 금액(스냅샷)',
@@ -434,3 +436,38 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
     */
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+/* =========================================
+   예약 상태 이력 (RESERVATION 종속)
+   - 마이페이지 타임라인/운영 추적용
+   ========================================= */
+CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
+                                                          history_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '예약 상태 이력 ID',
+
+                                                          reservation_id INT NOT NULL COMMENT '예약 ID (FK)',
+                                                          status_prev ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED') NULL
+                                                              COMMENT '변경 전 상태(NULL=최초)',
+                                                          status_curr ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED') NOT NULL
+                                                              COMMENT '변경 후 상태',
+
+                                                          reason VARCHAR(255) NULL COMMENT '변경 사유(취소사유/운영메모)',
+                                                          actor_type VARCHAR(20) NULL COMMENT '변경 주체(USER/ADMIN/SYSTEM)',
+                                                          actor_id VARCHAR(50) NULL COMMENT '변경자 ID(회원/관리자 식별자)',
+
+                                                          recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '기록 일시',
+
+                                                          CONSTRAINT fk_rsh_reservation
+                                                              FOREIGN KEY (reservation_id) REFERENCES RESERVATION(reservation_id)
+                                                                  ON UPDATE CASCADE ON DELETE CASCADE,
+
+                                                          INDEX idx_rsh_lookup (reservation_id, recorded_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+/* 회원 등급(정책) */
+# CREATE TABLE IF NOT EXISTS MEMBER_GRADE (
+#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BRONZE/SILVER/GOLD/VIP)',
+#                                             grade_name VARCHAR(50) NOT NULL COMMENT '등급명',
+#                                             discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '할인율(%) 예: 5.00',
+#                                             is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',
+#                                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                                             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
