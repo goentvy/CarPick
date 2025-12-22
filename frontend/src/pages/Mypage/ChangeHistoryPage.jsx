@@ -202,19 +202,7 @@ function ChangeHistoryPage() {
                             </div>
                         ) : (
                             <div className="p-12 flex flex-col items-center justify-center text-center">
-                                <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-                                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 0v6m0-6H9m3 0v6m-3-6h6m-6 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <p className="text-lg font-semibold text-[#1A1A1A] mb-2">내역이 없습니다</p>
-                                <p className="text-sm text-[#666666] mb-6">취소 또는 변경된 예약 내역이 없습니다.</p>
-                                <button
-                                    onClick={() => navigate("/mypage/reservationslist")}
-                                    className="px-8 py-3 bg-[#2C7FFF] text-white text-sm font-medium rounded-xl shadow-sm hover:bg-[#1E5BBF]"
-                                >
-                                    예약 내역 보기
-                                </button>
+                                <p className="text-lg font-semibold text-[#1A1A1A] mb-2">취소 또는 변경된 예약 내역이 없습니다.</p>
                             </div>
                         )}
                     </div>
