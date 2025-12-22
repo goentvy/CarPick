@@ -25,10 +25,10 @@ public class MyPageInquiryController{
     private final JwtProvider jwtProvider;
 
 
-    @GetMapping("/inquiries")
+    /* @GetMapping("/inquiries") // 지현님 보안상 주석 처리했습니다
 	public List<MyPageInquiryResponse> myInquiries(@RequestParam Long userId) {
 		return inquiryService.getMyInquiryResponses(userId);
-	}
+	}*/
 
     @GetMapping("/inquiries/me")
     public ResponseEntity<List<MyPageInquiryResponse>> getMyInquiries(
