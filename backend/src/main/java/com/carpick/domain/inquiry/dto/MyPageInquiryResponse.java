@@ -17,7 +17,7 @@ public class MyPageInquiryResponse {
 	private String content;
 	private String status;
 	private String adminReply;
-	private LocalDateTime createdAt;
+	private String createdAt;
 
 	public static MyPageInquiryResponse from(Inquiry inquiry) {
 		return new MyPageInquiryResponse(
@@ -27,7 +27,7 @@ public class MyPageInquiryResponse {
 				inquiry.getContent(),
 				inquiry.getStatus(),
 				inquiry.getAdminReply(),
-				inquiry.getCreatedAt()
+                inquiry.getCreatedAt().toString()
 				);
 	}
 }
