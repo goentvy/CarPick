@@ -5,89 +5,101 @@
     <title>카픽 - 공지사항 상세</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- 공통 CSS (목록 페이지와 동일) -->
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
 </head>
+
 <body>
 <div class="page-container">
 
+    <!-- 사이드바 -->
     <div th:replace="fragments/fragments :: sidebar"></div>
-    <div th:replace="fragments/fragments :: header"></div>
 
+    <!-- 헤더 -->
     <div class="main-content">
 
-        <!-- 타이틀 -->
-        <div class="page-title-area mb-3">
+        <div th:replace="fragments/fragments :: header"></div>
+
+        <!-- 페이지 타이틀 (목록과 동일) -->
+        <div class="page-title-area">
             <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h4>공지사항 상세</h4>
+                    <h4>공지사항</h4>
                 </div>
             </div>
         </div>
 
-        <!-- 상세 내용 -->
-        <div class="card">
-            <div class="card-body">
+        <!-- 컨텐츠 영역 -->
+        <div class="main-content-inner">
 
-                <h3 th:text="${notice.title}">공지사항 제목</h3>
+            <div class="card">
+                <div class="card-body">
 
-                <div class="mb-2 text-muted">
-                    <span>작성자: 관리자</span>
-                    &nbsp;|&nbsp;
-                    <span>
+                    <!-- 제목 -->
+                    <h4 class="mb-3" th:text="${notice.title}">
+                        공지사항 제목
+                    </h4>
+
+                    <!-- 메타 정보 -->
+                    <div class="text-muted mb-3">
+                        작성자: 관리자
+                        &nbsp;|&nbsp;
                         작성일:
-                        <span th:text="${notice.createdAt != null
+                        <span th:text="${notice.createdAt != null 
                             ? #temporals.format(notice.createdAt, 'yyyy-MM-dd')
                             : ''}">
                         </span>
-                    </span>
+                    </div>
+
+                    <hr>
+
+                    <!-- 내용 -->
+                    <div class="notice-content mt-3" th:utext="${notice.content}">
+                        공지사항 내용
+                    </div>
+
+                    <!-- 버튼 영역 (목록과 동일한 정렬) -->
+                    <div class="mt-4">
+                        <a href="/admin/notice" class="btn btn-secondary">
+                            목록
+                        </a>
+
+                        <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}"
+                           class="btn btn-primary">
+                            수정
+                        </a>
+
+                        <button type="button"
+                                class="btn btn-danger"
+                                th:onclick="|deleteNotice(${notice.id})|">
+                            삭제
+                        </button>
+                    </div>
+
                 </div>
-
-                <hr>
-
-                <!-- 내용 -->
-                <div th:utext="${notice.content}">
-                    공지사항 내용
-                </div>
-
-                <!-- 버튼 -->
-                <div class="mt-4">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            onclick="location.href='/admin/notice'">
-                        목록
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-primary"
-                            th:onclick="|location.href='/admin/notice/edit/${notice.id}'|">
-                        수정
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-danger"
-                            th:onclick="|deleteNotice(${notice.id})|">
-                        삭제
-                    </button>
-                </div>
-
             </div>
+
         </div>
 
+        <!-- footer -->
+        <div th:replace="fragments/fragments :: footer"></div>
+
     </div>
-
-    <!-- 삭제 스크립트 -->
-    <script>
-        function deleteNotice(id) {
-            if (!confirm('정말 삭제하시겠습니까?')) return;
-
-            fetch('/admin/notice/delete/' + id, {
-                method: 'POST'
-            }).then(() => location.href = '/admin/notice');
-        }
-    </script>
-
-    <div th:replace="fragments/fragments :: footer"></div>
 </div>
+
+<!-- 삭제 스크립트 -->
+<script>
+    function deleteNotice(id) {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+
+        fetch('/admin/notice/delete/' + id, {
+            method: 'POST'
+        }).then(() => location.href = '/admin/notice');
+    }
+</script>
+
 </body>
 </html>
