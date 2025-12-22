@@ -1,81 +1,55 @@
 // src/pages/mypage/ChangeHistoryPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useUserStore from "../../store/useUserStore";
 
 function ChangeHistoryPage() {
     const navigate = useNavigate();
+    const accessToken = useUserStore((state) => state.accessToken);
     const [filter, setFilter] = useState("all");
     const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        localStorage.removeItem("changeHistory");
-        console.log("✅ localStorage 초기화 완료");
+        const fetchHistory = async () => {
+            try {
+                setLoading(true);
+                console.log('🔥 API TOKEN:', accessToken ? '있음' : '없음');
 
-        const initialData = [
-            {
-                id: 1,
-                reservationCode: "RP-20251201-001",
-                type: "CANCEL",
-                carName: "K5 프리미엄",
-                period: "2025.12.01 ~ 2025.12.03",
-                reason: "계획 변경",
-            },
-            {
-                id: 2,
-                reservationCode: "RP-20251203-002",
-                type: "CHANGE",
-                carName: "모닝 스마트",
-                period: "2025.12.02 ~ 2025.12.04",
-                previous: "2025.12.01 ~ 2025.12.03",
-                changeType: "period",
-                reason: "날짜 변경",
-            },
-            {
-                id: 3,
-                reservationCode: "RP-20251205-003",
-                type: "CANCEL",
-                carName: "소나타 하이브리드",
-                period: "2025.12.10 ~ 2025.12.12",
-                reason: "개인 사정",
-            },
-            {
-                id: 4,
-                reservationCode: "RP-20251207-004",
-                type: "CHANGE",
-                carName: "그랜저 IG",
-                period: "2025.12.05 ~ 2025.12.07",
-                previousCar: "K5 프리미엄",
-                changeType: "car",
-                reason: "차종 변경",
-            },
-            {
-                id: 5,
-                reservationCode: "RP-20251208-005",
-                type: "CHANGE",
-                carName: "아반떼 N",
-                period: "2025.12.15 ~ 2025.12.18",
-                previous: "2025.12.10 ~ 2025.12.12",
-                previousLocation: "강남지점",
-                location: "여의도지점",
-                changeType: "location",
-                reason: "렌트 위치 변경/날짜 변경",
-            },
-            {
-                id: 6,
-                reservationCode: "RP-20251210-006",
-                type: "CHANGE",
-                carName: "BMW 3시리즈",
-                period: "2025.12.20 ~ 2025.12.25",
-                previousCar: "소나타 하이브리드",
-                changeType: "car",
-                reason: "차종 변경",
-            },
-        ];
+                if (!accessToken) {
+                    console.log('🔥 ❌ 토큰 없음 → 로그인 필요!');
+                    setLoading(false);
+                    return;
+                }
 
-        setItems(initialData);
-        localStorage.setItem("changeHistory", JSON.stringify(initialData));
-        console.log("✅ 초기 데이터 6개 설정 완료:", initialData.length);
-    }, []);
+                const response = await fetch('http://localhost:8080/api/reservations/history/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                console.log('🔥 Status:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('🔥 히스토리 데이터:', data);
+                    setItems(data);
+                } else {
+                    const errorText = await response.text();
+                    console.log('🔥 에러:', errorText);
+                    setItems([]);
+                }
+            } catch (error) {
+                console.error('🔥 에러:', error);
+                setItems([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchHistory();
+    }, [accessToken]);
 
     const filteredItems = items.filter(
         (item) => filter === "all" || item.type === filter.toUpperCase()
@@ -129,6 +103,28 @@ function ChangeHistoryPage() {
             </div>
         ));
     };
+
+    if (loading) {
+        return (
+            <div
+                id="content"
+                className="font-pretendard"
+                style={{
+                    minHeight: "calc(100vh - 60px)",
+                    paddingBottom: "72px",
+                    backgroundColor: "#E7EEFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2C7FFF] mx-auto mb-4"></div>
+                    <p className="text-sm text-[#666666]">히스토리 불러오는 중...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div

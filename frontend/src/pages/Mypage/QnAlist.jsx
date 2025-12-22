@@ -44,10 +44,9 @@ function QnAlist() {
     const fetchMyInquiries = async () => {
         try {
             setLoading(true);
-            console.log("📡 MyLicense처럼 /me 엔드포인트 호출");
 
-            // ✅ MyLicense와 동일: /me 엔드포인트 + 토큰만!
-            const response = await fetch("/api/mypage/inquiries/me", {
+
+            const response = await fetch("/api/mypage/inquiries", {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -140,10 +139,6 @@ function QnAlist() {
                 backgroundColor: "#E7EEFF",
             }}
         >
-            {/* 상단 바 */}
-            <div className="px-4 py-4" style={{ backgroundColor: "#2E73FF" }}>
-                <p className="text-sm text-white font-semibold">1:1 문의 내역</p>
-            </div>
 
             <div className="px-4 py-6 space-y-3">
                 {items.map((item) => {

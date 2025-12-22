@@ -31,7 +31,7 @@ function MyPageHome() {
                 status: "예약완료",
                 pickupLocation: "서울역 카픽존",
             });
-        }, 1500);
+        });
 
         return () => clearTimeout(timeout);
     }, []);

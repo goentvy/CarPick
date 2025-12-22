@@ -63,11 +63,10 @@ function ReviewHistory() {
 
     const handleSave = async () => {
         try {
-            const token = useUserStore((state) => state.accessToken);  // ← Zustand!
             const response = await fetch(`http://localhost:8080/api/reviews/${editingReview.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${accessToken}`,  // ← 컴포넌트 상단 토큰!
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -79,11 +78,15 @@ function ReviewHistory() {
                 const updatedReview = await response.json();
                 setReviews(reviews.map(r => r.id === updatedReview.id ? updatedReview : r));
                 handleCancel();
+                console.log('🔥 리뷰 수정 성공!');
+            } else {
+                console.error('🔥 리뷰 수정 실패:', response.status);
             }
         } catch (error) {
             console.error('리뷰 수정 실패:', error);
         }
     };
+
 
     const handleCancel = () => {
         setEditingReview(null);
