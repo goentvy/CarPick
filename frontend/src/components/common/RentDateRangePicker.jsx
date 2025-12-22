@@ -61,7 +61,7 @@ const RentDateRangePicker = ({ onChange, onClose }) => {
   return (
     <Modal onClose={onClose}>
         {/* 상단: 대여/반납 날짜 및 시간 */}
-        <div className="mx-auto mb-4 w-full">
+        <div className="mx-auto mb-4 w-full text-center">
           <p className="text-sm font-semibold text-gray-700 mb-2">
             {formatDate(range[0].startDate)} {startHour.toString().padStart(2, '0')}:00 ~{' '}
             {formatDate(range[0].endDate)} {endHour.toString().padStart(2, '0')}:00
@@ -101,22 +101,24 @@ const RentDateRangePicker = ({ onChange, onClose }) => {
         </div>
 
         {/* 안내 문구 */}
-        <p className="mt-4 text-xs text-gray-500">
+        <p className="text-center mt-4 text-xs text-gray-500">
           ※ 24시간 미만 대여는 전화 또는 채팅상담 전용으로 예약 가능합니다.
         </p>
 
         {/* 중단: 달력 */}
-        <DateRange
-          locale={ko}
-          ranges={range}
-          onChange={handleChange}
-          months={2}
-          direction="vertical"
-          showDateDisplay={false}
-          minDate={new Date()}
-          rangeColors={['#3b82f6']}
-          moveRangeOnFirstSelection={false}
-        />
+        <div className="flex justify-center">
+          <DateRange
+            locale={ko}
+            ranges={range}
+            onChange={handleChange}
+            months={2}
+            direction="vertical"
+            showDateDisplay={false}
+            minDate={new Date()}
+            rangeColors={['#3b82f6']}
+            moveRangeOnFirstSelection={false}
+          />
+        </div>
 
         {/* 버튼 영역 */}
         <div className="flex justify-between mt-3 w-full">
