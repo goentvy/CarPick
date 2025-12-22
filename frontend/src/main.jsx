@@ -1,13 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import Intro from './pages/Intro/Intro.jsx'
-import CarDetailPage from "./pages/Car/CarDetailpage.jsx";
+
+import CarList from "./pages/Car/CarList";
+import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
@@ -24,7 +26,6 @@ import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
-import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
 import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
 import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
@@ -61,7 +62,10 @@ createRoot(document.getElementById('root')).render(
           {/* 메인 */}
           <Route path="home" element={<Home />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="detail" element={<CarDetailPage />} />
+
+          {/* 차량 목록 */}
+          <Route path="car/list" element={<CarList />} />
+          <Route path="car/detail" element={<CarDetailPage />} />
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
@@ -86,19 +90,17 @@ createRoot(document.getElementById('root')).render(
           <Route path="order/fail" element={<OrderFail />} />
           <Route path="mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
 
-            {/* 마이페이지  */}
-            <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
-                <Route index element={<MyPageHome />} />
-                <Route path="reviewhistory" element={<ReviewHistory />} />
-                <Route path="QnAlist" element={<QnAlist />} />
-                <Route path="favorites" element={<Favorites />} />
-                <Route path="license" element={<MyLicense />} />
-                <Route path="changehistorypage" element={<ChangeHistoryPage />} />
-            </Route>
+          {/* 마이페이지 */}
+          <Route path="mypage" element={<MyPageHome />} />
+          <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
+          <Route path="mypage/qna" element={<QnAlist />} />
+          <Route path="mypage/favorites" element={<Favorites />} />
+          <Route path="mypage/license" element={<MyLicense />} />
+          <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
 
-            {/* 약관 */}
-          <Route path="agree1" element={<Agree1 />} />
-          <Route path="agree2" element={<Agree2 />} />
+          {/* 약관 */}
+          <Route path="terms" element={<Agree1 />} />
+          <Route path="privacy" element={<Agree2 />} />
 
           {/* 이벤트 */}
           <Route path="event/list" element={<EventList />} />

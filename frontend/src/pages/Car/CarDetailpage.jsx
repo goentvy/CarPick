@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
 import carDetailMock from "@/mocks/carDetail.json";
+// import api from "@/service/api";
 
-
+/** ---------- UI Parts ---------- */
 const InfoTile = ({ icon, title }) => (
   <div className="rounded-2xl bg-[#EEF3FF] p-4 min-h-[138px] flex flex-col justify-between">
     <div className="text-base font-medium text-[#1A1A1A] leading-snug">
@@ -13,6 +14,11 @@ const InfoTile = ({ icon, title }) => (
   </div>
 );
 
+const SectionTitle = ({ children }) => (
+  <h2 className="mt-8 mb-3 text-base font-semibold text-[#111]">{children}</h2>
+);
+
+/** ---------- Icons (assets on FE) ---------- */
 const ICON = {
   gas: "/images/common/icon_car_gas.svg",
   year: "/images/common/icon_car_side.svg",
@@ -23,19 +29,100 @@ const ICON = {
   share: "/images/common/icon_car_share.svg",
 };
 
-const SectionTitle = ({ children }) => (
-  <h2 className="mt-8 mb-3 text-base font-semibold text-[#111]">{children}</h2>
-);
+const CARD_ICON_MAP = {
+  fuel: ICON.gas,
+  year: ICON.year,
+  seats: ICON.group,
+  career: ICON.user26,
+  age: ICON.user21,
+  fuel_eff: ICON.data,
+};
+
+/** ---------- Adapter: BE cards -> UI cards (6 fixed) ---------- */
+function normalizeCards(cards) {
+  const byType = {};
+  (cards ?? []).forEach((c) => (byType[c.type] = c));
+
+  const slots = ["FUEL", "YEAR", "SEATS", "CAREER", "AGE", "FUEL_EFF"];
+
+  return slots.map((type) => {
+    const c = byType[type] ?? {};
+    const hasValue = c.value !== undefined && c.value !== null;
+    const valueText = hasValue ? `${String(c.value)}${c.unit ?? ""}` : null;
+
+    let displayText = "정보 준비 중이에요.";
+    if (valueText) {
+      switch (type) {
+        case "FUEL":
+          displayText = `${valueText} 차량이에요.`;
+          break;
+        case "YEAR":
+          displayText = `${valueText}식이에요.`;
+          break;
+        case "SEATS":
+          displayText = `최대 ${valueText} 탑승 가능해요.`;
+          break;
+        case "CAREER":
+          displayText = `운전경력 ${valueText} 필요해요.`;
+          break;
+        case "AGE":
+          displayText = `만 ${valueText}만 이용 가능해요.`;
+          break;
+        case "FUEL_EFF":
+          displayText = `연비는 약 ${valueText}예요.`;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return {
+      type,
+      icon: c.icon, // "fuel" | "year" | ...
+      title: c.title,
+      displayText,
+    };
+  });
+}
 
 export default function CarDetailPage() {
-  const data = carDetailMock;
   const nav = useNavigate();
+  const { carId } = useParams();
 
   const spinRef = useRef(null);
-  const [toast, setToast] = useState("");
 
-  // ✅ 변경: timer는 ref로 관리 (안전)
+  const [toast, setToast] = useState("");
   const toastTimerRef = useRef(null);
+
+  // ✅ data: mock -> (later) api
+  const [car, setCar] = useState(carDetailMock);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!carId) return;
+
+    let mounted = true;
+    setLoading(true);
+
+    api
+      .get(`/api/cars/${carId}`)
+      .then((res) => {
+        if (!mounted) return;
+        setCar(res.data);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setCar(carDetailMock);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [carId]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -46,7 +133,6 @@ export default function CarDetailPage() {
   const handleShare = async () => {
     const url = window.location.href;
 
-    // ✅ 변경: Web Share API 우선(모바일에서 앱처럼)
     try {
       if (navigator.share) {
         await navigator.share({ title: document.title, url });
@@ -54,10 +140,9 @@ export default function CarDetailPage() {
         return;
       }
     } catch (e) {
-      // 사용자가 공유 취소해도 여기로 올 수 있음 → 그냥 fallback으로 진행
+      // ignore
     }
 
-    // fallback: 링크 복사
     try {
       await navigator.clipboard.writeText(url);
       showToast("링크를 복사했어요");
@@ -66,6 +151,14 @@ export default function CarDetailPage() {
       if (ok !== null) showToast("링크를 준비했어요");
     }
   };
+
+  const top = car?.topCarDetailDto;
+  const cards = car?.carCardSectionDto?.cards ?? [];
+  const notice = car?.carCardSectionDto?.notice;
+  const pickup = car?.locationDto?.pickup;
+  const dropoff = car?.locationDto?.dropoff;
+
+  const uiCards = normalizeCards(cards);
 
   return (
     <div className="min-h-screen bg-white">
@@ -98,7 +191,6 @@ export default function CarDetailPage() {
 
         {/* Hero (360 영상) */}
         <div className="relative bg-[#E9EAEE] overflow-hidden mt-1">
-          {/* 좌 버튼 */}
           <button
             type="button"
             onClick={() => spinRef.current?.prev?.()}
@@ -110,7 +202,6 @@ export default function CarDetailPage() {
             ‹
           </button>
 
-          {/* ✅ 변경: 우 버튼 크기 통일(w-9 h-9) */}
           <button
             type="button"
             onClick={() => spinRef.current?.next?.()}
@@ -134,14 +225,18 @@ export default function CarDetailPage() {
           {/* Title */}
           <div className="mt-4">
             <h1 className="text-[20px] font-bold text-[#111] leading-snug">
-              더 뉴 쏘렌토 4세대 (MQ4) HEV 1.6 2WD 그래비티
+              {top?.title ?? "차량 정보"}
             </h1>
-            <p className="mt-1 text-xs text-[#7A7A7A]">
-              2024년식 · 5인승 · 하이브리드 SUV
-            </p>
+            <p className="mt-1 text-xs text-[#7A7A7A]">{top?.subtitle ?? ""}</p>
+
+            {loading && (
+              <div className="mt-2 text-[11px] text-[#8A8A8A]">
+                데이터를 불러오는 중이에요…
+              </div>
+            )}
           </div>
 
-          {/* AI Summary Card */}
+          {/* AI Summary Card (일단 유지) */}
           <div className="mt-4 rounded-3xl bg-[#EEF3FF] p-5">
             <div className="text-xs font-bold text-[#1D6BF3]">
               AI가 정리한 이 차량의 한 줄 요약
@@ -153,45 +248,41 @@ export default function CarDetailPage() {
             </p>
           </div>
 
-          {/* 차량정보 */}
+          {/* 차량정보 (6개 고정, 데이터 적용) */}
           <SectionTitle>차량정보</SectionTitle>
           <div className="grid grid-cols-3 gap-3">
-            <InfoTile
-              icon={<img src={ICON.gas} className="w-8 h-8 opacity-70" alt="연료" />}
-              title="하이브리드 차량이에요."
-            />
-            <InfoTile
-              icon={<img src={ICON.year} className="w-8 h-8 opacity-70" alt="연식" />}
-              title="2024년식이에요."
-            />
-            <InfoTile
-              icon={<img src={ICON.group} className="w-8 h-8 opacity-70" alt="탑승" />}
-              title="최대 4인 탑승 가능해요."
-            />
-            <InfoTile
-              icon={<img src={ICON.user26} className="w-8 h-8 opacity-70" alt="경력" />}
-              title="운전경력 1년 이상 필요해요."
-            />
-            <InfoTile
-              icon={<img src={ICON.user21} className="w-8 h-8 opacity-70" alt="나이" />}
-              title="만 21세 이상만 이용 가능해요."
-            />
-            <InfoTile
-              icon={<img src={ICON.data} className="w-8 h-8 opacity-70" alt="연비" />}
-              title="연비는 약 ○○km/L예요."
-            />
+            {uiCards.map((c) => {
+              const iconSrc = c.icon
+                ? CARD_ICON_MAP[c.icon] ?? ICON.data
+                : ICON.data;
+
+              return (
+                <InfoTile
+                  key={c.type}
+                  icon={
+                    <img
+                      src={iconSrc}
+                      className="w-8 h-8 opacity-70"
+                      alt={c.title ?? c.type}
+                    />
+                  }
+                  title={c.displayText}
+                />
+              );
+            })}
           </div>
 
           <div className="mt-3 rounded-2xl bg-[#F6F7FA] p-4 text-xs text-[#6B6B6B] leading-relaxed">
             <div className="font-semibold text-[#111] mb-2">주행요금 안내</div>
-            주행요금은 실제 주행거리 기준으로만 계산돼요. 별도의 주유비/충전료
-            정산 없이, 이용 요금에 포함돼요. (주행요금 단가는 차량/상품에 따라
-            달라질 수 있어요.)
+            주행요금은 실제 주행거리 기준으로만 계산돼요. 별도의 주유비나 충전료
+            정산 없이, 이용 요금에 포함돼요. (주행요금 단가는 차량 및 상품에
+            따라 달라질 수 있어요.)
           </div>
 
-          {/* 후기 */}
+          {/* 후기 (그대로) */}
           <SectionTitle>
-            더 뉴 쏘렌토를<br />탄 사람들 이야기
+            더 뉴 쏘렌토를
+            <br />탄 사람들 이야기
           </SectionTitle>
 
           {/* (후기 3개 동일한 건 일단 유지: 최소 수정 원칙) */}
@@ -281,9 +372,7 @@ export default function CarDetailPage() {
           </div>
           {/* 대여 및 반납장소 */}
           <SectionTitle>대여 및 반납장소</SectionTitle>
-          <div className="mt-3 rounded-2xl h-40 bg-white border border-black/5 p-4">
-
-          </div>
+          <div className="mt-3 rounded-2xl h-40 bg-white border border-black/5 p-4"></div>
 
           {/* FAQ */}
           <SectionTitle>자주 묻는 질문</SectionTitle>
@@ -324,7 +413,7 @@ export default function CarDetailPage() {
       {/* Bottom Sticky CTA */}
       <footer className="fixed bottom-0 left-0 right-0 z-40">
         <div className="mx-auto max-w-[640px] bg-white border-t border-black/5 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-          <button className=" w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition">
+          <button className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition">
             예약하기
           </button>
         </div>

@@ -15,7 +15,8 @@
 .endEvent .text{cursor:pointer; display:inline-block; margin-right:10px;  }
 
 .event-view-top.title{padding:0 15px; }
-.event-view-top .btn-list{background:var(--gray-200); padding: 0 10px; height:40px; border-radius:4px; display:flex; align-items: center; justify-content: center; width:76px; }
+.event-view-top .btn-list{background:var(--gray-200); padding: 0 10px; height:40px; border-radius:4px; display:flex; align-items: center; justify-content: center; width:100px; color:#007bff; margin: 0;}
+.event-view-top .btn-list:hover{color:#fff}
 
 .eventList{width:90%; margin:auto; }
 .eventList .txtbox h3{font-size:20px }

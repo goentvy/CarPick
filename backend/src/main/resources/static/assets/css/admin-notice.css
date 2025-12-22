@@ -43,48 +43,6 @@ body {
   width: auto;
 }
 
-.admin-login {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 30px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-}
-
-.admin-login h3 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.admin-login form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.admin-login input {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.admin-login button {
-  padding: 12px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.admin-login button:hover {
-  background: #0056b3;
-}
-
 .notice-management {
   max-width: 100%;
 }
@@ -430,4 +388,24 @@ body {
 
 .detail-body p {
   margin: 0;
+}
+
+.edit-btn:hover,
+.btn-success:hover {
+  color: #fff;
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.delete-btn,
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.delete-btn:hover,
+.btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
 }
