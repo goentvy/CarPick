@@ -14,7 +14,7 @@ export default function InquiryPage() {
     const navigate = useNavigate();
 
     // 로그인 정보
-    const { user, isLoggedIn } = useUserStore();
+    const { user, isLoggedIn, accessToken } = useUserStore();
     const isLogin = isLoggedIn;
 
     // form state
@@ -52,12 +52,19 @@ export default function InquiryPage() {
 
     // inquiry api 호출
     const submitInquiry = async () => {
-        const response = await axios.post("/api/inquiry", {
-            userId: user.id,
-            category,
-            title,
-            content
-        });
+        const response = await axios.post(
+            "/api/inquiry",
+            {
+                category,
+                title,
+                content
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        );
 
         return response.data;
     };

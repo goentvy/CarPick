@@ -39,6 +39,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/notice/**").permitAll()
                         .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/inquiry/**").permitAll()
+                        .requestMatchers("/api/mypage/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(
