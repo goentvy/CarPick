@@ -1,12 +1,11 @@
-// src/pages/mypage/ReviewHistory.jsx
-import { useNavigate, } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import useUserStore from "../../store/useUserStore";
 import StarRating from "../Home/StarRating";
 
 function ReviewHistory() {
     const navigate = useNavigate();
-    const accessToken = useUserStore((state) => state.accessToken);  // ← Zustand 토큰!
+    const accessToken = useUserStore((state) => state.accessToken);
 
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -18,11 +17,8 @@ function ReviewHistory() {
         const fetchReviews = async () => {
             try {
                 setLoading(true);
-                console.log('🔥 1. ZUSTAND TOKEN:', accessToken);
-                console.log('🔥 2. TOKEN LENGTH:', accessToken ? accessToken.length : 0);
 
                 if (!accessToken) {
-                    console.log('🔥 ❌ Zustand 토큰 없음 → 로그인 필요!');
                     setLoading(false);
                     return;
                 }
@@ -30,30 +26,23 @@ function ReviewHistory() {
                 const response = await fetch('http://localhost:8080/api/reviews/me', {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`,  // ← Zustand 토큰!
+                        'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
                 });
 
-                console.log('🔥 3. Status:', response.status);
-                console.log('🔥 4. Response URL:', response.url);
-
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('🔥 5. 리뷰 데이터:', data);
                     setReviews(data);
-                } else {
-                    const errorText = await response.text();
-                    console.log('🔥 6. 에러 응답:', errorText);
                 }
             } catch (error) {
-                console.error('🔥 7. 네트워크 에러:', error);
+                console.error('네트워크 에러:', error);
             } finally {
                 setLoading(false);
             }
         };
         fetchReviews();
-    }, [accessToken]);  // ← accessToken 변경 감지!
+    }, [accessToken]);
 
     const handleEdit = (review) => {
         setEditingReview(review);
@@ -66,7 +55,7 @@ function ReviewHistory() {
             const response = await fetch(`http://localhost:8080/api/reviews/${editingReview.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,  // ← 컴포넌트 상단 토큰!
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -78,15 +67,11 @@ function ReviewHistory() {
                 const updatedReview = await response.json();
                 setReviews(reviews.map(r => r.id === updatedReview.id ? updatedReview : r));
                 handleCancel();
-                console.log('🔥 리뷰 수정 성공!');
-            } else {
-                console.error('🔥 리뷰 수정 실패:', response.status);
             }
         } catch (error) {
             console.error('리뷰 수정 실패:', error);
         }
     };
-
 
     const handleCancel = () => {
         setEditingReview(null);
@@ -102,14 +87,13 @@ function ReviewHistory() {
 
     const FOOTER_HEIGHT = 72;
 
-    // 로딩중
     if (loading) {
         return (
             <div
                 id="content"
                 className="font-pretendard"
                 style={{
-                    minHeight: "100vh",
+                    minHeight: "calc(100vh - 60px)",
                     paddingBottom: `${FOOTER_HEIGHT}px`,
                     backgroundColor: "#E7EEFF",
                     display: "flex",
@@ -125,21 +109,20 @@ function ReviewHistory() {
         );
     }
 
-    // 리뷰 없음
     if (reviews.length === 0) {
         return (
             <div
                 id="content"
                 className="font-pretendard"
                 style={{
-                    minHeight: "100vh",
+                    minHeight: "calc(100vh - 60px)",
                     paddingBottom: `${FOOTER_HEIGHT}px`,
                     backgroundColor: "#E7EEFF",
                     boxSizing: "border-box",
                 }}
             >
                 <div className="px-4 py-6">
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-10 flex flex-col items-center justify-center text-center">
+                    <div className="bg-white rounded-2xl shadow-sm px-5 py-6 flex flex-col items-center justify-center text-center">
                         <h2 className="text-base font-semibold text-[#1A1A1A] mb-2">
                             작성한 리뷰가 없습니다
                         </h2>
@@ -167,7 +150,7 @@ function ReviewHistory() {
                 id="content"
                 className="font-pretendard"
                 style={{
-                    minHeight: "100vh",
+                    minHeight: "calc(100vh - 60px)",
                     paddingBottom: `${FOOTER_HEIGHT}px`,
                     backgroundColor: "#E7EEFF",
                     boxSizing: "border-box",
@@ -175,10 +158,10 @@ function ReviewHistory() {
             >
                 <div className="px-4 py-6">
                     <h1 className="text-xl font-bold text-[#1A1A1A] mb-4 pl-2">
-                        내가 쓴 리뷰 ({reviews.length}개)
+                        내가 쓴 리뷰
                     </h1>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
                         {reviews.map((review) => (
                             <div
                                 key={review.id}
@@ -227,7 +210,6 @@ function ReviewHistory() {
                 </div>
             </div>
 
-            {/* 리뷰 수정 모달 */}
             {editingReview && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -320,3 +302,4 @@ function ReviewHistory() {
 }
 
 export default ReviewHistory;
+    
