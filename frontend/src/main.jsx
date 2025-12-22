@@ -45,6 +45,7 @@ import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 import InquiryPage from './pages/Inquiry/Inquiry.jsx'
 import InquirySuccess from './pages/Inquiry/InquirySuccess.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
+import Faq from './pages/Faq/Faq.jsx'
 
 import Notice from './pages/Notice/Notice.jsx'
 import NoticeDetail from './pages/Notice/NoticeDetail.jsx'
@@ -110,6 +111,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="cs/inquiry" element={<InquiryPage />} />
           <Route path="cs/inquiry/success" element={<InquirySuccess />} />
           <Route path="cs/inquiry/privacy" element={<InquiryPrivacy />} />
+          <Route path="cs/faq" element={<Faq />} />
 
           {/* 공지사항 */}
           <Route path="notice" element={<Notice />} />
