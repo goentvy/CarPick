@@ -9,7 +9,7 @@ const getStatusMeta = (status) => {
     switch (status) {
         case "pending":
             return {
-                label: "진행 중",
+                label: "대기 중",
                 className: "bg-[#FFF7D7] text-[#F5C542]",
             };
         case "answered":
@@ -19,7 +19,7 @@ const getStatusMeta = (status) => {
             };
         default:
             return {
-                label: "진행 중",
+                label: "대기 중",
                 className: "bg-[#FFF7D7] text-[#F5C542]",
             };
     }
