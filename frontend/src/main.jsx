@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
@@ -26,6 +26,7 @@ import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
+import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
 import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
 import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
@@ -45,6 +46,7 @@ import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 import InquiryPage from './pages/Inquiry/Inquiry.jsx'
 import InquirySuccess from './pages/Inquiry/InquirySuccess.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
+import Faq from './pages/Faq/Faq.jsx'
 
 import Notice from './pages/Notice/Notice.jsx'
 import NoticeDetail from './pages/Notice/NoticeDetail.jsx'
@@ -64,7 +66,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="profile" element={<Profile />} />
 
           {/* 차량 목록 */}
-          <Route path="car/list" element={<CarList />} />
+          <Route path="day" element={<CarList />} />
           <Route path="car/detail" element={<CarDetailPage />} />
 
           {/* 로그인 & 회원가입 */}
@@ -91,13 +93,14 @@ createRoot(document.getElementById('root')).render(
           <Route path="mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
 
           {/* 마이페이지 */}
-          <Route path="mypage" element={<MyPageHome />} />
-          <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
-          <Route path="mypage/qna" element={<QnAlist />} />
-          <Route path="mypage/favorites" element={<Favorites />} />
-          <Route path="mypage/license" element={<MyLicense />} />
-          <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
-
+            <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+                <Route index element={<MyPageHome />} />
+                <Route path="reviewhistory" element={<ReviewHistory />} />
+                <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
+                <Route path="favorites" element={<Favorites />} />
+                <Route path="license" element={<MyLicense />} />
+                <Route path="changeHistory" element={<ChangeHistoryPage />} />
+            </Route>
           {/* 약관 */}
           <Route path="terms" element={<Agree1 />} />
           <Route path="privacy" element={<Agree2 />} />
@@ -110,6 +113,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="cs/inquiry" element={<InquiryPage />} />
           <Route path="cs/inquiry/success" element={<InquirySuccess />} />
           <Route path="cs/inquiry/privacy" element={<InquiryPrivacy />} />
+          <Route path="cs/faq" element={<Faq />} />
 
           {/* 공지사항 */}
           <Route path="notice" element={<Notice />} />

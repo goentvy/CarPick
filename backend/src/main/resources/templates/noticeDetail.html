@@ -5,101 +5,110 @@
     <title>카픽 - 공지사항 상세</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- 공통 CSS (목록 페이지와 동일) -->
+    <link rel="shortcut icon" type="image/png" th:href="@{/assets/images/icon/favicon.ico}">
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/common.css}">
     <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 </head>
 
 <body>
 <div class="page-container">
 
-    <!-- 사이드바 -->
     <div th:replace="fragments/fragments :: sidebar"></div>
+    <div th:replace="fragments/fragments :: header"></div>
 
-    <!-- 헤더 -->
     <div class="main-content">
 
-        <div th:replace="fragments/fragments :: header"></div>
-
-        <!-- 페이지 타이틀 (목록과 동일) -->
         <div class="page-title-area">
             <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h4>공지사항</h4>
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">공지사항 상세</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a th:href="@{/admin/notice}">공지사항</a></li>
+                            <li><span>상세보기</span></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 컨텐츠 영역 -->
-        <div class="main-content-inner">
-
+        <div class="col-lg-12 mt-5">
             <div class="card">
                 <div class="card-body">
+                    <h4 class="header-title" th:text="${notice.title}">공지사항 제목</h4>
 
-                    <!-- 제목 -->
-                    <h4 class="mb-3" th:text="${notice.title}">
-                        공지사항 제목
-                    </h4>
-
-                    <!-- 메타 정보 -->
-                    <div class="text-muted mb-3">
-                        작성자: 관리자
-                        &nbsp;|&nbsp;
-                        작성일:
-                        <span th:text="${notice.createdAt != null 
-                            ? #temporals.format(notice.createdAt, 'yyyy-MM-dd')
-                            : ''}">
-                        </span>
+                    <div class="text-muted mb-3" style="font-size: 0.9rem;">
+                        <i class="fa fa-user"></i> 작성자: 관리자
+                        <span class="mx-2">|</span>
+                        <i class="fa fa-calendar"></i> 작성일:
+                        <span th:text="${notice.createdAt != null ? #temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm') : ''}"></span>
                     </div>
 
                     <hr>
 
-                    <!-- 내용 -->
-                    <div class="notice-content mt-3" th:utext="${notice.content}">
-                        공지사항 내용
+                    <div class="notice-content mt-4 mb-5" style="min-height: 300px; line-height: 1.6;">
+                        <div th:utext="${notice.content}">
+                            공지사항 내용이 여기에 표시됩니다.
+                        </div>
                     </div>
 
-                    <!-- 버튼 영역 (목록과 동일한 정렬) -->
-                    <div class="mt-4">
-                        <a href="/admin/notice" class="btn btn-secondary">
-                            목록
-                        </a>
+                    <hr>
 
-                        <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}"
-                           class="btn btn-primary">
-                            수정
+                    <div class="mt-4 text-right">
+                        <a th:href="@{/admin/notice}" class="btn btn-secondary mr-2">목록으로</a>
+
+                        <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}" class="btn btn-primary mr-2">
+                            <i class="fa fa-edit"></i> 수정하기
                         </a>
 
                         <button type="button"
                                 class="btn btn-danger"
                                 th:onclick="|deleteNotice(${notice.id})|">
-                            삭제
+                            <i class="fa fa-trash"></i> 삭제하기
                         </button>
                     </div>
-
                 </div>
             </div>
-
         </div>
 
-        <!-- footer -->
-        <div th:replace="fragments/fragments :: footer"></div>
-
     </div>
+
+    <div th:replace="fragments/fragments :: footer"></div>
 </div>
 
-<!-- 삭제 스크립트 -->
+<!-- JS (⚠️ admin 페이지들과 동일한 순서 유지) -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
 <script>
     function deleteNotice(id) {
         if (!confirm('정말 삭제하시겠습니까?')) return;
 
         fetch('/admin/notice/delete/' + id, {
             method: 'POST'
-        }).then(() => location.href = '/admin/notice');
+        }).then(response => {
+            if (response.ok) {
+                location.href = '/admin/notice';
+            } else {
+                alert('삭제에 실패했습니다.');
+            }
+        });
     }
 </script>
-
 </body>
 </html>
