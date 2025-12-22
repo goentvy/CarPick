@@ -10,7 +10,7 @@ import com.carpick.domain.guide.dto.GuideDto;
 import com.carpick.domain.guide.service.GuideService;
 
 @RestController
-@RequestMapping("/api/guide")
+@RequestMapping("/guide")
 public class GuideController {
 
     private final GuideService guideService;
