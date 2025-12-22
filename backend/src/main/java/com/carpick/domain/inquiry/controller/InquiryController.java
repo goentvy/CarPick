@@ -1,6 +1,5 @@
 package com.carpick.domain.inquiry.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.carpick.domain.inquiry.dto.InquiryCreateRequest;
 import com.carpick.domain.inquiry.dto.InquiryCreateResponse;
 import com.carpick.domain.inquiry.service.InquiryService;
-import com.carpick.global.security.details.CustomUserDetails;
 import com.carpick.global.security.jwt.JwtProvider;
 
 import lombok.RequiredArgsConstructor;
