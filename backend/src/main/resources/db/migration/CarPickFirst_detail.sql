@@ -337,7 +337,11 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            agreement_yn CHAR(1) NOT NULL DEFAULT 'Y',
 
     /* STATUS */
-                                           status ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED') NOT NULL DEFAULT 'PENDING',
+    /* ✅ 상태 확장 */
+                                           status ENUM(
+                                               'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                               'CHANGE_REQUESTED','CHANGED'
+                                               ) NOT NULL DEFAULT 'PENDING',
                                            cancel_reason VARCHAR(255) NULL,
                                            cancelled_at DATETIME NULL,
 
@@ -355,22 +359,28 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [12] 예약 상태 이력 (Reservation Lifecycle Timeline) */
 CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                           history_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '이력 ID',
                                                           reservation_id INT NOT NULL COMMENT '예약 ID (FK)',
 
-                                                          status_curr ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED')
-                                                                             NOT NULL COMMENT '변경된 예약 상태',
+    /* ✅ prev/curr */
+                                                          status_prev ENUM(
+                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              ) NULL COMMENT '변경 전 상태',
+
+                                                          status_curr ENUM(
+                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              ) NOT NULL COMMENT '변경 후 상태',
 
                                                           actor_type ENUM('USER','ADMIN','SYSTEM')
-                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체(USER/ADMIN/SYSTEM)',
+                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체',
 
-                                                          actor_id VARCHAR(50)
-                                                                             NULL COMMENT '변경자 ID(회원/관리자 식별자)',
+                                                          actor_id VARCHAR(50) NULL COMMENT '변경자 식별자',
 
-                                                          reason VARCHAR(255)
-                                                                             NULL COMMENT '변경 사유(취소사유/운영메모)',
+    /* 변경/취소 메모 */
+                                                          reason VARCHAR(255) NULL COMMENT '사유(취소/변경 메모)',
 
                                                           recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '기록 일시',
 
@@ -383,6 +393,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                                   ON UPDATE CASCADE
                                                                   ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 # /* 회원 등급(정책) */
