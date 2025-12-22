@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/mypage")
 public class MyPageInquiryController {
 
-	private final InquiryService inquiryService;
+  	private final InquiryService inquiryService;
     private final JwtProvider jwtProvider;
 
     @GetMapping("/inquiries")
