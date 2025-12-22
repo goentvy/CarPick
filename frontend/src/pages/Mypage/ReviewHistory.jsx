@@ -211,8 +211,8 @@ function ReviewHistory() {
             </div>
 
             {editingReview && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-[1000] p-4 animate-in fade-in zoom-in duration-200" style={{ backdropFilter: 'blur(4px)' }} >
+                    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl border border-white/50">
                         <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">
                             리뷰 수정
                         </h3>
