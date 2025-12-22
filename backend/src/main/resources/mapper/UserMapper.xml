@@ -73,8 +73,8 @@
     <insert id="insertUser">
         INSERT INTO users (email,
                            password_hash,
-                           provider,
-                           provider_id,
+                           <!--provider,
+                           provider_id, -->
                            name,
                            phone,
                            birth,
@@ -83,8 +83,8 @@
                            membership_grade)
         VALUES (#{email},
                 #{password},
-                #{provider},
-                #{providerId},
+                <!--#{provider},
+                #{providerId},-->
                 #{name},
                 #{phone},
                 #{birth},
