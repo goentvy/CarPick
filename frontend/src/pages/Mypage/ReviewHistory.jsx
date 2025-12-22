@@ -1,55 +1,59 @@
 // src/pages/mypage/ReviewHistory.jsx
-import { useNavigate } from "react-router-dom";
+import { useNavigate, } from "react-router-dom";
 import { useState, useEffect } from "react";
+import useUserStore from "../../store/useUserStore";
 import StarRating from "../Home/StarRating";
 
 function ReviewHistory() {
     const navigate = useNavigate();
+    const accessToken = useUserStore((state) => state.accessToken);  // ← Zustand 토큰!
+
     const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [editingReview, setEditingReview] = useState(null);
     const [editContent, setEditContent] = useState("");
     const [editingRating, setEditingRating] = useState(0);
 
     useEffect(() => {
-        setReviews([
-            {
-                id: 1,
-                reservationId: 1,
-                rating: 5,
-                content: "깨끗하고 상태 좋은 차량이었습니다. 만족합니다!",
-                createdAt: "2025-12-10",
-                carName: "K5 프리미엄",
-                period: "2025.12.01 ~ 2025.12.03",
-            },
-            {
-                id: 2,
-                reservationId: 2,
-                rating: 3.5,
-                content: "주행이 부드럽고 연비도 좋았어요.",
-                createdAt: "2025-12-05",
-                carName: "모닝 스마트",
-                period: "2025.12.02 ~ 2025.12.04",
-            },
-            {
-                id: 3,
-                reservationId: 3,
-                rating: 3,
-                content: "일반적인 차량이었으나 에어컨이 약간 약함",
-                createdAt: "2025-12-01",
-                carName: "소나타",
-                period: "2025.11.28 ~ 2025.11.30",
-            },
-            {
-                id: 4,
-                reservationId: 4,
-                rating: 1.5,
-                content: "구렷어요",
-                createdAt: "2025-12-01",
-                carName: "소나타",
-                period: "2025.11.28 ~ 2025.11.30",
-            },
-        ]);
-    }, []);
+        const fetchReviews = async () => {
+            try {
+                setLoading(true);
+                console.log('🔥 1. ZUSTAND TOKEN:', accessToken);
+                console.log('🔥 2. TOKEN LENGTH:', accessToken ? accessToken.length : 0);
+
+                if (!accessToken) {
+                    console.log('🔥 ❌ Zustand 토큰 없음 → 로그인 필요!');
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch('http://localhost:8080/api/reviews/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,  // ← Zustand 토큰!
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                console.log('🔥 3. Status:', response.status);
+                console.log('🔥 4. Response URL:', response.url);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('🔥 5. 리뷰 데이터:', data);
+                    setReviews(data);
+                } else {
+                    const errorText = await response.text();
+                    console.log('🔥 6. 에러 응답:', errorText);
+                }
+            } catch (error) {
+                console.error('🔥 7. 네트워크 에러:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReviews();
+    }, [accessToken]);  // ← accessToken 변경 감지!
 
     const handleEdit = (review) => {
         setEditingReview(review);
@@ -57,15 +61,28 @@ function ReviewHistory() {
         setEditingRating(review.rating);
     };
 
-    const handleSave = () => {
-        setReviews(reviews.map(r =>
-            r.id === editingReview.id
-                ? { ...r, content: editContent, rating: editingRating }
-                : r
-        ));
-        setEditingReview(null);
-        setEditContent("");
-        setEditingRating(0);
+    const handleSave = async () => {
+        try {
+            const token = useUserStore((state) => state.accessToken);  // ← Zustand!
+            const response = await fetch(`http://localhost:8080/api/reviews/${editingReview.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    rating: editingRating,
+                    content: editContent,
+                }),
+            });
+            if (response.ok) {
+                const updatedReview = await response.json();
+                setReviews(reviews.map(r => r.id === updatedReview.id ? updatedReview : r));
+                handleCancel();
+            }
+        } catch (error) {
+            console.error('리뷰 수정 실패:', error);
+        }
     };
 
     const handleCancel = () => {
@@ -80,9 +97,32 @@ function ReviewHistory() {
         setEditingRating(Math.max(0.5, Math.min(newRating, 5)));
     };
 
-    // ✅ footer 높이에 맞춰 한 번에 관리 (예: 72px)
     const FOOTER_HEIGHT = 72;
 
+    // 로딩중
+    if (loading) {
+        return (
+            <div
+                id="content"
+                className="font-pretendard"
+                style={{
+                    minHeight: "100vh",
+                    paddingBottom: `${FOOTER_HEIGHT}px`,
+                    backgroundColor: "#E7EEFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2C7FFF] mx-auto mb-4"></div>
+                    <p className="text-sm text-[#666666]">리뷰 불러오는 중...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // 리뷰 없음
     if (reviews.length === 0) {
         return (
             <div
@@ -125,14 +165,14 @@ function ReviewHistory() {
                 className="font-pretendard"
                 style={{
                     minHeight: "100vh",
-                    paddingBottom: `${FOOTER_HEIGHT}px`, // ✅ footer에 안 가리도록 여유
+                    paddingBottom: `${FOOTER_HEIGHT}px`,
                     backgroundColor: "#E7EEFF",
                     boxSizing: "border-box",
                 }}
             >
                 <div className="px-4 py-6">
                     <h1 className="text-xl font-bold text-[#1A1A1A] mb-4 pl-2">
-                        내가 쓴 리뷰
+                        내가 쓴 리뷰 ({reviews.length}개)
                     </h1>
 
                     <div className="space-y-4">
@@ -184,6 +224,7 @@ function ReviewHistory() {
                 </div>
             </div>
 
+            {/* 리뷰 수정 모달 */}
             {editingReview && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
