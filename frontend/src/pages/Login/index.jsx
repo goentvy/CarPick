@@ -46,6 +46,7 @@ const Login = () => {
       const data = await login(formData.email, formData.password);
 
       if (data.success) {
+        
         useUserStore.getState().login({ 
           user: { 
             email: data.email,

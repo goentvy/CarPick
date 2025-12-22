@@ -23,9 +23,13 @@ const HomeRentHeader = () => {
       weekday: 'short',
     });
 
-  const rentalHours = Math.round(
-    (dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60)
-  );
+  const getDurationText = () => {
+    const diffMs = dateRange.endDate - dateRange.startDate;
+    const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+    return `${days}일 ${hours}시간`;
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams({
@@ -110,7 +114,7 @@ const HomeRentHeader = () => {
             <div className="flex flex-col w-full">
               <p className="flex justify-between text-xs text-gray-500">
                 <span>이용 일시</span>
-                <span>{rentalHours}시간</span>
+                <span>{getDurationText()}</span>
               </p>
               <p className="text-left text-gray-800 tracking-tighter">
                 {formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}
