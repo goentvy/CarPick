@@ -64,7 +64,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="profile" element={<Profile />} />
 
           {/* 차량 목록 */}
-          <Route path="car/list" element={<CarList />} />
+          <Route path="day" element={<CarList />} />
           <Route path="car/detail" element={<CarDetailPage />} />
 
           {/* 로그인 & 회원가입 */}
