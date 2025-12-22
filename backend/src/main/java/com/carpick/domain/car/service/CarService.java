@@ -29,6 +29,7 @@ TopCarDetailDto top = new TopCarDetailDto();
 top.setTitle("더 뉴 쏘렌토 4세대 (MQ4) HEV 1.6 2WD 그래비티");
 top.setSubtitle("2024년형 · 5인승 · 하이브리드 SUV");
 top.setImageUrls(List.of("https://cdn.carpick/cars/sorento-360.webp"));
+top.setCarType("SUV");
 //2. 카드 영역
         // 카드 1 - 연료
         CarInfoCardDto fuel = new CarInfoCardDto();
@@ -41,14 +42,14 @@ top.setImageUrls(List.of("https://cdn.carpick/cars/sorento-360.webp"));
 CarInfoCardDto year = new CarInfoCardDto();
 year.setType("YEAR");
 year.setTitle("연식");
-year.setValue("23~24");
+year.setValue("2024");
 year.setUnit("년");
 year.setIcon("year");
 //  카드 3 - 좌석
         CarInfoCardDto seat = new CarInfoCardDto();
         seat.setType("SEATS");
         seat.setTitle("승차 인원");
-        seat.setValue("4");
+        seat.setValue("5");
         seat.setUnit("명");
         seat.setIcon("seats");
         //  카드 4 - 경력
@@ -72,13 +73,10 @@ year.setIcon("year");
         fuelEff.setValue("15");
         fuelEff.setUnit("km/L");
         fuelEff.setIcon("fuel_eff");
+// 4) carCardSectionDto로 묶기
+            CarCardSectionDto carCardSectionDto = new CarCardSectionDto();
+            carCardSectionDto.setCards(List.of(fuel, year, seat, career, age, fuelEff));
 
-//        9.살균
-        SanitizationDto sanitization = new SanitizationDto();
-        sanitization.setTitle("99.9% 살균 세차");
-        sanitization.setContent("최신 기술로 99.9% 살균 세차를 제공해요.");
-        sanitization.setImageUrls(List.of("https://cdn.carpick/sanitize/1.jpg",
-                "https://cdn.carpick/sanitize/2.jpg"));
         // 10. 위치
         BranchLocationDto pickup = new BranchLocationDto();
         pickup.setBranchId(10L);
@@ -102,8 +100,7 @@ year.setIcon("year");
         CarDetailResponseDto response = new CarDetailResponseDto();
         response.setCarId(carId);
         response.setTopCarDetailDto(top);
-
-        response.setSanitizationDto(sanitization);
+        response.setCarCardSectionDto(carCardSectionDto);
         response.setLocationDto(location);
         response.setPriceSummary(price);
         return response;
