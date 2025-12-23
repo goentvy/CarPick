@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CancelRequest {
+
+    @NotBlank
+    private String email; // 취소할 이메일
 	
 	@NotBlank
     private String reservationNumber;  // 취소할 예약번호

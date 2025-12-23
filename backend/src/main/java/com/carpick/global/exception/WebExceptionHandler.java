@@ -2,13 +2,9 @@ package com.carpick.global.exception;
 
 import java.nio.file.AccessDeniedException;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.carpick.global.enums.ErrorCode;
 import com.carpick.global.response.ErrorResponse;
@@ -45,8 +41,8 @@ public class WebExceptionHandler {
 	    model.addAttribute(
 	        "error",
 	        ErrorResponse.of(
-	            errorCode.message(),
-	            request.getRequestURI()
+	        		errorCode,
+	                request.getRequestURI()
 	        )
 	    );
 
@@ -73,78 +69,79 @@ public class WebExceptionHandler {
 	    model.addAttribute(
 	        "error",
 	        ErrorResponse.of(
-	            ErrorCode.ACCESS_DENIED.message(),
-	            request.getRequestURI()
+	        		ErrorCode.ACCESS_DENIED,
+	                request.getRequestURI()
 	        )
 	    );
 
 	    return "error/403";
 	}
 	
-	/**
-	 * 🔍 3. 웹 페이지 404 Not Found 예외 처리
-	 * - 존재하지 않는 웹 페이지 요청 시
-	 * - 404 에러 페이지로 리다이렉트
-	 */
-	@ExceptionHandler(NoHandlerFoundException.class)
-	public String handleNotFound(
-	        NoHandlerFoundException e,
-	        HttpServletRequest request,
-	        Model model
-	) {
-	    if (request.getRequestURI().startsWith("/api")) {
-	        return null;
-	    }
-
-	    log.warn("[Web-404] {}", request.getRequestURI());
-
-	    model.addAttribute(
-	        "error",
-	        ErrorResponse.of(
-	            ErrorCode.NOT_FOUND.message(),
-	            request.getRequestURI()
-	        )
-	    );
-
-	    return "error/404";
-	}
-
-	/**
-	 * 🔍 4. 웹 페이지 HTTP 상태 예외 처리
-	 * - ResponseStatusException 발생 시
-	 * - 상태 코드에 따른 적절한 에러 페이지로 리다이렉트
-	 */
-	@ExceptionHandler(ResponseStatusException.class)
-	public String handleResponseStatusException(
-	        ResponseStatusException e,
-	        HttpServletRequest request,
-	        Model model
-	) {
-	    if (request.getRequestURI().startsWith("/api")) {
-	        return null;
-	    }
-
-	    HttpStatusCode statusCode = e.getStatusCode();
-
-	    ErrorCode errorCode;
-	    if (statusCode.value() == HttpStatus.FORBIDDEN.value()) {
-	        errorCode = ErrorCode.ACCESS_DENIED;
-	    } else if (statusCode.value() == HttpStatus.NOT_FOUND.value()) {
-	        errorCode = ErrorCode.NOT_FOUND;
-	    } else {
-	        errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-	    }
-
-	    model.addAttribute(
-	        "error",
-	        ErrorResponse.of(
-	            errorCode.message(),
-	            request.getRequestURI()
-	        )
-	    );
-
-	    return "error/" + statusCode.value();
-	}
+//	
+//	/**
+//	 * 🔍 3. 웹 페이지 404 Not Found 예외 처리
+//	 * - 존재하지 않는 웹 페이지 요청 시
+//	 * - 404 에러 페이지로 리다이렉트
+//	 */
+//	@ExceptionHandler(NoHandlerFoundException.class)
+//	public String handleNotFound(
+//	        NoHandlerFoundException e,
+//	        HttpServletRequest request,
+//	        Model model
+//	) {
+//	    if (request.getRequestURI().startsWith("/api")) {
+//	        return null;
+//	    }
+//
+//	    log.warn("[Web-404] {}", request.getRequestURI());
+//
+//	    model.addAttribute(
+//	        "error",
+//	        ErrorResponse.of(
+//	        		ErrorCode.NOT_FOUND,
+//	                request.getRequestURI()
+//	        )
+//	    );
+//
+//	    return "error/404";
+//	}
+//
+//	/**
+//	 * 🔍 4. 웹 페이지 HTTP 상태 예외 처리
+//	 * - ResponseStatusException 발생 시
+//	 * - 상태 코드에 따른 적절한 에러 페이지로 리다이렉트
+//	 */
+//	@ExceptionHandler(ResponseStatusException.class)
+//	public String handleResponseStatusException(
+//	        ResponseStatusException e,
+//	        HttpServletRequest request,
+//	        Model model
+//	) {
+//	    if (request.getRequestURI().startsWith("/api")) {
+//	        return null;
+//	    }
+//
+//	    HttpStatusCode statusCode = e.getStatusCode();
+//
+//	    ErrorCode errorCode;
+//	    if (statusCode.value() == HttpStatus.FORBIDDEN.value()) {
+//	        errorCode = ErrorCode.ACCESS_DENIED;
+//	    } else if (statusCode.value() == HttpStatus.NOT_FOUND.value()) {
+//	        errorCode = ErrorCode.NOT_FOUND;
+//	    } else {
+//	        errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+//	    }
+//
+//	    model.addAttribute(
+//	        "error",
+//	        ErrorResponse.of(
+//	        		errorCode,
+//	                request.getRequestURI()
+//	        )
+//	    );
+//
+//	    return "error/" + statusCode.value();
+//	}
 
 	
 }

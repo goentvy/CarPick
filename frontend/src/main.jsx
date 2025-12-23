@@ -51,6 +51,11 @@ import Faq from './pages/Faq/Faq.jsx'
 import Notice from './pages/Notice/Notice.jsx'
 import NoticeDetail from './pages/Notice/NoticeDetail.jsx'
 
+import Guide from './pages/Guide/Guide.jsx'
+import GuideStep from './pages/Guide/GuideStep.jsx'
+
+import EmergencyService from './pages/emergency/EmergencyService.jsx'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -66,7 +71,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="profile" element={<Profile />} />
 
           {/* 차량 목록 */}
-          <Route path="car/list" element={<CarList />} />
+          <Route path="day" element={<CarList />} />
           <Route path="car/detail" element={<CarDetailPage />} />
 
           {/* 로그인 & 회원가입 */}
@@ -119,6 +124,12 @@ createRoot(document.getElementById('root')).render(
           <Route path="notice" element={<Notice />} />
           <Route path="notice/:id" element={<NoticeDetail />} />
 
+          {/* 이용가이드 */}
+          <Route path="guide" element={<Guide />} />
+          <Route path="guide" element={<GuideStep />} />
+
+          {/* 긴급지원서비스 */}
+          <Route path="emergency" element={<EmergencyService />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -31,7 +31,7 @@ const AgreementSection = ({ isLoggedIn }) => {
       const res = await axios.post("http://localhost:8080/api/reservation/pay", reservationData);
       if (res.data.status === "APPROVED") {
         alert("결제가 완료되었습니다!");
-        navigate("/order/complete");
+        navigate("/order/complete", { state: reservationData.paymentSummary.totalPrice});
       } else {
         alert("결제 실패: " + res.data.message);
       }

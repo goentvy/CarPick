@@ -48,4 +48,11 @@
         DELETE FROM users WHERE user_id = #{id}
     </delete>
 
+    <delete id="hardDeleteUser">
+        DELETE
+        FROM users
+        WHERE user_id = #{userId}
+    </delete>
+
+
 </mapper>

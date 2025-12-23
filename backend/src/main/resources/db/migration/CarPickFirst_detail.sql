@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
                                           daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
 
                                           is_highlight BOOLEAN NOT NULL DEFAULT FALSE COMMENT '주요 옵션 노출 여부',
-                                          icon_url VARCHAR(255) NULL COMMENT '아이콘 이미지',
+
 
                                           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                           updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -337,7 +337,11 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            agreement_yn CHAR(1) NOT NULL DEFAULT 'Y',
 
     /* STATUS */
-                                           status ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED') NOT NULL DEFAULT 'PENDING',
+    /* ✅ 상태 확장 */
+                                           status ENUM(
+                                               'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                               'CHANGE_REQUESTED','CHANGED'
+                                               ) NOT NULL DEFAULT 'PENDING',
                                            cancel_reason VARCHAR(255) NULL,
                                            cancelled_at DATETIME NULL,
 
@@ -355,22 +359,28 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [12] 예약 상태 이력 (Reservation Lifecycle Timeline) */
 CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                           history_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '이력 ID',
                                                           reservation_id INT NOT NULL COMMENT '예약 ID (FK)',
 
-                                                          status_curr ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED')
-                                                                             NOT NULL COMMENT '변경된 예약 상태',
+    /* ✅ prev/curr */
+                                                          status_prev ENUM(
+                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              ) NULL COMMENT '변경 전 상태',
+
+                                                          status_curr ENUM(
+                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              ) NOT NULL COMMENT '변경 후 상태',
 
                                                           actor_type ENUM('USER','ADMIN','SYSTEM')
-                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체(USER/ADMIN/SYSTEM)',
+                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체',
 
-                                                          actor_id VARCHAR(50)
-                                                                             NULL COMMENT '변경자 ID(회원/관리자 식별자)',
+                                                          actor_id VARCHAR(50) NULL COMMENT '변경자 식별자',
 
-                                                          reason VARCHAR(255)
-                                                                             NULL COMMENT '변경 사유(취소사유/운영메모)',
+    /* 변경/취소 메모 */
+                                                          reason VARCHAR(255) NULL COMMENT '사유(취소/변경 메모)',
 
                                                           recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '기록 일시',
 
@@ -385,9 +395,10 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+
 # /* 회원 등급(정책) */
 # CREATE TABLE IF NOT EXISTS MEMBER_GRADE (
-#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BRONZE/SILVER/GOLD/VIP)',
+#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BASIC/VIP)',
 #                                             grade_name VARCHAR(50) NOT NULL COMMENT '등급명',
 #                                             discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '할인율(%) 예: 5.00',
 #                                             is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',

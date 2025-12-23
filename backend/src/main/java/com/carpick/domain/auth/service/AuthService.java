@@ -61,6 +61,8 @@ public class AuthService {
                 user.getEmail(),
                 user.getMembershipGrade()
         );
+
+
     }
 
     // 🔐 무결성 보장 (중요)

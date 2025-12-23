@@ -24,7 +24,73 @@
 .eventInfo h3{font-size:20px; }
 
 
+#carFilter .filter-label {
+  border: 1px solid #e0f2fe;
+  background-color: #eff6ff;
+  border-radius: 9999px;
+  padding: 8px 24px;
+  margin-bottom: 10px;
+  text-align: center;
+  cursor: pointer;
+  color: #1f2937;
+  transition: all 0.2s ease;
+}
+
+#carFilter .filter-label:has(input:checked) {
+  background-color: #2563eb; /* blue-600 */
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+#carFilter .filter-checkbox {
+  display: none;
+}
+
+
+#carFilter .range-wrap {
+}
+
+#carFilter .range-track {
+  position: relative;
+  height: 6px;
+  inset: 0;
+  background: var(--gray-200);
+  border-radius: 9999px;
+}
+
+#carFilter .range-progress {
+  position: absolute;
+  height: 6px;
+  background: #2563eb;
+  border-radius: 9999px;
+  z-index: 1;
+}
+
+#carFilter input[type="range"] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  appearance: none;
+  background: none;
+  z-index: 2;
+}
+
+#carFilter input[type="range"]::-webkit-slider-thumb {
+  pointer-events: all;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #2563eb;
+  border-radius: 50%;
+  cursor: pointer;
+}
 
 
 
-
+@media (max-width: 500px) {
+    #car-list.px-6 { padding-inline: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 4);}
+    .rentM{padding:0; }
+    .rentMBg{background:#fff; border-radius:50px; }
+    #pickDay{text-overflow: ellipsis; white-space: nowrap; width: 80%; overflow: hidden; }
+    #pickTime{display:none; }
+}
