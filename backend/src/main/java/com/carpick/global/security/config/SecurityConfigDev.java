@@ -35,13 +35,13 @@ public class SecurityConfigDev {
                 s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-            		.anyRequest().permitAll()	// 전체 API 토큰 인증 필요없도록 설정한 부분. security 작업 후 제거 권장. 제거 후 아래 주석 풀고 설정 추가해야 함.
-//                .requestMatchers(
-//                    "/swagger-ui/**",
-//                    "/v3/api-docs/**"
-//                ).permitAll()
-//                .requestMatchers("/api/auth/**").permitAll()
-//                .anyRequest().authenticated()
+                .requestMatchers(
+                	"/api/faq/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**"
+                ).permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(
                 jwtAuthenticationFilter,
