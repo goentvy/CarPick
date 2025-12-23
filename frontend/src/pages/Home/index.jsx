@@ -5,39 +5,57 @@ import VehicleCard from "./VehicleCard";
 import CarPickZone from "./CarPickZone";
 import CustomerReview from "./CustomerReview";
 import HomeFooter from "./HomeFooter";
+import { useState } from "react";
 const Home = () => {
     const location = useLocation();
+    const [showPickupModal, setShowPickupModal] = useState(false);
+    const [selectedCar, setSelectedCar] = useState(null);
+    const [pickupLocation, setPickupLocation] = useState(null);
+    const [dateRange, setDateRange] = useState(null);
 
     // const segment = location.state?.segment || "정보 없음";
     const reason = location.state?.reason || "추천 이유를 불러올 수 없습니다.";
     const features = {
-        title: '가족여행에 최적화 된 공간',
-        option: ['유아 카시트 2개', '넓은 트렁크']
+        year: '25년식',
+        seat: '4인승',
+        option: ['가솔린', '경차', '도심 주행']
     };
 
     return (
         <div className="flex flex-col w-full max-w-[640px] justify-center min-h-screen bg-white pb-10 mt-[60px] mx-auto">
             {/* Promo */}
-            <HomeRentHeader />
+            <HomeRentHeader 
+                showPickupModal={showPickupModal}
+                setShowPickupModal={setShowPickupModal}
+                selectedCar={selectedCar}
+            />
 
             {/* AI 추천 차량 */}
             <div className="xx:p-2 sm:p-6">
                 <div className="xx:text-[18px] sm:text-2xl font-bold mt-2">AI 추천차량</div>
                 <AIRecommendation content={reason}/>
-                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div className="flex xx:flex-col xs:flex-row justify-between gap-4">
                     <VehicleCard
-                        discount={true}
+                        discount={30}
                         imageSrc="./images/common/car.png"
-                        title="Carnival High- Limousine"
+                        title="캐스퍼 가솔린"
                         features={features}
-                        price={128000}
+                        price={324000}
+                        onClick={() => {
+                            setSelectedCar({ title: "캐스퍼 가솔린", price: 324000, discount: 30})
+                            setShowPickupModal(true);
+                        }}
                     />
                     <VehicleCard
-                        discount={false}
+                        discount={50}
                         imageSrc="./images/common/car.png"
-                        title="Carnival High- Limousine"
+                        title="캐스퍼"
                         features={features}
                         price={128000}
+                        onClick={() => {
+                            setSelectedCar({ title: "캐스퍼", price: 128000, discount: 50})
+                            setShowPickupModal(true)
+                        }}
                     />
                 </div>
 

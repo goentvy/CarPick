@@ -49,6 +49,8 @@ const SignupJoinus = () => {
       birth: null,
       gender: '',
       marketingAgree: 'agree',
+        provider: 'local',
+        providerId: "asdsadsadasd",
     },
   });
 

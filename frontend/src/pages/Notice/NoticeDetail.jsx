@@ -28,7 +28,7 @@ export default function NoticeDetail() {
         <div className="notice-detail-title">{notice.title}</div>
 
         <div className="notice-detail-info">
-          <span>작성일: {notice.createdAt?.slice(0, 7)}</span>
+          <span>작성일: {notice.createdAt?.slice(0, 9)}</span>
           <span>조회수: {notice.views}</span>
         </div>
 

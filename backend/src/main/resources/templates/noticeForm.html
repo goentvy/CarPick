@@ -2,12 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>카픽 - 공지사항 등록/수정</title>
+    <title>카픽 - 공지사항 등록</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <link rel="shortcut icon" type="image/png" th:href="@{/assets/images/icon/favicon.ico}">
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
     <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 </head>
+
 <body>
 <div class="page-container">
 
@@ -16,66 +28,74 @@
 
     <div class="main-content">
 
-        <!-- 타이틀 -->
-        <div class="page-title-area mb-3">
+        <!-- 페이지 타이틀 -->
+        <div class="page-title-area">
             <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h4 th:text="${notice.id != null ? '공지사항 수정' : '공지사항 등록'}">
-                        공지사항 등록
-                    </h4>
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">공지사항 등록</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a th:href="@{/admin/notice}">공지사항</a></li>
+                            <li><span>등록</span></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 폼 -->
-        <div class="card">
-            <div class="card-body">
-                <form th:action="@{/admin/notice/save}"
-                      th:object="${notice}"
-                      method="post">
+        <!-- 등록 폼 -->
+        <div class="col-lg-12 mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">새 공지사항 작성</h4>
 
-                    <!-- 수정 시 ID -->
-                    <input type="hidden" th:field="*{id}"/>
+                    <form th:action="@{/admin/notice/save}"
+                          th:object="${notice}"
+                          method="post">
 
-                    <!-- 제목 -->
-                    <div class="form-group">
-                        <label>제목</label>
-                        <input type="text"
-                               class="form-control"
-                               th:field="*{title}"
-                               required>
-                    </div>
+                        <!-- 등록에서는 id 없음 (있어도 문제는 없음) -->
+                        <input type="hidden" th:field="*{id}"/>
 
-                    <!-- 내용 -->
-                    <div class="form-group">
-                        <label>내용</label>
-                        <textarea class="form-control"
-                                  rows="10"
-                                  th:field="*{content}"
-                                  required></textarea>
-                    </div>
+                        <div class="form-group">
+                            <label for="title" class="col-form-label">제목</label>
+                            <input type="text"
+                                   id="title"
+                                   class="form-control"
+                                   th:field="*{title}"
+                                   placeholder="제목을 입력하세요"
+                                   required>
+                        </div>
 
-                    <!-- 카테고리 (선택) -->
-                    <div class="form-group">
-                        <label>카테고리</label>
-                        <input type="text"
-                               class="form-control"
-                               th:field="*{category}">
-                    </div>
+                        <div class="form-group">
+                            <label for="content" class="col-form-label">내용</label>
+                            <textarea id="content"
+                                      class="form-control"
+                                      th:field="*{content}"
+                                      rows="12"
+                                      placeholder="내용을 입력하세요"
+                                      required></textarea>
+                        </div>
 
-                    <!-- 버튼 -->
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            저장
-                        </button>
-                        <button type="button"
-                                class="btn btn-secondary"
-                                onclick="location.href='/admin/notice'">
-                            취소
-                        </button>
-                    </div>
+                        <div class="form-group">
+                            <label for="category" class="col-form-label">카테고리</label>
+                            <input type="text"
+                                   id="category"
+                                   class="form-control"
+                                   th:field="*{category}"
+                                   placeholder="카테고리 (선택)">
+                        </div>
 
-                </form>
+                        <div class="mt-4 text-right">
+                            <a th:href="@{/admin/notice}" class="btn btn-secondary mr-2">
+                                취소
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                저장하기
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -83,5 +103,15 @@
 
     <div th:replace="fragments/fragments :: footer"></div>
 </div>
+
+<!-- JS (수정 페이지와 완전 동일) -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
 </body>
 </html>

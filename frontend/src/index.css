@@ -13,3 +13,11 @@ body {
 .rdrMonthPicker select {
   @apply border border-gray-300 rounded-md px-2 py-1 bg-white;
 }
+
+.rdrCalendarWrapper .rdrMonth {
+  padding: 0;
+}
+
+.rdrCalendarWrapper .rdrMonth .rdrMonthName {
+  text-align: center;
+}
