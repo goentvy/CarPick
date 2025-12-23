@@ -98,7 +98,7 @@ public class AuthService {
         } else {
             // [소셜 가입 로직]
             // 소셜은 비밀번호가 없으므로 암호화 없이 바로 저장
-            userMapper.insertSocialUser(request);
+
         }
 
         return new SignupResponse(true, "회원가입 성공", null, request.getEmail());
