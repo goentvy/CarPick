@@ -1,0 +1,147 @@
+/* 전체 배경 설정 */
+body {
+  background-color: #fcfdfe; /* 아주 연한 청색 빛이 도는 흰색 */
+}
+
+.emergency-container {
+  max-width: 680px;
+  margin: 110px auto 80px; /* 네비바 높이 충분히 확보 */
+  padding: 0 20px;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 헤더: CarP!ck 스타일의 깔끔한 라인 */
+.emergency-header {
+  padding-bottom: 15px; 
+  border-bottom: 2px solid #3b82f6;
+  margin-bottom: 40px;
+  text-align: left;
+}
+
+.emergency-main-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.04em;
+}
+
+/* 그리드 레이아웃 */
+.emergency-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 카드: 더 부드러운 라운딩과 그림자 */
+.service-card-item {
+  position: relative;
+  padding: 28px 24px;
+  background: #ffffff;
+  border-radius: 20px; /* 더 둥글게 수정 */
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 아주 부드러운 그림자 */
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.service-card-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.08); /* 호버 시 블루 톤 그림자 */
+  border-color: #3b82f6;
+}
+
+/* 뱃지 포인트 */
+.card-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 4px 10px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.card-text {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* 하단 안내 섹션: 카드 스타일과 통일 */
+.info-section {
+  margin-top: 50px;
+}
+
+.info-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+  padding-left: 5px;
+}
+
+.info-box {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-list li {
+  font-size: 0.9rem;
+  color: #475569;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8fafc;
+  display: flex;
+  align-items: center;
+}
+
+.info-list li:last-child {
+  border-bottom: none;
+}
+
+.info-list li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+  margin-right: 12px;
+  font-size: 1.2rem;
+}
+
+/* 📱 모바일 최적화 */
+@media (max-width: 640px) {
+  .emergency-container {
+    margin-top: 90px;
+  }
+  
+  .emergency-main-title {
+    font-size: 1.4rem;
+  }
+
+  .service-card-item {
+    padding: 20px;
+  }
+}
+
+.status-message {
+  padding-top: 150px;
+  text-align: center;
+  color: #94a3b8;
+}

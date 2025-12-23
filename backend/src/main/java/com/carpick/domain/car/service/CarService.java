@@ -1,10 +1,9 @@
 package com.carpick.domain.car.service;
 
 import com.carpick.domain.car.dto.CarDetailDto;
-import com.carpick.domain.car.dto.CarListDto;
-import com.carpick.domain.car.dto.response.CarListResponseDto;
 import com.carpick.domain.car.dto.response.cardetailpage.*;
 import com.carpick.domain.car.dto.response.common.BranchLocationDto;
+
 import com.carpick.domain.car.mapper.CarMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,9 @@ top.setTitle("더 뉴 쏘렌토 4세대 (MQ4) HEV 1.6 2WD 그래비티");
 top.setSubtitle("2024년형 · 5인승 · 하이브리드 SUV");
 top.setImageUrls(List.of("https://cdn.carpick/cars/sorento-360.webp"));
 top.setCarType("SUV");
+OptionTagDto carSeat = new OptionTagDto("CAR_SEAT","카시트");
+OptionTagDto blackBox = new OptionTagDto("BLACK_BOX", "블랙박스");
+top.setOptionTagDtos(List.of(carSeat, blackBox));
 //2. 카드 영역
         // 카드 1 - 연료
         CarInfoCardDto fuel = new CarInfoCardDto();

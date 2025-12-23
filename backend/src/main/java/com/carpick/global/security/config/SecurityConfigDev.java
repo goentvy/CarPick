@@ -12,6 +12,12 @@ import com.carpick.global.security.filter.JwtAuthenticationFilter;
 import com.carpick.global.security.handler.JwtAccessDeniedHandler;
 import com.carpick.global.security.handler.JwtAuthenticationEntryPoint;
 
+import org.springframework.http.HttpMethod;  //  HttpMethod.OPTIONS
+import org.springframework.web.cors.CorsConfiguration;  //  CORS
+import org.springframework.web.cors.CorsConfigurationSource;  //  CORS
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;  //  CORS
+import java.util.Arrays;  //  Arrays.asList
+
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,18 +36,38 @@ public class SecurityConfigDev {
     @Bean
     public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s ->
                 s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-            		.anyRequest().permitAll()	// 전체 API 토큰 인증 필요없도록 설정한 부분. security 작업 후 제거 권장. 제거 후 아래 주석 풀고 설정 추가해야 함.
-//                .requestMatchers(
-//                    "/swagger-ui/**",
-//                    "/v3/api-docs/**"
-//                ).permitAll()
-//                .requestMatchers("/api/auth/**").permitAll()
-//                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                		// 1. API 경로 허용
+                        "/api/faq/**",
+                        "/api/emergency/**", 
+                        "/api/notice/**",
+                        "/api/guide/**",
+                        "/api/auth/**",
+                        "/api/about/values",
+                        
+                        
+                        // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
+                        "/admin/**",
+                        
+                        // 3. 정적 리소스 경로 허용 (CSS, JS, Images 등 - 추가됨)
+                        "/assets/**", 
+                        "/css/**", 
+                        "/js/**", 
+                        "/images/**",
+                        "/favicon.ico",
+                        
+                        // 4. Swagger 및 API 문서 관련
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
+                ).permitAll()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(
                 jwtAuthenticationFilter,
@@ -54,4 +80,24 @@ public class SecurityConfigDev {
 
         return http.build();
     }
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:8081",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 }

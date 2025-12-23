@@ -23,6 +23,7 @@ public class AuthController {
     }
 
 
+
     // POST 회원가입(API 엔드포인트)
     @PostMapping("/signup")
     public SignupResponse signup(@RequestBody SignupRequest request) {

@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.carpick.domain.auth.entity.Gender;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,17 +19,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignupRequest {
 
-	@NotBlank(message = "이메일은 필수입니다")
+    @NotBlank(message = "이메일은 필수입니다")
     @Email(message = "이메일 형식이 올바르지 않습니다")
     private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다")
     @Size(min = 8, max = 20, message = "비밀번호는 8~20자여야 합니다")
     @Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
-        message = "비밀번호는 영문과 숫자를 포함해야 합니다"
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
+            message = "비밀번호는 영문과 숫자를 포함해야 합니다"
     )
-    private String password;
+    @JsonProperty("password") // JSON으로 "password"라고 들어오면 이 필드에 넣어줌
+    private String passwordHash;
 
     @NotBlank(message = "provider는 필수입니다")
     private String provider;
@@ -42,8 +44,8 @@ public class SignupRequest {
 
     @NotBlank(message = "휴대폰 번호는 필수입니다")
     @Pattern(
-        regexp = "^01[016789]-?\\d{3,4}-?\\d{4}$",
-        message = "휴대폰 번호 형식이 올바르지 않습니다"
+            regexp = "^01[016789]-?\\d{3,4}-?\\d{4}$",
+            message = "휴대폰 번호 형식이 올바르지 않습니다"
     )
     private String phone;
 
@@ -55,7 +57,8 @@ public class SignupRequest {
     private Gender gender;
 
     private boolean marketingAgree;
-    
+
+
 }
 
 

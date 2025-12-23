@@ -222,8 +222,8 @@ const handleLogout = () => {
 
                     <li className="submenu-item">
                       <Link
-                        to="/company"
-                        className={`submenu-link ${location.pathname === "/company" ? "active" : ""}`}
+                        to="/about"
+                        className={`submenu-link ${location.pathname === "/about" ? "active" : ""}`}
                         onClick={closeMenu}
                       >
                         회사소개
