@@ -12,6 +12,7 @@ const GuestCancel = () => {
   const handleCancel = async () => {
     try {
       const res = await axios.post('/api/guest/reservation/cancel', {
+        email: reservation.email,
         reservationNumber: reservation.reservationNumber,
         reason
       });

@@ -13,12 +13,19 @@ SET FOREIGN_KEY_CHECKS = 0;
    ================================================== */
 
 /* [1] 차량 스펙/모델 정보 */
+/* [1] 차량 스펙/모델 정보 */
 CREATE TABLE IF NOT EXISTS CAR_SPEC (
                                         spec_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
 
     /* 기본 정보 */
                                         brand VARCHAR(50) NOT NULL COMMENT '브랜드 (현대, 기아 등)',
-                                        model_name VARCHAR(100) NOT NULL COMMENT '모델명 (소나타, 아반떼 등)',
+
+    /* 풀네임(상세페이지용) */
+                                        model_name VARCHAR(150) NOT NULL COMMENT '모델명(상세용 Full name)',
+
+    /* [추가] 쇼트네임(카드용) */
+                                        display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
+
                                         car_class VARCHAR(20) NOT NULL COMMENT '차급 (소형/중형/SUV 등)',
                                         model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
 
@@ -40,11 +47,15 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
                                         img_url VARCHAR(500) NULL COMMENT '추가 이미지',
                                         ai_keywords VARCHAR(500) NULL COMMENT 'AI 검색 태그',
 
+    /* [추가] 카드 라벨/주행 태그(프론트용) - MVP는 문자열로 묶어서 전달 */
+                                        drive_labels VARCHAR(200) NULL COMMENT '카드 라벨(예: 가솔린, 경차, 도심주행) - CSV or JSON string',
+
                                         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
                                         UNIQUE KEY uk_car_spec (brand, model_name, model_year_base)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 /* [2] 지점 (BRANCH)  ※ PRICE_POLICY FK 때문에 먼저 생성 */
@@ -326,7 +337,11 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            agreement_yn CHAR(1) NOT NULL DEFAULT 'Y',
 
     /* STATUS */
-                                           status ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED') NOT NULL DEFAULT 'PENDING',
+    /* ✅ 상태 확장 */
+                                           status ENUM(
+                                               'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                               'CHANGE_REQUESTED','CHANGED'
+                                               ) NOT NULL DEFAULT 'PENDING',
                                            cancel_reason VARCHAR(255) NULL,
                                            cancelled_at DATETIME NULL,
 
@@ -344,22 +359,28 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [12] 예약 상태 이력 (Reservation Lifecycle Timeline) */
 CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                           history_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '이력 ID',
                                                           reservation_id INT NOT NULL COMMENT '예약 ID (FK)',
 
-                                                          status_curr ENUM('PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED')
-                                                                             NOT NULL COMMENT '변경된 예약 상태',
+    /* ✅ prev/curr */
+                                                          status_prev ENUM(
+                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              ) NULL COMMENT '변경 전 상태',
+
+                                                          status_curr ENUM(
+                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
+                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              ) NOT NULL COMMENT '변경 후 상태',
 
                                                           actor_type ENUM('USER','ADMIN','SYSTEM')
-                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체(USER/ADMIN/SYSTEM)',
+                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체',
 
-                                                          actor_id VARCHAR(50)
-                                                                             NULL COMMENT '변경자 ID(회원/관리자 식별자)',
+                                                          actor_id VARCHAR(50) NULL COMMENT '변경자 식별자',
 
-                                                          reason VARCHAR(255)
-                                                                             NULL COMMENT '변경 사유(취소사유/운영메모)',
+    /* 변경/취소 메모 */
+                                                          reason VARCHAR(255) NULL COMMENT '사유(취소/변경 메모)',
 
                                                           recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '기록 일시',
 
@@ -372,5 +393,18 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                                   ON UPDATE CASCADE
                                                                   ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+# /* 회원 등급(정책) */
+# CREATE TABLE IF NOT EXISTS MEMBER_GRADE (
+#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BRONZE/SILVER/GOLD/VIP)',
+#                                             grade_name VARCHAR(50) NOT NULL COMMENT '등급명',
+#                                             discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '할인율(%) 예: 5.00',
+#                                             is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',
+#                                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                                             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 SET FOREIGN_KEY_CHECKS = 1;

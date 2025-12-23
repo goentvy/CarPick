@@ -32,6 +32,7 @@ public class GuestReservationController {
     @PostMapping("/cancel")
     public ResponseEntity<ReservationDto> cancelReservation(@RequestBody CancelRequest request) {
         ReservationDto canceled = reservationService.cancelReservation(
+                request.getEmail(),
                 request.getReservationNumber(),
                 request.getReason()
         );

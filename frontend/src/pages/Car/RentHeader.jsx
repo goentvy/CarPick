@@ -37,24 +37,25 @@ const RentHeader = () => {
   };
 
   return (
-    <section className="bg-blue-500 text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] pt-[30px] relative z-999">
+    <section id="car-list" className="bg-blue-500 text-center pt-7 pb-9 sm:pb-[37px] px-6 sm:px-[41px] rounded-b-[40px] sm:rounded-b-[60px] relative z-[999]">
+
       {/* 렌트 타입 선택 */}
-      <div className="bg-gray-50 rounded-[30px] xx:px-2.5 sm:px-3 relative z-0">
+      <div className="rentM bg-gray-50 rounded-[30px] xx:px-2.5 sm:px-3 relative z-0">
 
         {/* 픽업 장소 */}
-        <div className="relative p-2">
+        <div className="rentM relative p-2">
           <div
-            className="flex items-center rounded-lg p-1.5 cursor-pointer bg-gray-100"
+            className="rentMBg flex items-center rounded-lg p-1.5 cursor-pointer bg-gray-100"
             onClick={() => setShowLocationPicker((prev) => !prev)}
           >
             <i className="fa-solid fa-magnifying-glass text-[20px] mr-3" alt="차량검색"></i>
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full break-keep">
               <p className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold">
                 {pickupLocation}
               </p>
-              <p className="flex justify-between text-gray-400 text-[16px]">
-                <span>{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
-                <span className="text-[12px] text-gray-500">{rentalHours}시간</span>
+              <p className="flex justify-between text-gray-400 text-[16px] text-left">
+                <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
+                <span id="pickTime" className="text-[12px] text-gray-500">{rentalHours}시간</span>
               </p>
             </div>
           </div>

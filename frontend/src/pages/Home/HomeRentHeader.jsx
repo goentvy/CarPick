@@ -3,11 +3,10 @@ import RentDateRangePicker from '../../components/common/RentDateRangePicker';
 import { useNavigate } from 'react-router-dom';
 import PickupLocationModal from '../../components/common/PickupLocationModal';
 
-const HomeRentHeader = () => {
+const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) => {
   const navigate = useNavigate();
   const [rentType, setRentType] = useState('short');
   const [pickupLocation, setPickupLocation] = useState('서울역 KTX');
-  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -33,7 +32,9 @@ const HomeRentHeader = () => {
 
   const handleSearch = () => {
     const params = new URLSearchParams({
-      pickupLocation, rentType, startDate: dateRange.startDate.toISOString(),
+      pickupLocation, 
+      rentType, 
+      startDate: dateRange.startDate.toISOString(),
       endDate: dateRange.endDate.toISOString(),
     });
     console.log(params);
@@ -75,7 +76,7 @@ const HomeRentHeader = () => {
         <div className="pt-2 relative">
           <div
             className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm cursor-pointer"
-            onClick={() => setShowLocationPicker((prev) => !prev)}
+            onClick={() => setShowPickupModal((prev) => !prev)}
           >
             <img
               src="./images/common/location.svg"
@@ -88,12 +89,12 @@ const HomeRentHeader = () => {
             </div>
           </div>
 
-          {showLocationPicker && (
+          {showPickupModal && (
             <PickupLocationModal
-              onClose={() => setShowLocationPicker(false)}
+              onClose={() => setShowPickupModal(false)}
               onSelect={(loc) => {
                 setPickupLocation(loc);
-                setShowLocationPicker(false);
+                setShowPickupModal(false);
                 setShowDatePicker(true); // ✅ 장소 선택 후 날짜 모달 자동 열림
               }}
             />
@@ -131,6 +132,16 @@ const HomeRentHeader = () => {
                     endDate: selection.endDate,
                   });
                   setShowDatePicker(false); // ✅ 모달 닫기
+
+                  const params = new URLSearchParams({
+                    pickupLocation,
+                    startDate: selection.startDate.toISOString(),
+                    endDate: selection.endDate.toISOString(),
+                    carTitle: selectedCar.title,
+                    price: selectedCar.price,
+                    discount: selectedCar.discount,
+                  });
+                  navigate(`/result?${params.toString()}`);
                 }}
                 onClose={() => setShowDatePicker(false)}
               />
