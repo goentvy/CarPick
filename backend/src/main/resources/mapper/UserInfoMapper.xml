@@ -30,12 +30,12 @@
     <!-- 개인정보 수정 -->
     <update id="updateUserInfo">
         UPDATE users
-        SET
-            name = #{name},
-            phone = #{phone},
-            birth = #{birth},
+        SET name            = #{name},
+            phone           = #{phone},
+            birth           = #{birth},
+            password_hash   = #{passwordHash},
             marketing_agree = #{marketingAgree},
-            updated_at = NOW()
+            updated_at      = NOW()
         WHERE user_id = #{userId}
           AND deleted_at IS NULL
     </update>

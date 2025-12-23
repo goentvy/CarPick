@@ -41,6 +41,7 @@ public class UserInfoService {
                 request.name(),
                 request.phone(),
                 request.birth(),
+                request.passwordHash(),
                 request.marketingAgree()
         );
 
@@ -48,6 +49,9 @@ public class UserInfoService {
             throw new IllegalStateException("회원 정보 수정 실패");
         }
     }
+
+
+
 
     @Transactional
     public void withdraw(Long userId) {

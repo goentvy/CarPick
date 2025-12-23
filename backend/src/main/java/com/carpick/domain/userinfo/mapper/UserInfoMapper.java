@@ -16,6 +16,7 @@ public interface UserInfoMapper {
             @Param("name") String name,
             @Param("phone") String phone,
             @Param("birth") LocalDate birth,
+            @Param("passwordHash") String passwordHash,
             @Param("marketingAgree") boolean marketingAgree
     );
 

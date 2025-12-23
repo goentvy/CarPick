@@ -6,5 +6,6 @@ public record UserInfoUpdateRequest(
         String name,
         String phone,
         LocalDate birth,
+        String passwordHash,
         boolean marketingAgree
 ) {}
