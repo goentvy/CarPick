@@ -11,7 +11,7 @@
 /* 2. 헤더 섹션 (왼쪽 정렬 및 얇은 구분선) */
 .guide-header-section {
   padding-bottom: 15px; 
-  border-bottom: 1px solid #e9ecef; /* 공지사항 스타일의 얇은 선 */
+  border-bottom: 2px solid #3b82f6; /* 공지사항 스타일의 얇은 선 */
   margin-bottom: 40px;
   text-align: left; /* 왼쪽 배치 */
 }

@@ -54,6 +54,8 @@ import NoticeDetail from './pages/Notice/NoticeDetail.jsx'
 import Guide from './pages/Guide/Guide.jsx'
 import GuideStep from './pages/Guide/GuideStep.jsx'
 
+import EmergencyService from './pages/emergency/EmergencyService.jsx'
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -126,6 +128,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="guide" element={<Guide />} />
           <Route path="guide" element={<GuideStep />} />
 
+          {/* 긴급지원서비스 */}
+          <Route path="emergency" element={<EmergencyService />} />
         </Route>
       </Routes>
     </BrowserRouter>
