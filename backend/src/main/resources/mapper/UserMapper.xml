@@ -144,7 +144,7 @@
         WHERE user_id = #{userId}
         AND deleted_at IS NULL
     </update>
-
+    <!-- 탈퇴 복구 sql-->
     <update id="restoreUser">
         UPDATE users
         SET deleted_at = NULL
