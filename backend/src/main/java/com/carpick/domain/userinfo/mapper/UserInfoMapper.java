@@ -20,4 +20,10 @@ public interface UserInfoMapper {
     );
 
     int withdrawUser(@Param("userId") Long userId);
+
+    // 멤버십 등급 변경 (관리자)
+    int updateMembershipGrade(
+            @Param("userId") Long userId,
+            @Param("membershipGrade") String membershipGrade
+    );
 }

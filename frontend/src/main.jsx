@@ -56,6 +56,9 @@ import GuideStep from './pages/Guide/GuideStep.jsx'
 
 import EmergencyService from './pages/emergency/EmergencyService.jsx'
 
+import About from './pages/About/About.jsx'
+
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -130,6 +133,10 @@ createRoot(document.getElementById('root')).render(
 
           {/* 긴급지원서비스 */}
           <Route path="emergency" element={<EmergencyService />} />
+
+          {/* 회사소개 */}
+          <Route path="about" element={<About />} />
+          
         </Route>
       </Routes>
     </BrowserRouter>
