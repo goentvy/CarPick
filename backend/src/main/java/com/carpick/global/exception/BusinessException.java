@@ -20,7 +20,7 @@ public class BusinessException extends RuntimeException {
 	 * @param errorCode 에러 코드 (메시지는 ErrorCode의 기본 메시지 사용)
 	 */
 	public BusinessException(ErrorCode errorCode) {
-		super(errorCode.message());
+		super();
 		this.errorCode = errorCode;
 	}
 
@@ -33,5 +33,12 @@ public class BusinessException extends RuntimeException {
 		super(detailMessage);
 		this.errorCode = errorCode;
 	}
+	
+	// 로그 추적용 생성자
+	public BusinessException(ErrorCode errorCode, String detailMessage, Throwable cause) {
+	    super(detailMessage, cause);
+	    this.errorCode = errorCode;
+	}
+
 	
 }
