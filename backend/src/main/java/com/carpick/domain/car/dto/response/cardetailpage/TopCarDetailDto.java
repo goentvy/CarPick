@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.attoparser.dom.Text;
 
 @Data
 public class TopCarDetailDto {
@@ -20,7 +21,7 @@ public class TopCarDetailDto {
 //	@NotNull
 //	@Size(min = 1) -> 이미지가 반드시 1개 이상 들어가야 한다면 주석제거하고 사용가능
     private List<String> imageUrls; // 상단 슬라이더 이미지
-
+    private  List<OptionTagDto> optionTagDtos;
     private String carType; //    차종
 
 }
