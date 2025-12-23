@@ -55,7 +55,7 @@ const GuestCancelComplete = () => {
           <p><strong>이메일:</strong> {reservation.email}</p>
           <p><strong>예약번호:</strong> {reservation.reservationNumber}</p>
           <p><strong>차량:</strong> {reservation.carName}</p>
-          <p><strong>날짜:</strong> {reservation.date}</p>
+          <p><strong>날짜:</strong> {reservation.reservationDate}</p>
         </div>
         <div className="flex justify-center">
           <button

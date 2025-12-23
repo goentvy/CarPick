@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 resultType="com.carpick.domain.faq.dto.FaqResponse">
 	
 	SELECT
+		id,
 		category,
 		question,
 		answer
@@ -24,7 +25,7 @@ resultType="com.carpick.domain.faq.dto.FaqResponse">
 <if test="keyword != null and keyword != ''">
 	AND (
 		question Like CONCAT('%', #{keyword}, '%')
-		or answer Like CONCAT('%', #{keyword}, '%')
+		OR answer Like CONCAT('%', #{keyword}, '%')
 	)
 </if> 
 	ORDER BY id ASC
