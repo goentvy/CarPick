@@ -43,9 +43,12 @@ public class ReservationController {
         boolean paymentSuccess = mockPayment(card);
 
         if (paymentSuccess) {
+            // 주문번호 생성 (예: UUID, 시퀀스, DB 저장 후 PK 반환)
+            String orderId = java.util.UUID.randomUUID().toString();
             return ResponseEntity.ok(Map.of(
                     "status", "APPROVED",
-                    "message", "결제 완료"
+                    "message", "결제 완료",
+                    "orderId", orderId
             ));
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(

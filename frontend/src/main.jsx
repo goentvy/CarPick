@@ -15,6 +15,8 @@ import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
 
 import Login from './pages/Login'
+import KakaoCallback from './pages/Login/social/KakaoCallback.jsx'
+import NaverCallback from './pages/Login/social/NaverCallback.jsx'
 import FindIdPage from './pages/User/FindIdPage.jsx'
 import ResetPasswordPage from './pages/User/ResetPasswordPage.jsx'
 import SignupAgree from './pages/Signup/SignupAgree.jsx'
@@ -28,6 +30,7 @@ import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
+import ProfilePage from './pages/Mypage/ProfilePage.jsx';
 import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
 import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
 import QnAlist from "./pages/Mypage/QnAlist.jsx";
@@ -79,6 +82,8 @@ createRoot(document.getElementById('root')).render(
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
+          <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />
+          <Route path="/oauth/naver/callback" element={<NaverCallback />} />
           <Route path="findid" element={<FindIdPage />} />
           <Route path="resetpassword" element={<ResetPasswordPage />} />
           <Route path="signup/agree" element={<SignupAgree />} />
@@ -103,6 +108,7 @@ createRoot(document.getElementById('root')).render(
           {/* 마이페이지 */}
             <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
                 <Route index element={<MyPageHome />} />
+                <Route path="profile" element={<ProfilePage />} />
                 <Route path="reviewhistory" element={<ReviewHistory />} />
                 <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
                 <Route path="favorites" element={<Favorites />} />

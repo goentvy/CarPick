@@ -38,7 +38,7 @@ const FindIdPage = () => {
         />
         <button
             onClick={handleFindId}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-brand text-white px-4 py-2 rounded"
         >
             아이디 찾기
         </button>
