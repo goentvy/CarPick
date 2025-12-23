@@ -15,7 +15,7 @@ const menuItems = [
 
 function MyPageHome() {
     const navigate = useNavigate();
-    const { user } = useUserStore();                 // 로그인한 유저
+    const { user, logout } = useUserStore();                 // 로그인한 유저
     const userName = user?.name ?? user?.email ?? "name";       // 이름 없으면 기본값
 
     const [ongoingOrder, setOngoingOrder] = useState(null);
@@ -44,7 +44,13 @@ function MyPageHome() {
             document.body.style.backgroundColor = prevBodyBg || "";
         };
     }, []);
-
+    const handleLogout = () => {
+        if (logout) {
+            logout();  // zustand store의 logout 호출
+        }
+        localStorage.removeItem("accessToken");  // 토큰 삭제
+        navigate("/login");  // 로그인 페이지로 이동
+    };
     return (
         <div
             id="content"
@@ -57,8 +63,8 @@ function MyPageHome() {
             {/* 상단 바 */}
             <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
                 <div className="flex items-center justify-between">
-                    <p className="text-sm text-white">
-                        <span className="font-semibold">{userName}</span> 님
+                    <p className="text-sm text-white px-3">
+                    <span className="font-semibold">{userName}</span> 님
                     </p>
 
                     <button
@@ -148,6 +154,30 @@ function MyPageHome() {
               </span>
                         </button>
                     ))}
+
+
+                </div>
+            </div>
+            {/* 👇 로그아웃 버튼 - 제일 하단에 추가 */}
+            <div className="px-4 pb-8 lg:pb-6">
+                <div className="flex flex-col items-center">
+                    <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="
+            w-full
+            max-w-md
+            sm:max-w-lg
+            md:max-w-xl
+            lg:max-w-2xl
+            flex items-center justify-center
+            px-4 py-3 rounded-2xl bg-white
+            text-sm font-medium text-red-500 border border-red-200
+            shadow-sm hover:shadow-md hover:bg-red-50 transition-all
+          "
+                    >
+                        로그아웃
+                    </button>
                 </div>
             </div>
         </div>
