@@ -26,8 +26,8 @@ function ChangeHistoryPage() {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
+                        'X-User-Id': useUserStore.getState().user?.id?.toString()
+                    }
                 });
 
                 console.log('🔥 Status:', response.status);

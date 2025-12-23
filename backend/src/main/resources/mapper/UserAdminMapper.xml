@@ -22,7 +22,7 @@
     </select>
 
     <select id="findUserById" resultType="com.carpick.admin.useradmin.entity.UserAdmin">
-        SELECT user_id AS userId,
+        SELECT user_id    AS userId,
                email,
                name,
                phone,
@@ -39,13 +39,24 @@
     <update id="updateUser">
         UPDATE users
         SET email = #{email},
-            name = #{name},
+            name  = #{name},
             phone = #{phone}
         WHERE user_id = #{userId}
     </update>
 
     <delete id="deleteUser">
-        DELETE FROM users WHERE user_id = #{id}
+        DELETE
+        FROM users
+        WHERE user_id = #{id}
     </delete>
+    <!-- 관리자용 탈퇴 기능-->
+    <delete id="hardDeleteUser">
+        DELETE
+        FROM users
+        WHERE user_id = #{userId}
+    </delete>
+
+
+
 
 </mapper>

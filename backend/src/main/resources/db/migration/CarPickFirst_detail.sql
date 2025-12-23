@@ -15,7 +15,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 /* [1] 차량 스펙/모델 정보 */
 /* [1] 차량 스펙/모델 정보 */
 CREATE TABLE IF NOT EXISTS CAR_SPEC (
-                                        spec_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
+                                        spec_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
 
     /* 기본 정보 */
                                         brand VARCHAR(50) NOT NULL COMMENT '브랜드 (현대, 기아 등)',
@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
 
                                         car_class VARCHAR(20) NOT NULL COMMENT '차급 (소형/중형/SUV 등)',
                                         model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
-
+#     ai d요약 문구
+                                        ai_summary text comment 'ai 추천문구 관리자 페이지 에서 관리',
     /* 파워트레인 */
                                         fuel_type VARCHAR(20) NOT NULL COMMENT '연료 (휘발유/전기/하이브리드)',
                                         transmission_type VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '변속기',
@@ -60,7 +61,7 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
 
 /* [2] 지점 (BRANCH)  ※ PRICE_POLICY FK 때문에 먼저 생성 */
 CREATE TABLE IF NOT EXISTS BRANCH (
-                                      branch_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '지점 ID',
+                                      branch_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '지점 ID',
                                       branch_code VARCHAR(20) NOT NULL COMMENT '지점 코드',
                                       branch_name VARCHAR(100) NOT NULL COMMENT '지점명',
 
@@ -94,8 +95,8 @@ CREATE TABLE IF NOT EXISTS BRANCH (
 
 /* [3] 차량 옵션 (가격 추가됨) */
 CREATE TABLE IF NOT EXISTS CAR_OPTION (
-                                          option_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '옵션 ID',
-                                          car_spec_id INT NOT NULL COMMENT '차량 스펙 ID (FK)',
+                                          option_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '옵션 ID',
+                                          car_spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
 
                                           option_name VARCHAR(100) NOT NULL COMMENT '옵션명(카시트, 네비 등)',
                                           description TEXT NULL COMMENT '옵션 설명',
@@ -104,7 +105,7 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
                                           daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
 
                                           is_highlight BOOLEAN NOT NULL DEFAULT FALSE COMMENT '주요 옵션 노출 여부',
-                                          icon_url VARCHAR(255) NULL COMMENT '아이콘 이미지',
+
 
                                           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                           updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -117,9 +118,9 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
 
 /* [4] 가격 정책 (차량 기본료) */
 CREATE TABLE IF NOT EXISTS PRICE_POLICY (
-                                            price_policy_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
-                                            spec_id INT NOT NULL COMMENT '차량 스펙 ID (FK)',
-                                            branch_id INT NULL COMMENT '지점 ID (NULL=전국)',
+                                            price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
+                                            spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
+                                            branch_id BIGINT NULL COMMENT '지점 ID (NULL=전국)(FK)',
 
                                             unit_type ENUM('DAILY','MONTHLY') NOT NULL COMMENT '요금 단위',
                                             base_price INT NOT NULL COMMENT '기준 대여료(Dynamic Pricing용)',
@@ -143,7 +144,7 @@ CREATE TABLE IF NOT EXISTS PRICE_POLICY (
 
 /* [5] 보험 옵션 */
 CREATE TABLE IF NOT EXISTS INSURANCE (
-                                         insurance_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
+                                         insurance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
 
                                          code VARCHAR(30) NOT NULL COMMENT '보험 코드(STANDARD 등)',
                                          label VARCHAR(50) NOT NULL COMMENT '표시 이름',
@@ -165,7 +166,7 @@ CREATE TABLE IF NOT EXISTS INSURANCE (
 
 /* [6] 쿠폰 */
 CREATE TABLE IF NOT EXISTS COUPON (
-                                      coupon_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '쿠폰 ID',
+                                      coupon_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '쿠폰 ID',
 
                                       coupon_code VARCHAR(50) NOT NULL COMMENT '쿠폰 코드(입력용)',
                                       coupon_name VARCHAR(100) NOT NULL COMMENT '쿠폰명(오픈기념 10%)',
@@ -192,8 +193,8 @@ CREATE TABLE IF NOT EXISTS COUPON (
 
 /* [7] 지점 내 포인트 */
 CREATE TABLE IF NOT EXISTS BRANCH_SERVICE_POINT (
-                                                    point_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '포인트 ID',
-                                                    branch_id INT NOT NULL COMMENT '지점 ID (FK)',
+                                                    point_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '포인트 ID',
+                                                    branch_id BIGINT NOT NULL COMMENT '지점 ID (FK)',
 
                                                     point_name VARCHAR(100) NOT NULL COMMENT '장소명(1번출구)',
                                                     service_type ENUM('PICKUP','RETURN') NOT NULL COMMENT '타입',
@@ -214,9 +215,9 @@ CREATE TABLE IF NOT EXISTS BRANCH_SERVICE_POINT (
 
 /* [8] 단순 가격표 (Legacy) */
 CREATE TABLE IF NOT EXISTS PRICE (
-                                     price_id INT AUTO_INCREMENT PRIMARY KEY,
-                                     car_spec_id INT NOT NULL,
-                                     standard_price INT NOT NULL DEFAULT 0,
+                                     price_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                     car_spec_id BIGINT NOT NULL,
+                                     daily_price INT NOT NULL DEFAULT 0,
                                      price_1m INT DEFAULT 0,
                                      price_3m INT DEFAULT 0,
                                      price_6m INT DEFAULT 0,
@@ -232,13 +233,13 @@ CREATE TABLE IF NOT EXISTS PRICE (
 
 /* [9] 차량 실재고 (Inventory) */
 CREATE TABLE IF NOT EXISTS VEHICLE_INVENTORY (
-                                                 vehicle_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '차량 ID',
-                                                 spec_id INT NOT NULL COMMENT '모델 ID (FK)',
-                                                 branch_id INT NOT NULL COMMENT '위치 지점 ID (FK)',
+                                                 vehicle_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '차량 ID',
+                                                 spec_id BIGINT NOT NULL COMMENT '모델 ID (FK)',
+                                                 branch_id BIGINT NOT NULL COMMENT '위치 지점 ID (FK)',
 
                                                  vehicle_no VARCHAR(30) NOT NULL COMMENT '차량번호',
                                                  vin VARCHAR(50) NULL COMMENT '차대번호',
-                                                 color VARCHAR(30) NULL COMMENT '색상',
+
                                                  model_year SMALLINT NULL COMMENT '실차 연식',
 
                                                  operational_status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE' COMMENT '상태(AVAILABLE/RENTED 등)',
@@ -257,11 +258,11 @@ CREATE TABLE IF NOT EXISTS VEHICLE_INVENTORY (
 
 /* [10] 차량 상태 이력 */
 CREATE TABLE IF NOT EXISTS VEHICLE_STATUS_HISTORY (
-                                                      history_id INT AUTO_INCREMENT PRIMARY KEY,
-                                                      vehicle_id INT NOT NULL,
-                                                      branch_id INT NOT NULL,
-                                                      status_prev ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE','INACTIVE') NULL,
-                                                      status_curr ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE','INACTIVE') NOT NULL,
+                                                      history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                                      vehicle_id BIGINT NOT NULL,
+                                                      branch_id BIGINT NOT NULL,
+                                                      status_prev ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE') NULL,
+                                                      status_curr ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE') NOT NULL,
                                                       mileage INT NULL,
                                                       fuel_level INT NULL,
                                                       comments TEXT NULL,
@@ -276,20 +277,20 @@ CREATE TABLE IF NOT EXISTS VEHICLE_STATUS_HISTORY (
 
 /* [11] 예약 (RESERVATION) */
 CREATE TABLE IF NOT EXISTS RESERVATION (
-                                           reservation_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '예약 ID',
+                                           reservation_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '예약 ID',
                                            reservation_no VARCHAR(50) NOT NULL COMMENT '예약번호(Unique)',
 
     /* WHO */
-                                           user_id INT NOT NULL COMMENT '회원 ID',
-                                           vehicle_id INT NOT NULL COMMENT '차량 ID (FK)',
+                                           user_id BIGINT NOT NULL COMMENT '회원 ID',
+                                           vehicle_id BIGINT NOT NULL COMMENT '차량 ID (FK)',
 
     /* DRIVER */
                                            driver_name VARCHAR(60) NOT NULL COMMENT '운전자명',
                                            driver_birthdate DATE NOT NULL COMMENT '생년월일',
                                            driver_phone VARCHAR(20) NOT NULL COMMENT '연락처',
                                            driver_license_no VARCHAR(30) NULL COMMENT '면허번호',
-                                           driver_license_expiry DATE NULL COMMENT '면허만료일',
-                                           driver_verified_yn CHAR(1) NOT NULL DEFAULT 'N',
+#                                            driver_license_expiry DATE NULL COMMENT '면허만료일',
+#                                            driver_verified_yn CHAR(1) NOT NULL DEFAULT 'N',
 
     /* WHEN */
                                            start_date DATETIME NOT NULL COMMENT '대여시작',
@@ -298,52 +299,58 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 
     /* WHERE */
                                            pickup_type ENUM('VISIT','DELIVERY') NOT NULL DEFAULT 'VISIT',
-                                           pickup_branch_id INT NOT NULL COMMENT '인수지점',
+                                           pickup_branch_id BIGINT NOT NULL COMMENT '인수지점(FK)',
                                            pickup_address VARCHAR(255) NULL COMMENT '배달주소',
 
                                            return_type ENUM('VISIT','COLLECTION') NOT NULL DEFAULT 'VISIT',
-                                           return_branch_id INT NOT NULL COMMENT '반납지점',
+                                           return_branch_id BIGINT NOT NULL COMMENT '반납지점(FK)',
                                            return_address VARCHAR(255) NULL COMMENT '수거주소',
 
     /* WHAT & HOW MUCH (SNAPSHOTS) */
-                                           insurance_id INT NOT NULL COMMENT '보험 ID (FK)',
-                                           coupon_id INT NULL COMMENT '사용 쿠폰 ID (FK)',
+                                           insurance_id BIGINT NOT NULL COMMENT '보험 ID (FK)',
+                                           coupon_id BIGINT NULL COMMENT '사용 쿠폰 ID (FK)',
 
     /* 1. 기본 대여료 */
-                                           base_rent_fee_snapshot INT NOT NULL COMMENT '원 대여료',
-                                           rent_discount_amount_snapshot INT NOT NULL DEFAULT 0 COMMENT '기본 할인액',
+                                           base_rent_fee_snapshot DECIMAL(12,2) NOT NULL COMMENT '원 대여료',
+                                           rent_discount_amount_snapshot DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '기본 할인액',
 
-    /* 2. 보험료 */
-                                           base_insurance_fee_snapshot INT NOT NULL COMMENT '원 보험료',
-                                           insurance_discount_amount_snapshot INT NOT NULL DEFAULT 0 COMMENT '보험 할인액',
+/* 2. 보험료 */
+                                           base_insurance_fee_snapshot DECIMAL(12,2) NOT NULL COMMENT '원 보험료',
+                                           insurance_discount_amount_snapshot DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '보험 할인액',
 
-    /* 3. 옵션 요금 */
-                                           option_fee_snapshot INT NOT NULL DEFAULT 0 COMMENT '옵션 요금 합계(스냅샷)',
+/* 3. 옵션 요금 */
+                                           option_fee_snapshot DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '옵션 요금 합계(스냅샷)',
 
-    /* 4. 쿠폰 할인액 */
-                                           coupon_discount_snapshot INT NOT NULL DEFAULT 0 COMMENT '쿠폰 할인 금액(스냅샷)',
+/* 4. 쿠폰 할인액 */
+                                           coupon_discount_snapshot DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '쿠폰 할인 금액(스냅샷)',
 
-    /* 5. 기타 할인 */
-                                           member_discount_rate_snapshot DECIMAL(5,2) NOT NULL DEFAULT 0.00,
-                                           event_discount_amount_snapshot INT NOT NULL DEFAULT 0,
+/* 5. 기타 할인 */
+                                           member_discount_rate_snapshot DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '회원 할인율(%)',
+                                           event_discount_amount_snapshot DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '이벤트 할인 금액',
 
-    /* 6. 최종 결제액 */
-                                           total_amount_snapshot INT NOT NULL COMMENT '최종 결제 금액',
+/* 6. 최종 결제액 */
+                                           total_amount_snapshot DECIMAL(12,2) NOT NULL COMMENT '최종 결제 금액',
 
-    /* 7. 실제 적용된 요금 (분석용) */
-                                           applied_rent_fee_snapshot INT NOT NULL COMMENT '최종 적용 대여료',
-                                           applied_insurance_fee_snapshot INT NOT NULL COMMENT '최종 적용 보험료',
+/* 7. 실제 적용된 요금 (분석용) */
+                                           applied_rent_fee_snapshot DECIMAL(12,2) NOT NULL COMMENT '최종 적용 대여료',
+                                           applied_insurance_fee_snapshot DECIMAL(12,2) NOT NULL COMMENT '최종 적용 보험료',
 
                                            agreement_yn CHAR(1) NOT NULL DEFAULT 'Y',
-
     /* STATUS */
     /* ✅ 상태 확장 */
+    -- 예약 진행 상태 (예약의 라이프사이클)
                                            status ENUM(
-                                               'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
-                                               'CHANGE_REQUESTED','CHANGED'
+                                               'PENDING',           -- 예약 생성 직후 상태 (결제 전 / 임시 저장 단계)
+                                               'CONFIRMED',         -- 결제 완료로 예약 확정 (차량이 예약됨)
+                                               'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)
+                                               'COMPLETED',         -- 반납 완료 및 예약 종료
+                                               'CANCELED',          -- 예약 취소됨 (결제 전/후 모두 가능)
+                                               'CHANGE_REQUESTED',  -- 예약 변경 요청 상태 (날짜/차량/지점 변경 요청)
+                                               'CHANGED'            -- 예약 변경 완료 상태
                                                ) NOT NULL DEFAULT 'PENDING',
-                                           cancel_reason VARCHAR(255) NULL,
-                                           cancelled_at DATETIME NULL,
+
+                                           cancel_reason VARCHAR(255) NULL,  -- 예약 취소 사유 (고객 변심, 일정 변경 등)
+                                           cancelled_at DATETIME NULL ,       -- 예약 취소 일시
 
                                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -360,22 +367,35 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 
 
 CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
-                                                          history_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '이력 ID',
-                                                          reservation_id INT NOT NULL COMMENT '예약 ID (FK)',
+                                                          history_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '이력 ID',
+                                                          reservation_id BIGINT NOT NULL COMMENT '예약 ID (FK)',
 
     /* ✅ prev/curr */
                                                           status_prev ENUM(
-                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
-                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              'PENDING',           -- 예약 생성 직후 상태 (결제 전 / 임시 저장 단계)
+                                                              'CONFIRMED',         -- 결제 완료로 예약 확정 (차량이 예약됨)
+                                                              'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)
+                                                              'COMPLETED',         -- 반납 완료 및 예약 종료
+                                                              'CANCELED',          -- 예약 취소됨 (결제 전/후 모두 가능)
+                                                              'CHANGE_REQUESTED',  -- 예약 변경 요청 상태 (날짜/차량/지점 변경 요청)
+                                                              'CHANGED'            -- 예약 변경 완료 상태
                                                               ) NULL COMMENT '변경 전 상태',
 
                                                           status_curr ENUM(
-                                                              'PENDING','CONFIRMED','ACTIVE','COMPLETED','CANCELED',
-                                                              'CHANGE_REQUESTED','CHANGED'
+                                                              'PENDING',           -- 예약 생성 직후 상태 (결제 전 / 임시 저장 단계)
+                                                              'CONFIRMED',         -- 결제 완료로 예약 확정 (차량이 예약됨)
+                                                              'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)
+                                                              'COMPLETED',         -- 반납 완료 및 예약 종료
+                                                              'CANCELED',          -- 예약 취소됨 (결제 전/후 모두 가능)
+                                                              'CHANGE_REQUESTED',  -- 예약 변경 요청 상태 (날짜/차량/지점 변경 요청)
+                                                              'CHANGED'            -- 예약 변경 완료 상태
                                                               ) NOT NULL COMMENT '변경 후 상태',
 
-                                                          actor_type ENUM('USER','ADMIN','SYSTEM')
-                                                                             NOT NULL DEFAULT 'SYSTEM' COMMENT '변경 주체',
+                                                          actor_type ENUM(
+                                                              'USER',    -- 고객 직접 변경 (취소, 변경 요청)
+                                                              'ADMIN',   -- 관리자 수동 변경 (강제 처리)
+                                                              'SYSTEM'   -- 시스템 자동 변경 (시간/정책 기반)
+                                                              ) NOT NULL DEFAULT 'SYSTEM' comment '변경 주체',
 
                                                           actor_id VARCHAR(50) NULL COMMENT '변경자 식별자',
 
@@ -398,7 +418,11 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
 
 # /* 회원 등급(정책) */
 # CREATE TABLE IF NOT EXISTS MEMBER_GRADE (
-#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BRONZE/SILVER/GOLD/VIP)',
+<<<<<<< HEAD
+#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 ('BASIC', 'VIP')',
+=======
+#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BASIC/VIP)',
+>>>>>>> e06a99bb2938f0bd0a6780ab22ca209c00d3068d
 #                                             grade_name VARCHAR(50) NOT NULL COMMENT '등급명',
 #                                             discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '할인율(%) 예: 5.00',
 #                                             is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',

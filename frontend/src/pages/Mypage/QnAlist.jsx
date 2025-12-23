@@ -48,8 +48,9 @@ function QnAlist() {
 
             const response = await fetch("/api/mypage/inquiries", {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`,
+                    'X-User-Id': useUserStore.getState().user?.id?.toString()
+                }
             });
 
             if (!response.ok) {
