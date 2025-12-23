@@ -7,22 +7,46 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import com.carpick.global.enums.ErrorCode;
-import com.carpick.global.response.ErrorResponse;
+import com.carpick.global.response.ApiErrorResponse;
+import com.carpick.global.util.ProfileResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * JWT 인가 실패 시 처리하는 핸들러
- * 인증된 사용자가 권한이 없는 리소스에 접근 시 403 Forbidden 응답 반환
+ * 🔐 JWT AccessDeniedHandler
+ *
+ * Spring Security Filter 단계에서 발생하는 "인가 실패(403)"를 처리한다.
+ *
+ * ✔ 처리 대상
+ * - 인증은 완료되었으나(Authentication 성공)
+ * - 요청한 리소스에 대한 권한이 없는 경우
+ *   (ex. ROLE_USER로 ROLE_ADMIN API 접근)
+ *
+ * ✔ 처리 위치
+ * - Controller 진입 이전
+ * - Security Filter Chain 내부
+ *
+ * ⚠ 주의 사항 (중요)
+ * - ControllerAdvice(@ExceptionHandler)에서 처리하는 AccessDeniedException과는 역할이 다르다.
+ * - 이 Handler는 Security Filter 단계에서 발생한 AccessDeniedException만 처리한다.
+ * - Controller 내부에서 발생한 AccessDeniedException은
+ *   GlobalApiExceptionHandler에서 처리된다.
+ *
+ * 👉 설계 의도
+ * - "Security 예외는 Security에서, API 예외는 ControllerAdvice에서" 처리한다.
+ * - Security 계층과 MVC 계층의 책임 경계를 명확히 분리하기 위함이다.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
+    private final ProfileResolver profileResolver;
 
     @Override
     public void handle(
@@ -33,16 +57,19 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
         ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
 
+        log.warn(
+                "[Security-AccessDenied] path={}",
+                request.getRequestURI()
+            );
+        
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse =
-                ErrorResponse.of(errorCode, request.getRequestURI());
+        ApiErrorResponse errorResponse =
+                ApiErrorResponse.of(errorCode, request, profileResolver);
 
         response.getWriter().write(
                 objectMapper.writeValueAsString(errorResponse)
         );
     }
 }
-
-
