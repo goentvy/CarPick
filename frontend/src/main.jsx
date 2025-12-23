@@ -11,6 +11,8 @@ import Intro from './pages/Intro/Intro.jsx'
 import CarList from "./pages/Car/CarList";
 import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
+import CarPickZonePage from "./pages/Zone/CarpickZonePage.jsx";
+
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
 
@@ -71,6 +73,9 @@ createRoot(document.getElementById('root')).render(
           {/* 차량 목록 */}
           <Route path="day" element={<CarList />} />
           <Route path="car/detail" element={<CarDetailPage />} />
+
+          {/* 카픽존 & 드롭존 */}
+          <Route path="zone" element={<CarPickZonePage />} />
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
