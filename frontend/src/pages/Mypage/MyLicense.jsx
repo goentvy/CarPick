@@ -27,8 +27,9 @@ function MyLicense() {
 
             const response = await fetch("/api/licenses/me", {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`,
+                    'X-User-Id': useUserStore.getState().user?.id?.toString()
+                }
             });
 
             if (!response.ok) {
