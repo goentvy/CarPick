@@ -5,6 +5,7 @@
 
 <mapper namespace="com.carpick.domain.inquiry.mapper.InquiryMapper">
 
+<!-- 사용자 문의내역 저장 -->
 <insert id="insertInquiry"
 useGeneratedKeys="true"
 keyProperty="id">
@@ -23,7 +24,7 @@ keyProperty="id">
 	)
 </insert>
 
-<!--마이페이지 문의내역-->
+<!-- 사용자 마이페이지 문의내역 -->
 
 <select id="findByUserId"
 	parameterType="long"
@@ -41,5 +42,48 @@ keyProperty="id">
 	WHERE user_id = #{userId}
 	ORDER BY created_at DESC
 </select>
+
+<!-- 관리자 문의 목록 -->
+<select id="findAll"
+    resultType="com.carpick.domain.inquiry.vo.Inquiry">
+    SELECT
+        id,
+        user_id,
+        category,
+        title,
+        content,
+        status,
+        admin_reply AS adminReply,
+        created_at AS createdAt
+    FROM inquiry
+    ORDER BY created_at DESC
+</select>
+
+<!-- 관리자 문의 상세 -->
+<select id="findById"
+    parameterType="long"
+    resultType="com.carpick.domain.inquiry.vo.Inquiry">
+    SELECT
+        id,
+        user_id,
+        category,
+        title,
+        content,
+        status,
+        admin_reply AS adminReply,
+        created_at AS createdAt
+    FROM inquiry
+    WHERE id = #{id}
+</select>
+
+<!-- 답변 등록 / 수정 -->
+<update id="updateAnswer">
+    UPDATE inquiry
+    SET
+        admin_reply = #{adminReply},
+        status = #{status},
+        updated_at = NOW()
+    WHERE id = #{id}
+</update>
 
 </mapper>

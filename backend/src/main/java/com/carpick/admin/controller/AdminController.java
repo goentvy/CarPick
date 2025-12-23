@@ -45,15 +45,12 @@ public class AdminController {
     ///  FAQ관리 ///
 
     ///  자주묻는질문 관리 ///
-    @GetMapping("/inquiry")
-    public String inquiryAdmin() {
-        return "inquiry";
-    }
-
-    @GetMapping("/inquiry_write")
-    public String inquiryWriteAdmin() {
-        return "inquiryWrite";
-    }
+	/*
+	 * @GetMapping("/inquiry") public String inquiryAdmin() { return "inquiry"; }
+	 * 
+	 * @GetMapping("/inquiry_write") public String inquiryWriteAdmin() { return
+	 * "inquiryWrite"; }
+	 */
     ///  자주묻는질문 관리 ///
 
     ///  예약 관리 ///
