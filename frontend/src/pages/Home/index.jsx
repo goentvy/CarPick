@@ -5,21 +5,35 @@ import VehicleCard from "./VehicleCard";
 import CarPickZone from "./CarPickZone";
 import CustomerReview from "./CustomerReview";
 import HomeFooter from "./HomeFooter";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 const Home = () => {
     const location = useLocation();
     const [showPickupModal, setShowPickupModal] = useState(false);
     const [selectedCar, setSelectedCar] = useState(null);
-    const [pickupLocation, setPickupLocation] = useState(null);
-    const [dateRange, setDateRange] = useState(null);
+    const [cars, setCars] = useState([]);
 
-    // const segment = location.state?.segment || "정보 없음";
+    const segment = location.state?.segment || "정보 없음";
     const reason = location.state?.reason || "추천 이유를 불러올 수 없습니다.";
     const features = {
         year: '25년식',
         seat: '4인승',
         option: ['가솔린', '경차', '도심 주행']
     };
+
+    useEffect(() => {
+        if(segment !== "정보 없음") {
+            axios.get(`/api/cars`, { params: { segment }})
+            .then((res) => {
+                setCars(res.data);
+                console.log(cars);
+            })
+            .catch((err) => {
+                console.error("차량 리스트 불러오기 실패:", err);
+            });
+        }
+    }, [segment]);
 
     return (
         <div className="flex flex-col w-full max-w-[640px] justify-center min-h-screen bg-white pb-10 mt-[60px] mx-auto">

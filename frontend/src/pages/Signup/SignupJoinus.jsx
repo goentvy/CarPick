@@ -91,7 +91,7 @@ const SignupJoinus = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* 이메일 */}
           <div>
-            <label className="block font-semibold mb-1">이메일 주소 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">이메일 주소 <span className="text-brand">*</span></label>
             <input
               type="email"
               {...register("email")}
@@ -103,7 +103,7 @@ const SignupJoinus = () => {
 
           {/* 비밀번호 */}
           <div>
-            <label className="block font-semibold mb-1">비밀번호 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">비밀번호 <span className="text-brand">*</span></label>
             <input
               type="password"
               {...register("password")}
@@ -115,7 +115,7 @@ const SignupJoinus = () => {
 
           {/* 비밀번호 확인 */}
           <div>
-            <label className="block font-semibold mb-1">비밀번호 확인 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">비밀번호 확인 <span className="text-brand">*</span></label>
             <input
               type="password"
               {...register("confirmPassword")}
@@ -127,7 +127,7 @@ const SignupJoinus = () => {
 
           {/* 이름 */}
           <div>
-            <label className="block font-semibold mb-1">이름 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">이름 <span className="text-brand">*</span></label>
             <input
               type="text"
               {...register("name")}
@@ -139,7 +139,7 @@ const SignupJoinus = () => {
 
           {/* 휴대폰 */}
           <div>
-            <label className="block font-semibold mb-1">휴대폰 번호 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">휴대폰 번호 <span className="text-brand">*</span></label>
             <input
               type="tel"
               {...register("phone")}
@@ -151,7 +151,7 @@ const SignupJoinus = () => {
 
           {/* 생년월일 */}
           <div>
-            <label className="block font-semibold mb-1">생년월일 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">생년월일 <span className="text-brand">*</span></label>
             <input
               type="date"
               {...register("birth")}
@@ -162,15 +162,15 @@ const SignupJoinus = () => {
 
           {/* 성별 버튼 */}
           <div>
-            <label className="block font-semibold mb-1">성별 <span className="text-blue-500">*</span></label>
+            <label className="block font-semibold mb-1">성별 <span className="text-brand">*</span></label>
             <div className="flex space-x-4 mt-1">
               <button
                 type="button"
                 onClick={() => setValue("gender", "M", { shouldValidate: true })}
                 className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
                   gender === "M"
-                    ? "bg-blue-100 text-blue-500 border-blue-500"
-                    : "bg-white text-blue-500 border-gray-300 hover:bg-blue-100"
+                    ? "bg-blue-100 text-brand border-blue-500"
+                    : "bg-white text-brand border-gray-300 hover:bg-blue-100"
                 }`}
               >
                 남성
@@ -180,8 +180,8 @@ const SignupJoinus = () => {
                 onClick={() => setValue("gender", "F", { shouldValidate: true })}
                 className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
                   gender === "F"
-                    ? "bg-blue-100 text-blue-500 border-blue-500"
-                    : "bg-white text-blue-500 border-gray-300 hover:bg-blue-100"
+                    ? "bg-blue-100 text-brand border-blue-500"
+                    : "bg-white text-brand border-gray-300 hover:bg-blue-100"
                 }`}
               >
                 여성
@@ -211,13 +211,13 @@ const SignupJoinus = () => {
             <button 
               type="button"
               onClick={() => navigate("/")}
-              className="px-8 sm:px-12 py-2 border-2 border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white" 
+              className="px-8 sm:px-12 py-2 border-2 border-blue-500 text-brand rounded-lg hover:bg-brand hover:text-white" 
             >
               취소
             </button>
             <button
               type="submit"
-              className="px-4 sm:px-12 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-4 sm:px-12 py-2 bg-brand text-white rounded-lg hover:bg-blue-600"
             >
               입력완료
             </button>

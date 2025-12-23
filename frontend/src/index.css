@@ -3,6 +3,9 @@
 @theme {
   --breakpoint-xs: 30rem; /* 480px = 30rem */
   --breakpoint-xx: 20rem; /* 320px = 20rem */
+
+  /* 브랜드 컬러 정의 */
+  --color-brand: #1D6BF3;
 }
 
 body {

@@ -61,12 +61,12 @@ const RentDateRangePicker = ({ onChange, onClose }) => {
   return (
     <Modal onClose={onClose}>
         {/* 상단: 대여/반납 날짜 및 시간 */}
-        <div className="mx-auto mb-4 w-full text-center">
+        <div className="mx-auto w-full max-w-[332px] text-center">
           <p className="text-sm font-semibold text-gray-700 mb-2">
             {formatDate(range[0].startDate)} {startHour.toString().padStart(2, '0')}:00 ~{' '}
             {formatDate(range[0].endDate)} {endHour.toString().padStart(2, '0')}:00
           </p>
-          <div className="flex justify-between gap-2 w-full">
+          <div className="flex justify-between gap-2 w-full xx:px-2 xs:px-0">
             <div className="flex flex-col w-1/2">
               <label className="text-xs text-gray-500 mb-1">대여시간</label>
               <select
@@ -121,7 +121,7 @@ const RentDateRangePicker = ({ onChange, onClose }) => {
         </div>
 
         {/* 버튼 영역 */}
-        <div className="flex justify-between mt-3 w-full">
+        <div className="flex justify-between mt-3 w-full max-w-[332px] mx-auto xx:px-2">
           <button
             onClick={handleReset}
             className="w-1/2 mr-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-200 rounded-full hover:bg-gray-300"
@@ -130,7 +130,7 @@ const RentDateRangePicker = ({ onChange, onClose }) => {
           </button>
           <button
             onClick={handleConfirm}
-            className="w-1/2 ml-2 px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600"
+            className="w-1/2 ml-2 px-4 py-2 text-sm font-semibold text-white bg-brand rounded-full hover:bg-blue-600"
           >
             {getDurationText()}
           </button>
