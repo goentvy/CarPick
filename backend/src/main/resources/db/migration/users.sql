@@ -63,7 +63,7 @@ WHERE user_id = ?
 -- 회원탈퇴 쿼리----
 UPDATE users
 SET deleted_at = NOW()
-WHERE user_id = ?
+WHERE user_id = ?;
 
 -- 회원정보 수정----
 UPDATE users
