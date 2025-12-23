@@ -36,9 +36,26 @@ public class SecurityConfigDev {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                	"/api/faq/**",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
+                		// 1. API 경로 허용
+                        "/api/faq/**",
+                        "/api/emergency/**", 
+                        "/api/notice/**",
+                        "/api/guide/**",
+                        "/api/auth/**",
+                        
+                        // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
+                        "/admin/**",
+                        
+                        // 3. 정적 리소스 경로 허용 (CSS, JS, Images 등 - 추가됨)
+                        "/assets/**", 
+                        "/css/**", 
+                        "/js/**", 
+                        "/images/**",
+                        "/favicon.ico",
+                        
+                        // 4. Swagger 및 API 문서 관련
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
