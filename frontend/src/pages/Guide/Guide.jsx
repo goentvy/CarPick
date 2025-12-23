@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import GuideStep from "./GuideStep";
+import GuideStep from "./GuideStep"; // 외부 파일 임포트
 import "../../styles/guide.css";
 
 function Guide() {
@@ -29,14 +29,14 @@ function Guide() {
 
   return (
     <div className="guide-page">
-      {/* 제목 섹션: 왼쪽 정렬 및 구분선 적용 영역 */}
       <div className="guide-header-section">
         <h2>이용가이드 🚗</h2>
       </div>
 
       <div className="guide-content">
-        {guideList.map((step) => (
-          <GuideStep key={step.step} data={step} />
+        {guideList.map((step, index) => (
+          // key값으로 step 번호가 중복될 가능성이 있다면 index를 함께 사용하세요.
+          <GuideStep key={step.step || index} data={step} />
         ))}
       </div>
     </div>
