@@ -15,8 +15,8 @@ const menuItems = [
 
 function MyPageHome() {
     const navigate = useNavigate();
-    const { user, logout } = useUserStore();                 // 로그인한 유저
-    const userName = user?.name ?? user?.email ?? "name";       // 이름 없으면 기본값
+    const { user, logout } = useUserStore();
+    const userName = user?.name ?? user?.email ?? "name";
 
     const [ongoingOrder, setOngoingOrder] = useState(null);
     const contentMinHeight = "calc(100vh - 80px - 72px)";
@@ -32,11 +32,10 @@ function MyPageHome() {
                 pickupLocation: "서울역 카픽존",
             });
         });
-
         return () => clearTimeout(timeout);
     }, []);
 
-    // 배경색 유지
+    // 배경색 유지 (홈이랑 같은 연파랑)
     useEffect(() => {
         const prevBodyBg = document.body.style.backgroundColor;
         document.body.style.backgroundColor = "#E7EEFF";
@@ -44,13 +43,13 @@ function MyPageHome() {
             document.body.style.backgroundColor = prevBodyBg || "";
         };
     }, []);
+
     const handleLogout = () => {
-        if (logout) {
-            logout();  // zustand store의 logout 호출
-        }
-        localStorage.removeItem("accessToken");  // 토큰 삭제
-        navigate("/login");  // 로그인 페이지로 이동
+        if (logout) logout();
+        localStorage.removeItem("accessToken");
+        navigate("/login");
     };
+
     return (
         <div
             id="content"
@@ -60,17 +59,33 @@ function MyPageHome() {
                 minHeight: contentMinHeight,
             }}
         >
-            {/* 상단 바 */}
-            <div className="px-4 py-4" style={{ backgroundColor: "#2C7FFF" }}>
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-white px-3">
-                    <span className="font-semibold">{userName}</span> 님
+            {/* 상단 인사 바 – 홈 상단 카드 느낌으로 살짝 라운드 */}
+            <div className="px-4 pt-4">
+                <div
+                    className="
+            w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
+            mx-auto rounded-2xl
+            bg-[#2C7FFF]
+            px-4 py-3
+            flex items-center justify-between
+            shadow-md
+          "
+                >
+                    <p className="text-xs text-white">
+                        <span className="font-semibold text-sm">{userName}</span> 님,
+                        <br />
+                        <span className="text-[11px] opacity-90">카픽과 함께하는 여행 준비</span>
                     </p>
 
                     <button
                         type="button"
                         onClick={() => navigate("/mypage/profile")}
-                        className="text-[11px] px-2 py-2 rounded-full border border-white/70 text-white/90 bg-white/10"
+                        className="
+              text-[11px] px-3 py-2 rounded-full
+              border border-white/70 text-white
+              bg-white/10
+              hover:bg-white/20 transition
+            "
                     >
                         개인정보 수정
                     </button>
@@ -85,25 +100,25 @@ function MyPageHome() {
                             type="button"
                             onClick={() => navigate("/mypage/reservationslist")}
                             className="
-                w-full
-                max-w-md
-                sm:max-w-lg
-                md:max-w-xl
-                lg:max-w-2xl
-                rounded-2xl
-                bg-linear-to-r from-[#0A56FF] to-white
-                text-white shadow-lg border-0 hover:shadow-xl transition-all
-              "
+          w-full
+          max-w-md
+          sm:max-w-lg
+          md:max-w-xl
+          lg:max-w-2xl
+          rounded-2xl
+          bg-linear-to-r from-[#0A56FF] to-white
+          text-white shadow-lg border-0 hover:shadow-xl transition-all
+        "
                         >
                             <div className="flex items-center px-4 py-8">
                                 {/* 왼쪽 텍스트 */}
                                 <div className="flex flex-col text-left mr-4">
-                  <span className="text-[11px] font-semibold">
-                    진행중인 주문
-                  </span>
+            <span className="text-[11px] font-semibold">
+              진행중인 주문
+            </span>
                                     <span className="text-sm font-bold mt-1">
-                    {ongoingOrder.carName}
-                  </span>
+              {ongoingOrder.carName}
+            </span>
                                     <div className="text-[11px] mt-1 opacity-90">
                                         <div>{ongoingOrder.pickupDate}</div>
                                         <div>{ongoingOrder.pickupLocation}</div>
@@ -128,8 +143,9 @@ function MyPageHome() {
                 </div>
             )}
 
-            {/* 리스트 영역 */}
-            <div className="px-4 pt-4 pb-4 lg:pb-2">
+
+            {/* 메뉴 리스트 영역 – 홈 하단 카드 톤과 맞춤 */}
+            <div className="px-4 pt-5 pb-4 lg:pb-2">
                 <div className="flex flex-col items-center space-y-3">
                     {menuItems.map((item) => (
                         <button
@@ -138,14 +154,14 @@ function MyPageHome() {
                             onClick={() => navigate(item.path)}
                             className="
                 w-full
-                max-w-md
-                sm:max-w-lg
-                md:max-w-xl
-                lg:max-w-2xl
+                max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
                 flex items-center justify-between
-                px-4 py-3 rounded-2xl bg-white
-                text-sm font-medium text-[#1A1A1A] shadow-sm
-                hover:shadow-md transition-all
+                px-4 py-3
+                rounded-2xl bg-white
+                text-[13px] font-medium text-[#1A1A1A]
+                shadow-sm
+                hover:shadow-md hover:bg-[#F3F7FF]
+                transition-all
               "
                         >
                             <span>{item.label}</span>
@@ -154,27 +170,26 @@ function MyPageHome() {
               </span>
                         </button>
                     ))}
-
-
                 </div>
             </div>
-            {/* 👇 로그아웃 버튼 - 제일 하단에 추가 */}
+
+            {/* 로그아웃 버튼 – 위험 동작이라 색만 살짝 바꿈 */}
             <div className="px-4 pb-8 lg:pb-6">
                 <div className="flex flex-col items-center">
                     <button
                         type="button"
                         onClick={handleLogout}
                         className="
-            w-full
-            max-w-md
-            sm:max-w-lg
-            md:max-w-xl
-            lg:max-w-2xl
-            flex items-center justify-center
-            px-4 py-3 rounded-2xl bg-white
-            text-sm font-medium text-red-500 border border-red-200
-            shadow-sm hover:shadow-md hover:bg-red-50 transition-all
-          "
+              w-full
+              max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
+              flex items-center justify-center
+              px-4 py-3 rounded-2xl
+              bg-white
+              text-[13px] font-semibold text-[#FF4D4F]
+              border border-[#FF4D4F]/30
+              shadow-sm hover:shadow-md hover:bg-[#FFF5F5]
+              transition-all
+            "
                     >
                         로그아웃
                     </button>
