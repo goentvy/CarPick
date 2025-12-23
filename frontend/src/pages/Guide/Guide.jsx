@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import GuideStep from "./GuideStep";
+import "../../styles/guide.css";
 
 function Guide() {
   const [guideList, setGuideList] = useState([]);
@@ -7,7 +8,7 @@ function Guide() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("/guide")
+    fetch("/api/guide")
       .then((res) => {
         if (!res.ok) throw new Error("API Error");
         return res.json();
@@ -23,21 +24,21 @@ function Guide() {
       });
   }, []);
 
-  if (loading) {
-    return <p>이용가이드를 불러오는 중입니다...</p>;
-  }
-
-  if (error) {
-    return <p>이용가이드를 불러올 수 없습니다.</p>;
-  }
+  if (loading) return <p className="guide-loading">이용가이드를 불러오는 중입니다...</p>;
+  if (error) return <p className="guide-error">이용가이드를 불러올 수 없습니다.</p>;
 
   return (
     <div className="guide-page">
-      <h2>이용가이드</h2>
+      {/* 제목 섹션: 왼쪽 정렬 및 구분선 적용 영역 */}
+      <div className="guide-header-section">
+        <h2>이용가이드 🚗</h2>
+      </div>
 
-      {guideList.map((step) => (
-        <GuideStep key={step.step} data={step} />
-      ))}
+      <div className="guide-content">
+        {guideList.map((step) => (
+          <GuideStep key={step.step} data={step} />
+        ))}
+      </div>
     </div>
   );
 }
