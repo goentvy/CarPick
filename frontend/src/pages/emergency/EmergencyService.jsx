@@ -22,7 +22,7 @@ const EmergencyService = () => {
   if (loading) return <div className="status-message">정보를 불러오는 중입니다...</div>;
   if (error) return <div className="status-message error">데이터 로드에 실패했습니다.</div>;
 
-  return (
+  return (  
     <div className="guide-page">
       <div className="guide-header-section">
         <h2>긴급지원서비스</h2>

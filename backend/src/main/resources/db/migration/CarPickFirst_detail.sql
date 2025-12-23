@@ -418,7 +418,11 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
 
 # /* 회원 등급(정책) */
 # CREATE TABLE IF NOT EXISTS MEMBER_GRADE (
+<<<<<<< HEAD
 #                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 ('BASIC', 'VIP')',
+=======
+#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BASIC/VIP)',
+>>>>>>> e06a99bb2938f0bd0a6780ab22ca209c00d3068d
 #                                             grade_name VARCHAR(50) NOT NULL COMMENT '등급명',
 #                                             discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '할인율(%) 예: 5.00',
 #                                             is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',
