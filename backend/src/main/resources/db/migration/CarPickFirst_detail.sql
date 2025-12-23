@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
                                           daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
 
                                           is_highlight BOOLEAN NOT NULL DEFAULT FALSE COMMENT '주요 옵션 노출 여부',
-                                          icon_url VARCHAR(255) NULL COMMENT '아이콘 이미지',
+
 
                                           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                           updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
