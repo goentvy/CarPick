@@ -56,7 +56,7 @@ function ReviewHistory() {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
+                    'X-User-Id': useUserStore.getState().user?.id?.toString()
                 },
                 body: JSON.stringify({
                     rating: editingRating,

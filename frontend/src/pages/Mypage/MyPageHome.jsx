@@ -16,7 +16,7 @@ const menuItems = [
 function MyPageHome() {
     const navigate = useNavigate();
     const { user } = useUserStore();                 // 로그인한 유저
-    const userName = user?.name ?? "UserName";       // 이름 없으면 기본값
+    const userName = user?.name ?? user?.email ?? "name";       // 이름 없으면 기본값
 
     const [ongoingOrder, setOngoingOrder] = useState(null);
     const contentMinHeight = "calc(100vh - 80px - 72px)";
