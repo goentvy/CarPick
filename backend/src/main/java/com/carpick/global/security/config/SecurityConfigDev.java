@@ -42,6 +42,8 @@ public class SecurityConfigDev {
                         "/api/notice/**",
                         "/api/guide/**",
                         "/api/auth/**",
+                        "/api/about/values",
+                        
                         
                         // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                         "/admin/**",
