@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-  
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.carpick.domain.auth.mapper.UserMapper">
 
     <!-- ===================== -->
     <!-- ResultMap -->
     <!-- ===================== -->
     <resultMap id="UserResultMap" type="com.carpick.domain.auth.entity.User">
-        <id property="user_id" column="user_id"/>
+        <id property="userId" column="user_id"/>
         <result property="email" column="email"/>
-        <result property="password_hash" column="password_hash"/>
+        <result property="passwordHash" column="password_hash"/>
         <result property="provider" column="provider"/>
         <result property="providerId" column="provider_id"/>
         <result property="name" column="name"/>
@@ -33,65 +33,80 @@
         SELECT *
         FROM users
         WHERE email = #{email}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </select>
 
     <select id="findByProvider" resultMap="UserResultMap">
         SELECT *
         FROM users
         WHERE provider = #{provider}
-          AND provider_id = #{providerId}
-          AND deleted_at IS NULL
+        AND provider_id = #{providerId}
+        AND deleted_at IS NULL
     </select>
 
     <select id="findById" resultMap="UserResultMap">
         SELECT *
         FROM users
         WHERE user_id = #{user_Id}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </select>
 
     <select id="existsByEmail" resultType="int">
         SELECT COUNT(*)
         FROM users
         WHERE email = #{email}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </select>
 
     <select id="existsByProvider" resultType="int">
         SELECT COUNT(*)
         FROM users
         WHERE provider = #{provider}
-          AND provider_id = #{providerId}
-          AND deleted_at IS NULL
+        AND provider_id = #{providerId}
+        AND deleted_at IS NULL
     </select>
 
     <!-- ===================== -->
     <!-- INSERT -->
     <!-- ===================== -->
-
-    <insert id="insertUser">
-        INSERT INTO users (email,
-                           password_hash,
-                           <!--provider,
-                           provider_id, -->
-                           name,
-                           phone,
-                           birth,
-                           gender,
-                           marketing_agree,
-                           membership_grade)
-        VALUES (#{email},
-                #{password},
-                <!--#{provider},
-                #{providerId},-->
-                #{name},
-                #{phone},
-                #{birth},
-                #{gender},
-                #{marketingAgree},
-                'BASIC')
+    <!-- 일반로그인용 INSERT -->
+    <insert id="insertLocalUser">
+        INSERT INTO users (
+        email,
+        password_hash,
+        gender,
+        marketing_agree,
+        membership_grade
+        )
+        VALUES (
+        #{email},
+        #{passwordHash},
+        #{gender},
+        #{marketingAgree},
+        'BASIC'
+        )
     </insert>
+
+    <!-- 소셜로그인용 INSERT-->
+    <insert id="insertSocialUser">
+        INSERT INTO users (
+        email,
+        provider,
+        provider_id,
+        gender,
+        marketing_agree,
+        membership_grade
+        )
+        VALUES (
+        #{email},
+        #{provider},
+        #{providerId},
+        #{gender},
+        #{marketingAgree},
+        'BASIC'
+        )
+    </insert>
+
 
     <!-- ===================== -->
     <!-- UPDATE -->
@@ -99,35 +114,43 @@
 
     <update id="updateUserInfo">
         UPDATE users
-        SET name            = #{name},
-            phone           = #{phone},
-            birth           = #{birth},
-            gender          = #{gender},
-            marketing_agree = #{marketingAgree}
+        SET name = #{name},
+        phone = #{phone},
+        birth = #{birth},
+        gender = #{gender},
+        marketing_agree = #{marketingAgree}
         WHERE user_id = #{user_id}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </update>
 
     <update id="updatePassword">
         UPDATE users
         SET password_hash = #{passwordHash}
         WHERE user_id = #{userId}
-          AND provider = 'local'
-          AND deleted_at IS NULL
+        AND provider =#{provider}
+        AND deleted_at IS NULL
     </update>
 
     <update id="updateMembershipGrade">
         UPDATE users
         SET membership_grade = #{membershipGrade}
         WHERE user_id = #{userId}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </update>
 
     <update id="deleteUser">
         UPDATE users
         SET deleted_at = NOW()
         WHERE user_id = #{userId}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </update>
+
+    <update id="restoreUser">
+        UPDATE users
+        SET deleted_at = NULL
+        WHERE user_id = #{userId}
+        AND deleted_at IS NOT NULL
+    </update>
+
 
 </mapper>
