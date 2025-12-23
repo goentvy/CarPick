@@ -25,7 +25,7 @@ const EmergencyService = () => {
   return (
     <div className="guide-page">
       <div className="guide-header-section">
-        <h2>긴급지원서비스🚨</h2>
+        <h2>긴급지원서비스</h2>
       </div>
 
       <main className="emergency-body">
