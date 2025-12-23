@@ -1,10 +1,9 @@
 package com.carpick.domain.car.service;
 
 import com.carpick.domain.car.dto.CarDetailDto;
-import com.carpick.domain.car.dto.CarListDto;
-import com.carpick.domain.car.dto.response.CarListResponseDto;
 import com.carpick.domain.car.dto.response.cardetailpage.*;
 import com.carpick.domain.car.dto.response.common.BranchLocationDto;
+
 import com.carpick.domain.car.mapper.CarMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

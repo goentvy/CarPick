@@ -13,9 +13,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    private Long user_id;
+    private Long userId;
     private String email;
-    private String password_hash;
+    private String passwordHash;
 
     private String provider;
     private String providerId;

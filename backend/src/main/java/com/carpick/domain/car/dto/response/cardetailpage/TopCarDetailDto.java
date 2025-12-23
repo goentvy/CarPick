@@ -1,13 +1,11 @@
 package com.carpick.domain.car.dto.response.cardetailpage;
 
+
 import lombok.Data;
 
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import org.attoparser.dom.Text;
 
 @Data
 public class TopCarDetailDto {
