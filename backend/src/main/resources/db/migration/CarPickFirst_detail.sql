@@ -142,26 +142,40 @@ CREATE TABLE IF NOT EXISTS PRICE_POLICY (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [5] 보험 옵션 */
+/* ==================================================
+   [5] 보험 옵션 (INSURANCE)
+   - 보험 선택 카드 + 보험정보(면책/보상/자기부담금) UI 대응
+   - 예약 시 스냅샷용 기준 데이터
+   ================================================== */
+
 CREATE TABLE IF NOT EXISTS INSURANCE (
                                          insurance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
 
-                                         code VARCHAR(30) NOT NULL COMMENT '보험 코드(STANDARD 등)',
-                                         label VARCHAR(50) NOT NULL COMMENT '표시 이름',
-                                         summary_label VARCHAR(100) NULL COMMENT '요약(고객부담금 0원)',
+    /* 보험 식별 */
+                                         code VARCHAR(30) NOT NULL COMMENT '보험 코드 (NONE / STANDARD / FULL 등)',
+                                         label VARCHAR(50) NOT NULL COMMENT '표시 이름 (선택안함 / 일반자차 / 완전자차)',
+                                         summary_label VARCHAR(100) NULL COMMENT '요약 문구 (사고 시 고객부담금 면제 등)',
 
-                                         extra_daily_price INT NOT NULL DEFAULT 0 COMMENT '1일 보험료',
-                                         deductible_amount INT NOT NULL DEFAULT 0 COMMENT '자기부담금',
+    /* 요금 */
+                                         extra_daily_price DECIMAL(15, 0) NOT NULL DEFAULT 0 COMMENT '1일 보험 추가요금',
 
-                                         description TEXT NULL COMMENT '설명',
+
+
+    /* 설명 */
+
+
+    /* UI / 정책 */
                                          is_default BOOLEAN NOT NULL DEFAULT FALSE COMMENT '기본 선택 여부',
-                                         is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                                         is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',
+                                         sort_order INT NOT NULL DEFAULT 0 COMMENT '노출 순서',
 
+    /* 공통 */
                                          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
                                          UNIQUE KEY uk_insurance_code (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 /* [6] 쿠폰 */
@@ -217,10 +231,14 @@ CREATE TABLE IF NOT EXISTS BRANCH_SERVICE_POINT (
 CREATE TABLE IF NOT EXISTS PRICE (
                                      price_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                      car_spec_id BIGINT NOT NULL,
-                                     daily_price INT NOT NULL DEFAULT 0,
-                                     price_1m INT DEFAULT 0,
-                                     price_3m INT DEFAULT 0,
-                                     price_6m INT DEFAULT 0,
+
+    -- DECIMAL(전체자리수, 소수점자리수)
+    -- 예: (15, 0) -> 999조 9999억... 까지 저장 가능 (소수점 없음)
+                                     daily_price DECIMAL(15, 2) NOT NULL DEFAULT 0,
+                                     price_1m DECIMAL(15, 2) DEFAULT 0,
+                                     price_3m DECIMAL(15, 2) DEFAULT 0,
+                                     price_6m DECIMAL(15, 2) DEFAULT 0,
+
                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                      FOREIGN KEY (car_spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE
@@ -263,8 +281,11 @@ CREATE TABLE IF NOT EXISTS VEHICLE_STATUS_HISTORY (
                                                       branch_id BIGINT NOT NULL,
                                                       status_prev ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE') NULL,
                                                       status_curr ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE') NOT NULL,
-                                                      mileage INT NULL,
-                                                      fuel_level INT NULL,
+    -- [변경] 이름에 _km 명시 + COMMENT 추가
+                                                      mileage_km INT NULL COMMENT '누적 주행거리 (단위: km)',
+
+                                                      fuel_level INT NULL COMMENT '연료량 (단위: %)', -- 이것도 %인지 리터인지 헷갈리니 코멘트 추가 추천
+
                                                       comments TEXT NULL,
                                                       photo_url VARCHAR(255) NULL,
                                                       manager_id VARCHAR(50) NULL,
@@ -281,13 +302,15 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            reservation_no VARCHAR(50) NOT NULL COMMENT '예약번호(Unique)',
 
     /* WHO */
-                                           user_id BIGINT NOT NULL COMMENT '회원 ID',
+                                           user_id BIGINT NOT NULL COMMENT '회원 ID(FK)',
                                            vehicle_id BIGINT NOT NULL COMMENT '차량 ID (FK)',
 
     /* DRIVER */
-                                           driver_name VARCHAR(60) NOT NULL COMMENT '운전자명',
+                                           driver_last_name VARCHAR(30) NOT NULL COMMENT '운전자 성(Last name)',
+                                           driver_first_name VARCHAR(30) NOT NULL COMMENT '운전자 이름(First name)',
                                            driver_birthdate DATE NOT NULL COMMENT '생년월일',
                                            driver_phone VARCHAR(20) NOT NULL COMMENT '연락처',
+                                           driver_email VARCHAR(100) NULL COMMENT '운전자 이메일',
                                            driver_license_no VARCHAR(30) NULL COMMENT '면허번호',
 #                                            driver_license_expiry DATE NULL COMMENT '면허만료일',
 #                                            driver_verified_yn CHAR(1) NOT NULL DEFAULT 'N',
@@ -345,7 +368,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                                'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)
                                                'COMPLETED',         -- 반납 완료 및 예약 종료
                                                'CANCELED',          -- 예약 취소됨 (결제 전/후 모두 가능)
-                                               'CHANGE_REQUESTED',  -- 예약 변경 요청 상태 (날짜/차량/지점 변경 요청)
+
                                                'CHANGED'            -- 예약 변경 완료 상태
                                                ) NOT NULL DEFAULT 'PENDING',
 
@@ -357,6 +380,8 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 
                                            UNIQUE KEY uk_reservation_no (reservation_no),
                                            INDEX idx_res_vehicle_period (vehicle_id, start_date, end_date),
+    /* ✅ [추가] Users 테이블과 외래키 연결 */
+                                           CONSTRAINT fk_res_user FOREIGN KEY (user_id) REFERENCES USERS(user_id),
 
                                            CONSTRAINT fk_res_vehicle FOREIGN KEY (vehicle_id) REFERENCES VEHICLE_INVENTORY(vehicle_id),
                                            CONSTRAINT fk_res_pickup FOREIGN KEY (pickup_branch_id) REFERENCES BRANCH(branch_id),
@@ -377,7 +402,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                               'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)
                                                               'COMPLETED',         -- 반납 완료 및 예약 종료
                                                               'CANCELED',          -- 예약 취소됨 (결제 전/후 모두 가능)
-                                                              'CHANGE_REQUESTED',  -- 예약 변경 요청 상태 (날짜/차량/지점 변경 요청)
+
                                                               'CHANGED'            -- 예약 변경 완료 상태
                                                               ) NULL COMMENT '변경 전 상태',
 
@@ -387,7 +412,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                               'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)
                                                               'COMPLETED',         -- 반납 완료 및 예약 종료
                                                               'CANCELED',          -- 예약 취소됨 (결제 전/후 모두 가능)
-                                                              'CHANGE_REQUESTED',  -- 예약 변경 요청 상태 (날짜/차량/지점 변경 요청)
+
                                                               'CHANGED'            -- 예약 변경 완료 상태
                                                               ) NOT NULL COMMENT '변경 후 상태',
 
@@ -418,17 +443,15 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
 
 # /* 회원 등급(정책) */
 # CREATE TABLE IF NOT EXISTS MEMBER_GRADE (
-<<<<<<< HEAD
-#                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 ('BASIC', 'VIP')',
-=======
+
 #                                             grade_code VARCHAR(20) PRIMARY KEY COMMENT '등급 코드 (BASIC/VIP)',
->>>>>>> e06a99bb2938f0bd0a6780ab22ca209c00d3068d
+
 #                                             grade_name VARCHAR(50) NOT NULL COMMENT '등급명',
 #                                             discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0.00 COMMENT '할인율(%) 예: 5.00',
 #                                             is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',
 #                                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 #                                             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+# )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 SET FOREIGN_KEY_CHECKS = 1;
