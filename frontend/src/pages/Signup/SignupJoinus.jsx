@@ -65,10 +65,10 @@ const SignupJoinus = () => {
         ...payload,
         marketingAgree: formData.marketingAgree === 'agree',
       });
-
+      
       if (data.success) {
         alert("가입 정보가 제출되었습니다.");
-        navigate("/signup/complete", { state: { userName: formData.name } });
+        navigate("/signup/complete", { state: formData.name});
       } else {
         alert(data.message);
       }

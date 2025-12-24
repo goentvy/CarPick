@@ -38,6 +38,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- provider + providerId로 유저 조회 -->
     <select id="findByProvider" resultMap="UserResultMap">
         SELECT *
         FROM users
@@ -46,6 +47,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- userId로 유저 조회 -->
     <select id="findById" resultMap="UserResultMap">
         SELECT *
         FROM users
@@ -53,6 +55,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- 이메일 중복 체크 -->
     <select id="existsByEmail" resultType="int">
         SELECT COUNT(*)
         FROM users
@@ -60,6 +63,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- provider + providerId로 중복유저 조회 -->
     <select id="existsByProvider" resultType="int">
         SELECT COUNT(*)
         FROM users
@@ -95,7 +99,7 @@
         )
     </insert>
 
-    <!-- 소셜로그인용 INSERT-->
+    <!-- 소셜 유저 INSERT-->
     <insert id="insertSocialUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
         INSERT INTO users (
         email,
@@ -152,9 +156,19 @@
         AND deleted_at IS NULL
     </update>
 
-    <update id="deleteUser" parameterType="long">
+    <!-- 로컬 유저 탈퇴 (소프트 삭제) -->
+    <update id="softDeleteLocalUser" parameterType="long">
+        UPDATE users SET deleted_at = NOW()
+        WHERE user_id = #{userId}
+        AND provider = 'LOCAL'
+        AND deleted_at IS NULL
+    </update>
+
+    <!--  소셜 유저 탈퇴 (하드 삭제)  -->
+    <update id="hardDeleteSocialUser" parameterType="long">
         DELETE FROM users
         WHERE user_id = #{userId}
+        AND provider != 'LOCAL'
     </update>
 
     <!--  소셜 토큰  -->
