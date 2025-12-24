@@ -69,6 +69,7 @@ file:
   upload:
     path: C:/upload
 
+
 # JWT 설정 추가
 jwt:
   secret: "mySuperSecretKeyForJWTGeneration1234567890"

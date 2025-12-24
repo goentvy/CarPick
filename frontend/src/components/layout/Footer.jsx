@@ -19,7 +19,7 @@ const Footer = () => {
         <div id="footer">
             <div className="inner">
                 <div className="btns">
-                    <Link
+                    <Link to ="/aipick"
                         className={`btn btn_ai ${
                             location.pathname.includes("aipick") ? "active" : ""
                         }`}
