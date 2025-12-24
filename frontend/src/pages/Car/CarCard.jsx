@@ -1,6 +1,6 @@
-const CarCard = ({ discount, discountRate, imageSrc, title, features, info, cost, price, day, onClick }) => {
+const CarCard = ({ discount, discountRate, imageSrc, title, features, info, cost, price }) => {
   return (
-    <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[98%] outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 shadow-lg overflow-hidden cursor-pointer" onClick={onClick}>
+    <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[98%] outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 shadow-lg overflow-hidden">
       {/* 차량 이미지 */}
       <img src={imageSrc} alt={title} className="w-full h-auto object-cover" />
 
@@ -22,7 +22,7 @@ const CarCard = ({ discount, discountRate, imageSrc, title, features, info, cost
             </div>
             {/* 할인 라벨 */}
             {discount && (
-              <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+              <div className="bg-brand text-white text-xs font-bold px-2 py-1 rounded-lg">
                 {discountRate}% 할인가
               </div>
             )}
@@ -39,7 +39,7 @@ const CarCard = ({ discount, discountRate, imageSrc, title, features, info, cost
         {/* 가격 */}
         <div className="flex flex-row justify-end items-center">
           <p className="text-gray-400 text-[14px] line-through pr-2">{cost.toLocaleString()} 원</p>
-          <p className="font-bold text-blue-500 text-2xl text-right">{!day && ("월")} {price.toLocaleString()} 원</p>
+          <p className="font-bold text-brand text-2xl text-right">{price.toLocaleString()} 원</p>
         </div>
       </div>
     </div>

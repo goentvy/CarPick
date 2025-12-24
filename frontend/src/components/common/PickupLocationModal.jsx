@@ -8,22 +8,41 @@ const PickupLocationModal = ({ onClose, onSelect }) => {
 
   return (
     <Modal onClose={onClose}>
-      <h3 className="text-lg font-bold mb-2">CarPick 지정 지점</h3>
-
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-600 mb-1">국내지점</p>
-        {domestic.map((loc) => (
-          <div
-            key={loc}
-            onClick={() => {
-              onSelect(loc);
-              onClose();
-            }}
-            className="px-3 py-2 text-sm text-gray-800 hover:bg-blue-100 rounded cursor-pointer"
-          >
-            {loc}
-          </div>
-        ))}
+      {/* 모달 헤더 */}
+      <div className="flex flex-row justify-between">
+        <div className="font-lg font-bold p-3">대여장소</div>
+        <div className="p-3 text-right">
+          <img 
+            src="./images/common/close.svg" 
+            alt="close"
+            onClick={() => onClose()}/>
+        </div>
+      </div>
+      <div className="flex flex-row justify-between w-full border-t border-gray-300">
+        <div className="flex-1 border-r border-r-gray-300 bg-gray-100">
+          <ul>
+            <li className="p-4 bg-brand text-white text-sm">
+              CarPick 지점
+            </li>
+          </ul>
+        </div>
+        <div className="flex-1/4">
+          <p className="px-4 py-2 text-xs font-semibold bg-gray-100">국내지점</p>
+          <ul>
+            { domestic.map((loc) => (
+              <li 
+                key={loc}
+                onClick={() => {
+                  onSelect(loc);
+                  onClose();
+                }}
+                className="px-4 py-2 text-sm font-bold border-t border-gray-300 text-gray-800 cursor-pointer"
+              >
+                {loc}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </Modal>
   );

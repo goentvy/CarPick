@@ -161,7 +161,7 @@ export default function CarDetailPage() {
   const uiCards = normalizeCards(cards);
 
   return (
-    <div className="min-h-screen bg-white pt-[60px]">
+    <div className="min-h-screen bg-white">
       {/* 640 컨테이너 */}
       <div className="mx-auto w-full max-w-[640px] pb-28">
         {/* Top App Bar */}

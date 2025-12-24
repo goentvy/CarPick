@@ -3,6 +3,9 @@ package com.carpick.global.response;
 import java.time.LocalDateTime;
 
 import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.util.ProfileResolver;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public record ApiErrorResponse(
         String code,
@@ -11,23 +14,17 @@ public record ApiErrorResponse(
         LocalDateTime timestamp
 ) {
     public static ApiErrorResponse of(
-            String code,
-            String message,
-            String path
-    ) {
-        return new ApiErrorResponse(code, message, path, LocalDateTime.now());
-    }
-    
-    public static ApiErrorResponse of(
             ErrorCode errorCode,
-            String path
+            HttpServletRequest request,
+            ProfileResolver profileResolver
     ) {
         return new ApiErrorResponse(
                 errorCode.getCode(),
-                errorCode.getMessage(),
-                path,
+                errorCode.getMessageByProfile(profileResolver),
+                request.getRequestURI(),
                 LocalDateTime.now()
         );
     }
-    
 }
+
+

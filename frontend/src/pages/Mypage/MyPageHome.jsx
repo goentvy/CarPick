@@ -1,22 +1,22 @@
-// src/pages/mypage/MyPageHome.jsx
+// src/pages/Mypage/MyPageHome.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 
 const menuItems = [
-    { label: "예약 내역", path: "/mypage/reservations" },
-    { label: "취소 · 변경 내역", path: "/mypage/change-history" },
-    { label: "리뷰 관리", path: "/mypage/reviewhistory" },
-    { label: "문의 내역", path: "/mypage/qna" },
-    { label: "면허 관리", path: "/mypage/license" },
-    { label: "결제 수단", path: "/mypage/payment" },
-    { label: "선호 차량", path: "/mypage/favorites" },
+    { label: "예약 내역", path: "/Mypage/ReservationsList" },
+    { label: "취소 · 변경 내역", path: "/Mypage/ChangeHistory" },
+    { label: "리뷰 관리", path: "/Mypage/ReviewHistory" },
+    { label: "문의 내역", path: "/mypage/QnA" },
+    { label: "면허 관리", path: "/Mypage/license" },
+    { label: "결제 수단", path: "/Mypage/Payment" },
+    { label: "선호 차량", path: "/Mypage/Favorites" },
 ];
 
 function MyPageHome() {
     const navigate = useNavigate();
     const { user } = useUserStore();                 // 로그인한 유저
-    const userName = user?.name ?? "UserName";       // 이름 없으면 기본값
+    const userName = user?.name ?? user?.email ?? "name";       // 이름 없으면 기본값
 
     const [ongoingOrder, setOngoingOrder] = useState(null);
     const contentMinHeight = "calc(100vh - 80px - 72px)";
@@ -31,7 +31,7 @@ function MyPageHome() {
                 status: "예약완료",
                 pickupLocation: "서울역 카픽존",
             });
-        }, 1500);
+        });
 
         return () => clearTimeout(timeout);
     }, []);
@@ -77,7 +77,7 @@ function MyPageHome() {
                     <div className="flex flex-col items-center">
                         <button
                             type="button"
-                            onClick={() => navigate("/mypage/reservations")}
+                            onClick={() => navigate("/mypage/reservationslist")}
                             className="
                 w-full
                 max-w-md
@@ -85,7 +85,7 @@ function MyPageHome() {
                 md:max-w-xl
                 lg:max-w-2xl
                 rounded-2xl
-                bg-gradient-to-r from-[#0A56FF] to-white
+                bg-linear-to-r from-[#0A56FF] to-white
                 text-white shadow-lg border-0 hover:shadow-xl transition-all
               "
                         >

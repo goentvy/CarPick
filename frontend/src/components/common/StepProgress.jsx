@@ -15,8 +15,8 @@ const StepProgress = ({ step }) => {
   const labels = ['약관동의', '정보입력', '가입완료'];
 
   // bar 색상 조건
-  const bar1Color = step === 1 ? 'bg-gray-300' : 'bg-blue-500';
-  const bar2Color = step === 3 ? 'bg-blue-500' : 'bg-gray-300';
+  const bar1Color = step === 1 ? 'bg-gray-300' : 'bg-brand';
+  const bar2Color = step === 3 ? 'bg-brand' : 'bg-gray-300';
 
   return (
     <div className="relative w-full max-w-full mx-auto px-4 my-8">

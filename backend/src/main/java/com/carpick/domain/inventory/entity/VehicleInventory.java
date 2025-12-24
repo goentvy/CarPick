@@ -1,5 +1,4 @@
-package com.carpick.domain.car.entity;
-
+package com.carpick.domain.inventory.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,21 +11,24 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarInventory {
-
+public class VehicleInventory {
     private Long vehicleId;
 
-    private Long carSpecId;
-    private Long priceId;
+    private Long specId;
     private Long branchId;
 
-    private String licensePlate;
-    private String color;
-    private String modelYear;
+    private String vehicleNo;
+    private String vin;
 
-    private Integer currentMileage;
-    private String status; // AVAILABLE, RENTED, MAINTENANCE
+    private Integer modelYear;
+
+    private String operationalStatus;
+    private Integer mileage;
+    private LocalDateTime lastInspectedAt;
+
+    private Boolean isActive;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
 }

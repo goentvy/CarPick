@@ -27,8 +27,9 @@ function MyLicense() {
 
             const response = await fetch("/api/licenses/me", {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`,
+                    'X-User-Id': useUserStore.getState().user?.id?.toString()
+                }
             });
 
             if (!response.ok) {
@@ -197,13 +198,13 @@ function MyLicense() {
         setErrors({});
         setLoading(false);
     };
-
     return (
         <div
             id="content"
             className="font-pretendard"
             style={{
-                minHeight: "calc(100vh - 80px - 72px)",
+                // 기존: "calc(100vh - 80px - 72px)"
+                minHeight: "calc(100vh - 60px)",
                 backgroundColor: "#E7EEFF",
             }}
         >
@@ -214,9 +215,9 @@ function MyLicense() {
                             key={license.id || index}
                             className="bg-white rounded-2xl shadow-sm px-5 py-4 flex flex-col"
                         >
-              <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
-                {license.name}
-              </span>
+            <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
+              {license.name}
+            </span>
                             <div className="text-sm text-[#333333] space-y-1.5 leading-snug">
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">생년월일</span>
@@ -229,8 +230,8 @@ function MyLicense() {
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">일련번호</span>
                                     <span className="tracking-[0.15em] font-medium">
-                    {license.serialNumber}
-                  </span>
+                  {license.serialNumber}
+                </span>
                                 </p>
                             </div>
 
@@ -245,7 +246,8 @@ function MyLicense() {
                         </div>
                     ))
                 ) : (
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-10 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-sm px-5 py-6 flex items-center justify-center">
+                        {/* ✅ py-10 → py-6 로 줄여서 흰 박스 높이 감소 */}
                         <p className="text-sm text-[#666666] text-center leading-relaxed">
                             등록된 운전면허 정보가 없습니다.
                             <br />
@@ -264,6 +266,7 @@ function MyLicense() {
 
             {isModalOpen && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50">
+                    {/* 모달 부분은 그대로 */}
                     <div className="w-[90%] max-w-md rounded-2xl bg-white px-5 py-6">
                         {modalStep === "form" && (
                             <>

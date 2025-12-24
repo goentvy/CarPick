@@ -11,23 +11,23 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MyPageInquiryResponse {
 
-	private Long id;
-	private String category;
-	private String title;
-	private String content;
-	private String status;
-	private String adminReply;
-	private LocalDateTime createdAt;
+    private Long id;
+    private String category;
+    private String title;
+    private String content;
+    private String status;
+    private String adminReply;
+    private LocalDateTime createdAt;
 
-	public static MyPageInquiryResponse from(Inquiry inquiry) {
-		return new MyPageInquiryResponse(
-				inquiry.getId(),
-				inquiry.getCategory(),
-				inquiry.getTitle(),
-				inquiry.getContent(),
-				inquiry.getStatus(),
-				inquiry.getAdminReply(),
-				inquiry.getCreatedAt()
-				);
-	}
+    public static MyPageInquiryResponse from(Inquiry inquiry) {
+        return new MyPageInquiryResponse(
+                inquiry.getId(),
+                inquiry.getCategory(),
+                inquiry.getTitle(),
+                inquiry.getContent(),
+                inquiry.getStatus(),
+                inquiry.getAdminReply(),
+                inquiry.getCreatedAt()
+        );
+    }
 }

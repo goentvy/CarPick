@@ -15,16 +15,16 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class InquiryService {
-	
-	private final InquiryMapper inquiryMapper;
-	
-	// 일대일 문의하기
-	@Transactional
-	public InquiryCreateResponse createInquiry(InquiryCreateRequest req) {
 
+	private final InquiryMapper inquiryMapper;
+
+	// 사용자 - 일대일 문의하기
+	@Transactional
+	public InquiryCreateResponse createInquiry(InquiryCreateRequest req, Long userId) {
 		Inquiry inquiry = new Inquiry();
-		inquiry.setUserId(req.getUserId());
+		inquiry.setUserId(userId);
 		inquiry.setCategory(req.getCategory());
 		inquiry.setTitle(req.getTitle());
 		inquiry.setContent(req.getContent());
@@ -33,14 +33,35 @@ public class InquiryService {
 
 		return new InquiryCreateResponse(true, inquiry.getId());
 	}
-	
-	// 마이페이지 문의내역
+
+	// 사용자 - 마이페이지 문의내역
 	public List<MyPageInquiryResponse> getMyInquiryResponses(Long userId) {
-
-		List<Inquiry> inquiries = inquiryMapper.findByUserId(userId);
-
-		return inquiries.stream()
-			.map(MyPageInquiryResponse::from)
-			.toList();
+		return inquiryMapper.findByUserId(userId)
+				.stream()
+				.map(MyPageInquiryResponse::from)
+				.toList();
+	}
+	
+	// 관리자 - 문의 목록
+	public List<Inquiry> getAllInquiries() {
+		return inquiryMapper.findAll();
+	}
+	
+	// 관리자 - 문의 상세
+	public Inquiry getInquiry(Long id) {
+		return inquiryMapper.findById(id);
+	}
+	
+	// 관리자 - 답변 등록 / 수정
+	@Transactional
+	public void answerInquiry(Long id, String reply, String status) {
+		Inquiry inquiry = inquiryMapper.findById(id);
+		
+		if(inquiry == null) {
+			throw new IllegalArgumentException("존재하지 않는 문의입니다.");
+		}
+	
+		inquiryMapper.updateAnswer(id, reply, status);
 	}
 }
+

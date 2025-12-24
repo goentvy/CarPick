@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
@@ -12,10 +12,14 @@ import CarDayList from "./pages/Car/CarDayList";
 import CarMonthList from "./pages/Car/CarMonthList";
 import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
+import CarPickZonePage from "./pages/Zone/CarpickZonePage.jsx";
+
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
 
 import Login from './pages/Login'
+import KakaoCallback from './pages/Login/social/KakaoCallback.jsx'
+import NaverCallback from './pages/Login/social/NaverCallback.jsx'
 import FindIdPage from './pages/User/FindIdPage.jsx'
 import ResetPasswordPage from './pages/User/ResetPasswordPage.jsx'
 import SignupAgree from './pages/Signup/SignupAgree.jsx'
@@ -27,7 +31,9 @@ import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
 
+import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
+import ProfilePage from './pages/Mypage/ProfilePage.jsx';
 import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
 import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
 import QnAlist from "./pages/Mypage/QnAlist.jsx";
@@ -46,9 +52,18 @@ import MockKakaoPayPage from './pages/Payment/MockKakaoPayPage.jsx'
 import InquiryPage from './pages/Inquiry/Inquiry.jsx'
 import InquirySuccess from './pages/Inquiry/InquirySuccess.jsx'
 import InquiryPrivacy from './pages/Inquiry/InquiryPrivacy.jsx'
+import Faq from './pages/Faq/Faq.jsx'
 
 import Notice from './pages/Notice/Notice.jsx'
 import NoticeDetail from './pages/Notice/NoticeDetail.jsx'
+
+import Guide from './pages/Guide/Guide.jsx'
+import GuideStep from './pages/Guide/GuideStep.jsx'
+
+import EmergencyService from './pages/emergency/EmergencyService.jsx'
+
+import About from './pages/About/About.jsx'
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -69,8 +84,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="month" element={<CarMonthList />} />
           <Route path="car/detail/:id" element={<CarDetailPage />} />
 
+          {/* 카픽존 & 드롭존 */}
+          <Route path="zone" element={<CarPickZonePage />} />
+
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
+          <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />
+          <Route path="/oauth/naver/callback" element={<NaverCallback />} />
           <Route path="findid" element={<FindIdPage />} />
           <Route path="resetpassword" element={<ResetPasswordPage />} />
           <Route path="signup/agree" element={<SignupAgree />} />
@@ -93,13 +113,15 @@ createRoot(document.getElementById('root')).render(
           <Route path="mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
 
           {/* 마이페이지 */}
-          <Route path="mypage" element={<MyPageHome />} />
-          <Route path="mypage/reviewhistory" element={<ReviewHistory />} />
-          <Route path="mypage/qna" element={<QnAlist />} />
-          <Route path="mypage/favorites" element={<Favorites />} />
-          <Route path="mypage/license" element={<MyLicense />} />
-          <Route path="mypage/change-history" element={<ChangeHistoryPage />} />
-
+            <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+                <Route index element={<MyPageHome />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="reviewhistory" element={<ReviewHistory />} />
+                <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
+                <Route path="favorites" element={<Favorites />} />
+                <Route path="license" element={<MyLicense />} />
+                <Route path="changeHistory" element={<ChangeHistoryPage />} />
+            </Route>
           {/* 약관 */}
           <Route path="terms" element={<Agree1 />} />
           <Route path="privacy" element={<Agree2 />} />
@@ -112,11 +134,22 @@ createRoot(document.getElementById('root')).render(
           <Route path="cs/inquiry" element={<InquiryPage />} />
           <Route path="cs/inquiry/success" element={<InquirySuccess />} />
           <Route path="cs/inquiry/privacy" element={<InquiryPrivacy />} />
+          <Route path="cs/faq" element={<Faq />} />
 
           {/* 공지사항 */}
           <Route path="notice" element={<Notice />} />
           <Route path="notice/:id" element={<NoticeDetail />} />
 
+          {/* 이용가이드 */}
+          <Route path="guide" element={<Guide />} />
+          <Route path="guide" element={<GuideStep />} />
+
+          {/* 긴급지원서비스 */}
+          <Route path="emergency" element={<EmergencyService />} />
+
+          {/* 회사소개 */}
+          <Route path="about" element={<About />} />
+          
         </Route>
       </Routes>
     </BrowserRouter>

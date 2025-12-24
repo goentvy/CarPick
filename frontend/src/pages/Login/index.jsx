@@ -22,7 +22,7 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-    setFocus, // 포커스 제어 함수
+    setFocus,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -65,6 +65,22 @@ const Login = () => {
     }
   };
 
+  // ✅ 카카오 로그인 핸들러
+  const handleKakaoLogin = () => {
+    const REST_API_KEY = import.meta.env.KAKAO_CLIENT_ID;
+    const REDIRECT_URI = "http://localhost:3000/oauth/kakao/callback";
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+    window.location.href = kakaoAuthUrl;
+  };
+  // ✅ 네이버 로그인 핸들러
+  const handleNaverLogin = () => {
+    const CLIENT_ID = import.meta.env.NAVER_CLIENT_ID;
+    const REDIRECT_URI = "http://localhost:3000/oauth/naver/callback";
+    const STATE = "RANDOM_STATE"; // CSRF 방지용 난수
+    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}`;
+    window.location.href = naverAuthUrl;
+  };
+
   return (
     <div className="flex justify-center min-h-screen w-full mt-[67px]">
       <div className="w-full max-w-md bg-white p-8">
@@ -99,7 +115,7 @@ const Login = () => {
           {/* 로그인 버튼 */}
           <button 
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition">
+            className="w-full bg-brand text-white py-2 rounded-xl hover:bg-blue-600 transition">
             로그인
           </button>
         </form>
@@ -107,11 +123,15 @@ const Login = () => {
         <div className="text-center my-4 text-gray-500">or</div>
 
         {/* 소셜 로그인 */}
-        <button className="w-full bg-green-500 text-white py-2 rounded-xl mb-2 hover:bg-green-600 transition">
+        <button 
+          onClick={handleNaverLogin}
+          className="w-full bg-green-500 text-white py-2 rounded-xl mb-2 hover:bg-green-600 transition">
           네이버로 로그인하기
         </button>
 
-        <button className="w-full bg-yellow-300 text-black py-2 rounded-xl hover:bg-yellow-400 transition">
+        <button 
+          onClick={handleKakaoLogin}
+          className="w-full bg-yellow-300 text-black py-2 rounded-xl hover:bg-yellow-400 transition">
           카카오로 로그인하기
         </button>
 

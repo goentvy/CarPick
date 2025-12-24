@@ -3,11 +3,10 @@ import RentDateRangePicker from '../../components/common/RentDateRangePicker';
 import { useNavigate } from 'react-router-dom';
 import PickupLocationModal from '../../components/common/PickupLocationModal';
 
-const HomeRentHeader = () => {
+const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) => {
   const navigate = useNavigate();
   const [rentType, setRentType] = useState('short');
   const [pickupLocation, setPickupLocation] = useState('서울역 KTX');
-  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -23,13 +22,19 @@ const HomeRentHeader = () => {
       weekday: 'short',
     });
 
-  const rentalHours = Math.round(
-    (dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60)
-  );
+  const getDurationText = () => {
+    const diffMs = dateRange.endDate - dateRange.startDate;
+    const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+    return `${days}일 ${hours}시간`;
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams({
-      pickupLocation, rentType, startDate: dateRange.startDate.toISOString(),
+      pickupLocation,
+      rentType,
+      startDate: dateRange.startDate.toISOString(),
       endDate: dateRange.endDate.toISOString(),
     });
     console.log(params);
@@ -37,7 +42,7 @@ const HomeRentHeader = () => {
   };
 
   return (
-    <section className="bg-blue-500 text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] relative z-999">
+    <section className="bg-brand text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] relative z-999">
       {/* 프로모션 문구 */}
       <button className="xx:hidden sm:inline border border-lime-300 rounded-4xl bg-sky-700 px-3 xx:my-1 sm:my-3">
         <span className="text-xs text-lime-300">✧ AI 기반 즉시 픽업</span>
@@ -58,7 +63,7 @@ const HomeRentHeader = () => {
               onClick={() => setRentType(type)}
               className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm ${
                 rentType === type
-                  ? 'bg-blue-500 text-white shadow-md'
+                  ? 'bg-brand text-white shadow-md'
                   : 'text-gray-400 hover:bg-blue-400 hover:text-gray-700'
               }`}
             >
@@ -71,7 +76,7 @@ const HomeRentHeader = () => {
         <div className="pt-2 relative">
           <div
             className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm cursor-pointer"
-            onClick={() => setShowLocationPicker((prev) => !prev)}
+            onClick={() => setShowPickupModal((prev) => !prev)}
           >
             <img
               src="./images/common/location.svg"
@@ -83,14 +88,15 @@ const HomeRentHeader = () => {
               <p className="text-gray-800">{pickupLocation}</p>
             </div>
           </div>
-
-          {showLocationPicker && (
+          
+          {/* 픽업 장소 모달 */}
+          {showPickupModal && (
             <PickupLocationModal
-              onClose={() => setShowLocationPicker(false)}
+              onClose={() => setShowPickupModal(false)}
               onSelect={(loc) => {
                 setPickupLocation(loc);
-                setShowLocationPicker(false);
-                setShowDatePicker(true); // ✅ 장소 선택 후 날짜 모달 자동 열림
+                setShowPickupModal(false);
+                setShowDatePicker(true); // 장소 선택 후 달력 모달 활성화
               }}
             />
           )}
@@ -110,7 +116,7 @@ const HomeRentHeader = () => {
             <div className="flex flex-col w-full">
               <p className="flex justify-between text-xs text-gray-500">
                 <span>이용 일시</span>
-                <span>{rentalHours}시간</span>
+                <span>{getDurationText()}</span>
               </p>
               <p className="text-left text-gray-800 tracking-tighter">
                 {formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}
@@ -118,6 +124,7 @@ const HomeRentHeader = () => {
             </div>
           </div>
 
+          {/* 달력 모달 */}
           {showDatePicker && (
             <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
               <RentDateRangePicker
@@ -126,7 +133,17 @@ const HomeRentHeader = () => {
                     startDate: selection.startDate,
                     endDate: selection.endDate,
                   });
-                  setShowDatePicker(false); // ✅ 모달 닫기
+                  setShowDatePicker(false); // 달력 모달 닫기
+
+                  const params = new URLSearchParams({
+                    pickupLocation,
+                    startDate: selection.startDate.toISOString(),
+                    endDate: selection.endDate.toISOString(),
+                    carTitle: selectedCar.title,
+                    price: selectedCar.price,
+                    discount: selectedCar.discount,
+                  });
+                  navigate(`/result?${params.toString()}`);
                 }}
                 onClose={() => setShowDatePicker(false)}
               />
@@ -137,7 +154,7 @@ const HomeRentHeader = () => {
         {/* 차량 찾기 버튼 */}
         <div className="py-3">
           <button 
-            className="w-full bg-blue-500 text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
+            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
             onClick={handleSearch}>
             차량 찾기
           </button>

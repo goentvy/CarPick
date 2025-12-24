@@ -2,30 +2,34 @@ package com.carpick.global.enums;
 
 import org.springframework.http.HttpStatus;
 
+import com.carpick.global.util.ProfileResolver;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-	// ======================
+    // ======================
     // Common
     // ======================
     INVALID_INPUT_VALUE(
         HttpStatus.BAD_REQUEST,
         "C001",
-        "요청 값이 올바르지 않습니다"
+        "요청 값이 올바르지 않습니다",
+        "Invalid input value"
     ),
     INTERNAL_SERVER_ERROR(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "C002",
-        "서버 내부 오류가 발생했습니다"
+        "서버 내부 오류가 발생했습니다",
+        "Internal server error"
     ),
     METHOD_NOT_ALLOWED(
         HttpStatus.METHOD_NOT_ALLOWED,
         "C003",
-        "허용되지 않은 HTTP 메서드입니다"
+        "허용되지 않은 HTTP 메서드입니다",
+        "Method not allowed"
     ),
 
     // ======================
@@ -34,40 +38,130 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(
         HttpStatus.NOT_FOUND,
         "B001",
-        "대상을 찾을 수 없습니다"
+        "대상을 찾을 수 없습니다",
+        "Entity not found"
     ),
     DUPLICATE_RESOURCE(
         HttpStatus.CONFLICT,
         "B002",
-        "이미 존재하는 리소스입니다"
+        "이미 존재하는 리소스입니다",
+        "Duplicate resource"
+    ),
+    BUSINESS_RULE_VIOLATION(
+        HttpStatus.BAD_REQUEST,
+        "B003",
+        "요청을 처리할 수 없습니다",
+        "Business rule violation"
+    ),
+    INVALID_STATE_TRANSITION(
+        HttpStatus.CONFLICT,
+        "B004",
+        "현재 상태에서는 처리할 수 없습니다",
+        "Invalid state transition"
+    ),
+    RESOURCE_LOCKED(
+        HttpStatus.CONFLICT,
+        "B005",
+        "처리 중인 리소스입니다",
+        "Resource is locked"
     ),
 
     // ======================
-    // Auth
+    // Auth (Security / JWT)
     // ======================
-    UNAUTHORIZED(
+    AUTH_TOKEN_MISSING(
+        HttpStatus.UNAUTHORIZED,
+        "A000",
+        "인증이 필요합니다",
+        "Authorization header is missing"
+    ),
+    AUTH_TOKEN_EXPIRED(
         HttpStatus.UNAUTHORIZED,
         "A001",
-        "인증이 필요합니다"
+        "인증이 만료되었습니다",
+        "JWT token expired"
+    ),
+    AUTH_TOKEN_INVALID(
+        HttpStatus.UNAUTHORIZED,
+        "A002",
+        "인증에 실패했습니다",
+        "JWT token is invalid"
     ),
     FORBIDDEN(
         HttpStatus.FORBIDDEN,
-        "A002",
-        "접근 권한이 없습니다"
+        "A003",
+        "접근 권한이 없습니다",
+        "Access is denied"
     ),
+    AUTH_TOKEN_REVOKED(
+        HttpStatus.UNAUTHORIZED,
+        "A004",
+        "인증이 만료되었습니다",
+        "JWT token revoked"
+    ),
+    AUTH_TOKEN_BLACKLISTED(
+        HttpStatus.UNAUTHORIZED,
+        "A005",
+        "인증이 만료되었습니다",
+        "JWT token is blacklisted"
+    ),
+    OAUTH_PROVIDER_ERROR(
+        HttpStatus.BAD_GATEWAY,
+        "A006",
+        "외부 인증 서비스 오류가 발생했습니다",
+        "OAuth provider error"
+    ),
+    AUTH_USER_NOT_FOUND(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A007",
+    	    "인증에 실패했습니다",
+    	    "Authenticated user not found"
+    	),
+    AUTH_TOKEN_UNSUPPORTED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A008",
+    	    "인증에 실패했습니다",
+    	    "Unsupported JWT token"
+    	),
+    AUTH_TOKEN_MALFORMED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A009",
+    	    "인증에 실패했습니다",
+    	    "Malformed JWT token"
+    	),
+    AUTH_CREDENTIALS_EXPIRED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A010",
+    	    "인증이 만료되었습니다",
+    	    "User credentials expired"
+    	),
+    AUTH_TOKEN_SIGNATURE_INVALID(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A011",
+    	    "인증에 실패했습니다",
+    	    "Invalid JWT token signature"
+    	),
 
     // ======================
     // Web (Page)
     // ======================
+    UNAUTHORIZED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "AUTH-001",
+    	    "인증이 필요합니다.",
+    	    "Unauthorized access"
+    	),
     NOT_FOUND(
         HttpStatus.NOT_FOUND,
         "W404",
-        "요청하신 페이지를 찾을 수 없습니다"
+        "요청하신 페이지를 찾을 수 없습니다",
+        "Page not found"
     ),
     ACCESS_DENIED(
         HttpStatus.FORBIDDEN,
         "W403",
-        "접근 권한이 없습니다"
+        "접근 권한이 없습니다",
+        "Web access denied"
     ),
 
     // ======================
@@ -76,39 +170,28 @@ public enum ErrorCode {
     DATABASE_ERROR(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "DB001",
-        "데이터베이스 오류가 발생했습니다"
+        "데이터베이스 오류가 발생했습니다",
+        "Database error"
     ),
     MYBATIS_MAPPING_ERROR(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "DB002",
-        "MyBatis 매핑 중 오류가 발생했습니다"
+        "MyBatis 매핑 중 오류가 발생했습니다",
+        "MyBatis mapping error"
     );
 
-	private final HttpStatus httpStatus;
+    private final HttpStatus httpStatus;
     private final String code;
-    private final String message;
-
-    /** 웹 에러용 */
-    public String message() {
-        return message;
+    private final String clientMessage;
+    private final String logMessage;
+    
+    public String getMessageByProfile(ProfileResolver profileResolver) {
+        return profileResolver.isProd()
+                ? clientMessage
+                : logMessage;
     }
-
-    /** API 에러용 */
-    public String code() {
-        return code;
-    }
-
-    /** 호환성을 위한 메서드들 */
-    public String getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
+    
+    
 }
+
 

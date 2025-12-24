@@ -3,6 +3,9 @@
 @theme {
   --breakpoint-xs: 30rem; /* 480px = 30rem */
   --breakpoint-xx: 20rem; /* 320px = 20rem */
+
+  /* 브랜드 컬러 정의 */
+  --color-brand: #1D6BF3;
 }
 
 body {
@@ -12,4 +15,12 @@ body {
 /* 날짜달력 커스터마이징 */
 .rdrMonthPicker select {
   @apply border border-gray-300 rounded-md px-2 py-1 bg-white;
+}
+
+.rdrCalendarWrapper .rdrMonth {
+  padding: 0;
+}
+
+.rdrCalendarWrapper .rdrMonth .rdrMonthName {
+  text-align: center;
 }
