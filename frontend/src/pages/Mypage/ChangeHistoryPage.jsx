@@ -18,6 +18,12 @@ function ChangeHistoryPage() {
             .map((t) => t.trim())
             .filter(Boolean);
     };
+    const formatWithoutYear = (dateStr) => {
+        if (!dateStr) return "";
+        const parts = dateStr.split("-"); // ["2025","12","24"]
+        if (parts.length !== 3) return dateStr;
+        return `${parts[1]}-${parts[2]}`;
+    };
 
     // 타입 포함 여부 확인
     const hasType = (item, type) =>
@@ -163,18 +169,17 @@ function ChangeHistoryPage() {
                     {/* 기간 변경 영역 - 섹션 제목 제거 */}
                     {showPeriod && (
                         <div className="flex items-center gap-1">
-                            <span className="text-gray-500 line-through">
-                                {item.oldStartDate} ~ {item.oldEndDate}
-                            </span>
+    <span className="text-gray-500 line-through">
+      {formatWithoutYear(item.oldStartDate)} ~ {formatWithoutYear(item.oldEndDate)}
+    </span>
                             <span className="text-orange-600 font-semibold mx-1">
-                                →
-                            </span>
+      →
+    </span>
                             <span className="font-semibold">
-                                {item.newStartDate} ~ {item.newEndDate}
-                            </span>
+      {formatWithoutYear(item.newStartDate)} ~ {formatWithoutYear(item.newEndDate)}
+    </span>
                         </div>
                     )}
-
                     {/* 위치 변경 영역 - 섹션 제목 제거 */}
                     {showLocation && (
                         <div className="flex items-center gap-1">
