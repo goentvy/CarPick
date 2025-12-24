@@ -10,39 +10,97 @@ function ChangeHistoryPage() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // "CAR,PERIOD" -> ["CAR","PERIOD"]
+    const parseChangeTypes = (changeTypes) => {
+        if (!changeTypes) return [];
+        return changeTypes
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean);
+    };
+
+    // 타입 포함 여부 확인
+    const hasType = (item, type) =>
+        parseChangeTypes(item.changeTypes).includes(type);
+
+    // 대표 라벨
+    const getMainChangeLabel = (item) => {
+        if (item.actionType === "CANCEL") return "취소";
+
+        const types = parseChangeTypes(item.changeTypes);
+        if (types.length === 0) return "변경";
+
+        if (types.length === 1) {
+            switch (types[0]) {
+                case "CAR":
+                    return "차종 변경";
+                case "PERIOD":
+                    return "기간 변경";
+                case "LOCATION":
+                    return "위치 변경";
+                default:
+                    return "변경";
+            }
+        }
+        // 2중, 3중
+        return "복합 변경";
+    };
+
+    // 서브 태그용 라벨들
+    const getSubChangeLabels = (item) => {
+        const types = parseChangeTypes(item.changeTypes);
+        return types.map((t) => {
+            switch (t) {
+                case "CAR":
+                    return "차종";
+                case "PERIOD":
+                    return "기간";
+                case "LOCATION":
+                    return "위치";
+                default:
+                    return t;
+            }
+        });
+    };
+
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 setLoading(true);
-                console.log('🔥 API TOKEN:', accessToken ? '있음' : '없음');
+                console.log("API TOKEN:", accessToken ? "있음" : "없음");
 
                 if (!accessToken) {
-                    console.log('🔥 ❌ 토큰 없음 → 로그인 필요!');
+                    console.log("토큰 없음 → 로그인 필요!");
                     setLoading(false);
                     return;
                 }
 
-                const response = await fetch('http://localhost:8080/api/reservations/history/me', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'X-User-Id': useUserStore.getState().user?.id?.toString()
+                const response = await fetch(
+                    "http://localhost:8080/api/reservations/history/me",
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            "X-User-Id": useUserStore
+                                .getState()
+                                .user?.id?.toString(),
+                        },
                     }
-                });
+                );
 
-                console.log('🔥 Status:', response.status);
+                console.log("Status:", response.status);
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('🔥 히스토리 데이터:', data);
+                    console.log("히스토리 데이터:", data);
                     setItems(data);
                 } else {
                     const errorText = await response.text();
-                    console.log('🔥 에러:', errorText);
+                    console.log("에러:", errorText);
                     setItems([]);
                 }
             } catch (error) {
-                console.error('🔥 에러:', error);
+                console.error("에러:", error);
                 setItems([]);
             } finally {
                 setLoading(false);
@@ -52,56 +110,123 @@ function ChangeHistoryPage() {
     }, [accessToken]);
 
     const filteredItems = items.filter(
-        (item) => filter === "all" || item.type === filter.toUpperCase()
+        (item) => filter === "all" || item.actionType === filter.toUpperCase()
     );
 
-    const renderChangeInfo = (item) => {
-        if (item.type !== "CHANGE") return null;
-        const changes = [];
+    // 취소/변경 카드 - 타입별로 완전히 다른 내용 표시
+    const renderChangeCard = (item) => {
+        const isCancel = item.actionType === "CANCEL";
 
-        if (item.changeType === "car" && item.previousCar) {
-            changes.push({
-                label: "차종",
-                before: item.previousCar,
-                after: item.carName
-            });
-        }
-        if (item.changeType === "period" && item.previous) {
-            changes.push({
-                label: "기간",
-                before: item.previous,
-                after: item.period
-            });
-        }
-        if (item.changeType === "location") {
-            if (item.previousLocation) {
-                changes.push({
-                    label: "위치",
-                    before: item.previousLocation,
-                    after: item.location
-                });
-            }
-            if (item.previous) {
-                changes.push({
-                    label: "기간",
-                    before: item.previous,
-                    after: item.period
-                });
-            }
+        if (isCancel) {
+            // 취소 전용 카드
+            return (
+                <div className="p-4 rounded-2xl border bg-gradient-to-r from-red-50 to-pink-50 border-red-100">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        <p className="text-xs font-medium">취소</p>
+                    </div>
+                    <p className="text-xs text-red-600 font-medium">
+                        {item.reason || "고객 취소"}
+                    </p>
+                </div>
+            );
         }
 
-        return changes.map((change, index) => (
-            <div
-                key={index}
-                className="flex items-center gap-1 text-xs text-[#FF6B35] font-medium bg-orange-50 px-2 py-1 rounded-lg"
-            >
-                <span className="text-[#666] min-w-0 flex-shrink">{change.label}</span>
-                <span className="min-w-0 flex-shrink-0">:</span>
-                <span className="text-[#666] min-w-0 flex-shrink">{change.before}</span>
-                <span className="text-[#FF6B35] font-semibold mx-1">→</span>
-                <span className="min-w-0 flex-shrink text-[#FF6B35] font-semibold">{change.after}</span>
+        // 변경 타입 확인
+        const showCar = hasType(item, "CAR");
+        const showPeriod = hasType(item, "PERIOD");
+        const showLocation = hasType(item, "LOCATION");
+
+        // 라벨 결정
+        let labelText = "변경";
+        if (showCar && !showPeriod && !showLocation) {
+            labelText = "차종 변경";
+        } else if (showPeriod && !showCar && !showLocation) {
+            labelText = "기간 변경";
+        } else if (showLocation && !showCar && !showPeriod) {
+            labelText = "위치 변경";
+        } else {
+            labelText = "복합 변경";
+        }
+
+        return (
+            <div className="p-4 rounded-2xl border bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100">
+                <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
+                    <p className="text-xs font-medium">{labelText}</p>
+
+                    {/* 복합 변경이면 서브 태그 표시 */}
+                    {(showCar && showPeriod) ||
+                    (showCar && showLocation) ||
+                    (showPeriod && showLocation) ? (
+                        <div className="flex flex-wrap gap-1 ml-1">
+                            {showCar && (
+                                <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
+                                    차종
+                                </span>
+                            )}
+                            {showPeriod && (
+                                <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
+                                    기간
+                                </span>
+                            )}
+                            {showLocation && (
+                                <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
+                                    위치
+                                </span>
+                            )}
+                        </div>
+                    ) : null}
+                </div>
+
+                <div className="space-y-2 text-xs text-gray-700">
+                    {/* 차종 변경 영역 */}
+                    {showCar && (
+                        <div className="flex items-center gap-1">
+                            <span className="text-gray-500 line-through">
+                                {item.oldCarName}
+                            </span>
+                            <span className="text-orange-600 font-semibold mx-1">
+                                →
+                            </span>
+                            <span className="font-semibold">
+                                {item.newCarName}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* 기간 변경 영역 */}
+                    {showPeriod && (
+                        <div className="flex items-center gap-1">
+                            <span className="text-gray-500 line-through">
+                                {item.oldStartDate} ~ {item.oldEndDate}
+                            </span>
+                            <span className="text-orange-600 font-semibold mx-1">
+                                →
+                            </span>
+                            <span className="font-semibold">
+                                {item.newStartDate} ~ {item.newEndDate}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* 위치 변경 영역 */}
+                    {showLocation && (
+                        <div className="flex items-center gap-1">
+                            <span className="text-gray-500 line-through">
+                                {item.oldLocation}
+                            </span>
+                            <span className="text-orange-600 font-semibold mx-1">
+                                →
+                            </span>
+                            <span className="font-semibold">
+                                {item.newLocation}
+                            </span>
+                        </div>
+                    )}
+                </div>
             </div>
-        ));
+        );
     };
 
     if (loading) {
@@ -120,7 +245,9 @@ function ChangeHistoryPage() {
             >
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2C7FFF] mx-auto mb-4"></div>
-                    <p className="text-sm text-[#666666]">히스토리 불러오는 중...</p>
+                    <p className="text-sm text-[#666666]">
+                        히스토리 불러오는 중...
+                    </p>
                 </div>
             </div>
         );
@@ -147,11 +274,15 @@ function ChangeHistoryPage() {
                                     onClick={() => setFilter(f)}
                                     className={`px-4 py-2 rounded-xl border transition-all ${
                                         filter === f
-                                            ? "bg-[#2C7FFF] border-[#2C7FFF] text-white shadow-sm"
+                                            ? "bg-[#1D6BF3] border-[#2C7FFF] text-white shadow-sm"
                                             : "bg-white border-gray-200 text-[#666] hover:border-[#2C7FFF] hover:text-[#2C7FFF]"
                                     }`}
                                 >
-                                    {f === "all" ? "전체" : f === "cancel" ? "취소" : "변경"}
+                                    {f === "all"
+                                        ? "전체"
+                                        : f === "cancel"
+                                            ? "취소"
+                                            : "변경"}
                                 </button>
                             ))}
                         </div>
@@ -159,50 +290,69 @@ function ChangeHistoryPage() {
 
                     <div>
                         {filteredItems.length ? (
-                            <div className="divide-y divide-gray-100">
-                                {filteredItems.map((item) => (
-                                    <div key={item.id} className="p-6 hover:bg-gray-25 transition-colors">
-                                        <div className="flex items-center justify-between gap-4">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <div className="text-sm font-semibold text-[#1A1A1A] truncate">
-                                                        {item.carName}
+                            <div>
+                                {filteredItems.map((item) => {
+                                    const isCancel =
+                                        item.actionType === "CANCEL";
+                                    const mainLabel =
+                                        getMainChangeLabel(item);
+
+                                    return (
+                                        <div key={item.id} className="p-6">
+                                            <div className="flex flex-col gap-3">
+                                                {/* 상단: 차량명 + 태그 */}
+                                                <div className="flex items-center gap-2">
+                                                    <div className="ml-2 text-sm font-semibold text-[#1A1A1A] truncate">
+                                                        {item.newCarName ||
+                                                            item.oldCarName}
                                                     </div>
                                                     <div
                                                         className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                            item.type === "CANCEL"
+                                                            isCancel
                                                                 ? "bg-red-100 text-red-700"
                                                                 : "bg-orange-100 text-orange-700"
                                                         }`}
                                                     >
-                                                        {item.type === "CANCEL" ? "취소" : "변경"}
+                                                        {mainLabel}
                                                     </div>
                                                 </div>
-                                                <div className="text-xs text-[#888888] mb-3">
-                                                    렌트 기간: {item.period}
-                                                </div>
-                                                {item.type === "CHANGE" && (
-                                                    <div className="space-y-1.5 mb-3">
-                                                        {renderChangeInfo(item)}
+
+                                                {/* 카드 + 상세보기 버튼 같이 */}
+                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        {(item.actionType ===
+                                                            "CHANGE" ||
+                                                            item.actionType ===
+                                                            "CANCEL") && (
+                                                            <div>
+                                                                {renderChangeCard(
+                                                                    item
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                                <div className="text-xs text-[#555] bg-[#F8F9FA] px-3 py-1.5 rounded-xl truncate">
-                                                    {item.reason}
+
+                                                    <button
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/mypage/reservation-detail/${item.id}`
+                                                            )
+                                                        }
+                                                        className="text-xs bg-[#1D6BF3] text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-[#1E5BBF] transition-colors whitespace-nowrap"
+                                                    >
+                                                        상세보기
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => navigate(`/mypage/reservation-detail/${item.id}`)}
-                                                className="text-xs bg-[#2C7FFF] text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-[#1E5BBF] transition-colors whitespace-nowrap flex-shrink-0"
-                                            >
-                                                상세보기
-                                            </button>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="p-12 flex flex-col items-center justify-center text-center">
-                                <p className="text-lg font-semibold text-[#1A1A1A] mb-2">취소 또는 변경된 예약 내역이 없습니다.</p>
+                                <p className="text-lg font-semibold text-[#1A1A1A] mb-2">
+                                    취소 또는 변경된 예약 내역이 없습니다.
+                                </p>
                             </div>
                         )}
                     </div>
