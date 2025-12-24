@@ -54,7 +54,7 @@ const PickupFilterModal = ({
         </div>
 
         {/* 차량 등급 */}
-        <div className="p-4 bg-gray-50">
+        <div className="p-4">
           <div className="pop_info">
             <h3 className="text-lg font-bold mb-4">차량 등급 차량</h3>
           </div>
