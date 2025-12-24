@@ -1,20 +1,30 @@
-// ReservationHistoryResponse.java
 package com.carpick.domain.member.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class ReservationHistoryResponse {
     private Long id;
-    private String reservationCode;
-    private String type;  // CANCEL, CHANGE
-    private String carName;  // 기존
-    private String previousCar;  // 변경전 차량명
-    private String newCarName;  // 변경후 차량명
-    private String period;
-    private String previous;
-    private String changeType;  // 'car' 또는 'period'
+    private Long reservationId;
+    private String actionType;   // CANCEL, CHANGE
+    private String changeTypes;  // "CAR", "CAR,PERIOD" 등
+
+    // 변경전
+    private String oldCarName;
+    private String oldStartDate;
+    private String oldEndDate;
+    private String oldLocation;
+
+    // 변경후
+    private String newCarName;
+    private String newStartDate;
+    private String newEndDate;
+    private String newLocation;
+
     private String reason;
+    private String createdAt;
 }
+
