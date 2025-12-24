@@ -21,17 +21,15 @@ public class CarService {
     public List<CarDetailDto> getCarList() {
         return carMapper.getCarList();
     }
+
     // 상세페이지 가데이터(이 형식대로감)
-    public CarDetailResponseDto getCarDetailMock(Long carId){
+    public CarDetailResponseDto getCarDetailMock(Long carId) {
 //        1.top영역
-TopCarDetailDto top = new TopCarDetailDto();
-top.setTitle("더 뉴 쏘렌토 4세대 (MQ4) HEV 1.6 2WD 그래비티");
-top.setSubtitle("2024년형 · 5인승 · 하이브리드 SUV");
-top.setImageUrls(List.of("https://cdn.carpick/cars/sorento-360.webp"));
-top.setCarType("SUV");
-OptionTagDto carSeat = new OptionTagDto("CAR_SEAT","카시트");
-OptionTagDto blackBox = new OptionTagDto("BLACK_BOX", "블랙박스");
-top.setOptionTagDtos(List.of(carSeat, blackBox));
+        TopCarDetailDto top = new TopCarDetailDto();
+        top.setTitle("더 뉴 쏘렌토 4세대 (MQ4) HEV 1.6 2WD 그래비티");
+        top.setSubtitle("2024년형 · 5인승 · 하이브리드 SUV");
+        top.setImageUrls(List.of("https://cdn.carpick/cars/sorento-360.webp"));
+        top.setCarType("SUV");
 //2. 카드 영역
         // 카드 1 - 연료
         CarInfoCardDto fuel = new CarInfoCardDto();
@@ -41,12 +39,12 @@ top.setOptionTagDtos(List.of(carSeat, blackBox));
         fuel.setUnit(null);
         fuel.setIcon("fuel");
         //  카드 2 - 연식
-CarInfoCardDto year = new CarInfoCardDto();
-year.setType("YEAR");
-year.setTitle("연식");
-year.setValue("2024");
-year.setUnit("년");
-year.setIcon("year");
+        CarInfoCardDto year = new CarInfoCardDto();
+        year.setType("YEAR");
+        year.setTitle("연식");
+        year.setValue("2024");
+        year.setUnit("년");
+        year.setIcon("year");
 //  카드 3 - 좌석
         CarInfoCardDto seat = new CarInfoCardDto();
         seat.setType("SEATS");
@@ -76,8 +74,8 @@ year.setIcon("year");
         fuelEff.setUnit("km/L");
         fuelEff.setIcon("fuel_eff");
 // 4) carCardSectionDto로 묶기
-            CarCardSectionDto carCardSectionDto = new CarCardSectionDto();
-            carCardSectionDto.setCards(List.of(fuel, year, seat, career, age, fuelEff));
+        CarCardSectionDto carCardSectionDto = new CarCardSectionDto();
+        carCardSectionDto.setCards(List.of(fuel, year, seat, career, age, fuelEff));
 
         // 10. 위치
         BranchLocationDto pickup = new BranchLocationDto();

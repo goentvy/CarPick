@@ -8,7 +8,7 @@ const VehicleCard = ({ discount, imageSrc, title, features, price, onClick }) =>
     >
       {/* 할인 라벨 */}
       <div className="absolute top-3 right-3">
-        <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-4xl">{discount}% 할인가</span>
+        <span className="bg-brand text-white text-xs font-bold px-2 py-1 rounded-4xl">{discount}% 할인가</span>
       </div>
       {/* 차량 이미지 */}
       <img src={imageSrc} alt={title} className="w-full h-auto object-cover" />
@@ -31,7 +31,7 @@ const VehicleCard = ({ discount, imageSrc, title, features, price, onClick }) =>
         {/* 가격 */}
         <p className="text-right">
           <span className="line-through text-gray-400 mr-2">{price.toLocaleString()}원</span>
-          <span className="font-bold text-blue-500 xx:text-2xl xs:text-xl ">{discountedPrice.toLocaleString()} 원</span>
+          <span className="font-bold text-brand xx:text-2xl xs:text-xl ">{discountedPrice.toLocaleString()} 원</span>
         </p>
       </div>
     </div>
