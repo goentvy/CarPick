@@ -1,13 +1,11 @@
-package com.carpick.global.response;
+package com.carpick.global.exception.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.validation.BindingResult;
-
-import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.exception.enums.ErrorCode;
+import com.carpick.global.exception.enums.MessageType;
 import com.carpick.global.util.ProfileResolver;
-import com.carpick.global.validation.ValidationErrorExtractor;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -18,20 +16,23 @@ public record ValidationErrorResponse(
         String path,
         LocalDateTime timestamp
 ) {
+
     public static ValidationErrorResponse of(
             ErrorCode errorCode,
-            BindingResult bindingResult,
+            List<FieldErrorDetail> errors,
             HttpServletRequest request,
             ProfileResolver profileResolver
     ) {
         return new ValidationErrorResponse(
                 errorCode.getCode(),
-                errorCode.getMessageByProfile(profileResolver),
-                ValidationErrorExtractor.extract(bindingResult),
+                errorCode.resolveMessage(MessageType.CLIENT, profileResolver),
+                errors,
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
     }
 }
+
+
 
 

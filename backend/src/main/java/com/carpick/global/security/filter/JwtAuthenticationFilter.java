@@ -1,5 +1,7 @@
 package com.carpick.global.security.filter;
 
+import static com.carpick.global.exception.enums.ErrorCode.AUTH_USER_NOT_FOUND;
+
 import java.io.IOException;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,8 +21,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
-import static com.carpick.global.enums.ErrorCode.AUTH_USER_NOT_FOUND;
 
 @Component
 @RequiredArgsConstructor

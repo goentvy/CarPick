@@ -1,30 +1,29 @@
-package com.carpick.global.response;
+package com.carpick.global.exception.response;
 
 import java.time.LocalDateTime;
 
-import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.exception.enums.ErrorCode;
+import com.carpick.global.exception.enums.MessageType;
 import com.carpick.global.util.ProfileResolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-public record ApiErrorResponse(
+public record ErrorResponse(
         String code,
         String message,
         String path,
         LocalDateTime timestamp
 ) {
-    public static ApiErrorResponse of(
+    public static ErrorResponse of(
             ErrorCode errorCode,
             HttpServletRequest request,
             ProfileResolver profileResolver
     ) {
-        return new ApiErrorResponse(
+        return new ErrorResponse(
                 errorCode.getCode(),
-                errorCode.getMessageByProfile(profileResolver),
+                errorCode.resolveMessage(MessageType.CLIENT, profileResolver),
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
     }
 }
-
-

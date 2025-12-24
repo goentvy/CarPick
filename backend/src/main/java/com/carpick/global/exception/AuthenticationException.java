@@ -1,6 +1,6 @@
 package com.carpick.global.exception;
 
-import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.exception.enums.ErrorCode;
 
 /**
  * 🔐 AuthenticationException (인증 실패 예외)
