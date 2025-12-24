@@ -3,7 +3,7 @@
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
-  padding: 60px 16px 80px; /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
+  padding: 80px 16px 80px; /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
   font-family: "Noto Sans KR", sans-serif;
 }
 

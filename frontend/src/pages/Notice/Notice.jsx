@@ -41,7 +41,7 @@ export default function Notice() {
 
   return (
     <div className="notice-container">
-      <h2 className="notice-title">공지사항📌</h2>
+      <h2 className="notice-title">공지사항📢</h2>
 
       {/* 검색 */}
       <div className="search-container">
