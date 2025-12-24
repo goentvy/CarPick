@@ -14,8 +14,38 @@
 */
 
 
+
 USE carpick;
 SET FOREIGN_KEY_CHECKS = 0;
+/* =========================
+   상태 / 이력 테이블
+   ========================= */
+DROP TABLE IF EXISTS RESERVATION_STATUS_HISTORY;
+DROP TABLE IF EXISTS VEHICLE_STATUS_HISTORY;
+
+/* =========================
+   핵심 비즈니스 테이블
+   ========================= */
+DROP TABLE IF EXISTS RESERVATION;
+DROP TABLE IF EXISTS VEHICLE_INVENTORY;
+
+/* =========================
+   정책 / 옵션 / 가격
+   ========================= */
+DROP TABLE IF EXISTS PRICE;
+DROP TABLE IF EXISTS PRICE_POLICY;
+DROP TABLE IF EXISTS CAR_OPTION;
+DROP TABLE IF EXISTS INSURANCE;
+DROP TABLE IF EXISTS COUPON;
+DROP TABLE IF EXISTS BRANCH_SERVICE_POINT;
+
+/* =========================
+   마스터 데이터
+   ========================= */
+DROP TABLE IF EXISTS BRANCH;
+DROP TABLE IF EXISTS CAR_SPEC;
+
+
 
 /* ==================================================
    1. 기초 정보 테이블 (Master Data)
@@ -35,14 +65,18 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
     /* [추가] 쇼트네임(카드용) */
                                         display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
 
-                                        car_class VARCHAR(20) NOT NULL COMMENT '차급 (소형/중형/SUV 등)',
+                                        car_class ENUM('LIGHT','SMALL','COMPACT','MID','LARGE','IMPORT','RV','SUV')
+                                            NOT NULL COMMENT '차량 등급',
                                         model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
 #     ai d요약 문구
                                         ai_summary text comment 'ai 추천문구 관리자 페이지 에서 관리',
     /* 파워트레인 */
-                                        fuel_type VARCHAR(20) NOT NULL COMMENT '연료 (휘발유/전기/하이브리드)',
+                                        fuel_type ENUM('GASOLINE','DIESEL','LPG','ELECTRIC','HYBRID','HYDROGEN')
+                                            NOT NULL COMMENT '연료 타입',
                                         transmission_type VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '변속기',
-
+                                        is_four_wheel_drive BOOLEAN
+                                            NOT NULL DEFAULT FALSE
+                                            COMMENT '사륜구동 여부 (TRUE=4WD/AWD)',
     /* [정책] 대여 자격 */
                                         min_driver_age TINYINT NOT NULL DEFAULT 21 COMMENT '대여 가능 최저 연령',
                                         min_license_years TINYINT NOT NULL DEFAULT 1 COMMENT '최저 면허 경력 년수',

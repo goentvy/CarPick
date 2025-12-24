@@ -7,6 +7,7 @@ import App from './App.jsx'
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import Intro from './pages/Intro/Intro.jsx'
+import Aipick from './pages/Aipick/Aipick.jsx'
 
 import CarDayList from "./pages/Car/CarDayList";
 import CarMonthList from "./pages/Car/CarMonthList";
@@ -78,6 +79,9 @@ createRoot(document.getElementById('root')).render(
           {/* 메인 */}
           <Route path="home" element={<Home />} />
           <Route path="profile" element={<Profile />} />
+
+          {/* AI PICK */}
+          <Route path="aipick" element={<Aipick />} />
 
           {/* 차량 목록 */}
           <Route path="day" element={<CarDayList />} />

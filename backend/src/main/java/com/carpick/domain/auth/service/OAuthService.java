@@ -26,18 +26,22 @@ public class OAuthService {
     private final NaverClient naverClient;
     private final UserMapper userMapper;
     private final JwtProvider jwtProvider;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
+        log.info("OAuth login start: provider={}, code={}", provider, request.getCode());
+
         User socialUser;
         if ("KAKAO".equalsIgnoreCase(provider)) {
             String accessToken = kakaoClient.getAccessToken(request.getCode());
+            log.info("Kakao accessToken={}", accessToken); // 카카오 액세스 토큰 확인
             socialUser = kakaoClient.getProfile(accessToken);
             // ✅ 로그인 시 액세스 토큰 저장 (연동 해제 시 필요)
             socialUser.setAccessToken(accessToken);
         } else if ("NAVER".equalsIgnoreCase(provider)) {
             String accessToken = naverClient.getAccessToken(request.getCode(), request.getState());
+            log.info("Naver accessToken={}", accessToken); // 네이버 액세스 토큰 확인
             socialUser = naverClient.getProfile(accessToken);
             socialUser.setAccessToken(accessToken);
         } else {
@@ -53,16 +57,11 @@ public class OAuthService {
             }
             socialUser.setPassword("");
             socialUser.setMembershipGrade("BASIC");
-            if (socialUser.getGender() == null) socialUser.setGender(Gender.M);
+            if (socialUser.getGender() == null) socialUser.setGender(Gender.UNKNOWN);
             if (socialUser.getMarketingAgree() == null) socialUser.setMarketingAgree(0);
 
             userMapper.insertSocialUser(socialUser);
-
-            if (socialUser.getUserId() == null) {
-                existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
-            } else {
-                existUser = socialUser;
-            }
+            existUser = socialUser;
         }
         log.info("existUser userId = {}", existUser.getUserId());
         if (existUser.getUserId() == null) {
@@ -106,8 +105,8 @@ public class OAuthService {
             throw new IllegalStateException("카카오 연동 해제 실패: " + response.getBody());
         }
 
-        // DB에서 유저 탈퇴 처리 (deleted_at 업데이트 등)
-        userMapper.deleteUser(userId);
+        // DB에서 유저 탈퇴 처리 (소셜 유저는 하드 삭제)
+        userMapper.hardDeleteSocialUser(userId);
         log.info("카카오 연동 해제 완료: userId={}", userId);
     }
 }

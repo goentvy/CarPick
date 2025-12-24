@@ -28,7 +28,7 @@ public class AdminViewController {
             Model model) {
 
         Page<NoticeNtt> noticePage =
-                noticeService.searchNotices(keyword, PageRequest.of(page, 10));
+                noticeService.searchNotices(keyword, PageRequest.of(page, 8));
 
         model.addAttribute("notices", noticePage.getContent());
         model.addAttribute("currentPage", page);

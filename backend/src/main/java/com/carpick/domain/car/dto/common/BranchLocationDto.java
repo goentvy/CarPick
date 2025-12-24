@@ -1,4 +1,4 @@
-package com.carpick.domain.car.dto.response.common;
+package com.carpick.domain.car.dto.common;
 
 
 import java.math.BigDecimal;
