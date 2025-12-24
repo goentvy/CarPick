@@ -23,11 +23,7 @@ function Favorites() {
     return (
         <div
             id="content"
-            className="font-pretendard"
-            style={{
-                minHeight: "calc(100vh - 80px - 72px)",
-                backgroundColor: "#E7EEFF",
-            }}
+            className="font-pretendard min-h-screen bg-[#E7EEFF] flex flex-col"
         >
             <div className="px-4 py-6">
                 {/* 선호차량 없을 때 */}
