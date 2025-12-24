@@ -15,8 +15,6 @@ const CarList = () => {
     const [yearRange, setYearRange] = useState([2010, new Date().getFullYear()]);
     const [priceRange, setPriceRange] = useState([10000, 1000000]);
 
-    const navigate = useNavigate();
-
     // 필터 적용 시 호출
     const handleApplyFilter = (level, fuel, person) => {
         setSelectedLevel(level);
@@ -40,10 +38,6 @@ const CarList = () => {
     const info = {
         year: "2020년식",
         seats: "4인승"
-    };
-
-     const handleClickCar = (id) => {
-        navigate(`/car/detail/${id}`);
     };
 
 
@@ -118,6 +112,7 @@ const CarList = () => {
             <div className="xx:p-2 sm:p-6 flex xx:flex-col xs:flex-row justify-between gap-2 flex-wrap">
                 <div className="w-full sm:w-[49%]">
                     <CarCard
+                        id={1}
                         discount={true}
                         discountRate={30}
                         imageSrc="/images/common/carList.png"
@@ -132,6 +127,7 @@ const CarList = () => {
                 </div>
                 <div className="w-full sm:w-[49%]">
                     <CarCard
+                        id={2}
                         discount={true}
                         discountRate={30}
                         imageSrc="/images/common/carList.png"
@@ -146,6 +142,7 @@ const CarList = () => {
                 </div>
                 <div className="w-full sm:w-[49%]">
                     <CarCard
+                        id={3}
                         discount={true}
                         discountRate={30}
                         imageSrc="/images/common/carList.png"
@@ -160,6 +157,7 @@ const CarList = () => {
                 </div>
                 <div className="w-full sm:w-[49%]">
                     <CarCard
+                        id={4}
                         discount={true}
                         discountRate={30}
                         imageSrc="/images/common/carList.png"
@@ -174,6 +172,7 @@ const CarList = () => {
                 </div>
                 <div className="w-full sm:w-[49%]">
                     <CarCard
+                        id={5}
                         discount={true}
                         discountRate={30}
                         imageSrc="/images/common/carList.png"
@@ -188,6 +187,7 @@ const CarList = () => {
                 </div>
                 <div className="w-full sm:w-[49%]">
                     <CarCard
+                        id={6}
                         discount={true}
                         discountRate={30}
                         imageSrc="/images/common/carList.png"
