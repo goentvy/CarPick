@@ -89,8 +89,16 @@
 
 @media (max-width: 500px) {
     #car-list.px-6 { padding-inline: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 4);}
-    .rentM{padding:0; }
-    .rentMBg{background:#fff; border-radius:50px; }
-    #pickDay{text-overflow: ellipsis; white-space: nowrap; width: 80%; overflow: hidden; }
-    #pickTime{display:none; }
+    .rentM{background:#fff; padding: calc(var(--spacing) * 1); border-radius: 25px;}
+    .rentMBg{background:#F3F7FF; border-radius:25px; }
+    .rentMBg i{font-size:16px; position:absolute; top: 12px; left: 15px; }
+    #rentInfo #rentLoca{margin-left:30px; font-size:14px;  }
+    #rentInfo #rentTime{margin-left:10px; font-size:14px; }
+    #pickDay{letter-spacing: -0.05em;}
+    #pickTime{position:absolute; right: 5px; top: 3px;}
+
+    #carFilter .gap-2{gap:5px; }
+    #carFilter .grid-cols-3{grid-template-columns: repeat(2, minmax(0, 1fr))}
+    #carFilter .text-lg{font-size:16px; }
+    #carFilter .filter-label{font-size:14px; }
 }

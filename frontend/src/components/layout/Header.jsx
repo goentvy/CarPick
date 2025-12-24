@@ -16,13 +16,13 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
 
-  const location = useLocation();
-  const hideOnDetail =
-    location.pathname.startsWith("/car/") || 
-    location.pathname.startsWith("/cars/") || 
-    location.pathname.includes("/detail");     
+  // const location = useLocation();
+  // const hideOnDetail =
+  //   location.pathname.startsWith("/car/") || 
+  //   location.pathname.startsWith("/cars/") || 
+  //   location.pathname.includes("/detail");     
 
-  if (hideOnDetail) return null;
+  // if (hideOnDetail) return null;
   useEffect(() => {
   if (location.pathname.includes("zone")) {
     setActiveMenu("카픽존");

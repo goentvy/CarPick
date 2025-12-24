@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import RentHeader from "./RentHeader";
 import CarCard from "./CarCard";
 import PickupFilterModal from '../../components/common/PickupFilterModal';
 
 const CarList = () => {
-
     const [ShowFilter, setShowFilter] = useState(false);
 
     // 필터 상태
@@ -14,6 +14,8 @@ const CarList = () => {
 
     const [yearRange, setYearRange] = useState([2010, new Date().getFullYear()]);
     const [priceRange, setPriceRange] = useState([10000, 1000000]);
+
+    const navigate = useNavigate();
 
     // 필터 적용 시 호출
     const handleApplyFilter = (level, fuel, person) => {
@@ -40,6 +42,10 @@ const CarList = () => {
         seats: "4인승",
         fuel: "휘발유",
         age: "만 26세 이상",
+    };
+
+     const handleClickCar = (id) => {
+        navigate(`/car/detail/${id}`);
     };
 
 
@@ -113,6 +119,8 @@ const CarList = () => {
                         features={features}
                         cost={190000}
                         price={128000}
+                        day={true} /* 단기면 true, 장기면 false */
+                        onClick={() => handleClickCar(1)}
                     />
                 </div>
                 <div className="flex gap-2">
@@ -125,6 +133,8 @@ const CarList = () => {
                         info={info}
                         cost={190000}
                         price={128000}
+                        day={true} /* 단기면 true, 장기면 false */
+                        onClick={() => handleClickCar(2)}
                     />
                 </div>
             </div>
