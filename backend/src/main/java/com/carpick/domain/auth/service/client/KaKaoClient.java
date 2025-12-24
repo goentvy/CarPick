@@ -1,6 +1,7 @@
 package com.carpick.domain.auth.service.client;
 
 import com.carpick.domain.auth.entity.User;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,10 +25,19 @@ public class KaKaoClient {
     private String clientSecret;
 
     // redirect-uri는 보안상 설정파일(yml)이나 환경변수 관리가 맞습니다.
-    @Value("${kakao.redirect-uri}")
+    @Value("${KAKAO_REDIRECT_URI}")
     private String redirectUri;
 
     private final RestTemplate restTemplate;
+
+    @PostConstruct
+    public void init() {
+        log.info("=== Kakao OAuth Config ===");
+        log.info("Client ID: {}", clientId);
+        log.info("Client Secret: {}", clientSecret != null ? "****" : "null");
+        log.info("Redirect URI: {}", redirectUri);
+        log.info("==========================");
+    }
 
     /**
      * ✅ 팩트 체크: 토큰 요청 시 client_secret 추가 필수
