@@ -3,6 +3,7 @@ package com.carpick.domain.auth.service;
 
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     //토큰 객체, 비밀번호 해쉬 변환 객체 , 유저매퍼(db핸들링) 주입
     private final UserMapper userMapper;
@@ -31,13 +33,16 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         //일반 로그인 메서드
         User user = userMapper.findByEmail(request.getEmail());
+        // ✅ 여기 (검증 직전)
 
+        log.info("login raw password = {}", request.getPassword());
+        log.info("db encoded password = {}", user != null ? user.getPassword() : null);
 
         //로그인 검증용 메서드 (비밀번호 평문 그대로 비교하지 않음.)
         if (user == null ||
                 !passwordEncoder.matches(
                         request.getPassword(),
-                        user.getPasswordHash()
+                        user.getPassword()
                 )
         ) {
             // ✅ 예외 기반 처리
@@ -82,8 +87,8 @@ public class AuthService {
 
         if (!isSocial) {
             // [일반 가입 로직]
-            // 현재 request.passwordHash에는 사용자가 입력한 '1234' 같은 평문이 들어있음
-            String rawPassword = request.getPasswordHash();
+            // 현재 request.password에는 사용자가 입력한 '1234' 같은 평문이 들어있음
+            String rawPassword = request.getPassword();
 
             if (rawPassword == null || rawPassword.isEmpty()) {
                 throw new IllegalArgumentException("일반 회원가입 시 비밀번호는 필수입니다.");
@@ -91,7 +96,7 @@ public class AuthService {
 
             // 평문을 암호화해서 다시 그 자리에(passwordHash) 덮어씌움
             String encodedPassword = passwordEncoder.encode(rawPassword);
-            request.setPasswordHash(encodedPassword);
+            request.setPassword(encodedPassword);
 
             // DB 저장 (일반 가입 전용 매퍼 호출)
             userMapper.insertLocalUser(request);

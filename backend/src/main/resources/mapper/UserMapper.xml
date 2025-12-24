@@ -11,7 +11,7 @@
     <resultMap id="UserResultMap" type="com.carpick.domain.auth.entity.User">
         <id property="userId" column="user_id"/>
         <result property="email" column="email"/>
-        <result property="passwordHash" column="password_hash"/>
+        <result property="password" column="password_hash"/>
         <result property="provider" column="provider"/>
         <result property="providerId" column="provider_id"/>
         <result property="name" column="name"/>
@@ -74,6 +74,8 @@
         INSERT INTO users (
         email,
         password_hash,
+        phone,
+        birth,
         name,
         gender,
         marketing_agree,
@@ -81,7 +83,9 @@
         )
         VALUES (
         #{email},
-        #{passwordHash},
+        #{password},
+        #{phone},
+        #{birth},
         #{name},
         #{gender},
         #{marketingAgree},
@@ -127,7 +131,7 @@
 
     <update id="updatePassword">
         UPDATE users
-        SET password_hash = #{passwordHash}
+        SET password_hash = #{password}
         WHERE user_id = #{userId}
         AND provider =#{provider}
         AND deleted_at IS NULL

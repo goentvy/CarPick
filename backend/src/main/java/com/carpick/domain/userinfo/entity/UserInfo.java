@@ -12,7 +12,7 @@ public class UserInfo {
 
     private Long userId;
     private String email;
-    private String passwordHash;
+    private String password;
 
     private String provider;
     private String providerId;

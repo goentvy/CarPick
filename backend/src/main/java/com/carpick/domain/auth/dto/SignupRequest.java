@@ -29,8 +29,8 @@ public class SignupRequest {
             regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
             message = "비밀번호는 영문과 숫자를 포함해야 합니다"
     )
-    @JsonProperty("password") // JSON으로 "password"라고 들어오면 이 필드에 넣어줌
-    private String passwordHash;
+
+    private String password;
 
     @NotBlank(message = "provider는 필수입니다")
     private String provider;

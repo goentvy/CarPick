@@ -42,6 +42,7 @@ const ProfilePage = () => {
         name: userInfo.name,
         phone: phone,
         birth: userInfo.birth,
+        password: password,    //나유진이 추가함.
         marketingAgree: userInfo.marketingAgree,
       });
       alert("비밀번호 수정 완료");
