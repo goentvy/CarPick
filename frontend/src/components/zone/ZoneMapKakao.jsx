@@ -200,10 +200,10 @@ export default function ZoneMapKakao({
 
             const overlay = new kakao.maps.CustomOverlay({
                 position: pos,
-                content: dot,
-                yAnchor: 0.5,
-                xAnchor: 0.5,
+                content: btn,
+                yAnchor: items.length === 1 ? 0.5 : 1,
             });
+
 
             overlay.setMap(map);
             myOverlayRef.current = overlay;

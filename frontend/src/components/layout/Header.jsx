@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 
-import "../../styles/common.css"; 
+import "../../styles/common.css";
 
 function Header() {
   const navigate = useNavigate();
@@ -16,36 +16,30 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
 
-  const location = useLocation();
-  const hideOnDetail =
-    location.pathname.startsWith("/car/") || 
-    location.pathname.startsWith("/cars/") || 
-    location.pathname.includes("/detail");     
 
-  if (hideOnDetail) return null;
   useEffect(() => {
-  if (location.pathname.includes("zone")) {
-    setActiveMenu("카픽존");
-  }else if (location.pathname.includes("/cs/")) {
-    setActiveMenu("고객센터");
+    if (location.pathname.includes("zone")) {
+      setActiveMenu("카픽존");
+    } else if (location.pathname.includes("/cs/")) {
+      setActiveMenu("고객센터");
+    }
+  }, [location.pathname]);
+
+  const handleToggleMenu = (menuName) => {
+    setActiveMenu(activeMenu === menuName ? null : menuName);
+  };
+
+  // 로그아웃 핸들링
+  const handleLogout = () => {
+    // zustand store 초기화
+    logout();
+    // localStorage 토큰 삭제
+    localStorage.removeItem("user-storage");
+    // 로그인 페이지로 이동
+    navigate("/login");
+    // 사이드메뉴 닫기
+    closeMenu();
   }
-}, [location.pathname]);
-
-const handleToggleMenu = (menuName) => {
-  setActiveMenu(activeMenu === menuName ? null : menuName);
-};
-
-// 로그아웃 핸들링
-const handleLogout = () => {
-  // zustand store 초기화
-  logout();
-  // localStorage 토큰 삭제
-  localStorage.removeItem("user-storage");
-  // 로그인 페이지로 이동
-  navigate("/login");
-  // 사이드메뉴 닫기
-  closeMenu();
-}
 
   return (
     <>
@@ -70,7 +64,7 @@ const handleLogout = () => {
           onClick={closeMenu}
         ></div>
       )}
-      
+
       {/* 사이드 메뉴 */}
       <aside id="navMenu" className={menuOpen ? "active" : ""}>
         <div className="inner">
@@ -86,22 +80,22 @@ const handleLogout = () => {
           {/* 로그인 상태 및 마이페이지, 회원가입 버튼 */}
           <div className="member_info">
             <h3>
-              {isLoggedIn ? 
+              {isLoggedIn ?
                 <span>{user?.name ?? ""}님 환영합니다.</span>
-              : 
+                :
                 <Link to="/login" className="gnb-link userName" onClick={closeMenu}>로그인을 해주세요.</Link>
               }
             </h3>
-              {isLoggedIn ? 
-                <Link to="/mypage" className="btn btn-mypage" onClick={closeMenu}>마이페이지</Link>
-              : 
-                <Link to="/signup/agree" className="btn btn-mypage" onClick={closeMenu}>회원가입</Link>
-              }
+            {isLoggedIn ?
+              <Link to="/mypage" className="btn btn-mypage" onClick={closeMenu}>마이페이지</Link>
+              :
+              <Link to="/signup/agree" className="btn btn-mypage" onClick={closeMenu}>회원가입</Link>
+            }
           </div>
 
-         <nav className="gnb">
+          <nav className="gnb">
             <ul className="gnb-list">
-              
+
               <li className={`gnb-item ${location.pathname.includes("aipick") ? "active" : ""}`} onClick={closeMenu}>
                 <Link to="/aipick" className="gnb-link">AI PICK</Link>
               </li>
@@ -115,50 +109,9 @@ const handleLogout = () => {
               </li>
 
               {/* 카픽존 */}
-              <li className={`gnb-item has-submenu ${
-                location.pathname.includes("zone") || activeMenu === "카픽존"
-                  ? "active"
-                  : ""
-              }`}>
+              <li className={`gnb-item  ${location.pathname.includes("zone") ? "active": "" }`} onClick={closeMenu}>
                 <div className="submenu">
-                  <button
-                    className="gnb-link submenu-trigger"
-                    onClick={() => handleToggleMenu("카픽존")}
-                  >
-                    카픽존
-                  </button>
-
-                  <ul className="submenu-list">
-                    <li className="submenu-item">
-                      <Link
-                        to="/zone/picture"        // ← 원하는 경로로 변경!
-                        className={`submenu-link ${location.pathname === "/zone/picture" ? "active" : ""}`}
-                        onClick={closeMenu}
-                      >
-                        픽쳐카존
-                      </Link>
-                    </li>
-
-                    <li className="submenu-item">
-                      <Link
-                        to="/zone/map"            // 원하는 경로
-                        className={`submenu-link ${location.pathname === "/zone/map" ? "active" : ""}`}
-                        onClick={closeMenu}
-                      >
-                        지도기반 검색
-                      </Link>
-                    </li>
-
-                    <li className="submenu-item">
-                      <Link
-                        to="/zone/pickup"         // 원하는 경로
-                        className={`submenu-link ${location.pathname === "/zone/pickup" ? "active" : ""}`}
-                        onClick={closeMenu}
-                      >
-                        픽업안내
-                      </Link>
-                    </li>
-                  </ul>
+                  <Link to="/zone" className="gnb-link submenu-trigger" >카픽존</Link>
                 </div>
               </li>
 
@@ -171,18 +124,16 @@ const handleLogout = () => {
               </li>
 
               {/* 고객센터 */}
-              <li className={`gnb-item has-submenu ${
-                location.pathname.includes("/cs/") || activeMenu === "고객센터"
+              <li className={`gnb-item has-submenu ${location.pathname.includes("/cs/") || activeMenu === "고객센터"
                   ? "active"
                   : ""
-              }`}>
+                }`}>
                 <div className="submenu">
                   <button
-                    className={`gnb-link submenu-trigger ${
-                      location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
+                    className={`gnb-link submenu-trigger ${location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
                         ? "active"
                         : ""
-                    }`}
+                      }`}
                     onClick={() => handleToggleMenu("고객센터")}
                   >
                     고객센터
@@ -260,7 +211,7 @@ const handleLogout = () => {
           <div className="menu_bottom">
             {isLoggedIn && (
               <span className="btn btn-logout cursor-pointer" onClick={handleLogout}>
-                로그아웃 
+                로그아웃
               </span>
             )}
           </div>

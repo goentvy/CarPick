@@ -13,7 +13,7 @@ import CarDayList from "./pages/Car/CarDayList";
 import CarMonthList from "./pages/Car/CarMonthList";
 import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
-import CarPickZonePage from "./pages/Zone/CarpickZonePage.jsx";
+import CarpickZonePage from "./pages/Zone/CarpickZonePage.jsx";
 
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
@@ -87,9 +87,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="day" element={<CarDayList />} />
           <Route path="month" element={<CarMonthList />} />
           <Route path="car/detail/:id" element={<CarDetailPage />} />
-
+          
           {/* 카픽존 & 드롭존 */}
-          <Route path="zone" element={<CarPickZonePage />} />
+          <Route path="zone" element={<CarpickZonePage />} />
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />

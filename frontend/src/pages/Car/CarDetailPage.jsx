@@ -2,7 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
 import carDetailMock from "@/mocks/carDetail.json";
+import CarDetailMap from "../../components/car/CarDetailMap.jsx";
 // import api from "@/service/api";
+import { createGlobalStyle } from "styled-components";
+
+const HideHeaderFooter = createGlobalStyle`
+  #head, #footer {
+    display: none !important;
+  }
+`;
 
 /** ---------- UI Parts ---------- */
 const InfoTile = ({ icon, title }) => (
@@ -154,19 +162,18 @@ export default function CarDetailPage() {
 
   const top = car?.topCarDetailDto;
   const cards = car?.carCardSectionDto?.cards ?? [];
-  const notice = car?.carCardSectionDto?.notice;
   const pickup = car?.locationDto?.pickup;
-  const dropoff = car?.locationDto?.dropoff;
 
   const uiCards = normalizeCards(cards);
 
   return (
     <div className="min-h-screen bg-white">
+      <HideHeaderFooter />
       {/* 640 컨테이너 */}
       <div className="mx-auto w-full max-w-[640px] pb-28">
         {/* Top App Bar */}
         <header className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-black/5">
-          <div className="h-12 px-4 flex items-center justify-between">
+          <div className="h-[60px] px-4 flex items-center justify-between">
             <button
               type="button"
               onClick={() => nav(-1)}
@@ -371,8 +378,8 @@ export default function CarDetailPage() {
             ))}
           </div>
           {/* 대여 및 반납장소 */}
-          <SectionTitle>대여 및 반납장소</SectionTitle>
-          <div className="mt-3 rounded-2xl h-40 bg-white border border-black/5 p-4"></div>
+          <SectionTitle>대여 장소</SectionTitle>
+          <CarDetailMap pickup={pickup} label="대여 장소" />
 
           {/* FAQ */}
           <SectionTitle>자주 묻는 질문</SectionTitle>
