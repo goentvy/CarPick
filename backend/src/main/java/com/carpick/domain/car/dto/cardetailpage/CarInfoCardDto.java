@@ -1,4 +1,4 @@
-package com.carpick.domain.car.dto.response.cardetailpage;
+package com.carpick.domain.car.dto.cardetailpage;
 
 
 import jakarta.validation.constraints.NotBlank;
