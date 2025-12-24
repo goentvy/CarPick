@@ -4,9 +4,48 @@
    - created_at/updated_at: CURRENT_TIMESTAMP
    - Fix: create order for FK integrity (BRANCH before PRICE_POLICY)
    ========================================================= */
+/*
+[DB SCHEMA BASELINE]
+
+- 본 SQL은 CarPick 프로젝트의 현재 스키마 기준본입니다.
+- MVP 단계에서는 Flyway 미적용 상태로 구조 안정화에 집중합니다.
+- 실제 데이터 운영 및 협업 확장 시 Flyway migration 기준으로 전환 예정입니다.
+- 모든 스키마 변경은 이 파일 또는 PR 내 SQL 변경으로 추적됩니다.
+*/
+
+
 
 USE carpick;
 SET FOREIGN_KEY_CHECKS = 0;
+/* =========================
+   상태 / 이력 테이블
+   ========================= */
+DROP TABLE IF EXISTS RESERVATION_STATUS_HISTORY;
+DROP TABLE IF EXISTS VEHICLE_STATUS_HISTORY;
+
+/* =========================
+   핵심 비즈니스 테이블
+   ========================= */
+DROP TABLE IF EXISTS RESERVATION;
+DROP TABLE IF EXISTS VEHICLE_INVENTORY;
+
+/* =========================
+   정책 / 옵션 / 가격
+   ========================= */
+DROP TABLE IF EXISTS PRICE;
+DROP TABLE IF EXISTS PRICE_POLICY;
+DROP TABLE IF EXISTS CAR_OPTION;
+DROP TABLE IF EXISTS INSURANCE;
+DROP TABLE IF EXISTS COUPON;
+DROP TABLE IF EXISTS BRANCH_SERVICE_POINT;
+
+/* =========================
+   마스터 데이터
+   ========================= */
+DROP TABLE IF EXISTS BRANCH;
+DROP TABLE IF EXISTS CAR_SPEC;
+
+
 
 /* ==================================================
    1. 기초 정보 테이블 (Master Data)
@@ -26,14 +65,18 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
     /* [추가] 쇼트네임(카드용) */
                                         display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
 
-                                        car_class VARCHAR(20) NOT NULL COMMENT '차급 (소형/중형/SUV 등)',
+                                        car_class ENUM('LIGHT','SMALL','COMPACT','MID','LARGE','IMPORT','RV','SUV')
+                                            NOT NULL COMMENT '차량 등급',
                                         model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
 #     ai d요약 문구
                                         ai_summary text comment 'ai 추천문구 관리자 페이지 에서 관리',
     /* 파워트레인 */
-                                        fuel_type VARCHAR(20) NOT NULL COMMENT '연료 (휘발유/전기/하이브리드)',
+                                        fuel_type ENUM('GASOLINE','DIESEL','LPG','ELECTRIC','HYBRID','HYDROGEN')
+                                            NOT NULL COMMENT '연료 타입',
                                         transmission_type VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '변속기',
-
+                                        is_four_wheel_drive BOOLEAN
+                                            NOT NULL DEFAULT FALSE
+                                            COMMENT '사륜구동 여부 (TRUE=4WD/AWD)',
     /* [정책] 대여 자격 */
                                         min_driver_age TINYINT NOT NULL DEFAULT 21 COMMENT '대여 가능 최저 연령',
                                         min_license_years TINYINT NOT NULL DEFAULT 1 COMMENT '최저 면허 경력 년수',
@@ -152,7 +195,9 @@ CREATE TABLE IF NOT EXISTS INSURANCE (
                                          insurance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
 
     /* 보험 식별 */
-                                         code VARCHAR(30) NOT NULL COMMENT '보험 코드 (NONE / STANDARD / FULL 등)',
+                                         code ENUM('NONE','STANDARD','FULL')
+                                             NOT NULL
+                                             COMMENT '보험 코드',
                                          label VARCHAR(50) NOT NULL COMMENT '표시 이름 (선택안함 / 일반자차 / 완전자차)',
                                          summary_label VARCHAR(100) NULL COMMENT '요약 문구 (사고 시 고객부담금 면제 등)',
 
@@ -260,7 +305,9 @@ CREATE TABLE IF NOT EXISTS VEHICLE_INVENTORY (
 
                                                  model_year SMALLINT NULL COMMENT '실차 연식',
 
-                                                 operational_status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE' COMMENT '상태(AVAILABLE/RENTED 등)',
+                                                 operational_status ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE')
+                                                     NOT NULL DEFAULT 'AVAILABLE'
+                                                     COMMENT '현재 운영 상태',
                                                  mileage INT NULL COMMENT '주행거리',
                                                  last_inspected_at DATETIME NULL,
                                                  is_active BOOLEAN NOT NULL DEFAULT TRUE,

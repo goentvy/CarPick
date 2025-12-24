@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import useUserStore from "../../store/useUserStore";
 
 const ProfilePage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const { logout } = useUserStore();
 
   useEffect(() => {
     // 회원정보 불러오기
@@ -42,6 +44,7 @@ const ProfilePage = () => {
         name: userInfo.name,
         phone: phone,
         birth: userInfo.birth,
+        password: password,    //나유진이 추가함.
         marketingAgree: userInfo.marketingAgree,
       });
       alert("비밀번호 수정 완료");
@@ -56,9 +59,30 @@ const ProfilePage = () => {
       try {
         await api.delete("/users/me");
         alert("회원탈퇴가 완료되었습니다.");
+
+        // 로그아웃 처리
+        logout();
+        localStorage.removeItem("user-storage");
         window.location.href = "/";
       } catch (err) {
         alert("회원탈퇴 실패");
+        console.error(err);
+      }
+    }
+  };
+
+  const handleUnlinkKakao = async () => {
+    if (window.confirm("카카오 연동을 해제하시겠습니까?")) {
+      try {
+        await api.post("/auth/unlink/kakao"); // 백엔드 API 호출
+        alert("카카오 연동이 해제되었습니다.");
+
+        // 로그아웃 처리
+        logout();
+        localStorage.removeItem("user-storage");
+        window.location.href = "/";
+      } catch (err) {
+        alert("카카오 연동 해제 실패");
         console.error(err);
       }
     }
@@ -72,25 +96,12 @@ const ProfilePage = () => {
 
       {/* 기본 회원 정보 미리보기 */}
       <div className="border p-4 rounded bg-gray-50 space-y-2">
-        <p>
-          <strong>이름:</strong> {userInfo.name}
-        </p>
-        <p>
-          <strong>이메일:</strong> {userInfo.email}
-        </p>
-        <p>
-          <strong>생년월일:</strong> {userInfo.birth}
-        </p>
-        <p>
-          <strong>성별:</strong> {userInfo.gender === "M" ? "남성" : "여성"}
-        </p>
-        <p>
-          <strong>회원등급:</strong> {userInfo.membershipGrade}
-        </p>
-        <p>
-          <strong>마케팅 수신 동의:</strong>{" "}
-          {userInfo.marketingAgree ? "동의" : "거부"}
-        </p>
+        <p><strong>이름:</strong> {userInfo.name}</p>
+        <p><strong>이메일:</strong> {userInfo.email}</p>
+        <p><strong>생년월일:</strong> {userInfo.birth}</p>
+        <p><strong>성별:</strong> {userInfo.gender === "M" ? "남성" : "여성"}</p>
+        <p><strong>회원등급:</strong> {userInfo.membershipGrade}</p>
+        <p><strong>마케팅 수신 동의:</strong> {userInfo.marketingAgree ? "동의" : "거부"}</p>
       </div>
 
       {/* 휴대폰 번호 변경 */}
@@ -134,13 +145,19 @@ const ProfilePage = () => {
         </button>
       </div>
 
-      {/* 회원탈퇴 */}
-      <div className="pt-4 border-t">
+      {/* 회원탈퇴 + 카카오 연동 해제 */}
+      <div className="pt-4 border-t flex gap-2">
         <button
           onClick={handleDeleteAccount}
           className="px-4 py-2 bg-red-500 text-white rounded"
         >
           회원탈퇴
+        </button>
+        <button
+          onClick={handleUnlinkKakao}
+          className="px-4 py-2 bg-yellow-500 text-black rounded"
+        >
+          카카오 연동 해제
         </button>
       </div>
     </div>

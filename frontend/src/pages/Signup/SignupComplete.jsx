@@ -1,8 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import StepProgress from "../../components/common/StepProgress";
 import ContentTopLogo from "../../components/common/ContentTopLogo";
 
-const SignupComplete = ({ userName = '홍길동' }) => {
+const SignupComplete = () => {
+  const location = useLocation();
+  const name = location.state;
   const navigate = useNavigate();
   return (
     <div className="min-h-screen flex justify-center mt-[67px]">
@@ -16,7 +18,7 @@ const SignupComplete = ({ userName = '홍길동' }) => {
 
         <div className="text-center mb-8">
           <p className="text-lg text-gray-700 mb-2">
-            <span className="text-brand text-2xl">{userName}</span>님
+            <span className="text-brand text-2xl">{name ?? '홍길동'}</span>님
             </p>
           <p className="text-lg text-gray-700">카픽에 오신 걸 환영합니다!</p>
         </div>

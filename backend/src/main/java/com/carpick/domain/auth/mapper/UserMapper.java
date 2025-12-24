@@ -17,13 +17,10 @@ public interface UserMapper {
             @Param("providerId") String providerId
     );
 
-
-    // 회원가입
-    // 회원가입<로컬로그인> , <소셜로그인> 구분
+    // 회원가입 (로컬)
     void insertLocalUser(SignupRequest request);
 
-    // 4. [수정 핵심] 소셜 회원가입 (Entity 사용)
-    // 보안을 위해 Client가 추출한 정보로 만든 Entity를 직접 전달합니다.
+    // 회원가입 (소셜)
     void insertSocialUser(User user);
 
     // 이메일 중복 체크
@@ -35,5 +32,18 @@ public interface UserMapper {
             @Param("providerId") String providerId
     );
 
+    // ✅ userId로 조회
+    User findById(@Param("userId") Long userId);
 
+    // ✅ 로컬 유저 탈퇴 (소프트 삭제)
+    void softDeleteLocalUser(@Param("userId") Long userId);
+
+    // ✅ 소셜 유저 탈퇴 (하드 삭제)
+    void hardDeleteSocialUser(@Param("userId") Long userId);
+
+    // ✅ 카카오 액세스 토큰 업데이트 (연동 해제 시 필요)
+    void updateAccessToken(
+            @Param("userId") Long userId,
+            @Param("accessToken") String accessToken
+    );
 }

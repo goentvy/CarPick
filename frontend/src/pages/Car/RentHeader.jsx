@@ -49,11 +49,11 @@ const RentHeader = () => {
             onClick={() => setShowLocationPicker((prev) => !prev)}
           >
             <i className="fa-solid fa-magnifying-glass text-[20px] mr-3" alt="차량검색"></i>
-            <div className="flex flex-col w-full break-keep">
-              <p className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold">
+            <div id="rentInfo" className="flex flex-col w-full break-keep relative">
+              <p id="rentLoca" className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold">
                 {pickupLocation}
               </p>
-              <p className="flex justify-between text-gray-400 text-[16px] text-left">
+              <p id="rentTime" className="flex justify-between text-gray-400 text-[16px] text-left">
                 <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
                 <span id="pickTime" className="text-[12px] text-gray-500">{rentalHours}시간</span>
               </p>

@@ -67,23 +67,23 @@ const Login = () => {
 
   // ✅ 카카오 로그인 핸들러
   const handleKakaoLogin = () => {
-    const REST_API_KEY = import.meta.env.KAKAO_CLIENT_ID;
-    const REDIRECT_URI = "http://localhost:3000/oauth/kakao/callback";
+    const REST_API_KEY = import.meta.env.VITE_KAKAO_CLIENT_ID;
+    const REDIRECT_URI = "http://localhost:5173/oauth/kakao/callback";
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
     window.location.href = kakaoAuthUrl;
   };
   // ✅ 네이버 로그인 핸들러
   const handleNaverLogin = () => {
-    const CLIENT_ID = import.meta.env.NAVER_CLIENT_ID;
-    const REDIRECT_URI = "http://localhost:3000/oauth/naver/callback";
+    const CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
+    const REDIRECT_URI = "http://localhost:5173/oauth/naver/callback";
     const STATE = "RANDOM_STATE"; // CSRF 방지용 난수
     const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}`;
     window.location.href = naverAuthUrl;
   };
 
   return (
-    <div className="flex justify-center min-h-screen w-full mt-[67px]">
-      <div className="w-full max-w-md bg-white p-8">
+      <div className="flex justify-center min-h-[calc(100vh-67px)] w-full mt-[67px] pb-20">
+          <div className="w-full max-w-md bg-white p-8">
         <ContentTopLogo 
           title="로그인 하세요" 
           titleStyle={"text-center mb-4 text-xl font-bold"}

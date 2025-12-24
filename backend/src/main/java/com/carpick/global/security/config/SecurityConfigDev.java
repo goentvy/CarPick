@@ -48,6 +48,7 @@ public class SecurityConfigDev {
                         "/api/faq/**",
                         "/api/emergency/**", 
                         "/api/notice/**",
+                        "/api/event/**",
                         "/api/guide/**",
                         "/api/auth/**",
                         "/api/about/values",
