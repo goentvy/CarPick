@@ -1,6 +1,6 @@
-package com.carpick.domain.car.dto.response.cardetailpage;
+package com.carpick.domain.car.dto.cardetailpage;
 
-import com.carpick.domain.car.dto.response.common.BranchLocationDto;
+import com.carpick.domain.car.dto.common.BranchLocationDto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
