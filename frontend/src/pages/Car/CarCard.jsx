@@ -1,6 +1,13 @@
-const CarCard = ({ discount, discountRate, imageSrc, title, features, info, cost, price, day }) => {
+import { useNavigate } from "react-router-dom";
+
+const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, cost, price, day }) => {
+  const navigate = useNavigate();
+  const handleClickCar = (id) => {
+        navigate(`/car/detail/${id}`);
+    };
+
   return (
-    <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[98%] outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 shadow-lg overflow-hidden">
+    <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[98%] outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 shadow-lg overflow-hidden" onClick={() => handleClickCar(id)}>
       {/* 차량 이미지 */}
       <img src={imageSrc} alt={title} className="w-full h-auto object-cover" />
 

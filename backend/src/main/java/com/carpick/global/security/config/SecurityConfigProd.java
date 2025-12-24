@@ -30,15 +30,33 @@ public class SecurityConfigProd {
     @Bean
     public SecurityFilterChain prodFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 추가
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s ->
                 s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                // ❌ Swagger 아예 없음
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
-            )
+        	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+        	    .requestMatchers(
+        	        "/api/faq/**",
+        	        "/api/emergency/**", 
+        	        "/api/notice/**",
+        	        "/api/guide/**",
+        	        "/api/event/**",
+        	        "/api/auth/**",
+        	        "/api/about/values",
+        	        "/",
+        	        "/admin/**",
+        	        "/assets/**", 
+        	        "/css/**", 
+        	        "/js/**", 
+        	        "/images/**",
+        	        "/favicon.ico",
+        	        "/swagger-ui/**",
+        	        "/v3/api-docs/**"
+        	    ).permitAll()
+        	    .anyRequest().authenticated()
+        	)
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
@@ -50,4 +68,28 @@ public class SecurityConfigProd {
 
         return http.build();
     }
+    
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        var config = new org.springframework.web.cors.CorsConfiguration();
+
+        config.setAllowedOrigins(java.util.List.of(
+            "http://3.236.8.244",
+            "http://3.236.8.244:5173"
+        ));
+
+        config.setAllowedMethods(java.util.List.of(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+
+        config.setAllowedHeaders(java.util.List.of("*"));
+        config.setAllowCredentials(true);
+
+        var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
+
 }
