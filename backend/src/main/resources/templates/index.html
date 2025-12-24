@@ -34,11 +34,11 @@
 <div class="page-container">
 
     <!-- ⭐ 사이드바 include -->
-    <div th:replace="fragments/fragments :: sidebar"></div>
+    <div th:replace="~{fragments/fragments :: sidebar}"></div>
 
 
     <!-- ⭐ header include -->
-    <div th:replace="fragments/fragments :: header"></div>
+    <div th:replace="~{fragments/fragments :: header}"></div>
 
     <!-- ⭐ 본문 영역 -->
     <!-- main content area start -->
@@ -256,7 +256,7 @@
 	<!-- main content area end -->
 
     <!-- ⭐ footer include -->
-    <div th:replace="fragments/fragments :: footer"></div>
+    <div th:replace="~{fragments/fragments :: footer}"></div>
 
 </div>
 

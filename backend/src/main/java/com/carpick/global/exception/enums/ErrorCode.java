@@ -1,4 +1,4 @@
-package com.carpick.global.enums;
+package com.carpick.global.exception.enums;
 
 import org.springframework.http.HttpStatus;
 
@@ -31,6 +31,13 @@ public enum ErrorCode {
         "허용되지 않은 HTTP 메서드입니다",
         "Method not allowed"
     ),
+    UNSUPPORTED_MEDIA_TYPE(
+    	    HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+    	    "C004",
+    	    "지원하지 않는 요청 형식입니다",
+    	    "Unsupported media type"
+    	),
+
 
     // ======================
     // Business
@@ -185,12 +192,23 @@ public enum ErrorCode {
     private final String clientMessage;
     private final String logMessage;
     
-    public String getMessageByProfile(ProfileResolver profileResolver) {
+    public String resolveMessage(
+            MessageType type,
+            ProfileResolver profileResolver
+    ) {
+        if (type == MessageType.LOG) {
+            return logMessage;
+        }
+
+        // CLIENT
         return profileResolver.isProd()
                 ? clientMessage
                 : logMessage;
     }
-    
+
+    public String resolveLogMessage() {
+        return logMessage;
+    }
     
 }
 

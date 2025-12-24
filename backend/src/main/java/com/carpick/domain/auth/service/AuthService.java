@@ -14,8 +14,8 @@ import com.carpick.domain.auth.dto.SignupResponse;
 import com.carpick.domain.auth.entity.Role;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;
-import com.carpick.global.enums.ErrorCode;
 import com.carpick.global.exception.AuthenticationException;
+import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.jwt.JwtProvider;
 
 import jakarta.transaction.Transactional;
