@@ -14,7 +14,7 @@ public class GuideService {
 
             new GuideDto(
                 1,
-                "예약 전 필수 확인 사항",
+                "예약 전 필수 확인 사항✅",
                 List.of(
                     new GuideDto.Section(
                         "운전 자격 및 조건 확인",
@@ -43,7 +43,7 @@ public class GuideService {
 
             new GuideDto(
                 2,
-                "차량 인수 시 (출발 전)",
+                "차량 인수 시 (출발 전)✅",
                 List.of(
                     new GuideDto.Section(
                         "필수 서류 지참",
@@ -70,7 +70,7 @@ public class GuideService {
 
             new GuideDto(
                 3,
-                "차량 이용 중 유의 사항",
+                "차량 이용 중 유의 사항✅",
                 List.of(
                     new GuideDto.Section(
                         "교통 법규 준수",
@@ -99,7 +99,7 @@ public class GuideService {
 
             new GuideDto(
                 4,
-                "차량 반납 시 (도착 후)",
+                "차량 반납 시 (도착 후)✅",
                 List.of(
                     new GuideDto.Section(
                         "연료 충전",

@@ -8,8 +8,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/notice")
 public class UserNoticeController {
@@ -20,29 +18,19 @@ public class UserNoticeController {
         this.noticeService = noticeService;
     }
 
-    // 유저용 공지 목록 + 검색 + 페이징
     @GetMapping("/page")
     public ResponseEntity<Page<NoticeNtt>> list(
             @RequestParam(required = false) String keyword,
             @PageableDefault(page = 0, size = 7) Pageable pageable) {
-
-        Page<NoticeNtt> noticePage = noticeService.searchNotices(keyword, pageable);
-        return ResponseEntity.ok(noticePage);
+        return ResponseEntity.ok(noticeService.searchNotices(keyword, pageable));
     }
 
-    // 전체 공지 목록
-    @GetMapping
-    public ResponseEntity<List<NoticeNtt>> listAll() {
-        return ResponseEntity.ok(noticeService.getAllNotices());
-    }
-
-    // 공지 상세 조회 (조회수 1 증가)
+    /**
+     * ✅ 공지 상세 조회: 하나의 서비스 메서드로 호출하여 중복 증가 방지
+     */
     @GetMapping("/{id}")
     public ResponseEntity<NoticeNtt> detail(@PathVariable Long id) {
-        // 상세 조회 시 조회수 1 증가
-        noticeService.incrementViewCount(id);
-
-        return noticeService.getNotice(id)
+        return noticeService.getNoticeWithUpdateViews(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

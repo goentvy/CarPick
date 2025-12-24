@@ -19,6 +19,21 @@ public class NoticeService {
         this.noticeRepository = noticeRepository;
     }
 
+    /**
+     * ✅ 유저용: 조회수 증가와 상세 조회를 하나의 트랜잭션으로 처리 (버그 수정 핵심)
+     */
+    @Transactional
+    public Optional<NoticeNtt> getNoticeWithUpdateViews(Long id) {
+        // 1. DB에서 직접 조회수 +1 업데이트
+        int updatedCount = noticeRepository.incrementViewCount(id);
+        
+        // 2. 업데이트 성공 시 데이터를 조회하여 반환
+        if (updatedCount > 0) {
+            return noticeRepository.findByIdAndDeletedFalse(id);
+        }
+        return Optional.empty();
+    }
+
     @Transactional(readOnly = true)
     public Page<NoticeNtt> searchNotices(String keyword, Pageable pageable) {
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -38,18 +53,12 @@ public class NoticeService {
     }
 
     @Transactional
-    public boolean incrementViewCount(Long id) {
-        return noticeRepository.incrementViewCount(id) > 0;
-    }
-
-    @Transactional
     public NoticeNtt save(NoticeNtt notice) {
         if (notice.getId() == null) {
             notice.setDeleted(false);
             notice.setViews(0L);
             return noticeRepository.save(notice);
         }
-
         return noticeRepository.findById(notice.getId())
                 .map(origin -> {
                     origin.setTitle(notice.getTitle());
@@ -66,7 +75,6 @@ public class NoticeService {
                 .map(n -> {
                     n.setDeleted(true);
                     return true;
-                })
-                .orElse(false);
+                }).orElse(false);
     }
 }
