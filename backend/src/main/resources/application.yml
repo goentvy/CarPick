@@ -74,3 +74,4 @@ file:
 jwt:
   secret: "mySuperSecretKeyForJWTGeneration1234567890"
   expiration: 3600000
+
