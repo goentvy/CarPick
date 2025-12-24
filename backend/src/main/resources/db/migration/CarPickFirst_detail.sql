@@ -4,6 +4,15 @@
    - created_at/updated_at: CURRENT_TIMESTAMP
    - Fix: create order for FK integrity (BRANCH before PRICE_POLICY)
    ========================================================= */
+/*
+[DB SCHEMA BASELINE]
+
+- 본 SQL은 CarPick 프로젝트의 현재 스키마 기준본입니다.
+- MVP 단계에서는 Flyway 미적용 상태로 구조 안정화에 집중합니다.
+- 실제 데이터 운영 및 협업 확장 시 Flyway migration 기준으로 전환 예정입니다.
+- 모든 스키마 변경은 이 파일 또는 PR 내 SQL 변경으로 추적됩니다.
+*/
+
 
 USE carpick;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -152,7 +161,9 @@ CREATE TABLE IF NOT EXISTS INSURANCE (
                                          insurance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
 
     /* 보험 식별 */
-                                         code VARCHAR(30) NOT NULL COMMENT '보험 코드 (NONE / STANDARD / FULL 등)',
+                                         code ENUM('NONE','STANDARD','FULL')
+                                             NOT NULL
+                                             COMMENT '보험 코드',
                                          label VARCHAR(50) NOT NULL COMMENT '표시 이름 (선택안함 / 일반자차 / 완전자차)',
                                          summary_label VARCHAR(100) NULL COMMENT '요약 문구 (사고 시 고객부담금 면제 등)',
 
@@ -260,7 +271,9 @@ CREATE TABLE IF NOT EXISTS VEHICLE_INVENTORY (
 
                                                  model_year SMALLINT NULL COMMENT '실차 연식',
 
-                                                 operational_status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE' COMMENT '상태(AVAILABLE/RENTED 등)',
+                                                 operational_status ENUM('AVAILABLE','RESERVED','RENTED','MAINTENANCE')
+                                                     NOT NULL DEFAULT 'AVAILABLE'
+                                                     COMMENT '현재 운영 상태',
                                                  mileage INT NULL COMMENT '주행거리',
                                                  last_inspected_at DATETIME NULL,
                                                  is_active BOOLEAN NOT NULL DEFAULT TRUE,
