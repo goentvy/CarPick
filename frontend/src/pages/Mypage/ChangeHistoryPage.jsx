@@ -46,21 +46,9 @@ function ChangeHistoryPage() {
         return "복합 변경";
     };
 
-    // 서브 태그용 라벨들
-    const getSubChangeLabels = (item) => {
-        const types = parseChangeTypes(item.changeTypes);
-        return types.map((t) => {
-            switch (t) {
-                case "CAR":
-                    return "차종";
-                case "PERIOD":
-                    return "기간";
-                case "LOCATION":
-                    return "위치";
-                default:
-                    return t;
-            }
-        });
+    // 예약번호 포매팅 (예: RES-123 형태)
+    const formatReservationId = (id) => {
+        return `RES-${id}`;
     };
 
     useEffect(() => {
@@ -121,10 +109,6 @@ function ChangeHistoryPage() {
             // 취소 전용 카드
             return (
                 <div className="p-4 rounded-2xl border bg-gradient-to-r from-red-50 to-pink-50 border-red-100">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                        <p className="text-xs font-medium">취소</p>
-                    </div>
                     <p className="text-xs text-red-600 font-medium">
                         {item.reason || "고객 취소"}
                     </p>
@@ -137,65 +121,46 @@ function ChangeHistoryPage() {
         const showPeriod = hasType(item, "PERIOD");
         const showLocation = hasType(item, "LOCATION");
 
-        // 라벨 결정
-        let labelText = "변경";
-        if (showCar && !showPeriod && !showLocation) {
-            labelText = "차종 변경";
-        } else if (showPeriod && !showCar && !showLocation) {
-            labelText = "기간 변경";
-        } else if (showLocation && !showCar && !showPeriod) {
-            labelText = "위치 변경";
-        } else {
-            labelText = "복합 변경";
-        }
-
         return (
             <div className="p-4 rounded-2xl border bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
-                    <p className="text-xs font-medium">{labelText}</p>
-
-                    {/* 복합 변경이면 서브 태그 표시 */}
-                    {(showCar && showPeriod) ||
-                    (showCar && showLocation) ||
-                    (showPeriod && showLocation) ? (
-                        <div className="flex flex-wrap gap-1 ml-1">
-                            {showCar && (
-                                <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
-                                    차종
-                                </span>
-                            )}
-                            {showPeriod && (
-                                <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
-                                    기간
-                                </span>
-                            )}
-                            {showLocation && (
-                                <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
-                                    위치
-                                </span>
-                            )}
-                        </div>
-                    ) : null}
+                {/* 태그들 */}
+                <div className="flex flex-wrap gap-1 mb-3">
+                    {showCar && (
+                        <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
+                            차종
+                        </span>
+                    )}
+                    {showPeriod && (
+                        <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
+                            기간
+                        </span>
+                    )}
+                    {showLocation && (
+                        <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
+                            위치
+                        </span>
+                    )}
                 </div>
 
                 <div className="space-y-2 text-xs text-gray-700">
                     {/* 차종 변경 영역 */}
                     {showCar && (
-                        <div className="flex items-center gap-1">
-                            <span className="text-gray-500 line-through">
-                                {item.oldCarName}
-                            </span>
-                            <span className="text-orange-600 font-semibold mx-1">
-                                →
-                            </span>
-                            <span className="font-semibold">
-                                {item.newCarName}
-                            </span>
+                        <div>
+                            <div className="flex items-center gap-1">
+                                <span className="text-gray-500 line-through">
+                                    {item.oldCarName}
+                                </span>
+                                <span className="text-orange-600 font-semibold mx-1">
+                                    →
+                                </span>
+                                <span className="font-semibold">
+                                    {item.newCarName}
+                                </span>
+                            </div>
                         </div>
                     )}
 
-                    {/* 기간 변경 영역 */}
+                    {/* 기간 변경 영역 - 섹션 제목 제거 */}
                     {showPeriod && (
                         <div className="flex items-center gap-1">
                             <span className="text-gray-500 line-through">
@@ -210,7 +175,7 @@ function ChangeHistoryPage() {
                         </div>
                     )}
 
-                    {/* 위치 변경 영역 */}
+                    {/* 위치 변경 영역 - 섹션 제목 제거 */}
                     {showLocation && (
                         <div className="flex items-center gap-1">
                             <span className="text-gray-500 line-through">
@@ -229,29 +194,6 @@ function ChangeHistoryPage() {
         );
     };
 
-    if (loading) {
-        return (
-            <div
-                id="content"
-                className="font-pretendard"
-                style={{
-                    minHeight: "calc(100vh - 60px)",
-                    paddingBottom: "72px",
-                    backgroundColor: "#E7EEFF",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2C7FFF] mx-auto mb-4"></div>
-                    <p className="text-sm text-[#666666]">
-                        히스토리 불러오는 중...
-                    </p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div
@@ -300,20 +242,22 @@ function ChangeHistoryPage() {
                                     return (
                                         <div key={item.id} className="p-6">
                                             <div className="flex flex-col gap-3">
-                                                {/* 상단: 차량명 + 태그 */}
-                                                <div className="flex items-center gap-2">
-                                                    <div className="ml-2 text-sm font-semibold text-[#1A1A1A] truncate">
-                                                        {item.newCarName ||
-                                                            item.oldCarName}
+                                                {/* 상단: 예약번호 | 날짜 | 액션 라벨 */}
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <div className="text-sm font-semibold text-[#1A1A1A]">
+                                                        {formatReservationId(item.reservationId)}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">
+                                                        {item.createdAt}
                                                     </div>
                                                     <div
-                                                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                                                             isCancel
                                                                 ? "bg-red-100 text-red-700"
                                                                 : "bg-orange-100 text-orange-700"
                                                         }`}
                                                     >
-                                                        {mainLabel}
+                                                        {isCancel ? "취소" : "변경"}
                                                     </div>
                                                 </div>
 
@@ -335,7 +279,7 @@ function ChangeHistoryPage() {
                                                     <button
                                                         onClick={() =>
                                                             navigate(
-                                                                `/mypage/reservation-detail/${item.id}`
+                                                                `/mypage/reservation-detail/${item.reservationId}`
                                                             )
                                                         }
                                                         className="text-xs bg-[#1D6BF3] text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-[#1E5BBF] transition-colors whitespace-nowrap"
