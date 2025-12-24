@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carpick.domain.inquiry.dto.AdminInquiryPageResponse;
 import com.carpick.domain.inquiry.dto.InquiryCreateRequest;
 import com.carpick.domain.inquiry.dto.InquiryCreateResponse;
 import com.carpick.domain.inquiry.dto.MyPageInquiryResponse;
@@ -36,32 +37,45 @@ public class InquiryService {
 
 	// 사용자 - 마이페이지 문의내역
 	public List<MyPageInquiryResponse> getMyInquiryResponses(Long userId) {
-		return inquiryMapper.findByUserId(userId)
-				.stream()
-				.map(MyPageInquiryResponse::from)
-				.toList();
+		return inquiryMapper.findByUserId(userId).stream().map(MyPageInquiryResponse::from).toList();
 	}
-	
-	// 관리자 - 문의 목록
-	public List<Inquiry> getAllInquiries() {
-		return inquiryMapper.findAll();
+
+	// 관리자 - 문의 목록 + 페이징
+	public AdminInquiryPageResponse getInquiryPage(int page, int pageSize) {
+
+		List<Inquiry> allInquiries = inquiryMapper.findAll();
+		int totalCount = allInquiries.size();
+
+		int totalPages = totalCount == 0 ? 1 : (int) Math.ceil((double) totalCount / pageSize);
+
+		// 페이지 범위 보정 
+		if (page < 0)
+			page = 0;
+		if (page >= totalPages)
+			page = Math.max(0, totalPages - 1);
+
+		int startIndex = page * pageSize;
+		int endIndex = Math.min(startIndex + pageSize, totalCount);
+
+		List<Inquiry> inquiries = totalCount == 0 ? List.of() : allInquiries.subList(startIndex, endIndex);
+
+		return new AdminInquiryPageResponse(inquiries, page, totalPages, totalCount);
 	}
-	
+
 	// 관리자 - 문의 상세
 	public Inquiry getInquiry(Long id) {
 		return inquiryMapper.findById(id);
 	}
-	
+
 	// 관리자 - 답변 등록 / 수정
 	@Transactional
 	public void answerInquiry(Long id, String reply, String status) {
 		Inquiry inquiry = inquiryMapper.findById(id);
-		
-		if(inquiry == null) {
+
+		if (inquiry == null) {
 			throw new IllegalArgumentException("존재하지 않는 문의입니다.");
 		}
-	
+
 		inquiryMapper.updateAnswer(id, reply, status);
 	}
 }
-
