@@ -32,4 +32,13 @@ public class OAuthController {
         // 2. 성공 응답 반환 (200 OK)
         return ResponseEntity.ok(response);
     }
+
+    /** * 카카오 연동 해제 */
+    @PostMapping("/unlink/kakao")
+    public ResponseEntity<?> unlinkKakao(@RequestHeader("Authorization") String bearerToken) {
+        // JWT 토큰에서 사용자 식별
+         String token = bearerToken.replace("Bearer ", "");
+         oAuthService.unlinkKakao(token);
+         return ResponseEntity.ok().body("카카오 연동이 해제되었습니다.");
+    }
 }

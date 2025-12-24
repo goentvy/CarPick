@@ -8,10 +8,11 @@ import Home from './pages/Home'
 import Profile from './pages/Profile'
 import Intro from './pages/Intro/Intro.jsx'
 
-import CarList from "./pages/Car/CarList";
+import CarDayList from "./pages/Car/CarDayList";
+import CarMonthList from "./pages/Car/CarMonthList";
 import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
-import CarpickZonePage from "./pages/zone/CarpickZonePage.jsx";
+import CarpickZonePage from "./pages/Zone/CarpickZonePage.jsx";
 
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
@@ -79,9 +80,16 @@ createRoot(document.getElementById('root')).render(
           <Route path="profile" element={<Profile />} />
 
           {/* 차량 목록 */}
+<<<<<<< Updated upstream
+          <Route path="day" element={<CarDayList />} />
+          <Route path="month" element={<CarMonthList />} />
+          <Route path="car/detail/:id" element={<CarDetailPage />} />
+
+=======
           <Route path="day" element={<CarList />} />
           <Route path="car/detail" element={<CarDetailPage />} />
-
+          
+>>>>>>> Stashed changes
           {/* 카픽존 & 드롭존 */}
           <Route path="zone" element={<CarpickZonePage />} />
 

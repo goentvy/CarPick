@@ -2,15 +2,22 @@ package com.carpick.domain.auth.service;
 
 import com.carpick.domain.auth.dto.OAuthLoginRequest;
 import com.carpick.domain.auth.dto.OAuthLoginResponse;
+import com.carpick.domain.auth.entity.Gender;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;
 import com.carpick.domain.auth.service.client.KaKaoClient;
 import com.carpick.domain.auth.service.client.NaverClient;
 import com.carpick.global.security.jwt.JwtProvider;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional; // Spring 트랜잭션 권장
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
@@ -19,51 +26,88 @@ public class OAuthService {
     private final NaverClient naverClient;
     private final UserMapper userMapper;
     private final JwtProvider jwtProvider;
-
-    // ❌ private final User user; -> 이 줄은 삭제되었습니다.
-    // 이유는 User는 DB 데이터이지, 주입받는 서비스 객체가 아니기 때문입니다.
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
-        // 1. 소셜 서비스로부터 유저 정보를 가져옴
         User socialUser;
         if ("KAKAO".equalsIgnoreCase(provider)) {
             String accessToken = kakaoClient.getAccessToken(request.getCode());
             socialUser = kakaoClient.getProfile(accessToken);
+            // ✅ 로그인 시 액세스 토큰 저장 (연동 해제 시 필요)
+            socialUser.setAccessToken(accessToken);
         } else if ("NAVER".equalsIgnoreCase(provider)) {
             String accessToken = naverClient.getAccessToken(request.getCode(), request.getState());
             socialUser = naverClient.getProfile(accessToken);
+            socialUser.setAccessToken(accessToken);
         } else {
             throw new IllegalArgumentException("지원하지 않는 소셜 서비스입니다: " + provider);
         }
 
-        // 2. DB에서 기존 유저 확인 (provider + providerId 조합)
+        // DB에서 기존 유저 확인
         User existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
 
         if (existUser == null) {
-            // 3. 회원가입 없이 즉시 저장 (간편 로그인 가입)
-            // 인자로 받은 socialUser(Entity)를 직접 사용하여 보안 유지
+            if (socialUser.getEmail() == null || socialUser.getEmail().isBlank()) {
+                socialUser.setEmail(provider.toLowerCase() + "_" + socialUser.getProviderId() + "@social.local");
+            }
+            socialUser.setPassword("");
+            socialUser.setMembershipGrade("BASIC");
+            if (socialUser.getGender() == null) socialUser.setGender(Gender.M);
+            if (socialUser.getMarketingAgree() == null) socialUser.setMarketingAgree(0);
+
             userMapper.insertSocialUser(socialUser);
-            existUser = socialUser;
+
+            if (socialUser.getUserId() == null) {
+                existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
+            } else {
+                existUser = socialUser;
+            }
+        }
+        log.info("existUser userId = {}", existUser.getUserId());
+        if (existUser.getUserId() == null) {
+            throw new IllegalStateException("UserId가 null입니다. DB INSERT/조회 로직을 확인하세요.");
         }
 
-        // 4. JwtProvider를 사용하여 토큰 발행 (로컬 로그인과 동일한 방식)
-        // role(등급)이 null일 경우를 대비해 안전하게 "BASIC" 처리
-        String role = (existUser.getMembershipGrade() != null)
-                ? existUser.getMembershipGrade().toString()
-                : "BASIC";
+        String role = (existUser.getMembershipGrade() != null) ? existUser.getMembershipGrade() : "BASIC";
+        String token = jwtProvider.generateToken(existUser.getUserId(), role);
 
-        String token = jwtProvider.generateToken(
-                existUser.getUserId(),
-                role
-        );
-
-        // 5. 보안 DTO(Response)에 담아 반환 (최종 결과)
         return OAuthLoginResponse.builder()
                 .success(true)
                 .token(token)
                 .name(existUser.getName())
                 .email(existUser.getEmail())
                 .build();
+    }
+
+    /**
+     * ✅ 카카오 연동 해제
+     */
+    @Transactional
+    public void unlinkKakao(String jwtToken) {
+        Long userId = jwtProvider.getUserId(jwtToken);
+        User user = userMapper.findById(userId);
+
+        if (user == null || !"KAKAO".equalsIgnoreCase(user.getProvider())) {
+            throw new IllegalStateException("카카오 연동된 계정이 아닙니다.");
+        }
+        if (user.getAccessToken() == null) {
+            throw new IllegalStateException("카카오 액세스 토큰이 없습니다. 다시 로그인 후 시도하세요.");
+        }
+
+        String url = "https://kapi.kakao.com/v1/user/unlink";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(user.getAccessToken()); // ✅ 액세스 토큰 사용
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new IllegalStateException("카카오 연동 해제 실패: " + response.getBody());
+        }
+
+        // DB에서 유저 탈퇴 처리 (deleted_at 업데이트 등)
+        userMapper.deleteUser(userId);
+        log.info("카카오 연동 해제 완료: userId={}", userId);
     }
 }

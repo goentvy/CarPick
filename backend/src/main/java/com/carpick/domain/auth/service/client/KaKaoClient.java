@@ -2,6 +2,7 @@ package com.carpick.domain.auth.service.client;
 
 import com.carpick.domain.auth.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class KaKaoClient {
@@ -73,6 +75,10 @@ public class KaKaoClient {
         // 카카오 JSON 계층 구조 파싱
         Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
         Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+        log.info("Kakao body: {}", body);
+        log.info("kakao_account: {}", kakaoAccount);
+        log.info("profile: {}", profile);
 
         return User.builder()
                 .email((String) kakaoAccount.get("email"))

@@ -16,6 +16,7 @@ public interface UserInfoMapper {
             @Param("name") String name,
             @Param("phone") String phone,
             @Param("birth") LocalDate birth,
+            @Param("password") String password,
             @Param("marketingAgree") boolean marketingAgree
     );
 
@@ -26,4 +27,8 @@ public interface UserInfoMapper {
             @Param("userId") Long userId,
             @Param("membershipGrade") String membershipGrade
     );
+
+    UserInfo findById(Long userId);
+
+    void markDeleted(Long userId);
 }

@@ -111,6 +111,36 @@ public enum ErrorCode {
         "외부 인증 서비스 오류가 발생했습니다",
         "OAuth provider error"
     ),
+    AUTH_USER_NOT_FOUND(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A007",
+    	    "인증에 실패했습니다",
+    	    "Authenticated user not found"
+    	),
+    AUTH_TOKEN_UNSUPPORTED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A008",
+    	    "인증에 실패했습니다",
+    	    "Unsupported JWT token"
+    	),
+    AUTH_TOKEN_MALFORMED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A009",
+    	    "인증에 실패했습니다",
+    	    "Malformed JWT token"
+    	),
+    AUTH_CREDENTIALS_EXPIRED(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A010",
+    	    "인증이 만료되었습니다",
+    	    "User credentials expired"
+    	),
+    AUTH_TOKEN_SIGNATURE_INVALID(
+    	    HttpStatus.UNAUTHORIZED,
+    	    "A011",
+    	    "인증에 실패했습니다",
+    	    "Invalid JWT token signature"
+    	),
 
     // ======================
     // Web (Page)
