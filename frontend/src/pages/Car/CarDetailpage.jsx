@@ -4,6 +4,13 @@ import SpinVideo from "../../components/car/SpinVideo.jsx";
 import carDetailMock from "@/mocks/carDetail.json";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
 // import api from "@/service/api";
+import { createGlobalStyle } from "styled-components";
+
+const HideHeaderFooter = createGlobalStyle`
+  #head, #footer {
+    display: none !important;
+  }
+`;
 
 /** ---------- UI Parts ---------- */
 const InfoTile = ({ icon, title }) => (
@@ -161,6 +168,7 @@ export default function CarDetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <HideHeaderFooter />
       {/* 640 컨테이너 */}
       <div className="mx-auto w-full max-w-[640px] pb-28">
         {/* Top App Bar */}

@@ -80,16 +80,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="profile" element={<Profile />} />
 
           {/* 차량 목록 */}
-<<<<<<< Updated upstream
           <Route path="day" element={<CarDayList />} />
           <Route path="month" element={<CarMonthList />} />
           <Route path="car/detail/:id" element={<CarDetailPage />} />
-
-=======
-          <Route path="day" element={<CarList />} />
-          <Route path="car/detail" element={<CarDetailPage />} />
           
->>>>>>> Stashed changes
           {/* 카픽존 & 드롭존 */}
           <Route path="zone" element={<CarpickZonePage />} />
 

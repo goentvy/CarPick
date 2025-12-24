@@ -16,26 +16,7 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
 
-<<<<<<< HEAD
-  const location = useLocation();
-<<<<<<< Updated upstream
-  const hideOnDetail =
-    location.pathname.startsWith("/car/") ||
-    location.pathname.startsWith("/cars/") ||
-    location.pathname.includes("/detail");
-=======
-  // const location = useLocation();
-  // const hideOnDetail =
-  //   location.pathname.startsWith("/car/") || 
-  //   location.pathname.startsWith("/cars/") || 
-  //   location.pathname.includes("/detail");     
->>>>>>> dev
 
-  // if (hideOnDetail) return null;
-=======
-  const path = location.pathname.toLowerCase();
-
->>>>>>> Stashed changes
   useEffect(() => {
     if (location.pathname.includes("zone")) {
       setActiveMenu("카픽존");
@@ -128,8 +109,10 @@ function Header() {
               </li>
 
               {/* 카픽존 */}
-              <li className={`gnb-item ${location.pathname.includes("zone") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/zone" className="gnb-link submenu-trigger">카픽존</Link>
+              <li className={`gnb-item  ${location.pathname.includes("zone") ? "active": "" }`} onClick={closeMenu}>
+                <div className="submenu">
+                  <Link to="/zone" className="gnb-link submenu-trigger" >카픽존</Link>
+                </div>
               </li>
 
               <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
@@ -142,14 +125,14 @@ function Header() {
 
               {/* 고객센터 */}
               <li className={`gnb-item has-submenu ${location.pathname.includes("/cs/") || activeMenu === "고객센터"
-                ? "active"
-                : ""
+                  ? "active"
+                  : ""
                 }`}>
                 <div className="submenu">
                   <button
                     className={`gnb-link submenu-trigger ${location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
-                      ? "active"
-                      : ""
+                        ? "active"
+                        : ""
                       }`}
                     onClick={() => handleToggleMenu("고객센터")}
                   >
