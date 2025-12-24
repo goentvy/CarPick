@@ -33,4 +33,7 @@ public class User {
     private LocalDateTime deletedAt;
 
     private Role role;   // ✅ 권한 Enum
+
+    // 카카오/네이버 액세스 토큰 저장용
+    private String accessToken;
 }
