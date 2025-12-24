@@ -35,8 +35,11 @@ public interface UserMapper {
     // ✅ userId로 조회
     User findById(@Param("userId") Long userId);
 
-    // ✅ 회원 탈퇴 처리 (deleted_at 업데이트)
-    void deleteUser(@Param("userId") Long userId);
+    // ✅ 로컬 유저 탈퇴 (소프트 삭제)
+    void softDeleteLocalUser(@Param("userId") Long userId);
+
+    // ✅ 소셜 유저 탈퇴 (하드 삭제)
+    void hardDeleteSocialUser(@Param("userId") Long userId);
 
     // ✅ 카카오 액세스 토큰 업데이트 (연동 해제 시 필요)
     void updateAccessToken(
