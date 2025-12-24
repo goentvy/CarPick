@@ -30,7 +30,7 @@ function Guide() {
   return (
     <div className="guide-page">
       <div className="guide-header-section">
-        <h2>이용가이드 🚗</h2>
+        <h2>이용가이드</h2>
       </div>
 
       <div className="guide-content">
