@@ -68,7 +68,7 @@ const SignupJoinus = () => {
 
       if (data.success) {
         alert("가입 정보가 제출되었습니다.");
-        navigate("/signup/complete");
+        navigate("/signup/complete", { state: { userName: formData.name } });
       } else {
         alert(data.message);
       }

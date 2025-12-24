@@ -82,8 +82,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center min-h-screen w-full mt-[67px]">
-      <div className="w-full max-w-md bg-white p-8">
+      <div className="flex justify-center min-h-[calc(100vh-67px)] w-full mt-[67px] pb-20">
+          <div className="w-full max-w-md bg-white p-8">
         <ContentTopLogo 
           title="로그인 하세요" 
           titleStyle={"text-center mb-4 text-xl font-bold"}
