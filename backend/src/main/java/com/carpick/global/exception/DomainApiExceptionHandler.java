@@ -1,17 +1,19 @@
 package com.carpick.global.exception;
 
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.carpick.global.enums.ErrorCode;
 import com.carpick.global.response.ApiErrorResponse;
+import com.carpick.global.util.ProfileResolver;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@RequiredArgsConstructor
 @Slf4j
 @Order(1)
 @RestControllerAdvice(basePackages = {
@@ -20,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 })
 public class DomainApiExceptionHandler {
 
+	private final ProfileResolver profileResolver;
+	
 	/**
 	 * 🔍 1. AuthenticationException (인증 실패 예외)
 	 * - 로그인 실패 또는 인증 토큰 오류 시 발생
@@ -29,22 +33,17 @@ public class DomainApiExceptionHandler {
 	protected ResponseEntity<ApiErrorResponse> handleAuthenticationException(
 	        AuthenticationException e, HttpServletRequest request) {
 
+		ErrorCode errorCode = e.getErrorCode();
+		
 	    log.info("[Auth-Fail] code={}, path={}",
-	            e.getErrorCode(),
+	    		errorCode,
 	            request.getRequestURI());
+	    
+	    ApiErrorResponse response =
+	            ApiErrorResponse.of(errorCode, request, profileResolver);
 
-	    ApiErrorResponse response = ApiErrorResponse.of(
-	        e.getErrorCode().code(),
-	        e.getErrorCode().message(),
-	        request.getRequestURI()
-	    );
-
-	    return ResponseEntity
-	        .status(e.getErrorCode().getHttpStatus())
-	        .body(response);
+	    return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
-
-
 
 	/**
 	 * 🔍 2. BusinessException (사용자 정의 예외)
@@ -53,10 +52,20 @@ public class DomainApiExceptionHandler {
 	 */
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ApiErrorResponse> handleBusinessException(BusinessException e, HttpServletRequest request) {
-		log.warn("[Domain-BusinessException] {} - {}", e.getErrorCode(), e.getMessage());
+		
+		ErrorCode errorCode = e.getErrorCode();
+		
+		log.warn(
+			    "[Domain-BusinessException] code={}, detailMessage={}, logMessage={}, path={}",
+			    errorCode.getCode(),
+			    e.getMessage(),
+			    errorCode.getLogMessage(),
+			    request.getRequestURI()
+			);
+		
+		ApiErrorResponse response =
+	            ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		ApiErrorResponse response = ApiErrorResponse.of(e.getErrorCode().code(), e.getMessage(), request.getRequestURI());
-
-		return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 }

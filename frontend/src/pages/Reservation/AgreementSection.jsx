@@ -12,6 +12,8 @@ const AgreementSection = ({ isLoggedIn }) => {
   const setDriverInfo = useReservationStore((state) => state.setDriverInfo);
   const getReservationData = useReservationStore((state) => state.getReservationData);
 
+  const totalPrice = useReservationStore((state) => state.payment.summary?.totalPrice || 0);
+
   // 결제 버튼 클릭 시 실행
   const onSubmit = async (formData) => {
     // 1. 운전자 정보 추출 및 저장
@@ -29,9 +31,12 @@ const AgreementSection = ({ isLoggedIn }) => {
     // 4. API 호출
     try {
       const res = await axios.post("http://localhost:8080/api/reservation/pay", reservationData);
+      
       if (res.data.status === "APPROVED") {
+        const orderId = res.data.orderId;
+
         alert("결제가 완료되었습니다!");
-        navigate("/order/complete", { state: reservationData.paymentSummary.totalPrice});
+        navigate("/order/complete", { state: { orderId, totalPrice } });
       } else {
         alert("결제 실패: " + res.data.message);
       }
@@ -57,7 +62,7 @@ const AgreementSection = ({ isLoggedIn }) => {
 
       {/* 결제 동의 문구 */}
       <div className="mt-4">
-        <p className="xx:text-sm sm:text-base text-center text-blue-500 font-bold">
+        <p className="xx:text-sm sm:text-base text-center text-brand font-bold">
           위 내용을 모두 확인하였으며, 결제에 동의합니다.
         </p>
       </div>
@@ -68,9 +73,9 @@ const AgreementSection = ({ isLoggedIn }) => {
           <button
             type="button"
             onClick={handleSubmit(onSubmit)}
-            className="flex-1 px-6 py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors duration-200"
+            className="flex-1 px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-blue-600 transition-colors duration-200"
           >
-            49,900원 결제하기
+            {totalPrice.toLocaleString()}원 결제하기
           </button>
         ) : (
           <button
@@ -78,7 +83,7 @@ const AgreementSection = ({ isLoggedIn }) => {
             onClick={handleSubmit(onSubmit)}
             className="flex-1 px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors duration-200"
           >
-            비회원 49,900원 결제하기
+            비회원 {totalPrice.toLocaleString()}원 결제하기
           </button>
         )}
       </div>

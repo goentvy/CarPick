@@ -56,9 +56,7 @@
 	                </div>
 	            </div>
 	            <div class="col-sm-6 clearfix">
-	                <button type="submit" class="user-profile pull-right user_writeBtn">
-	                    답변 등록
-	                </button>
+
 	            </div>
 	        </div>
 	    </div>
@@ -70,39 +68,81 @@
 	                    <!-- Textual inputs start -->
 	                    <div class="col-12 mt-5">
 	                        <div class="card">
-	                            <div class="card-body">
-	                                <h4 class="header-title">일대일문의 관리</h4>
-									<div class="form-group">
-										<div class="form-group">
-                                            <label for="Select">문의카테고리</label>
-                                            <select id="Select" class="form-control" disabled>
-                                                <option>예약관련</option>
-												<option>사고관련</option>
-												<option>기타</option>
-                                            </select>
-                                        </div>
-	                                </div>
-									<div class="form-group">
-	                                    <label for="example-text-input" class="col-form-label">질문자</label>
-	                                    <input class="form-control" type="text" value="asdsaddsad@asd.com" id="example-text-input" disabled>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="example-text-input" class="col-form-label">질문</label>
-	                                    <input class="form-control" type="text" value="Carlos Rath" id="example-text-input" disabled>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="example-search-input" class="col-form-label">답변</label>
-	                                    <textarea rows="5" class="form-control" type="search" id="example-search-input">Where is google office</textarea>
-	                                </div>
-									<div class="form-group">
-										<div class="form-group">
-                                            <label for="Select">답변유형</label>
-                                            <select id="Select" class="form-control">
-                                                <option>답변전</option>
-												<option>답변완료</option>
-                                            </select>
-                                        </div>
-	                                </div>
+								<div class="card-body">
+								    <h4 class="header-title">일대일문의 관리</h4>
+
+								    <form th:action="@{/admin/inquiries/{id}/answer(id=${inquiry.id})}"
+								          method="post">
+
+								        <!-- 문의 카테고리 -->
+								        <div class="form-group">
+								            <label>문의카테고리</label>
+								            <input class="form-control"
+								                   th:value="${inquiry.category == 'reservation' ? '예약문의' : 
+								                            inquiry.category == 'payment' ? '결제문의' : 
+								                            inquiry.category == 'cancel' ? '취소/환불' : 
+								                            inquiry.category == 'etc' ? '기타' : inquiry.category}"
+								                   disabled>
+								        </div>
+
+								        <!-- 질문자 -->
+								        <div class="form-group" style="display: none;">
+								            <label>질문자</label>
+								            <input class="form-control"
+								                   th:value="${inquiry.userId}"
+								                   disabled>
+								        </div>
+
+								        <!-- 질문 제목 -->
+								        <div class="form-group">
+								            <label>질문 제목</label>
+								            <input class="form-control"
+								                   th:value="${inquiry.title}"
+								                   disabled>
+								        </div>
+
+								        <!-- 질문 내용 -->
+								        <div class="form-group">
+								            <label>질문 내용</label>
+								            <textarea class="form-control"
+								                      rows="5"
+								                      disabled
+								                      th:text="${inquiry.content}">
+								            </textarea>
+								        </div>
+
+								        <!-- 관리자 답변 -->
+								        <div class="form-group">
+								            <label>답변</label>
+								            <textarea name="reply"
+								                      class="form-control"
+								                      rows="5"
+								                      th:text="${inquiry.adminReply}">
+								            </textarea>
+								        </div>
+
+								        <!-- 답변 상태 -->
+								        <div class="form-group" style="display: none;">
+								            <label>답변 상태</label>
+								            <input type="hidden" name="status" value="answered">
+								        </div>
+
+								        <div th:if="${inquiry.status == 'pending'}">
+								            <button type="submit" class="btn btn-primary">
+								                답변 등록하기
+								            </button>
+								        </div>
+								        
+								        <div th:if="${inquiry.status == 'answered'}">
+								            <span class="text-primary mr-3">답변완료</span>
+								            <button type="submit" class="btn btn-secondary">
+								                수정하기
+								            </button>
+								        </div>
+
+								    </form>
+								</div>
+
 	                            </div>
 	                        </div>
 	                    </div>

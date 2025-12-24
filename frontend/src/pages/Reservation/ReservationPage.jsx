@@ -10,7 +10,9 @@ import ReservationInsurance from "./ReservationInsurance";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import useReservationStore from "../../store/useReservationStore";
 
 // ✅ Yup 스키마 정의
 const schema = yup.object().shape({
@@ -55,6 +57,8 @@ const schema = yup.object().shape({
 
 
 const ReservationPage = () => {
+  const [formData, setFormData] = useState(null);
+  const { setVehicle } = useReservationStore();
   const methods = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -75,31 +79,47 @@ const ReservationPage = () => {
       email: "",
     },
   });
-  
-  const [insurance, setInsurance] = useState("full"); // 보험 선택 상태 추가
+
+  // 데이터 초기 셋팅
+  useEffect(() => {
+    axios.get("/api/reservation/form", { params: {carId: 1} })
+    .then(res => {
+      setFormData(res.data);
+      setVehicle({
+        id: res.data.car.carId,
+        title: res.data.car.title,
+        dailyPrice: res.data.paymentSummary.carDailyPrice,
+      });
+    })
+    .catch(err => console.error("예약 폼 데이터 불러오기 실패:", err));
+  }, []);
 
   return (
     <FormProvider {...methods}>
       <div className="flex flex-col justify-center items-center mt-[60px]">
-          {/* 차량 정보 */}
-          <ReservationBanner />
-          {/* 대여/반납 방식 선택 (업체 방문 vs 배송), 지점 정보, 운영시간, 주소 표시 */}
-          <PickupReturnSection />
-          {/* 운전자 정보 입력 (성, 이름, 생년월일, 휴대폰, 이메일, 인증요청 버튼 포함) */}
-          <DriverInfoSection />
-          {/* 보험 선택 UI */}
-          <ReservationInsurance
-            selected={insurance}
-            onSelect={(id) => setInsurance(id)}
-          />
-          {/* 보험 정보 안내 (보상한도, 자기부담금, 자손/대물/대인 설명 등) */}
-          <InsuranceInfoSection />
-          {/* 결제 요금 요약 (차량 요금, 보험 요금, 총 결제금액, 포인트 적립 등) */}
-          <PaymentSummarySection />
-          {/* 카드결제 폼 */}
-          <CardPaymentForm />
-          {/* 약관 확인 및 결제 동의 체크박스, 결제 버튼 (회원/비회원) */}
-          <AgreementSection isLoggedIn={true}/>
+        {formData && (
+          <>
+            {/* 차량 정보 */}
+            <ReservationBanner formData={formData} />
+            {/* 대여/반납 방식 선택 (업체 방문 vs 배송), 지점 정보, 운영시간, 주소 표시 */}
+            <PickupReturnSection 
+              pickup={formData.pickupBranch}
+              dropoff={formData.dropoffBranch}
+            />
+            {/* 운전자 정보 입력 (성, 이름, 생년월일, 휴대폰, 이메일, 인증요청 버튼 포함) */}
+            <DriverInfoSection />
+            {/* 보험 선택 UI */}
+            <ReservationInsurance options={formData.insuranceOptions} />
+            {/* 보험 정보 안내 (보상한도, 자기부담금, 자손/대물/대인 설명 등) */}
+            <InsuranceInfoSection />
+            {/* 결제 요금 요약 (차량 요금, 보험 요금, 총 결제금액, 포인트 적립 등) */}
+            <PaymentSummarySection />
+            {/* 카드결제 폼 */}
+            <CardPaymentForm />
+            {/* 약관 확인 및 결제 동의 체크박스, 결제 버튼 (회원/비회원) */}
+            <AgreementSection isLoggedIn={true}/>
+          </>
+        )}
       </div>
     </FormProvider>
   );

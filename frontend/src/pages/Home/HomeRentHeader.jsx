@@ -32,8 +32,8 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
 
   const handleSearch = () => {
     const params = new URLSearchParams({
-      pickupLocation, 
-      rentType, 
+      pickupLocation,
+      rentType,
       startDate: dateRange.startDate.toISOString(),
       endDate: dateRange.endDate.toISOString(),
     });
@@ -42,7 +42,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
   };
 
   return (
-    <section className="bg-blue-500 text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] relative z-999">
+    <section className="bg-brand text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] relative z-999">
       {/* 프로모션 문구 */}
       <button className="xx:hidden sm:inline border border-lime-300 rounded-4xl bg-sky-700 px-3 xx:my-1 sm:my-3">
         <span className="text-xs text-lime-300">✧ AI 기반 즉시 픽업</span>
@@ -63,7 +63,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
               onClick={() => setRentType(type)}
               className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm ${
                 rentType === type
-                  ? 'bg-blue-500 text-white shadow-md'
+                  ? 'bg-brand text-white shadow-md'
                   : 'text-gray-400 hover:bg-blue-400 hover:text-gray-700'
               }`}
             >
@@ -88,14 +88,15 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
               <p className="text-gray-800">{pickupLocation}</p>
             </div>
           </div>
-
+          
+          {/* 픽업 장소 모달 */}
           {showPickupModal && (
             <PickupLocationModal
               onClose={() => setShowPickupModal(false)}
               onSelect={(loc) => {
                 setPickupLocation(loc);
                 setShowPickupModal(false);
-                setShowDatePicker(true); // ✅ 장소 선택 후 날짜 모달 자동 열림
+                setShowDatePicker(true); // 장소 선택 후 달력 모달 활성화
               }}
             />
           )}
@@ -123,6 +124,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
             </div>
           </div>
 
+          {/* 달력 모달 */}
           {showDatePicker && (
             <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
               <RentDateRangePicker
@@ -131,7 +133,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     startDate: selection.startDate,
                     endDate: selection.endDate,
                   });
-                  setShowDatePicker(false); // ✅ 모달 닫기
+                  setShowDatePicker(false); // 달력 모달 닫기
 
                   const params = new URLSearchParams({
                     pickupLocation,
@@ -152,7 +154,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
         {/* 차량 찾기 버튼 */}
         <div className="py-3">
           <button 
-            className="w-full bg-blue-500 text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
+            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
             onClick={handleSearch}>
             차량 찾기
           </button>
