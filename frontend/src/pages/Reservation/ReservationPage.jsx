@@ -11,8 +11,9 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import useReservationStore from "../../store/useReservationStore";
+import api from "../../services/api";
+import axios from "axios";
 
 // ✅ Yup 스키마 정의
 const schema = yup.object().shape({
@@ -82,7 +83,7 @@ const ReservationPage = () => {
 
   // 데이터 초기 셋팅
   useEffect(() => {
-    axios.get("/api/reservation/form", { params: {carId: 1} })
+    axios.get("/reservation/form", { params: {carId: 1} })
     .then(res => {
       setFormData(res.data);
       setVehicle({
