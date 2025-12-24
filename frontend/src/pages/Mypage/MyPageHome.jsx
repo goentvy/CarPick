@@ -59,38 +59,49 @@ function MyPageHome() {
                 minHeight: contentMinHeight,
             }}
         >
-            {/* 상단 인사 바 – 홈 상단 카드 느낌으로 살짝 라운드 */}
-            <div className="px-4 pt-4">
-                <div
-                    className="
-            w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
-            mx-auto rounded-2xl
-            bg-[#2C7FFF]
-            px-4 py-3
-            flex items-center justify-between
-            shadow-md
-          "
-                >
-                    <p className="text-xs text-white">
-                        <span className="font-semibold text-sm">{userName}</span> 님,
-                        <br />
-                        <span className="text-[11px] opacity-90">카픽과 함께하는 여행 준비</span>
-                    </p>
 
-                    <button
-                        type="button"
-                        onClick={() => navigate("/mypage/profile")}
+            <div
+                className="font-pretendard pb-4 lg:pb-0"
+                style={{
+                    backgroundColor: "#E7EEFF",
+                    minHeight: contentMinHeight,
+                }}
+            >
+                {/* 인사 카드 */}
+                <div className="w-full">
+                    <div
                         className="
-              text-[11px] px-3 py-2 rounded-full
-              border border-white/70 text-white
-              bg-white/10
-              hover:bg-white/20 transition
-            "
+        w-full
+        rounded-b-3xl
+        bg-[#1D6BF3]
+        px-4 py-4
+        flex items-center justify-between
+        shadow-md
+      "
                     >
-                        개인정보 수정
-                    </button>
+                        <p className="text-xs text-white ml-3">
+                            <span className="font-semibold text-sm">{userName} 님</span>
+                            <br />
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={() => navigate("/mypage/profile")}
+                            className="
+          text-[11px] px-3 py-2 rounded-full
+          border border-white/70 text-white
+          bg-white/10
+          hover:bg-white/20 transition
+        "
+                        >
+                            개인정보 수정
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+
+
+
 
             {/* 진행중 주문 카드 */}
             {ongoingOrder && (
@@ -113,9 +124,6 @@ function MyPageHome() {
                             <div className="flex items-center px-4 py-8">
                                 {/* 왼쪽 텍스트 */}
                                 <div className="flex flex-col text-left mr-4">
-            <span className="text-[11px] font-semibold">
-              진행중인 주문
-            </span>
                                     <span className="text-sm font-bold mt-1">
               {ongoingOrder.carName}
             </span>
@@ -173,8 +181,8 @@ function MyPageHome() {
                 </div>
             </div>
 
-            {/* 로그아웃 버튼 – 위험 동작이라 색만 살짝 바꿈 */}
-            <div className="px-4 pb-8 lg:pb-6">
+            {/* 로그아웃 버튼 – 테스트용 최종으로 넣을지 미결정 */}
+            <div className="px-35 pb-8 lg:pb-6 mt-5">
                 <div className="flex flex-col items-center">
                     <button
                         type="button"
@@ -183,7 +191,7 @@ function MyPageHome() {
               w-full
               max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
               flex items-center justify-center
-              px-4 py-3 rounded-2xl
+              px-4 py-2 rounded-2xl
               bg-white
               text-[13px] font-semibold text-[#FF4D4F]
               border border-[#FF4D4F]/30
@@ -195,6 +203,7 @@ function MyPageHome() {
                     </button>
                 </div>
             </div>
+        </div>
         </div>
     );
 }
