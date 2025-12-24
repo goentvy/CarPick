@@ -52,7 +52,7 @@ const GuestView = () => {
         </div>
         <button 
           onClick={handleSearch}
-          className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition"
+          className="w-full bg-brand text-white py-2 rounded-xl hover:bg-blue-600 transition"
         >
           예약조회
         </button>

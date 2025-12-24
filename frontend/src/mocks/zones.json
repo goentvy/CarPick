@@ -1,0 +1,101 @@
+[
+  {
+    "id": "Z-ICN",
+    "kind": "BRANCH",
+    "name": "인천공항 카픽존",
+    "address": "인천 중구 공항로 272",
+    "lat": 37.4602,
+    "lng": 126.4407,
+    "walkingTimeMin": 6,
+    "open": "06:00",
+    "close": "23:00",
+    "tags": ["공항", "빠른 픽업"],
+    "cars": [
+      { "carId": "C1", "name": "쏘나타 DN8", "fuel": "가솔린", "people": 5, "priceDay": 69000 },
+      { "carId": "C2", "name": "카니발 9인", "fuel": "디젤", "people": 9, "priceDay": 119000 }
+    ]
+  },
+  {
+    "id": "Z-GMP",
+    "kind": "BRANCH",
+    "name": "김포공항 카픽존",
+    "address": "서울 강서구 하늘길 112",
+    "lat": 37.5583,
+    "lng": 126.7906,
+    "walkingTimeMin": 5,
+    "open": "06:00",
+    "close": "23:00",
+    "tags": ["공항", "도심 접근"],
+    "cars": [
+      { "carId": "C3", "name": "아반떼 CN7", "fuel": "가솔린", "people": 5, "priceDay": 49000 },
+      { "carId": "C4", "name": "스포티지", "fuel": "하이브리드", "people": 5, "priceDay": 79000 }
+    ]
+  },
+  {
+    "id": "Z-SEOUL",
+    "kind": "BRANCH",
+    "name": "서울역 카픽존",
+    "address": "서울 용산구 한강대로 405",
+    "lat": 37.5547,
+    "lng": 126.9706,
+    "walkingTimeMin": 4,
+    "open": "07:00",
+    "close": "22:00",
+    "tags": ["중심가", "기차역"],
+    "cars": [
+      { "carId": "C5", "name": "그랜저", "fuel": "가솔린", "people": 5, "priceDay": 99000 },
+      { "carId": "C6", "name": "레이", "fuel": "가솔린", "people": 4, "priceDay": 39000 }
+    ]
+  },
+  {
+    "id": "Z-BUSAN",
+    "kind": "BRANCH",
+    "name": "부산역 카픽존",
+    "address": "부산 동구 중앙대로 206",
+    "lat": 35.1151,
+    "lng": 129.0415,
+    "walkingTimeMin": 6,
+    "open": "07:00",
+    "close": "22:00",
+    "tags": ["중심가"],
+    "cars": [
+      { "carId": "C7", "name": "K5", "fuel": "가솔린", "people": 5, "priceDay": 59000 },
+      { "carId": "C8", "name": "투싼", "fuel": "디젤", "people": 5, "priceDay": 75000 }
+    ]
+  },
+  {
+    "id": "Z-JEJU",
+    "kind": "BRANCH",
+    "name": "제주공항 카픽존",
+    "address": "제주 제주시 공항로 2",
+    "lat": 33.5070,
+    "lng": 126.4928,
+    "walkingTimeMin": 7,
+    "open": "06:00",
+    "close": "23:00",
+    "tags": ["공항", "여행"],
+    "cars": [
+      { "carId": "C9", "name": "코나", "fuel": "가솔린", "people": 5, "priceDay": 62000 },
+      { "carId": "C10", "name": "싼타페", "fuel": "하이브리드", "people": 5, "priceDay": 105000 }
+    ]
+  },
+
+  {
+    "id": "D-ICN-1",
+    "kind": "DROP",
+    "name": "인천공항 T1 드롭존",
+    "address": "인천 중구 공항로 272 (T1 인근)",
+    "lat": 37.4591,
+    "lng": 126.4419,
+    "parentZoneId": "Z-ICN"
+  },
+  {
+    "id": "D-SEOUL-1",
+    "kind": "DROP",
+    "name": "명동 드롭존",
+    "address": "서울 중구 명동길 14",
+    "lat": 37.5636,
+    "lng": 126.9850,
+    "parentZoneId": "Z-SEOUL"
+  }
+]

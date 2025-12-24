@@ -21,7 +21,7 @@ const PickupLocationModal = ({ onClose, onSelect }) => {
       <div className="flex flex-row justify-between w-full border-t border-gray-300">
         <div className="flex-1 border-r border-r-gray-300 bg-gray-100">
           <ul>
-            <li className="p-4 bg-blue-500 text-white text-sm">
+            <li className="p-4 bg-brand text-white text-sm">
               CarPick 지점
             </li>
           </ul>

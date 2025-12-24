@@ -4,7 +4,6 @@ import java.nio.file.AccessDeniedException;
 import java.sql.SQLException;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -20,19 +19,26 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.helper.ApiRequestResolver;
+import com.carpick.global.logging.SecurityLogger;
 import com.carpick.global.response.ApiErrorResponse;
 import com.carpick.global.response.ValidationErrorResponse;
-import com.carpick.global.validation.ValidationErrorExtractor;
+import com.carpick.global.util.ProfileResolver;
 
 import jakarta.persistence.PersistenceException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalApiExceptionHandler {
 
+	private final ProfileResolver profileResolver;
+	private final ApiRequestResolver apiRequestResolver;
+	
 	/**
 	 * 🔍 1. Validation 실패 – BindException (@ModelAttribute / Query Parameter)
 	 * - 쿼리 파라미터 유효성 검증 실패
@@ -40,16 +46,23 @@ public class GlobalApiExceptionHandler {
 	 */
 	@ExceptionHandler(BindException.class)
 	protected ResponseEntity<ValidationErrorResponse> handleBindException(BindException e, HttpServletRequest request) {
-		log.warn("[Global-BindException] {}", e.getMessage());
+		log.warn(
+			    "[Global-BindException] path={}, errorCount={}",
+			    request.getRequestURI(),
+			    e.getBindingResult().getErrorCount()
+			);
 
-		ValidationErrorResponse response = ValidationErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				ErrorCode.INVALID_INPUT_VALUE.message(),
-				ValidationErrorExtractor.extract(e.getBindingResult()),
-				request.getRequestURI()
-		);
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ValidationErrorResponse response =
+			    ValidationErrorResponse.of(
+			        errorCode,
+			        e.getBindingResult(),
+			        request,
+			        profileResolver
+			    );
 
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -60,16 +73,23 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
 			HttpServletRequest request) {
-		log.warn("[Global-MethodArgumentNotValid] {}", e.getMessage());
+		log.warn(
+			    "[Global-MethodArgumentNotValid] path={}, errorCount={}",
+			    request.getRequestURI(),
+			    e.getBindingResult().getErrorCount()
+			);
 
-		ValidationErrorResponse response = ValidationErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				ErrorCode.INVALID_INPUT_VALUE.message(),
-				ValidationErrorExtractor.extract(e.getBindingResult()),
-				request.getRequestURI()
-		);
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ValidationErrorResponse response =
+			    ValidationErrorResponse.of(
+			        errorCode,
+			        e.getBindingResult(),
+			        request,
+			        profileResolver
+			    );
 
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -79,15 +99,21 @@ public class GlobalApiExceptionHandler {
 	 */
 	@ExceptionHandler({ PersistenceException.class, DataAccessException.class, BadSqlGrammarException.class, SQLException.class })
 	protected ResponseEntity<ApiErrorResponse> handleDatabaseException(Exception e, HttpServletRequest request) {
-		log.error("[Global-Database Error] {}", e.getMessage(), e);
+				
+		SecurityLogger.error(
+			    log,
+			    profileResolver,
+			    "[Global-DatabaseException] path={}",
+			    request.getRequestURI(),
+			    e
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.DATABASE_ERROR.code(),
-				ErrorCode.DATABASE_ERROR.message(),
-				request.getRequestURI()
-		);
+		ErrorCode errorCode = ErrorCode.DATABASE_ERROR;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -98,19 +124,18 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(ConstraintViolationException.class)
 	protected ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException e,
 			HttpServletRequest request) {
-		log.warn("[Global-ConstraintViolationException] {}", e.getMessage());
+		log.warn(
+			    "[Global-ConstraintViolationException] path={}, violationCount={}",
+			    request.getRequestURI(),
+			    e.getConstraintViolations().size()
+			);
 
-		String message = e.getConstraintViolations().stream().findFirst()
-				.map(violation -> violation.getMessage())
-				.orElse(ErrorCode.INVALID_INPUT_VALUE.message());
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				message,
-				request.getRequestURI()
-		);
-
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -121,34 +146,42 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	protected ResponseEntity<ApiErrorResponse> handleMissingParameter(MissingServletRequestParameterException e,
 			HttpServletRequest request) {
-		log.warn("[Global-MissingParameter] {}", e.getMessage());
+		log.warn(
+			    "[Global-MissingParameter] path={}, parameter={}",
+			    request.getRequestURI(),
+			    e.getParameterName()
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				e.getParameterName() + " 파라미터가 필요합니다.",
-				request.getRequestURI()
-		);
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
 	 * 🔍 6. 타입 불일치 예외
-	 * - 예상된 타입과 다른 값 전달 시
+ ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	 * - 숫자 필드에 문자열 전달 등
 	 */
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	protected ResponseEntity<ApiErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e,
 			HttpServletRequest request) {
-		log.warn("[Global-TypeMismatch] {}", e.getMessage());
+		log.warn(
+			    "[Global-TypeMismatch] path={}, parameter={}, requiredType={}",
+			    request.getRequestURI(),
+			    e.getName(),
+			    e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "unknown"
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				e.getName() + " 값의 타입이 올바르지 않습니다.",
-				request.getRequestURI()
-		);
 
-		return ResponseEntity.badRequest().body(response);
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -159,15 +192,17 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	protected ResponseEntity<ApiErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e,
 			HttpServletRequest request) {
-		log.warn("[Global-HttpMessageNotReadable] {}", e.getMessage());
+		log.warn(
+			    "[Global-HttpMessageNotReadable] path={}",
+			    request.getRequestURI()
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				"요청 본문을 읽을 수 없습니다.",
-				request.getRequestURI()
-		);
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.badRequest().body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -180,15 +215,17 @@ public class GlobalApiExceptionHandler {
 	        NoResourceFoundException e,
 	        HttpServletRequest request
 	) {
-	    String uri = request.getRequestURI();
+	    log.warn(
+	    	    "[Global-NotFound] path={}",
+	    	    request.getRequestURI()
+	    	);
 
-	    return ResponseEntity
-	        .status(HttpStatus.NOT_FOUND)
-	        .body(ApiErrorResponse.of(
-	            ErrorCode.ENTITY_NOT_FOUND.code(),
-	            "요청한 리소스를 찾을 수 없습니다.",
-	            uri
-	        ));
+	    ErrorCode errorCode = ErrorCode.ENTITY_NOT_FOUND;
+	    
+	    ApiErrorResponse response =
+	    	    ApiErrorResponse.of(errorCode, request, profileResolver);
+	    
+	    return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -199,14 +236,18 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	protected ResponseEntity<ApiErrorResponse> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e,
 			HttpServletRequest request) {
-		log.warn("[Global-MethodNotAllowed] {}", e.getMessage());
+		log.warn(
+			    "[Global-MethodNotAllowed] path={}, method={}",
+			    request.getRequestURI(),
+			    request.getMethod()
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.METHOD_NOT_ALLOWED.code(),
-				ErrorCode.METHOD_NOT_ALLOWED.message(),
-				request.getRequestURI());
+		ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -216,14 +257,17 @@ public class GlobalApiExceptionHandler {
 	 */
 	@ExceptionHandler(AccessDeniedException.class)
 	protected ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException e, HttpServletRequest request) {
-		log.warn("[Global-AccessDenied] {}", e.getMessage());
+		log.warn(
+			    "[Global-AccessDenied] path={}",
+			    request.getRequestURI()
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.FORBIDDEN.code(),
-				"접근 권한이 없습니다.",
-				request.getRequestURI());
+		ErrorCode errorCode = ErrorCode.FORBIDDEN;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -234,14 +278,18 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	protected ResponseEntity<ApiErrorResponse> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e,
 			HttpServletRequest request) {
-		log.warn("[Global-MediaTypeNotSupported] {}", e.getMessage());
+		log.warn(
+			    "[Global-MediaTypeNotSupported] path={}, contentType={}",
+			    request.getRequestURI(),
+			    request.getContentType()
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				"지원하지 않는 Content-Type입니다.",
-				request.getRequestURI());
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -252,14 +300,17 @@ public class GlobalApiExceptionHandler {
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	protected ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e,
 			HttpServletRequest request) {
-		log.warn("[Global-MaxUploadSizeExceeded] {}", e.getMessage());
+		log.warn(
+			    "[Global-MaxUploadSizeExceeded] path={}",
+			    request.getRequestURI()
+			);
 
-		ApiErrorResponse response = ApiErrorResponse.of(
-				ErrorCode.INVALID_INPUT_VALUE.code(),
-				"파일 크기가 제한을 초과했습니다.",
-				request.getRequestURI());
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+		
+		ApiErrorResponse response =
+			    ApiErrorResponse.of(errorCode, request, profileResolver);
 
-		return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(response);
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 
 	/**
@@ -272,22 +323,24 @@ public class GlobalApiExceptionHandler {
 	        Exception e,
 	        HttpServletRequest request
 	) throws Exception {
-	    String uri = request.getRequestURI();
 
-	    if (!uri.startsWith("/api")) {
+	    if (!apiRequestResolver.isApiRequest(request)) {
 	        throw e;
 	    }
+	    
+	    SecurityLogger.error(
+	    	    log,
+	    	    profileResolver,
+	    	    "[Global-Exception] path={}",
+	    	    request.getRequestURI(),
+	    	    e
+	    	);
 
-	    log.error("[Global-Exception] {} - {}", uri, e.getMessage(), e);
-
-	    ApiErrorResponse response = ApiErrorResponse.of(
-	            ErrorCode.INTERNAL_SERVER_ERROR.code(),
-	            "서버 내부 오류가 발생했습니다.",
-	            uri
-	    );
-
-	    return ResponseEntity
-	            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-	            .body(response);
+	    ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+	    
+	    ApiErrorResponse response =
+	    	    ApiErrorResponse.of(errorCode, request, profileResolver);
+	    
+	    return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
 	}
 }
