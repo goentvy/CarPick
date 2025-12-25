@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 보험 옵션 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" type="image/png" th:href="@{/assets/images/icon/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+    <style>
+        .edit-input { display: none; width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-save, .btn-cancel { display: none; }
+
+        .editing .view-text { display: none; }
+        .editing .edit-input { display: block; }
+        .editing .btn-edit, .editing .btn-delete { display: none; }
+        .editing .btn-save, .editing .btn-cancel { display: inline-block; }
+
+        /* 테이블 칸이 많아져서 글씨 크기 조절 */
+        .table th, .table td { vertical-align: middle; text-align: center; font-size: 14px; }
+        /* select 박스 스타일 */
+        select.edit-input { height: 35px; }
+    </style>
+</head>
+
+<body>
+<div class="page-container">
+    <div class="sidebar-menu" th:replace="fragments/fragments :: sidebar"></div>
+
+    <div class="main-content">
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">보험 옵션 관리</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">Home</a></li>
+                            <li><span>보험 관리</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-12 mt-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">렌터카 보험 목록</h4>
+
+                            <div class="single-table">
+                                <div class="table-responsive">
+                                    <table class="table table-hover progress-table text-center">
+                                        <thead class="text-uppercase">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>코드</th>
+                                            <th>보험명</th>
+                                            <th>설명 (요약)</th> <th>가격</th>
+                                            <th>기본</th> <th>활성</th> <th>순서</th>
+                                            <th>관리</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="item : ${list}" th:id="'row-' + ${item.insuranceId}">
+                                            <td th:text="${item.insuranceId}">1</td>
+
+                                            <td>
+                                                <span class="view-text badge badge-primary" th:text="${item.insuranceCode}">CODE</span>
+                                                <input type="text" class="edit-input" name="insuranceCode" th:value="${item.insuranceCode}">
+                                            </td>
+
+                                            <td>
+                                                <span class="view-text" th:text="${item.label}">자차</span>
+                                                <input type="text" class="edit-input" name="label" th:value="${item.label}">
+                                            </td>
+
+                                            <td>
+                                                <span class="view-text" th:text="${item.summaryLabel}">설명</span>
+                                                <input type="text" class="edit-input" name="summaryLabel" th:value="${item.summaryLabel}">
+                                            </td>
+
+                                            <td>
+                                                <span class="view-text" th:text="${item.extraDailyPrice}">0</span>
+                                                <input type="number" class="edit-input" name="extraDailyPrice" th:value="${item.extraDailyPrice}">
+                                            </td>
+
+                                            <td>
+                                                <span class="view-text" th:text="${item.isDefault} ? 'Y' : 'N'">N</span>
+                                                <select class="edit-input" name="isDefault">
+                                                    <option value="true" th:selected="${item.isDefault == true}">Y</option>
+                                                    <option value="false" th:selected="${item.isDefault == false}">N</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <span class="view-text" th:text="${item.isActive} ? 'ON' : 'OFF'">ON</span>
+                                                <select class="edit-input" name="isActive">
+                                                    <option value="true" th:selected="${item.isActive == true}">ON</option>
+                                                    <option value="false" th:selected="${item.isActive == false}">OFF</option>
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                <span class="view-text" th:text="${item.sortOrder}">0</span>
+                                                <input type="number" class="edit-input" name="sortOrder" th:value="${item.sortOrder}">
+                                            </td>
+
+                                            <td>
+                                                <ul class="d-flex justify-content-center">
+                                                    <li class="mr-3 btn-edit"><button class="text-secondary" style="border:none; bg:none;" th:onclick="'enableEdit(' + ${item.insuranceId} + ')'"><i class="fa fa-edit"></i></button></li>
+                                                    <li class="btn-delete"><button class="text-danger" style="border:none; bg:none;" th:onclick="'deleteRow(' + ${item.insuranceId} + ')'"><i class="ti-trash"></i></button></li>
+                                                    <li class="mr-3 btn-save"><button class="text-success" style="border:none; bg:none;" th:onclick="'saveRow(' + ${item.insuranceId} + ')'"><i class="fa fa-check"></i></button></li>
+                                                    <li class="btn-cancel"><button class="text-muted" style="border:none; bg:none;" th:onclick="'cancelEdit(' + ${item.insuranceId} + ')'"><i class="fa fa-times"></i></button></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer><div class="footer-area"><p>© 2025 CarPick Admin.</p></div></footer>
+</div>
+
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+    function enableEdit(id) {
+        document.getElementById('row-' + id).classList.add('editing');
+    }
+
+    function cancelEdit(id) {
+        document.getElementById('row-' + id).classList.remove('editing');
+    }
+
+    function saveRow(id) {
+        const row = document.getElementById('row-' + id);
+
+        const data = {
+            insuranceId: id,
+            insuranceCode: row.querySelector('[name=insuranceCode]').value,
+            label: row.querySelector('[name=label]').value,
+            // [추가된 3개 필드 값 가져오기]
+            summaryLabel: row.querySelector('[name=summaryLabel]').value,
+            isDefault: row.querySelector('[name=isDefault]').value === 'true', // 문자열 "true"를 불린으로 변환
+            isActive: row.querySelector('[name=isActive]').value === 'true',
+
+            extraDailyPrice: row.querySelector('[name=extraDailyPrice]').value,
+            sortOrder: row.querySelector('[name=sortOrder]').value
+        };
+
+        fetch('/admin/api/insurance/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(result => {
+                if(result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert('실패: ' + result.message);
+                }
+            })
+            .catch(err => { console.error(err); alert('통신 오류'); });
+    }
+
+    function deleteRow(id) {
+        if(!confirm('정말 삭제하시겠습니까?')) return;
+        fetch('/admin/api/insurance/' + id, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(result => {
+                if(result.success) document.getElementById('row-' + id).remove();
+                else alert('실패: ' + result.message);
+            });
+    }
+</script>
+</body>
+</html>

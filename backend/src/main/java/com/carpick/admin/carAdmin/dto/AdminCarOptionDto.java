@@ -1,20 +1,14 @@
-package com.carpick.domain.car.entity;
+package com.carpick.admin.carAdmin.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class CarOption {
+@Data
+public class AdminCarOptionDto {
     private Long optionId;
     private Long carSpecId;
-
     private String optionName;
     private String optionDescription;
 
@@ -22,7 +16,7 @@ public class CarOption {
 
     private Boolean isHighlight;
 
-    private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
     // 기존 필드들 아래에 추가
     private String useYn; // 삭제 여부 (Y/N)

@@ -4,6 +4,7 @@ import java.nio.file.AccessDeniedException;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.carpick.common.dto.CommonResponse;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -316,4 +317,24 @@ public class GlobalApiExceptionHandler extends AbstractExceptionHandler {
 	    return buildResponseEntity(errorCode, request);
 	}
 
+//**
+//		* 🔍 비즈니스 로직 예외 (Soft Delete 참조 체크 등)
+// * - 삭제 불가 상태, 중복 데이터 등
+// */
+	@ExceptionHandler(IllegalStateException.class)
+	protected ResponseEntity<ErrorResponse> handleIllegalState(
+			IllegalStateException e,
+			HttpServletRequest request
+	) {
+		ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE; // 또는 적절한 에러코드
+
+		logExpectedSpringException(
+				"IllegalState",
+				errorCode,
+				request,
+				"message=" + e.getMessage()
+		);
+
+		return buildResponseEntity(errorCode, request);
+	}
 }

@@ -1,6 +1,7 @@
 package com.carpick.domain.branch.entity;
 
 
+import com.carpick.domain.branch.enums.ServiceType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class BranchServicePoint {
     private Long branchId;                // 지점 ID (FK)
 
     private String pointName;              // 장소명 (예: 1번 출구, 지하주차장)
-    private String serviceType;            // 서비스 타입 (PICKUP / RETURN)
+    private ServiceType serviceType;            // 서비스 타입 (PICKUP / RETURN)
 
     private LocalTime serviceStartTime;    // 서비스 시작 시간
     private LocalTime serviceEndTime;      // 서비스 종료 시간
@@ -30,7 +31,8 @@ public class BranchServicePoint {
 
     private LocalDateTime createdAt;        // 생성일시
     private LocalDateTime updatedAt;        // 수정일시
-
+    // 기존 필드들 아래에 추가
+    private String useYn; // 삭제 여부 (Y/N)
 
 
 

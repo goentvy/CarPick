@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.carAdmin.mapper.AdminCarOptionMapper">
+
+    <!-- ResultMap -->
+    <resultMap id="AdminCarOptionResultMap" type="com.carpick.admin.carAdmin.dto.AdminCarOptionDto">
+        <id property="optionId" column="option_id"/>
+        <result property="carSpecId" column="car_spec_id"/>
+        <result property="optionName" column="option_name"/>
+        <result property="optionDescription" column="description"/>
+        <result property="optionDailyPrice" column="daily_price"/>
+        <result property="isHighlight" column="is_highlight"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 공통 컬럼 (SELECT용) -->
+    <sql id="carOptionColumns">
+        option_id, car_spec_id, option_name, description,
+        daily_price, is_highlight, use_yn, updated_at
+    </sql>
+
+    <!-- INSERT용 컬럼 -->
+    <sql id="carOptionInsertColumns">
+        car_spec_id, option_name, description,
+        daily_price, is_highlight, use_yn
+    </sql>
+
+    <!-- INSERT용 VALUES -->
+    <sql id="carOptionInsertValues">
+        #{carSpecId}, #{optionName}, #{optionDescription},
+        #{optionDailyPrice}, #{isHighlight}, 'Y'
+    </sql>
+
+    <!-- 특정 차종의 옵션 목록 조회 -->
+    <select id="selectListBySpecId" parameterType="long" resultMap="AdminCarOptionResultMap">
+        SELECT <include refid="carOptionColumns"/>
+        FROM CAR_OPTION
+        WHERE car_spec_id = #{carSpecId} AND use_yn = 'Y'
+        ORDER BY updated_at DESC
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="selectById" parameterType="long" resultMap="AdminCarOptionResultMap">
+        SELECT <include refid="carOptionColumns"/>
+        FROM CAR_OPTION
+        WHERE option_id = #{optionId}
+    </select>
+
+    <!-- 등록 -->
+    <insert id="insert" parameterType="com.carpick.admin.carAdmin.dto.AdminCarOptionDto" useGeneratedKeys="true" keyProperty="optionId">
+        INSERT INTO CAR_OPTION (
+        <include refid="carOptionInsertColumns"/>
+        ) VALUES (
+        <include refid="carOptionInsertValues"/>
+        )
+    </insert>
+
+    <!-- 수정 -->
+    <update id="update" parameterType="com.carpick.admin.carAdmin.dto.AdminCarOptionDto">
+        UPDATE CAR_OPTION
+        SET option_name = #{optionName},
+            description = #{optionDescription},
+            daily_price = #{optionDailyPrice},
+            is_highlight = #{isHighlight},
+            updated_at = NOW()
+        WHERE option_id = #{optionId} AND use_yn = 'Y'
+    </update>
+
+    <!-- Soft Delete -->
+    <update id="softDelete" parameterType="long">
+        UPDATE CAR_OPTION
+        SET use_yn = 'N', deleted_at = NOW()
+        WHERE option_id = #{optionId}
+    </update>
+
+    <!-- 삭제된 데이터 중 같은 이름 있는지 체크 -->
+    <select id="selectDeletedByName" resultMap="AdminCarOptionResultMap">
+        SELECT <include refid="carOptionColumns"/>
+        FROM CAR_OPTION
+        WHERE car_spec_id = #{carSpecId}
+        AND option_name = #{optionName}
+        AND use_yn = 'N'
+    </select>
+
+    <!-- 특정 차종의 옵션 전체 Soft Delete -->
+    <update id="softDeleteAllBySpecId" parameterType="long">
+        UPDATE CAR_OPTION
+        SET use_yn = 'N', deleted_at = NOW()
+        WHERE car_spec_id = #{carSpecId} AND use_yn = 'Y'
+    </update>
+
+    <!-- 복구 -->
+    <update id="restore" parameterType="long">
+        UPDATE CAR_OPTION
+        SET use_yn = 'Y', deleted_at = NULL
+        WHERE option_id = #{optionId}
+    </update>
+
+</mapper>
