@@ -1,6 +1,6 @@
 package com.carpick.domain.reservation.enums;
 
-public enum ReturnType {
+public enum ReturnTypes {
 
     VISIT,
     COLLECTION

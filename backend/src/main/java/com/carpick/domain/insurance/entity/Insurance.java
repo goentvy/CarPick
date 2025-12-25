@@ -1,5 +1,6 @@
 package com.carpick.domain.insurance.entity;
 
+import com.carpick.domain.insurance.enums.InsuranceCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class Insurance {
     private Long insuranceId;                // 보험 옵션 ID (PK)
 
     /* 1. 식별 코드 */
-    private String code;                     // 보험 코드 (NONE / STANDARD / FULL 등)
+    private InsuranceCode code;                     // 보험 코드 (NONE / STANDARD / FULL 등)
 
     /* 2. 화면 표시용 */
     private String label;                    // 표시 이름 (선택안함 / 일반자차 / 완전자차)
@@ -34,6 +35,7 @@ public class Insurance {
     /* 5. 공통 */
     private LocalDateTime createdAt;          // 생성일시
     private LocalDateTime updatedAt;          // 수정일시
-
+    // 기존 필드들 아래에 추가
+    private String useYn; // 삭제 여부 (Y/N)
 
 }

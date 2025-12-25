@@ -1,19 +1,14 @@
-package com.carpick.domain.car.entity;
+package com.carpick.admin.carAdmin.dto;
 
 import com.carpick.domain.car.enums.CarClass;
 import com.carpick.domain.car.enums.FuelType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class CarSpec {
+@Data
+public class AdminCarSpecDto {
     private Long specId;
 
     private String brand;
@@ -38,12 +33,10 @@ public class CarSpec {
     private String mainImageUrl;
     private String imgUrl;
     private String aiKeywords;
-
     private String driveLabels;
 
-    private LocalDateTime createdAt;
+    private String useYn;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
-    // 기존 필드들 아래에 추가
-    private String useYn; // 운영용 삭제 여부(Y/N) – Admin 전용
 
 }
