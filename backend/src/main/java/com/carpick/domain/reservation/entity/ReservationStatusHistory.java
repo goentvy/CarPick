@@ -1,5 +1,6 @@
 package com.carpick.domain.reservation.entity;
 
+import com.carpick.domain.reservation.enums.ActorType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class ReservationStatusHistory {
     private String statusPrev;
     private String statusCurr;
 
-    private String actorType;
+    private ActorType actorType;
     private String actorId;
 
     private String reason;

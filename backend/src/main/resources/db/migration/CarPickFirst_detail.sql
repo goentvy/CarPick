@@ -14,8 +14,38 @@
 */
 
 
+
 USE carpick;
 SET FOREIGN_KEY_CHECKS = 0;
+/* =========================
+   상태 / 이력 테이블
+   ========================= */
+DROP TABLE IF EXISTS RESERVATION_STATUS_HISTORY;
+DROP TABLE IF EXISTS VEHICLE_STATUS_HISTORY;
+
+/* =========================
+   핵심 비즈니스 테이블
+   ========================= */
+DROP TABLE IF EXISTS RESERVATION;
+DROP TABLE IF EXISTS VEHICLE_INVENTORY;
+
+/* =========================
+   정책 / 옵션 / 가격
+   ========================= */
+DROP TABLE IF EXISTS PRICE;
+DROP TABLE IF EXISTS PRICE_POLICY;
+DROP TABLE IF EXISTS CAR_OPTION;
+DROP TABLE IF EXISTS INSURANCE;
+DROP TABLE IF EXISTS COUPON;
+DROP TABLE IF EXISTS BRANCH_SERVICE_POINT;
+
+/* =========================
+   마스터 데이터
+   ========================= */
+DROP TABLE IF EXISTS BRANCH;
+DROP TABLE IF EXISTS CAR_SPEC;
+
+
 
 /* ==================================================
    1. 기초 정보 테이블 (Master Data)
@@ -35,14 +65,18 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
     /* [추가] 쇼트네임(카드용) */
                                         display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
 
-                                        car_class VARCHAR(20) NOT NULL COMMENT '차급 (소형/중형/SUV 등)',
+                                        car_class ENUM('LIGHT','SMALL','COMPACT','MID','LARGE','IMPORT','RV','SUV')
+                                            NOT NULL COMMENT '차량 등급',
                                         model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
 #     ai d요약 문구
                                         ai_summary text comment 'ai 추천문구 관리자 페이지 에서 관리',
     /* 파워트레인 */
-                                        fuel_type VARCHAR(20) NOT NULL COMMENT '연료 (휘발유/전기/하이브리드)',
+                                        fuel_type ENUM('GASOLINE','DIESEL','LPG','ELECTRIC','HYBRID','HYDROGEN')
+                                            NOT NULL COMMENT '연료 타입',
                                         transmission_type VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '변속기',
-
+                                        is_four_wheel_drive BOOLEAN
+                                            NOT NULL DEFAULT FALSE
+                                            COMMENT '사륜구동 여부 (TRUE=4WD/AWD)',
     /* [정책] 대여 자격 */
                                         min_driver_age TINYINT NOT NULL DEFAULT 21 COMMENT '대여 가능 최저 연령',
                                         min_license_years TINYINT NOT NULL DEFAULT 1 COMMENT '최저 면허 경력 년수',
@@ -59,9 +93,15 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
 
     /* [추가] 카드 라벨/주행 태그(프론트용) - MVP는 문자열로 묶어서 전달 */
                                         drive_labels VARCHAR(200) NULL COMMENT '카드 라벨(예: 가솔린, 경차, 도심주행) - CSV or JSON string',
+-- 기본 조회 조건: use_yn='Y'
+                                        use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                        deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
 
                                         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+
+
 
                                         UNIQUE KEY uk_car_spec (brand, model_name, model_year_base)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -71,7 +111,7 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
 /* [2] 지점 (BRANCH)  ※ PRICE_POLICY FK 때문에 먼저 생성 */
 CREATE TABLE IF NOT EXISTS BRANCH (
                                       branch_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '지점 ID',
-                                      branch_code VARCHAR(20) NOT NULL COMMENT '지점 코드',
+                                      branch_code VARCHAR(20) NOT NULL COMMENT '지점 코드_자연키(Natural Key, Code)',
                                       branch_name VARCHAR(100) NOT NULL COMMENT '지점명',
 
                                       address_basic VARCHAR(255) NOT NULL COMMENT '주소',
@@ -86,7 +126,7 @@ CREATE TABLE IF NOT EXISTS BRANCH (
                                       longitude DECIMAL(11,8) NULL COMMENT '경도',
                                       region_dept1 VARCHAR(50) NULL COMMENT '지역(서울/경기)',
 
-                                      is_active TINYINT(1) NOT NULL DEFAULT 1,
+                                      is_active BOOLEAN NOT NULL DEFAULT 1,
 
     /* Capability Flags */
                                       can_manage_inventory_yn CHAR(1) NOT NULL DEFAULT 'Y',
@@ -94,6 +134,11 @@ CREATE TABLE IF NOT EXISTS BRANCH (
                                       can_pickup_return_yn CHAR(1) NOT NULL DEFAULT 'Y',
                                       can_delivery_yn CHAR(1) NOT NULL DEFAULT 'N',
                                       delivery_radius_km INT NULL COMMENT '딜리버리 반경(km)',
+
+    -- 기본 조회 조건: use_yn='Y'
+                                      use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                      deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+
 
                                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -108,17 +153,18 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
                                           car_spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
 
                                           option_name VARCHAR(100) NOT NULL COMMENT '옵션명(카시트, 네비 등)',
-                                          description TEXT NULL COMMENT '옵션 설명',
+                                          option_description TEXT NULL COMMENT '옵션 설명',
 
     /* 옵션 요금 */
-                                          daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
+                                          option_daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
 
                                           is_highlight BOOLEAN NOT NULL DEFAULT FALSE COMMENT '주요 옵션 노출 여부',
 
 
                                           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                           updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
+                                          use_yn CHAR(1) DEFAULT 'Y' COMMENT '삭제여부(Y:사용, N:삭제)',
+                                          deleted_at DATETIME NULL COMMENT '삭제 처리 일시',
                                           UNIQUE KEY uk_car_option (car_spec_id, option_name),
                                           CONSTRAINT fk_car_option_spec
                                               FOREIGN KEY (car_spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE
@@ -139,6 +185,10 @@ CREATE TABLE IF NOT EXISTS PRICE_POLICY (
                                             valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '적용 시작일',
                                             valid_to DATETIME NULL COMMENT '적용 종료일',
                                             is_active BOOLEAN NOT NULL DEFAULT TRUE,
+-- 기본 조회 조건: use_yn='Y'
+                                            use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                            deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+
 
                                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -161,7 +211,7 @@ CREATE TABLE IF NOT EXISTS INSURANCE (
                                          insurance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
 
     /* 보험 식별 */
-                                         code ENUM('NONE','STANDARD','FULL')
+                                         insurance_code ENUM('NONE','STANDARD','FULL')
                                              NOT NULL
                                              COMMENT '보험 코드',
                                          label VARCHAR(50) NOT NULL COMMENT '표시 이름 (선택안함 / 일반자차 / 완전자차)',
@@ -179,12 +229,17 @@ CREATE TABLE IF NOT EXISTS INSURANCE (
                                          is_default BOOLEAN NOT NULL DEFAULT FALSE COMMENT '기본 선택 여부',
                                          is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '사용 여부',
                                          sort_order INT NOT NULL DEFAULT 0 COMMENT '노출 순서',
+-- 기본 조회 조건: use_yn='Y'
+                                         use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                         deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+
+
 
     /* 공통 */
                                          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                                         UNIQUE KEY uk_insurance_code (code)
+                                         UNIQUE KEY uk_insurance_code (insurance_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -206,6 +261,11 @@ CREATE TABLE IF NOT EXISTS COUPON (
 
                                       total_quantity INT NULL COMMENT '발행 총 수량(NULL=무제한)',
                                       used_quantity INT NOT NULL DEFAULT 0 COMMENT '사용된 수량',
+-- 기본 조회 조건: use_yn='Y'
+                                      use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                      deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+
+
 
                                       is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '활성 여부',
 
@@ -249,6 +309,11 @@ CREATE TABLE IF NOT EXISTS PRICE (
                                      price_1m DECIMAL(15, 2) DEFAULT 0,
                                      price_3m DECIMAL(15, 2) DEFAULT 0,
                                      price_6m DECIMAL(15, 2) DEFAULT 0,
+-- 기본 조회 조건: use_yn='Y'
+                                     use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                     deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+
+
 
                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -267,7 +332,7 @@ CREATE TABLE IF NOT EXISTS VEHICLE_INVENTORY (
                                                  branch_id BIGINT NOT NULL COMMENT '위치 지점 ID (FK)',
 
                                                  vehicle_no VARCHAR(30) NOT NULL COMMENT '차량번호',
-                                                 vin VARCHAR(50) NULL COMMENT '차대번호',
+                                                 vin VARCHAR(50) NULL UNIQUE COMMENT '차대번호',
 
                                                  model_year SMALLINT NULL COMMENT '실차 연식',
 
@@ -277,6 +342,11 @@ CREATE TABLE IF NOT EXISTS VEHICLE_INVENTORY (
                                                  mileage INT NULL COMMENT '주행거리',
                                                  last_inspected_at DATETIME NULL,
                                                  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    -- 기본 조회 조건: use_yn='Y'
+                                                 use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+                                                 deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+
 
                                                  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                                  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -375,7 +445,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
     /* STATUS */
     /* ✅ 상태 확장 */
     -- 예약 진행 상태 (예약의 라이프사이클)
-                                           status ENUM(
+                                           reservation_status ENUM(
                                                'PENDING',           -- 예약 생성 직후 상태 (결제 전 / 임시 저장 단계)
                                                'CONFIRMED',         -- 결제 완료로 예약 확정 (차량이 예약됨)
                                                'ACTIVE',            -- 대여 시작됨 (차량 인도 완료, 이용 중)

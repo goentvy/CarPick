@@ -1,5 +1,7 @@
 package com.carpick.domain.car.entity;
 
+import com.carpick.domain.car.enums.CarClass;
+import com.carpick.domain.car.enums.FuelType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,12 +20,12 @@ public class CarSpec {
     private String modelName;
     private String displayNameShort;
 
-    private String carClass;
+    private CarClass carClass;
     private Integer modelYearBase;
 
     private String aiSummary;
 
-    private String fuelType;
+    private FuelType fuelType;
     private String transmissionType;
 
     private Integer minDriverAge;
@@ -41,6 +43,7 @@ public class CarSpec {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    // 기존 필드들 아래에 추가
+    private String useYn; // 운영용 삭제 여부(Y/N) – Admin 전용
 
 }

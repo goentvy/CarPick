@@ -11,7 +11,7 @@
     <resultMap id="UserResultMap" type="com.carpick.domain.auth.entity.User">
         <id property="userId" column="user_id"/>
         <result property="email" column="email"/>
-        <result property="password" column="password_hash"/>
+        <result property="password" column="password"/>
         <result property="provider" column="provider"/>
         <result property="providerId" column="provider_id"/>
         <result property="name" column="name"/>
@@ -20,7 +20,7 @@
         <result property="gender" column="gender" javaType="com.carpick.domain.auth.entity.Gender"/>
         <result property="marketingAgree" column="marketing_agree" jdbcType="INTEGER"/>
         <result property="membershipGrade" column="membership_grade"/>
-        <result property="accessToken" column="access_token"/>
+        <result property="accessToken" column="accesstoken"/>
         <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
         <result property="deletedAt" column="deleted_at" javaType="java.time.LocalDateTime"/>
@@ -38,6 +38,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- provider + providerId로 유저 조회 -->
     <select id="findByProvider" resultMap="UserResultMap">
         SELECT *
         FROM users
@@ -46,6 +47,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- userId로 유저 조회 -->
     <select id="findById" resultMap="UserResultMap">
         SELECT *
         FROM users
@@ -53,6 +55,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- 이메일 중복 체크 -->
     <select id="existsByEmail" resultType="int">
         SELECT COUNT(*)
         FROM users
@@ -60,6 +63,7 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- provider + providerId로 중복유저 조회 -->
     <select id="existsByProvider" resultType="int">
         SELECT COUNT(*)
         FROM users
@@ -75,13 +79,14 @@
     <insert id="insertLocalUser">
         INSERT INTO users (
         email,
-        password_hash,
+        password,
         phone,
         birth,
         name,
         gender,
         marketing_agree,
-        membership_grade
+        membership_grade,
+        accesstoken
         )
         VALUES (
         #{email},
@@ -92,21 +97,22 @@
         #{gender},
         #{marketingAgree},
         'BASIC'
+        #{accessToken}
         )
     </insert>
 
-    <!-- 소셜로그인용 INSERT-->
+    <!-- 소셜 유저 INSERT-->
     <insert id="insertSocialUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
         INSERT INTO users (
         email,
-        password_hash,
+        password,
         name,
         provider,
         provider_id,
         gender,
         marketing_agree,
         membership_grade,
-        access_token
+        accesstoken
         )
         VALUES (
         #{email},
@@ -117,7 +123,7 @@
         #{gender},
         #{marketingAgree},
         'BASIC',
-        #{accessToken}
+        #{accesstoken}
         )
     </insert>
 
@@ -139,7 +145,7 @@
 
     <update id="updatePassword">
         UPDATE users
-        SET password_hash = #{password}
+        SET password = #{password}
         WHERE user_id = #{userId}
         AND provider =#{provider}
         AND deleted_at IS NULL
@@ -152,15 +158,25 @@
         AND deleted_at IS NULL
     </update>
 
-    <update id="deleteUser" parameterType="long">
+    <!-- 로컬 유저 탈퇴 (소프트 삭제) -->
+    <update id="softDeleteLocalUser" parameterType="long">
+        UPDATE users SET deleted_at = NOW()
+        WHERE user_id = #{userId}
+        AND provider = 'LOCAL'
+        AND deleted_at IS NULL
+    </update>
+
+    <!--  소셜 유저 탈퇴 (하드 삭제)  -->
+    <update id="hardDeleteSocialUser" parameterType="long">
         DELETE FROM users
         WHERE user_id = #{userId}
+        AND provider != 'LOCAL'
     </update>
 
     <!--  소셜 토큰  -->
     <update id="updateAccessToken">
         UPDATE users
-        SET access_token = #{accessToken}, updated_at = NOW()
+        SET accesstoken = #{accessToken}, updated_at = NOW()
         WHERE user_id = #{userId}
     </update>
 

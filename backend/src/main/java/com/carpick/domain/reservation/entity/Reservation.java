@@ -1,6 +1,9 @@
 package com.carpick.domain.reservation.entity;
 
 
+import com.carpick.domain.reservation.enums.PickupType;
+import com.carpick.domain.reservation.enums.ReservationStatus;
+import com.carpick.domain.reservation.enums.ReturnTypes;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -33,11 +36,11 @@ public class Reservation {
     private LocalDateTime actualReturnDate;
 
     /* WHERE */
-    private String pickupType;
+    private PickupType pickupType;
     private Long pickupBranchId;
     private String pickupAddress;
 
-    private String returnType;
+    private ReturnTypes returnType;
     private Long returnBranchId;
     private String returnAddress;
 
@@ -73,12 +76,13 @@ public class Reservation {
     private String agreementYn;
 
     /* STATUS */
-    private String status;
+    private ReservationStatus reservationStatus;
     private String cancelReason;
     private LocalDateTime cancelledAt;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    // 기존 필드들 아래에 추가
+    private String useYn; // 삭제 여부 (Y/N)
 
 }

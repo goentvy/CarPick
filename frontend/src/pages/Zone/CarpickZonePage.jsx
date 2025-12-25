@@ -202,46 +202,50 @@ export default function CarPickZonePage() {
                 )}
               </div>
 
-              {/* My Location */}
-              <button
-                type="button"
-                onClick={onGoMyLocation}
-                className="h-9 px-3 rounded-full text-xs font-semibold border bg-white/95 text-[#111] border-black/10 shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur"
-              >
-                내 위치
-              </button>
             </div>
           </div>
+           {/* My Location */}
+          <div className="absolute right-4 bottom-36 z-30 pointer-events-auto">
+            <button
+              type="button"
+              onClick={onGoMyLocation}
+              className="h-8 px-4 rounded-full text-xs font-semibold
+               bg-white/95 text-[#111] border border-black/10
+               shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur"
+            >
+              내 위치
+            </button>
+            </div>
 
-          {/* 하단: 브랜드 한줄 (bottom-15는 비표준이라 bottom-24 추천) */}
-          <div className="absolute left-4 right-4 bottom-24 z-20 pointer-events-none">
-            <div className="rounded-2xl bg-white/88 border border-black/5 shadow-[0_16px_50px_rgba(0,0,0,0.16)] px-4 py-3 backdrop-blur">
-              <div className="text-xs font-semibold text-[#2B56FF]">
-                도착을 출발로 바꾸는, 여행의 가장 빠른 픽
-              </div>
-              <div className="mt-1 text-sm text-[#111] leading-relaxed">
-                <b>카픽존</b>에서 바로 출발하고, 필요하면{" "}
-                <b>드롭존</b>에 가볍게 반납하세요.
+            {/* 하단: 브랜드 한줄 (bottom-15는 비표준이라 bottom-24 추천) */}
+            <div className="absolute left-4 right-4 bottom-24 z-20 pointer-events-none">
+              <div className="rounded-2xl bg-white/88 border border-black/5 shadow-[0_16px_50px_rgba(0,0,0,0.16)] px-4 py-3 backdrop-blur">
+                <div className="text-xs font-semibold text-[#2B56FF]">
+                  도착을 출발로 바꾸는, 여행의 가장 빠른 픽
+                </div>
+                <div className="mt-1 text-sm text-[#111] leading-relaxed">
+                  <b>카픽존</b>에서 바로 출발하고, 필요하면{" "}
+                  <b>드롭존</b>에 가볍게 반납하세요.
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 바텀시트 */}
-          <ZoneBottomSheet
-            open={sheetOpen}
-            onClose={() => setSheetOpen(false)}
-            selected={selected}
-            parentZone={parentZone}
-            onPickup={handlePickup}
-            onReturnDrop={handleReturnDrop}
-          />
+            {/* 바텀시트 */}
+            <ZoneBottomSheet
+              open={sheetOpen}
+              onClose={() => setSheetOpen(false)}
+              selected={selected}
+              parentZone={parentZone}
+              onPickup={handlePickup}
+              onReturnDrop={handleReturnDrop}
+            />
 
-          {/* 첫 진입 위치 모달 */}
-          <LocationPermissionModal
-            open={locModalOpen}
-            onAllow={requestMyLocation}
-            onSkip={() => setLocModalOpen(false)}
-          />
+            {/* 첫 진입 위치 모달 */}
+            <LocationPermissionModal
+              open={locModalOpen}
+              onAllow={requestMyLocation}
+              onSkip={() => setLocModalOpen(false)}
+            />
         </section>
       </div>
     </div>
