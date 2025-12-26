@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.inventoryAdmin.mapper.AdminInventoryMapper">
+
+    <!-- ===================== 공통 resultMap ===================== -->
+    <resultMap id="AdminVehicleInventoryMap"
+               type="com.carpick.admin.inventoryAdmin.dto.AdminVehicleInventoryDto">
+        <id     column="vehicle_id"         property="vehicleId"/>
+        <result column="spec_id"            property="specId"/>
+        <result column="branch_id"          property="branchId"/>
+        <result column="vehicle_no"         property="vehicleNo"/>
+        <result column="vin"                property="vin"/>
+        <result column="model_year"         property="modelYear"/>
+        <result column="operational_status" property="operationalStatus"
+                javaType="com.carpick.domain.car.enums.VehicleStatus"/>
+        <result column="mileage"            property="mileage"/>
+        <result column="last_inspected_at"  property="lastInspectedAt"/>
+        <result column="is_active"          property="isActive"/>
+        <result column="use_yn"             property="useYn"/>
+        <result column="deleted_at"         property="deletedAt"/>
+        <result column="created_at"         property="createdAt"/>
+        <result column="updated_at"         property="updatedAt"/>
+    </resultMap>
+
+    <!-- ===================== 공통 SQL: SELECT용 컬럼 ===================== -->
+    <sql id="selectColumns">
+        vehicle_id,
+        spec_id,
+        branch_id,
+        vehicle_no,
+        vin,
+        model_year,
+        operational_status,
+        mileage,
+        last_inspected_at,
+        is_active,
+        use_yn,
+        deleted_at,
+        created_at,
+        updated_at
+    </sql>
+
+    <!-- ===================== 공통 SQL: INSERT용 컬럼 ===================== -->
+    <sql id="insertColumns">
+        spec_id,
+        branch_id,
+        vehicle_no,
+        vin,
+        model_year,
+        operational_status,
+        mileage,
+        last_inspected_at,
+        is_active,
+        use_yn,
+        created_at,
+        updated_at
+    </sql>
+
+    <!-- ===================== 공통 SQL: INSERT용 VALUES ===================== -->
+    <sql id="insertValues">
+        #{specId},
+        #{branchId},
+        #{vehicleNo},
+        #{vin},
+        #{modelYear},
+        #{operationalStatus},
+        #{mileage},
+        #{lastInspectedAt},
+        IFNULL(#{isActive}, TRUE),
+        'Y',
+        NOW(),
+        NOW()
+    </sql>
+
+    <!-- ===================== 1. 전체 조회 ===================== -->
+    <!-- 삭제된 데이터 제외 (use_yn = 'Y'만 조회) -->
+    <select id="findAll" resultMap="AdminVehicleInventoryMap">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM vehicle_inventory
+        WHERE use_yn = 'Y'
+        ORDER BY vehicle_id DESC, vehicle_id DESC
+    </select>
+
+    <!-- ===================== 2. 단건 조회 ===================== -->
+    <select id="findById" resultMap="AdminVehicleInventoryMap">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM vehicle_inventory
+        WHERE vehicle_id = #{vehicleId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- ===================== 3. 등록 ===================== -->
+    <insert id="insert" parameterType="com.carpick.admin.inventoryAdmin.dto.AdminVehicleInventoryDto"
+            useGeneratedKeys="true" keyProperty="vehicleId">
+        INSERT INTO vehicle_inventory (
+        <include refid="insertColumns"/>
+        ) VALUES (
+        <include refid="insertValues"/>
+        )
+    </insert>
+
+    <!-- ===================== 4. 수정 ===================== -->
+    <update id="update" parameterType="com.carpick.admin.inventoryAdmin.dto.AdminVehicleInventoryDto">
+        UPDATE vehicle_inventory
+        <set>
+            <if test="specId != null">spec_id = #{specId},</if>
+            <if test="branchId != null">branch_id = #{branchId},</if>
+            <if test="vehicleNo != null">vehicle_no = #{vehicleNo},</if>
+            <if test="vin != null">vin = #{vin},</if>
+            <if test="modelYear != null">model_year = #{modelYear},</if>
+            <if test="operationalStatus != null">operational_status = #{operationalStatus},</if>
+            <if test="mileage != null">mileage = #{mileage},</if>
+            <if test="lastInspectedAt != null">last_inspected_at = #{lastInspectedAt},</if>
+            <if test="isActive != null">is_active = #{isActive},</if>
+            updated_at = NOW()
+        </set>
+        WHERE vehicle_id = #{vehicleId}
+          AND use_yn = 'Y'
+    </update>
+
+    <!-- ===================== 5. 논리 삭제 ===================== -->
+    <update id="softDelete">
+        UPDATE vehicle_inventory
+        SET
+            use_yn = 'N',
+            deleted_at = NOW(),
+            updated_at = NOW()
+        WHERE vehicle_id = #{vehicleId}
+          AND use_yn = 'Y'
+    </update>
+
+</mapper>

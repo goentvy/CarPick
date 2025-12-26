@@ -24,17 +24,25 @@ public class AdminController {
     }
     ///  관리자 메인 ///
 
-    ///  차량관리 ///
+    // ================== 1. 차종 관리 (Spec + Option) ==================
+    // 차종 목록 (아반떼, 소나타...)
     @GetMapping("/car")
-    public String carAdmin() {
-        return "car";
+    public String carSpecList() {
+        return "car/spec_list"; // 기존 "car" 템플릿 파일명에 맞춰 수정하세요
     }
 
+    // 차종 등록/수정 (여기서 옵션도 같이 관리!)
     @GetMapping("/car_write")
-    public String carWriteAdmin() {
-        return "carWrite";
+    public String carSpecForm() {
+        return "car/spec_form"; // 기존 "carWrite" 템플릿 파일명에 맞춰 수정하세요
     }
-    ///  차량관리 ///
+    // ================== 2. 차량 재고 관리 (Inventory - 실차) ==================
+    // [NEW] 방금 만드신 기능을 위한 페이지입니다.
+    @GetMapping("/inventory")
+    public String vehicleInventoryList() {
+        return "inventory/list"; // templates/inventory/list.html 생성 필요
+    }
+
     // "보험 관리" 메뉴를 눌렀을 때 실행되는 메서드
     @GetMapping("/insurance")
     public String insurancePage(Model model) {
