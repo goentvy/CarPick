@@ -6,9 +6,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import com.carpick.global.exception.enums.ErrorCode;
-import com.carpick.global.exception.response.ErrorResponse;
-import com.carpick.global.logging.SecurityLogger;
+import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.response.ApiErrorResponse;
 import com.carpick.global.util.ProfileResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,12 +20,11 @@ import lombok.extern.slf4j.Slf4j;
  * JWT 인증 실패 시 처리하는 핸들러
  * 인증되지 않은 요청에 대해 401 Unauthorized 응답 반환
  */
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
+	
     private final ObjectMapper objectMapper;
     private final ProfileResolver profileResolver;
 
@@ -36,31 +34,22 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             HttpServletResponse response,
             AuthenticationException authException
     ) throws IOException {
-
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-
-        // 🔐 인증 실패 로그 (보안 이벤트)
-        SecurityLogger.error(
-                log,
-                profileResolver,
+    	
+    	ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+    	
+    	log.warn(
                 "[Security-Unauthorized] path={}",
-                request.getRequestURI(),
-                authException
-        );
+                request.getRequestURI()
+            );
+    	
+    	response.setStatus(errorCode.getHttpStatus().value());
+    	response.setContentType("application/json;charset=UTF-8");
 
-        response.setStatus(errorCode.getHttpStatus().value());
-        response.setContentType("application/json;charset=UTF-8");
-
-        ErrorResponse errorResponse = ErrorResponse.of(
-                errorCode,
-                request,
-                profileResolver
-        );
-
-        response.getWriter().write(
-                objectMapper.writeValueAsString(errorResponse)
-        );
+    	ApiErrorResponse errorResponse =
+                ApiErrorResponse.of(errorCode, request, profileResolver);
+    	
+    	response.getWriter().write(
+    		    objectMapper.writeValueAsString(errorResponse)
+    		);
     }
 }
-
-
