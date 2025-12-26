@@ -20,7 +20,7 @@ public class NaverClient {
     @Value("${NAVER_CLIENT_SECRET}")
     private String clientSecret;
 
-    @Value("${kakao.redirect-uri}")
+    @Value("${naver.redirect-uri}")
     private String redirectUri;
 
     private final RestTemplate restTemplate;
