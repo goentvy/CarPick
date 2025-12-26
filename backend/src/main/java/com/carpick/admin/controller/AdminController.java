@@ -43,7 +43,7 @@ public class AdminController {
         model.addAttribute("list", adminInsuranceService.getInsuranceList());
 
         // 2. insurance.html 파일을 열어라!
-        return "admin/insurance"; // 파일 위치에 따라 경로 수정 (templates/admin/insurance.html 이라면)
+        return "insurance"; // 파일 위치에 따라 경로 수정 (templates/insurance.html 이라면)
     }
 
 

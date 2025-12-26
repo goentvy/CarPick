@@ -36,7 +36,7 @@ public enum ErrorCode {
     	    "C004",
     	    "지원하지 않는 요청 형식입니다",
     	    "Unsupported media type"
-    	),
+    ),
 
 
     // ======================
@@ -148,6 +148,18 @@ public enum ErrorCode {
     	    "인증에 실패했습니다",
     	    "Invalid JWT token signature"
     	),
+    OAUTH_INVALID_CODE(
+            HttpStatus.BAD_REQUEST,
+            "A012",
+            "잘못된 인증 코드입니다",
+            "Invalid authorization code"
+    ),
+    OAUTH_TOKEN_EXCHANGE_FAILED(
+            HttpStatus.BAD_GATEWAY,
+            "A013",
+            "토큰 발급에 실패했습니다",
+            "OAuth token exchange failed"
+    ),
 
     // ======================
     // Web (Page)
@@ -185,7 +197,14 @@ public enum ErrorCode {
         "DB002",
         "MyBatis 매핑 중 오류가 발생했습니다",
         "MyBatis mapping error"
+    ),
+    DB_DUPLICATE_KEY(
+            HttpStatus.CONFLICT,
+            "DB003",
+            "중복된 데이터가 존재합니다",
+            "Duplicate key violation"
     );
+
 
     private final HttpStatus httpStatus;
     private final String code;
