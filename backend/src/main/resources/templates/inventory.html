@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 차량관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS -->
+    <link rel="shortcut icon" type="image/png" th:href="@{/assets/images/icon/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+    <style>
+        /* 테이블 행 클릭 시 포인터 */
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 배지 스타일 */
+        .badge-status {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 20px;
+        }
+
+        /* 검색 영역 */
+        .search-area {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* 차량 이미지 썸네일 */
+        .car-thumbnail {
+            width: 60px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* 주행거리 포맷 */
+        .mileage {
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- 사이드바 -->
+    <div th:replace="fragments/fragments :: sidebar"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <!-- 본문 영역 -->
+    <div class="main-content">
+
+        <!-- 페이지 타이틀 -->
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">차량 관리</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a th:href="@{/admin}">홈</a></li>
+                            <li><span>차량 관리</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-6 clearfix">
+                    <button class="btn btn-primary pull-right"
+                            onclick="location.href='/admin/car/write'">
+                        <i class="fa fa-plus"></i> 차량 등록
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-inner">
+            <div class="row">
+
+                <!-- ==================== 검색 필터 영역 ==================== -->
+                <div class="col-lg-12 mt-4">
+                    <div class="search-area">
+                        <form id="searchForm" th:action="@{/admin/car}" method="get">
+                            <div class="row">
+                                <!-- 차종 필터 -->
+                                <div class="col-md-2">
+                                    <select class="form-control" name="carClass" id="carClass">
+                                        <option value="">차종 전체</option>
+                                        <option value="LIGHT" th:selected="${param.carClass == 'LIGHT'}">경형</option>
+                                        <option value="SMALL" th:selected="${param.carClass == 'SMALL'}">소형</option>
+                                        <option value="COMPACT" th:selected="${param.carClass == 'COMPACT'}">준중형</option>
+                                        <option value="MID" th:selected="${param.carClass == 'MID'}">중형</option>
+                                        <option value="LARGE" th:selected="${param.carClass == 'LARGE'}">대형</option>
+                                        <option value="IMPORT" th:selected="${param.carClass == 'IMPORT'}">수입</option>
+                                        <option value="RV" th:selected="${param.carClass == 'RV'}">승합 RV</option>
+                                        <option value="SUV" th:selected="${param.carClass == 'SUV'}">SUV</option>
+                                    </select>
+                                </div>
+
+                                <!-- 차량 상태 필터 -->
+                                <div class="col-md-2">
+                                    <select class="form-control" name="status" id="status">
+                                        <option value="">상태 전체</option>
+                                        <option value="AVAILABLE" th:selected="${param.status == 'AVAILABLE'}">대여 가능</option>
+                                        <option value="RESERVED" th:selected="${param.status == 'RESERVED'}">예약 중</option>
+                                        <option value="RENTED" th:selected="${param.status == 'RENTED'}">대여 중</option>
+                                        <option value="MAINTENANCE" th:selected="${param.status == 'MAINTENANCE'}">정비/점검</option>
+                                    </select>
+                                </div>
+
+                                <!-- 연료 타입 필터 -->
+                                <div class="col-md-2">
+                                    <select class="form-control" name="fuelType" id="fuelType">
+                                        <option value="">연료 전체</option>
+                                        <option value="GASOLINE" th:selected="${param.fuelType == 'GASOLINE'}">휘발유</option>
+                                        <option value="DIESEL" th:selected="${param.fuelType == 'DIESEL'}">경유</option>
+                                        <option value="LPG" th:selected="${param.fuelType == 'LPG'}">LPG</option>
+                                        <option value="ELECTRIC" th:selected="${param.fuelType == 'ELECTRIC'}">전기</option>
+                                        <option value="HYBRID" th:selected="${param.fuelType == 'HYBRID'}">하이브리드</option>
+                                        <option value="HYDROGEN" th:selected="${param.fuelType == 'HYDROGEN'}">수소</option>
+                                    </select>
+                                </div>
+
+                                <!-- 검색어 입력 -->
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="keyword"
+                                           th:value="${param.keyword}"
+                                           placeholder="차량번호, 모델명 검색...">
+                                </div>
+
+                                <!-- 검색 버튼 -->
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-info btn-block">
+                                        <i class="ti-search"></i> 검색
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ==================== 차량 목록 테이블 ==================== -->
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="header-title mb-0">차량 목록</h4>
+                                <span class="text-muted">
+                                    총 <strong th:text="${list != null ? list.size() : 0}">0</strong>대
+                                </span>
+                            </div>
+
+                            <div class="single-table">
+                                <div class="table-responsive">
+                                    <table class="table table-hover text-center">
+                                        <thead class="text-uppercase bg-light">
+                                        <tr>
+                                            <th style="width: 5%;">NO</th>
+                                            <th style="width: 8%;">이미지</th>
+                                            <th style="width: 12%;">차량모델</th>
+                                            <th style="width: 10%;">차량번호</th>
+                                            <th style="width: 8%;">연료</th>
+                                            <th style="width: 6%;">연식</th>
+                                            <th style="width: 10%;">주행거리</th>
+                                            <th style="width: 8%;">지점</th>
+                                            <th style="width: 10%;">차량상태</th>
+                                            <th style="width: 8%;">관리</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <!-- 데이터가 없을 때 -->
+                                        <tr th:if="${list == null or list.isEmpty()}">
+                                            <td colspan="10" class="text-center py-5">
+                                                <i class="fa fa-car fa-3x text-muted mb-3 d-block"></i>
+                                                <p class="text-muted mb-0">등록된 차량이 없습니다.</p>
+                                            </td>
+                                        </tr>
+
+                                        <!-- 데이터 반복 -->
+                                        <tr th:each="item, stat : ${list}"
+                                            th:id="'row-' + ${item.vehicleId}"
+                                            class="clickable-row"
+                                            th:onclick="'goToDetail(' + ${item.vehicleId} + ')'">
+
+                                            <!-- NO -->
+                                            <td th:text="${stat.index + 1}">1</td>
+
+                                            <!-- 이미지 -->
+                                            <td onclick="event.stopPropagation();">
+                                                <img th:src="${item.mainImageUrl != null ? item.mainImageUrl : '/assets/images/no-image.png'}"
+                                                     alt="차량 이미지" class="car-thumbnail">
+                                            </td>
+
+                                            <!-- 차량모델 (브랜드 + 모델명) -->
+                                            <td>
+                                                <strong th:text="${item.modelName}">모델명</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${item.brand}">브랜드</small>
+                                            </td>
+
+                                            <!-- 차량번호 -->
+                                            <td th:text="${item.vehicleNo}">가1234</td>
+
+                                            <!-- 연료 -->
+                                            <td>
+                                                    <span th:switch="${item.fuelType?.name()}">
+                                                        <span th:case="'GASOLINE'">휘발유</span>
+                                                        <span th:case="'DIESEL'">경유</span>
+                                                        <span th:case="'LPG'">LPG</span>
+                                                        <span th:case="'ELECTRIC'">전기</span>
+                                                        <span th:case="'HYBRID'">하이브리드</span>
+                                                        <span th:case="'HYDROGEN'">수소</span>
+                                                        <span th:case="*">-</span>
+                                                    </span>
+                                            </td>
+
+                                            <!-- 연식 -->
+                                            <td th:text="${item.modelYear}">2023</td>
+
+                                            <!-- 주행거리 -->
+                                            <td class="mileage">
+                                                <span th:text="${#numbers.formatInteger(item.mileage, 0, 'COMMA')}">0</span> km
+                                            </td>
+
+                                            <!-- 지점 -->
+                                            <td th:text="${item.branchName}">서울지점</td>
+
+                                            <!-- 차량상태 (Enum 배지) -->
+                                            <td onclick="event.stopPropagation();">
+                                                    <span class="badge badge-status"
+                                                          th:classappend="'badge-' + ${item.operationalStatus?.badgeCss}"
+                                                          th:text="${item.operationalStatus?.description}">대여 가능</span>
+                                            </td>
+
+                                            <!-- 관리 버튼 -->
+                                            <td onclick="event.stopPropagation();">
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        th:onclick="'deleteVehicle(' + ${item.vehicleId} + ')'"
+                                                        title="삭제">
+                                                    <i class="ti-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== 페이지네이션 ==================== -->
+                <div class="col-lg-12 mt-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <!-- 이전 버튼 -->
+                            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/admin/car(page=${currentPage - 1}, carClass=${param.carClass}, status=${param.status}, fuelType=${param.fuelType}, keyword=${param.keyword})}"
+                                   tabindex="-1">Previous</a>
+                            </li>
+
+                            <!-- 페이지 번호 -->
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(1, totalPages)}"
+                                th:classappend="${i == currentPage} ? 'active'">
+                                <a class="page-link"
+                                   th:href="@{/admin/car(page=${i}, carClass=${param.carClass}, status=${param.status}, fuelType=${param.fuelType}, keyword=${param.keyword})}"
+                                   th:text="${i}">1</a>
+                            </li>
+
+                            <!-- 다음 버튼 -->
+                            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/admin/car(page=${currentPage + 1}, carClass=${param.carClass}, status=${param.status}, fuelType=${param.fuelType}, keyword=${param.keyword})}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer>
+        <div class="footer-area">
+            <p>© 2025 CarPick Admin.</p>
+        </div>
+    </footer>
+</div>
+
+<!-- JS -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+    // 상세 페이지 이동
+    function goToDetail(vehicleId) {
+        location.href = '/admin/car/write?id=' + vehicleId;
+    }
+
+    // 차량 삭제 (논리 삭제)
+    function deleteVehicle(vehicleId) {
+        if (!confirm('정말 삭제하시겠습니까?\n삭제된 차량은 복구할 수 없습니다.')) {
+            return;
+        }
+
+        fetch('/admin/api/inventory/' + vehicleId, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    alert(result.message);
+                    document.getElementById('row-' + vehicleId).remove();
+                } else {
+                    alert('삭제 실패: ' + result.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('서버 통신 오류');
+            });
+    }
+
+    // 검색 필터 초기화
+    function resetSearch() {
+        document.getElementById('searchForm').reset();
+        location.href = '/admin/car';
+    }
+</script>
+
+</body>
+</html>

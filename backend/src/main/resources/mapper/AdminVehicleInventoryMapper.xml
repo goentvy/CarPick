@@ -81,7 +81,7 @@
         <include refid="selectColumns"/>
         FROM vehicle_inventory
         WHERE use_yn = 'Y'
-        ORDER BY vehicle_id DESC, vehicle_id DESC
+        ORDER BY vehicle_id DESC
     </select>
 
     <!-- ===================== 2. 단건 조회 ===================== -->
