@@ -11,6 +11,7 @@ import lombok.Getter;
 public class OAuthLoginResponse {
     private boolean success;
     private String token;
-    private String name;  // 👈 프론트에서 표시할 이름
+    private String name;
     private String email;
+    private String provider;
 }

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import useUserStore from "../../store/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +15,7 @@ const ProfilePage = () => {
     // 회원정보 불러오기
     api.get("/users/me")
       .then((res) => {
+        console.log(res.data);
         setUserInfo(res.data);
         setPhone(res.data.phone); // 초기값 세팅
       })
@@ -63,7 +66,7 @@ const ProfilePage = () => {
         // 로그아웃 처리
         logout();
         localStorage.removeItem("user-storage");
-        window.location.href = "/";
+        navigate("/");
       } catch (err) {
         alert("회원탈퇴 실패");
         console.error(err);
@@ -126,7 +129,7 @@ const ProfilePage = () => {
         <label className="block text-sm mb-1">휴대폰 번호</label>
         <input
           type="text"
-          value={phone}
+          value={phone ?? ""}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full border rounded px-3 py-2"
         />

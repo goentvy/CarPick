@@ -95,7 +95,8 @@
         gender,
         marketing_agree,
         membership_grade,
-        accesstoken
+        accesstoken,
+        provider
         )
         VALUES (
         #{email},
@@ -106,7 +107,8 @@
         #{gender},
         #{marketingAgree},
         'BASIC',
-        #{accessToken}
+        #{accessToken},
+        'LOCAL'
         )
     </insert>
 
