@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.carpick.global.enums.ErrorCode.AUTH_USER_NOT_FOUND;
+import static com.carpick.global.exception.enums.ErrorCode.AUTH_USER_NOT_FOUND;
 
 @Component
 @RequiredArgsConstructor
