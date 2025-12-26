@@ -9,5 +9,6 @@ public record UserInfoResponse(
         LocalDate birth,
         String gender,
         boolean marketingAgree,
-        String membershipGrade
+        String membershipGrade,
+        String provider
 ) {}

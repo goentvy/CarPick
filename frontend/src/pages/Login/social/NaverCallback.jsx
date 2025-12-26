@@ -9,27 +9,37 @@ const NaverCallback = () => {
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
-    const state = url.searchParams.get("state");
+    const receivedState = url.searchParams.get("state");
+    const originalState = sessionStorage.getItem("naver_state");
 
-    if (code && state) {
-      api.post("/auth/login/naver", { code, state })
-        .then((res) => {
-          // JWT 및 사용자 정보 저장
-          useUserStore.getState().login({
-            user: {
-              email: res.data.email,
-              name: res.data.name,
-              membershipGrade: res.data.membershipGrade,
-            },
-            accessToken: res.data.token,
-          });
-          navigate("/home");
-        })
-        .catch((err) => {
+    // ✅ 중복 호출 방지 + state 검증
+    if (code && receivedState === originalState && sessionStorage.getItem("usedCode") !== code) {
+      sessionStorage.setItem("usedCode", code);
+
+      (async () => {
+        try {
+          const res = await api.post("/auth/login/naver", { code, state: receivedState });
+
+          if (res.data.success) {
+            useUserStore.getState().login({
+              user: {
+                email: res.data.email,
+                name: res.data.name,
+                membershipGrade: res.data.membershipGrade,
+              },
+              accessToken: res.data.token,
+            });
+            navigate("/home");
+          } else {
+            alert(res.data.message || "네이버 로그인 실패");
+            navigate("/login");
+          }
+        } catch (err) {
           console.error("네이버 로그인 실패:", err);
-          alert("네이버 로그인 실패");
+          alert("네이버 로그인 중 오류가 발생했습니다.");
           navigate("/login");
-        });
+        }
+      })();
     }
   }, [navigate]);
 

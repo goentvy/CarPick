@@ -16,7 +16,7 @@ const KakaoCallback = () => {
 
       (async () => {
         try {
-          setLoading(true); // 여기서 호출해도 안전 (비동기 함수 내부)
+          setLoading(true);
           const res = await api.post("/auth/login/kakao", { code });
 
           useUserStore.getState().login({
