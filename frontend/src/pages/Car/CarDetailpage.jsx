@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
-import carDetailMock from "@/mocks/carDetail.json";
+// import carDetailMock from "@/mocks/carDetail.json";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
-// import api from "@/service/api";
+import api from "../../services/api.js";
 import { createGlobalStyle } from "styled-components";
 
 const HideHeaderFooter = createGlobalStyle`
