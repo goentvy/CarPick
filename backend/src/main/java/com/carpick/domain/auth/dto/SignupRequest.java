@@ -58,6 +58,8 @@ public class SignupRequest {
 
     private boolean marketingAgree;
 
+    private String accessToken;
+
 
 }
 
