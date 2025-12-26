@@ -6,9 +6,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
-import com.carpick.global.exception.enums.ErrorCode;
-import com.carpick.global.exception.response.ErrorResponse;
-import com.carpick.global.logging.SecurityLogger;
+import com.carpick.global.enums.ErrorCode;
+import com.carpick.global.response.ApiErrorResponse;
 import com.carpick.global.util.ProfileResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
  * - "Security 예외는 Security에서, API 예외는 ControllerAdvice에서" 처리한다.
  * - Security 계층과 MVC 계층의 책임 경계를 명확히 분리하기 위함이다.
  */
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -59,28 +57,19 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
         ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
 
-        // 🔐 인가 실패 로그 (LOG 메시지)
-        SecurityLogger.error(
-                log,
-                profileResolver,
+        log.warn(
                 "[Security-AccessDenied] path={}",
-                request.getRequestURI(),
-                ex
-        );
-
+                request.getRequestURI()
+            );
+        
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse = ErrorResponse.of(
-                errorCode,
-                request,
-                profileResolver
-        );
+        ApiErrorResponse errorResponse =
+                ApiErrorResponse.of(errorCode, request, profileResolver);
 
         response.getWriter().write(
                 objectMapper.writeValueAsString(errorResponse)
         );
     }
 }
-
-

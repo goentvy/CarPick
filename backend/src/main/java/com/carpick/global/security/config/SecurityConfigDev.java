@@ -45,6 +45,8 @@ public class SecurityConfigDev {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
                 		// 1. API 경로 허용
+                		"/api/recommend-cars",
+                		"/api/chat/**",
                         "/api/faq/**",
                         "/api/emergency/**", 
                         "/api/notice/**",
@@ -52,6 +54,7 @@ public class SecurityConfigDev {
                         "/api/guide/**",
                         "/api/auth/**",
                         "/api/about/values",
+                        "/api/cars/**",
                         
                         // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                         "/",
@@ -65,9 +68,6 @@ public class SecurityConfigDev {
                         "/favicon.ico",
                         
                         // 4. Swagger 및 API 문서 관련
-                        "/swagger-ui.html",
-                        "/swagger-ui/index.html",
-                        "/swagger-resources/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"
                 ).permitAll()

@@ -1,0 +1,115 @@
+package com.carpick.domain.aipick.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.carpick.domain.aipick.dto.ChatResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@Component
+public class AiClient {
+
+    @Value("${openai.api-key}")
+    private String apiKey;
+
+    private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @SuppressWarnings("unchecked")
+	public ChatResponse ask(String userMessage) {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 🔹 시스템 프롬프트
+        String systemPrompt = """
+        너는 렌트카 추천을 도와주는 AI 상담원이다.
+
+        목표:
+        - 사용자의 입력에서 다음 정보를 파악한다.
+          1. 차종 추천 가능 여부
+
+        규칙:
+		1. 정보가 부족하면 한 번에 하나의 질문만 replyMessage에 작성한다.
+		2. 다음 차종 후보 가운데 추천이 가능하면 반드시 하나의 차종만 추천한다.
+		차종 후보:
+	    - 경차
+	    - 소형
+	    - 준중형
+	    - 중형
+	    - 대형
+	    - SUV
+	    - RV
+	    - 밴
+		3. 이미 받은 정보는 다시 묻지 않는다.
+		4. replyMessage는 사용자에게 보여줄 문장이다.
+		
+		⚠️ 반드시 아래 JSON 형식으로만 응답하라.
+		⚠️ 설명, 마크다운, 문장은 절대 추가하지 마라.
+		
+		{
+		  "replyMessage": "",
+		  "carType": null
+		}
+        """;
+
+        // 🔹 요청 Body
+        Map<String, Object> body = Map.of(
+            "model", "gpt-4o-mini",
+            "messages", List.of(
+                Map.of("role", "system", "content", systemPrompt),
+                Map.of("role", "user", "content", userMessage)
+            ),
+            "temperature", 0.4
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(body, headers);
+
+        // 🔹 OpenAI 호출
+        ResponseEntity<Map> response =
+                restTemplate.postForEntity(OPENAI_URL, request, Map.class);
+
+        // 🔹 응답 파싱
+        Map<String, Object> message =
+                (Map<String, Object>) ((List<?>) response.getBody().get("choices"))
+                        .get(0);
+
+        Map<String, Object> content =
+                (Map<String, Object>) ((Map<?, ?>) message.get("message"));
+
+        String aiText = content.get("content").toString();
+
+        return parseAiResponse(aiText);
+    }
+
+    // 🔹 AI 응답 파싱
+    private ChatResponse parseAiResponse(String aiText) {
+        try {
+            // 🔥 JSON 문자열 → 객체로 바로 변환
+            return objectMapper.readValue(aiText, ChatResponse.class);
+        } catch (Exception e) {
+            throw new RuntimeException("AI JSON 파싱 실패: " + aiText, e);
+        }
+    }
+
+    private String extract(String text, String key) {
+        return Arrays.stream(text.split("\n"))
+                .filter(line -> line.startsWith(key))
+                .map(line -> line.replace(key, "").trim())
+                .findFirst()
+                .orElse(null);
+    }
+}

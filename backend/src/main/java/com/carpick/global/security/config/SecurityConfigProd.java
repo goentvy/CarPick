@@ -38,6 +38,8 @@ public class SecurityConfigProd {
             .authorizeHttpRequests(auth -> auth
         	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
         	    .requestMatchers(
+        	    	"/api/recommend-cars",
+        	    	"/api/chat/**",
         	        "/api/faq/**",
         	        "/api/emergency/**", 
         	        "/api/notice/**",
@@ -45,6 +47,7 @@ public class SecurityConfigProd {
         	        "/api/event/**",
         	        "/api/auth/**",
         	        "/api/about/values",
+        	        "/api/cars/**",
         	        "/",
         	        "/admin/**",
         	        "/assets/**", 
