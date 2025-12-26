@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.exception.response.ErrorResponse;
-import com.carpick.global.logging.SecurityLogger;
 import com.carpick.global.util.ProfileResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,24 +36,17 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     ) throws IOException {
     	
     	ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-
-        // 🔐 인증 실패 로그 (보안 이벤트)
-        SecurityLogger.error(
-                log,
-                profileResolver,
+    	
+    	log.warn(
                 "[Security-Unauthorized] path={}",
-                request.getRequestURI(),
-                authException
-        );
+                request.getRequestURI()
+            );
     	
     	response.setStatus(errorCode.getHttpStatus().value());
     	response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse = ErrorResponse.of(
-                errorCode,
-                request,
-                profileResolver
-        );
+    	ErrorResponse errorResponse =
+                ErrorResponse.of(errorCode, request, profileResolver);
     	
     	response.getWriter().write(
     		    objectMapper.writeValueAsString(errorResponse)

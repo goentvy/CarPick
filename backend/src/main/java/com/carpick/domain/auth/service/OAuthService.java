@@ -38,7 +38,7 @@ public class OAuthService {
      */
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
-        log.info("OAuth login start: provider={}, code={}", provider, request.getCode());
+        log.info("소셜 로그인 동작: provider={}, code={}", provider, request.getCode());
 
         User socialUser;
 
