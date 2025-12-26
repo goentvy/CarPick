@@ -11,12 +11,16 @@ import com.carpick.global.exception.AuthenticationException;
 import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.jwt.JwtProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -29,6 +33,10 @@ public class OAuthService {
     private final UserMapper userMapper;
     private final JwtProvider jwtProvider;
     private final RestTemplate restTemplate;
+    @Value("${NAVER_CLIENT_ID}")
+    private String naverClientId;
+    @Value("${NAVER_CLIENT_SECRET}")
+    private String naverClientSecret;
 
     /**
      * 🔑 OAuth 로그인 처리
@@ -166,5 +174,28 @@ public class OAuthService {
         // DB에서 유저 탈퇴 처리 (소셜 유저는 소프트 삭제)
         userMapper.softDeleteSocialUser(userId);
         log.info("카카오 연동 해제 완료: userId={}", userId);
+    }
+
+    /**
+     * ✅ 네이버 연동 해제
+     */
+    @Transactional
+    public void unlinkNaver(String jwtToken) {
+        Long userId = jwtProvider.getUserId(jwtToken);
+        User user = userMapper.findById(userId);
+
+        if (user == null || !"NAVER".equalsIgnoreCase(user.getProvider())) {
+            throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
+        }
+        if (user.getAccessToken() == null) {
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
+        }
+
+        // NaverClient에 unlink 위임
+        naverClient.unlink(user.getAccessToken());
+
+        // DB에서 유저 탈퇴 처리 (소셜 유저는 소프트 삭제)
+        userMapper.softDeleteSocialUser(userId);
+        log.info("네이버 연동 해제 완료: userId={}", userId);
     }
 }
