@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
  * 모든 API 요청을 허용하여 개발 편의성을 제공
  */
 @Configuration
-@Profile({"local", "dev"})
+@Profile({"dev","local"})
 @RequiredArgsConstructor
 public class SecurityConfigDev {
 

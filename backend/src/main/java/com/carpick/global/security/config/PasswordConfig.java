@@ -1,4 +1,4 @@
-package com.carpick.global.config;
+package com.carpick.global.security.config;
 
 
 import org.springframework.context.annotation.Bean;
