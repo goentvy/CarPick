@@ -117,15 +117,15 @@ createRoot(document.getElementById('root')).render(
           <Route path="mock/kakaopay/redirect" element={<MockKakaoPayPage />} />
 
           {/* 마이페이지 */}
-            <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
-                <Route index element={<MyPageHome />} />
-                <Route path="profile" element={<ProfilePage />} />
-                <Route path="reviewhistory" element={<ReviewHistory />} />
-                <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
-                <Route path="favorites" element={<Favorites />} />
-                <Route path="license" element={<MyLicense />} />
-                <Route path="changeHistory" element={<ChangeHistoryPage />} />
-            </Route>
+          <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+              <Route index element={<MyPageHome />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="reviewhistory" element={<ReviewHistory />} />
+              <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
+              <Route path="favorites" element={<Favorites />} />
+              <Route path="license" element={<MyLicense />} />
+              <Route path="changeHistory" element={<ChangeHistoryPage />} />
+          </Route>
           {/* 약관 */}
           <Route path="terms" element={<Agree1 />} />
           <Route path="privacy" element={<Agree2 />} />
