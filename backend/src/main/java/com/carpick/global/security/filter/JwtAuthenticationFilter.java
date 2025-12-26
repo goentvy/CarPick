@@ -1,23 +1,25 @@
 package com.carpick.global.security.filter;
 
-import com.carpick.domain.userinfo.entity.UserInfo;
-import com.carpick.domain.userinfo.mapper.UserInfoMapper;
-import com.carpick.global.exception.AuthenticationException;
-import com.carpick.global.security.details.CustomUserDetails;
-import com.carpick.global.security.jwt.JwtProvider;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import static com.carpick.global.exception.enums.ErrorCode.AUTH_USER_NOT_FOUND;
+
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.carpick.domain.userinfo.entity.UserInfo;
+import com.carpick.domain.userinfo.mapper.UserInfoMapper;
+import com.carpick.global.exception.AuthenticationException;
+import com.carpick.global.security.details.CustomUserDetails;
+import com.carpick.global.security.jwt.JwtProvider;
 
-import static com.carpick.global.enums.ErrorCode.AUTH_USER_NOT_FOUND;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -33,7 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-
+    	if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+    	
         try {
             String token = jwtProvider.resolveToken(request);
 

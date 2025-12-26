@@ -24,7 +24,8 @@ public class Price {
 
     private LocalDateTime createdAt;          // 생성일시
     private LocalDateTime updatedAt;          // 수정일시
-
+    // 기존 필드들 아래에 추가
+    private String useYn; // 삭제 여부 (Y/N)
 
 
 }

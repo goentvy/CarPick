@@ -13,7 +13,7 @@
         SELECT
             user_id         AS userId,
             email,
-            password_hash   AS password,
+            password   AS password,
             name,
             phone,
             birth,
@@ -33,7 +33,7 @@
         SET name            = #{name},
             phone           = #{phone},
             birth           = #{birth},
-            password_hash   = #{password},
+            password   = #{password},
             marketing_agree = #{marketingAgree},
             updated_at      = NOW()
         WHERE user_id = #{userId}

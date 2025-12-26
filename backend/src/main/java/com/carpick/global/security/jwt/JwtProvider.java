@@ -1,6 +1,6 @@
 package com.carpick.global.security.jwt;
 
-import static com.carpick.global.enums.ErrorCode.*;
+import static com.carpick.global.exception.enums.ErrorCode.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;

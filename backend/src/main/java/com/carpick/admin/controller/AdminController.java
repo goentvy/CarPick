@@ -1,9 +1,11 @@
 package com.carpick.admin.controller;
 
+import com.carpick.admin.insuranceAdmin.service.AdminInsuranceService;
 import com.carpick.domain.auth.dto.LoginRequest;
 import com.carpick.domain.auth.dto.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -11,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
+
+    private final AdminInsuranceService adminInsuranceService;
     // AdminController에서 분리해서 새로 개발하실 경우, 관련 메소드를 삭제 후 이동해주세요!
 
     ///  관리자 메인 ///
@@ -31,6 +35,17 @@ public class AdminController {
         return "carWrite";
     }
     ///  차량관리 ///
+    // "보험 관리" 메뉴를 눌렀을 때 실행되는 메서드
+    @GetMapping("/insurance")
+    public String insurancePage(Model model) {
+        // 1. 서비스한테 보험 목록 좀 가져오라고 시킴
+        // (아까 만든 getInsuranceList 메서드 재활용!)
+        model.addAttribute("list", adminInsuranceService.getInsuranceList());
+
+        // 2. insurance.html 파일을 열어라!
+        return "admin/insurance"; // 파일 위치에 따라 경로 수정 (templates/admin/insurance.html 이라면)
+    }
+
 
     ///  FAQ관리 ///
     @GetMapping("/faq")

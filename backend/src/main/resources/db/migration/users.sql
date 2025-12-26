@@ -13,13 +13,13 @@ CREATE TABLE users (
 
     -- 로그인 식별
                        email VARCHAR(255) NOT NULL UNIQUE,
-                       password_hash VARCHAR(255) NULL,
-
+                       PASSWORD VARCHAR(255) NULL,
+    -- 소셜 계정
                        provider ENUM('LOCAL','KAKAO','NAVER') NOT NULL,
                        provider_id VARCHAR(255) NULL,
-
+                       UNIQUE (provider, provider_id),
     -- 개인정보 (선택)
-                       name VARCHAR(50) NULL,
+                       NAME VARCHAR(50) NULL,
                        phone VARCHAR(20) NULL,
                        birth DATE NULL,
                        gender ENUM('M','F') NULL,
@@ -33,9 +33,13 @@ CREATE TABLE users (
                            ON UPDATE CURRENT_TIMESTAMP,
                        deleted_at DATETIME NULL,
 
-    -- 소셜 계정 중복 방지
-                       UNIQUE KEY uk_social (provider, provider_id)
+    -- 토큰
+                       accesstoken VARCHAR(500)
+
 );
+
+-- 테이블 구조 변경
+ALTER TABLE users MODIFY gender VARCHAR(10) NULL;
 
 
 

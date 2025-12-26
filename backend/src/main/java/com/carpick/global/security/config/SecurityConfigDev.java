@@ -48,6 +48,7 @@ public class SecurityConfigDev {
                         "/api/faq/**",
                         "/api/emergency/**", 
                         "/api/notice/**",
+                        "/api/event/**",
                         "/api/guide/**",
                         "/api/auth/**",
                         "/api/about/values",
@@ -64,6 +65,9 @@ public class SecurityConfigDev {
                         "/favicon.ico",
                         
                         // 4. Swagger 및 API 문서 관련
+                        "/swagger-ui.html",
+                        "/swagger-ui/index.html",
+                        "/swagger-resources/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"
                 ).permitAll()

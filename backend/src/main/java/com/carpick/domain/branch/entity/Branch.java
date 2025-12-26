@@ -32,7 +32,7 @@ public class Branch {
     private BigDecimal longitude;            // 경도 (지도 표시용)
     private String regionDept1;              // 지역 구분 (서울/경기 등)
 
-    private Integer isActive;                // 활성 여부 (1=사용, 0=미사용)
+    private Boolean isActive;                // 활성 여부 (1=사용, 0=미사용)
 
     private String canManageInventoryYn;     // 재고 관리 가능 여부 (Y/N)
     private String canManageVehicleStatusYn; // 차량 상태 관리 가능 여부 (Y/N)
@@ -43,7 +43,8 @@ public class Branch {
 
     private LocalDateTime createdAt;          // 생성일시
     private LocalDateTime updatedAt;          // 수정일시
-
+    // 기존 필드들 아래에 추가
+    private String useYn; // 삭제 여부 (Y/N)
 
 
 }

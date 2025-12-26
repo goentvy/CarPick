@@ -1,6 +1,7 @@
 package com.carpick.domain.auth.service.client;
 
 import com.carpick.domain.auth.entity.User;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,15 @@ public class KaKaoClient {
     private String redirectUri;
 
     private final RestTemplate restTemplate;
+
+    @PostConstruct
+    public void init() {
+        log.info("=== Kakao OAuth Config ===");
+        log.info("Client ID: {}", clientId);
+        log.info("Client Secret: {}", clientSecret != null ? "****" : "null");
+        log.info("Redirect URI: {}", redirectUri);
+        log.info("==========================");
+    }
 
     /**
      * ✅ 카카오 액세스 토큰 발급
