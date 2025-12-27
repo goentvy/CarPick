@@ -4,7 +4,6 @@
 
 <mapper namespace="com.carpick.admin.carAdmin.mapper.AdminCarSpecMapper">
 
-    <!-- ResultMap -->
     <resultMap id="AdminCarSpecResultMap" type="com.carpick.admin.carAdmin.dto.AdminCarSpecDto">
         <id property="specId" column="spec_id"/>
         <result property="brand" column="brand"/>
@@ -17,6 +16,9 @@
         <result property="transmissionType" column="transmission_type"/>
         <result property="minDriverAge" column="min_driver_age"/>
         <result property="minLicenseYears" column="min_license_years"/>
+
+        <result property="carOptions" column="car_options"/>
+
         <result property="seatingCapacity" column="seating_capacity"/>
         <result property="trunkCapacity" column="trunk_capacity"/>
         <result property="fuelEfficiency" column="fuel_efficiency"/>
@@ -28,41 +30,37 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <!-- 공통 컬럼(SELECT용)-->
     <sql id="carSpecColumns">
         spec_id, brand, model_name, display_name_short,
         car_class, model_year_base, ai_summary,
         fuel_type, transmission_type,
         min_driver_age, min_license_years,
-        seating_capacity, trunk_capacity, fuel_efficiency,
+        car_options, seating_capacity, trunk_capacity, fuel_efficiency,
         main_image_url, img_url, ai_keywords, drive_labels,
         use_yn, updated_at
     </sql>
 
-    <!-- INSERT용 컬럼 -->
     <sql id="carSpecInsertColumns">
         brand, model_name, display_name_short,
-    car_class, model_year_base, ai_summary,
-    fuel_type, transmission_type,
-    min_driver_age, min_license_years,
-    seating_capacity, trunk_capacity, fuel_efficiency,
-    main_image_url, img_url, ai_keywords, drive_labels,
-    use_yn
+        car_class, model_year_base, ai_summary,
+        fuel_type, transmission_type,
+        min_driver_age, min_license_years,
+        car_options, seating_capacity, trunk_capacity, fuel_efficiency,
+        main_image_url, img_url, ai_keywords, drive_labels,
+        use_yn
     </sql>
 
-    <!-- INSERT용 VALUES -->
     <sql id="carSpecInsertValues">
         #{brand}, #{modelName}, #{displayNameShort},
         #{carClass}, #{modelYearBase}, #{aiSummary},
         #{fuelType}, #{transmissionType},
         #{minDriverAge}, #{minLicenseYears},
-        #{seatingCapacity}, #{trunkCapacity}, #{fuelEfficiency},
+        #{carOptions}, #{seatingCapacity}, #{trunkCapacity}, #{fuelEfficiency},
         #{mainImageUrl}, #{imgUrl}, #{aiKeywords}, #{driveLabels},
         'Y'
     </sql>
 
 
-    <!-- 목록 조회 (삭제 안 된 것만) -->
     <select id="selectList" resultMap="AdminCarSpecResultMap">
         SELECT <include refid="carSpecColumns"/>
         FROM CAR_SPEC
@@ -70,14 +68,12 @@
         ORDER BY updated_at DESC
     </select>
 
-    <!-- 단건 조회 -->
     <select id="selectById" parameterType="long" resultMap="AdminCarSpecResultMap">
         SELECT <include refid="carSpecColumns"/>
         FROM CAR_SPEC
         WHERE spec_id = #{specId}
     </select>
 
-    <!-- 등록 -->
     <insert id="insert" parameterType="com.carpick.admin.carAdmin.dto.AdminCarSpecDto" useGeneratedKeys="true" keyProperty="specId">
         INSERT INTO CAR_SPEC (
         <include refid="carSpecInsertColumns"/>
@@ -86,7 +82,6 @@
         )
     </insert>
 
-    <!-- 수정 -->
     <update id="update" parameterType="com.carpick.admin.carAdmin.dto.AdminCarSpecDto">
         UPDATE CAR_SPEC
         SET brand = #{brand},
@@ -99,7 +94,7 @@
             transmission_type = #{transmissionType},
             min_driver_age = #{minDriverAge},
             min_license_years = #{minLicenseYears},
-            seating_capacity = #{seatingCapacity},
+            car_options = #{carOptions}, seating_capacity = #{seatingCapacity},
             trunk_capacity = #{trunkCapacity},
             fuel_efficiency = #{fuelEfficiency},
             main_image_url = #{mainImageUrl},
@@ -109,14 +104,12 @@
         WHERE spec_id = #{specId} AND use_yn = 'Y'
     </update>
 
-    <!-- Soft Delete -->
     <update id="softDelete" parameterType="long">
         UPDATE CAR_SPEC
         SET use_yn = 'N', deleted_at = NOW()
         WHERE spec_id = #{specId}
     </update>
 
-    <!-- 삭제된 데이터 중 같은 이름 있는지 체크 -->
     <select id="selectDeletedByName" resultMap="AdminCarSpecResultMap">
         SELECT <include refid="carSpecColumns"/>
         FROM CAR_SPEC
@@ -126,14 +119,12 @@
         AND use_yn = 'N'
     </select>
 
-    <!-- 복구 -->
     <update id="restore" parameterType="long">
         UPDATE CAR_SPEC
         SET use_yn = 'Y', deleted_at = NULL
         WHERE spec_id = #{specId}
     </update>
 
-    <!-- 참조 체크 (이 차종을 쓰는 차량이 있는지) -->
     <select id="countVehicleBySpecId" parameterType="long" resultType="int">
         SELECT COUNT(*)
         FROM VEHICLE_INVENTORY

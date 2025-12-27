@@ -1,5 +1,6 @@
 package com.carpick.admin.controller;
 
+import com.carpick.admin.carAdmin.service.AdminCarOptionService;
 import com.carpick.admin.insuranceAdmin.service.AdminInsuranceService;
 import com.carpick.domain.auth.dto.LoginRequest;
 import com.carpick.domain.auth.dto.LoginResponse;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class AdminController {
 
+    private  final AdminCarOptionService adminCarOptionService;
     private final AdminInsuranceService adminInsuranceService;
     // AdminController에서 분리해서 새로 개발하실 경우, 관련 메소드를 삭제 후 이동해주세요!
 
@@ -25,22 +27,28 @@ public class AdminController {
     ///  관리자 메인 ///
 
     // ================== 1. 차종 관리 (Spec + Option) ==================
-    // 차종 목록 (아반떼, 소나타...)
+    // ================== 1. 차량 스펙 관리 (CAR_SPEC) ==================
     @GetMapping("/car")
     public String carSpecList() {
-        return "car/spec_list"; // 기존 "car" 템플릿 파일명에 맞춰 수정하세요
+        return "car";   // car.html
+    }
+    // 메서드 추가
+    @GetMapping("/option")
+    public String optionAdmin(Model model) {
+        model.addAttribute("optionList", adminCarOptionService.getOptionList());
+        return "option";  // templates/option.html
+    }
+// 지점관리
+    @GetMapping("/branch")
+    public String branchAdmin() {
+        return "branch";
     }
 
-    // 차종 등록/수정 (여기서 옵션도 같이 관리!)
-    @GetMapping("/car_write")
-    public String carSpecForm() {
-        return "car/spec_form"; // 기존 "carWrite" 템플릿 파일명에 맞춰 수정하세요
-    }
     // ================== 2. 차량 재고 관리 (Inventory - 실차) ==================
     // [NEW] 방금 만드신 기능을 위한 페이지입니다.
     @GetMapping("/inventory")
     public String vehicleInventoryList() {
-        return "inventory/list"; // templates/inventory/list.html 생성 필요
+        return "inventory"; // inventory.html 생성 필요
     }
 
     // "보험 관리" 메뉴를 눌렀을 때 실행되는 메서드
@@ -54,7 +62,11 @@ public class AdminController {
         return "insurance"; // 파일 위치에 따라 경로 수정 (templates/insurance.html 이라면)
     }
 
-
+// 가격 추가
+    @GetMapping("/price")
+    public String priceAdmin() {
+        return "price";
+    }
     ///  FAQ관리 ///
     @GetMapping("/faq")
     public String faqAdmin() {

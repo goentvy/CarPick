@@ -52,133 +52,131 @@ DROP TABLE IF EXISTS CAR_SPEC;
    ================================================== */
 
 /* [1] 차량 스펙/모델 정보 */
-/* [1] 차량 스펙/모델 정보 */
 CREATE TABLE IF NOT EXISTS CAR_SPEC (
-                                        spec_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
+    spec_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '모델 고유 ID',
 
     /* 기본 정보 */
-                                        brand VARCHAR(50) NOT NULL COMMENT '브랜드 (현대, 기아 등)',
+    brand VARCHAR(50) NOT NULL COMMENT '브랜드 (현대, 기아 등)',
 
     /* 풀네임(상세페이지용) */
-                                        model_name VARCHAR(150) NOT NULL COMMENT '모델명(상세용 Full name)',
+    model_name VARCHAR(150) NOT NULL COMMENT '모델명(상세용 Full name)',
 
     /* [추가] 쇼트네임(카드용) */
-                                        display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
+    display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
 
-                                        car_class ENUM('LIGHT','SMALL','COMPACT','MID','LARGE','IMPORT','RV','SUV')
-                                            NOT NULL COMMENT '차량 등급',
-                                        model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
-#     ai d요약 문구
-                                        ai_summary text comment 'ai 추천문구 관리자 페이지 에서 관리',
+    car_class ENUM('LIGHT','SMALL','COMPACT','MID','LARGE','IMPORT','RV','SUV')
+        NOT NULL COMMENT '차량 등급',
+    model_year_base SMALLINT NOT NULL COMMENT '대표 연식',
+    
+    /* ai 요약 문구 */
+    ai_summary TEXT COMMENT 'ai 추천문구 관리자 페이지에서 관리',
+    
     /* 파워트레인 */
-                                        fuel_type ENUM('GASOLINE','DIESEL','LPG','ELECTRIC','HYBRID','HYDROGEN')
-                                            NOT NULL COMMENT '연료 타입',
-                                        transmission_type VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '변속기',
-                                        is_four_wheel_drive BOOLEAN
-                                            NOT NULL DEFAULT FALSE
-                                            COMMENT '사륜구동 여부 (TRUE=4WD/AWD)',
+    fuel_type ENUM('GASOLINE','DIESEL','LPG','ELECTRIC','HYBRID','HYDROGEN')
+        NOT NULL COMMENT '연료 타입',
+    transmission_type VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '변속기',
+    is_four_wheel_drive BOOLEAN NOT NULL DEFAULT FALSE
+        COMMENT '사륜구동 여부 (TRUE=4WD/AWD)',
+    /* ✅ [추가] 차량 고유 옵션 (빌트인 기능) */
+    car_options VARCHAR(500) NULL COMMENT '차량 고유 옵션(예: 네비게이션, 썬루프, 통풍시트, 블루투스) - 콤마 구분',
+        
     /* [정책] 대여 자격 */
-                                        min_driver_age TINYINT NOT NULL DEFAULT 21 COMMENT '대여 가능 최저 연령',
-                                        min_license_years TINYINT NOT NULL DEFAULT 1 COMMENT '최저 면허 경력 년수',
+    min_driver_age TINYINT NOT NULL DEFAULT 21 COMMENT '대여 가능 최저 연령',
+    min_license_years TINYINT NOT NULL DEFAULT 1 COMMENT '최저 면허 경력 년수',
 
     /* 제원 */
-                                        seating_capacity INT NOT NULL COMMENT '승차 정원',
-                                        trunk_capacity VARCHAR(50) NULL COMMENT '적재 공간 설명',
-                                        fuel_efficiency VARCHAR(50) NULL COMMENT '연비',
+    seating_capacity INT NOT NULL COMMENT '승차 정원',
+    trunk_capacity VARCHAR(50) NULL COMMENT '적재 공간 설명',
+    fuel_efficiency VARCHAR(50) NULL COMMENT '연비',
 
     /* 이미지/태그 */
-                                        main_image_url VARCHAR(255) NULL COMMENT '대표 이미지',
-                                        img_url VARCHAR(500) NULL COMMENT '추가 이미지',
-                                        ai_keywords VARCHAR(500) NULL COMMENT 'AI 검색 태그',
+    main_image_url VARCHAR(255) NULL COMMENT '대표 이미지',
+    img_url VARCHAR(500) NULL COMMENT '추가 이미지',
+    ai_keywords VARCHAR(500) NULL COMMENT 'AI 검색 태그',
 
     /* [추가] 카드 라벨/주행 태그(프론트용) - MVP는 문자열로 묶어서 전달 */
-                                        drive_labels VARCHAR(200) NULL COMMENT '카드 라벨(예: 가솔린, 경차, 도심주행) - CSV or JSON string',
--- 기본 조회 조건: use_yn='Y'
-                                        use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
-                                        deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+    drive_labels VARCHAR(200) NULL COMMENT '카드 라벨(예: 가솔린, 경차, 도심주행) - CSV or JSON string',
+    
+    /* 기본 조회 조건: use_yn='Y' */
+    use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',
+    deleted_at DATETIME NULL COMMENT '삭제 처리 일시',
 
-                                        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-
-
-
-                                        UNIQUE KEY uk_car_spec (brand, model_name, model_year_base)
+    UNIQUE KEY uk_car_spec (brand, model_name, model_year_base)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 
 /* [2] 지점 (BRANCH)  ※ PRICE_POLICY FK 때문에 먼저 생성 */
 CREATE TABLE IF NOT EXISTS BRANCH (
-                                      branch_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '지점 ID',
-                                      branch_code VARCHAR(20) NOT NULL COMMENT '지점 코드_자연키(Natural Key, Code)',
-                                      branch_name VARCHAR(100) NOT NULL COMMENT '지점명',
+    branch_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '지점 ID',
+    branch_code VARCHAR(20) NOT NULL COMMENT '지점 코드_자연키(Natural Key, Code)',
+    branch_name VARCHAR(100) NOT NULL COMMENT '지점명',
 
-                                      address_basic VARCHAR(255) NOT NULL COMMENT '주소',
-                                      address_detail VARCHAR(255) NULL COMMENT '상세주소',
-                                      phone VARCHAR(20) NOT NULL COMMENT '전화번호',
+    address_basic VARCHAR(255) NOT NULL COMMENT '주소',
+    address_detail VARCHAR(255) NULL COMMENT '상세주소',
+    phone VARCHAR(20) NOT NULL COMMENT '전화번호',
 
-                                      open_time TIME NULL COMMENT '오픈 시간',
-                                      close_time TIME NULL COMMENT '마감 시간',
-                                      business_hours VARCHAR(255) NULL COMMENT '영업시간 텍스트',
+    open_time TIME NULL COMMENT '오픈 시간',
+    close_time TIME NULL COMMENT '마감 시간',
+    business_hours VARCHAR(255) NULL COMMENT '영업시간 텍스트',
 
-                                      latitude DECIMAL(10,8) NULL COMMENT '위도',
-                                      longitude DECIMAL(11,8) NULL COMMENT '경도',
-                                      region_dept1 VARCHAR(50) NULL COMMENT '지역(서울/경기)',
+    latitude DECIMAL(10,8) NULL COMMENT '위도',
+    longitude DECIMAL(11,8) NULL COMMENT '경도',
+    region_dept1 VARCHAR(50) NULL COMMENT '지역(서울/경기)',
 
-                                      is_active BOOLEAN NOT NULL DEFAULT 1,
+    is_active BOOLEAN NOT NULL DEFAULT 1,
 
     /* Capability Flags */
-                                      can_manage_inventory_yn CHAR(1) NOT NULL DEFAULT 'Y',
-                                      can_manage_vehicle_status_yn CHAR(1) NOT NULL DEFAULT 'Y',
-                                      can_pickup_return_yn CHAR(1) NOT NULL DEFAULT 'Y',
-                                      can_delivery_yn CHAR(1) NOT NULL DEFAULT 'N',
-                                      delivery_radius_km INT NULL COMMENT '딜리버리 반경(km)',
+    can_manage_inventory_yn CHAR(1) NOT NULL DEFAULT 'Y',
+    can_manage_vehicle_status_yn CHAR(1) NOT NULL DEFAULT 'Y',
+    can_pickup_return_yn CHAR(1) NOT NULL DEFAULT 'Y',
+    can_delivery_yn CHAR(1) NOT NULL DEFAULT 'N',
+    delivery_radius_km INT NULL COMMENT '딜리버리 반경(km)',
 
-    -- 기본 조회 조건: use_yn='Y'
-                                      use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
-                                      deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+    /* 기본 조회 조건: use_yn='Y' */
+    use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',
+    deleted_at DATETIME NULL COMMENT '삭제 처리 일시',
 
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                                      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-                                      UNIQUE KEY uk_branch_code (branch_code)
+    UNIQUE KEY uk_branch_code (branch_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 /* [3] 차량 옵션 (가격 추가됨) */
 CREATE TABLE IF NOT EXISTS CAR_OPTION (
-                                          option_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '옵션 ID',
-                                          car_spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
+    option_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '옵션 ID',
 
-                                          option_name VARCHAR(100) NOT NULL COMMENT '옵션명(카시트, 네비 등)',
-                                          option_description TEXT NULL COMMENT '옵션 설명',
+
+    option_name VARCHAR(100) NOT NULL COMMENT '옵션명(카시트, 네비 등 추가 가능한 옵션)',
+    option_description TEXT NULL COMMENT '옵션 설명',
 
     /* 옵션 요금 */
-                                          option_daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
+    option_daily_price INT NOT NULL DEFAULT 0 COMMENT '옵션 1일 대여료(0이면 무료)',
 
-                                          is_highlight BOOLEAN NOT NULL DEFAULT FALSE COMMENT '주요 옵션 노출 여부',
+    is_highlight BOOLEAN NOT NULL DEFAULT FALSE COMMENT '주요 옵션 노출 여부',
 
-
-                                          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                          use_yn CHAR(1) DEFAULT 'Y' COMMENT '삭제여부(Y:사용, N:삭제)',
-                                          deleted_at DATETIME NULL COMMENT '삭제 처리 일시',
-                                          UNIQUE KEY uk_car_option (car_spec_id, option_name),
-                                          CONSTRAINT fk_car_option_spec
-                                              FOREIGN KEY (car_spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    use_yn CHAR(1) DEFAULT 'Y' COMMENT '삭제여부(Y:사용, N:삭제)',
+    deleted_at DATETIME NULL COMMENT '삭제 처리 일시',
+    
+    UNIQUE KEY uk_car_option ( option_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 /* [4] 가격 정책 (차량 기본료) */
 CREATE TABLE IF NOT EXISTS PRICE_POLICY (
-                                            price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
-                                            spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
-                                            branch_id BIGINT NULL COMMENT '지점 ID (NULL=전국)(FK)',
+    price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
+    spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
+    branch_id BIGINT NULL COMMENT '지점 ID (NULL=전국)(FK)',
 
-                                            unit_type ENUM('DAILY','MONTHLY') NOT NULL COMMENT '요금 단위',
-                                            base_price INT NOT NULL COMMENT '기준 대여료(Dynamic Pricing용)',
+    unit_type ENUM('DAILY','MONTHLY') NOT NULL COMMENT '요금 단위',
+    base_price INT NOT NULL COMMENT '기준 대여료(Dynamic Pricing용)',
 
     /* MVP 핵심 가짜 할인율*/
                                             discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '할인율(0~100)',

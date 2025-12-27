@@ -9,8 +9,8 @@ import java.util.List;
 @Mapper
 public interface AdminCarOptionMapper {
 
-    // 특정 차종의 옵션 목록 조회
-    List<AdminCarOptionDto> selectListBySpecId(@Param("carSpecId") Long carSpecId);
+    // 전체 옵션 목록 조회 (use_yn = 'Y')
+    List<AdminCarOptionDto> selectList();
 
     // 단건 조회
     AdminCarOptionDto selectById(@Param("optionId") Long optionId);
@@ -25,12 +25,10 @@ public interface AdminCarOptionMapper {
     int softDelete(@Param("optionId") Long optionId);
 
     // 삭제된 데이터 중 같은 이름 있는지 체크 (복구용)
-    AdminCarOptionDto selectDeletedByName(@Param("carSpecId") Long carSpecId,
-                                          @Param("optionName") String optionName);
+    AdminCarOptionDto selectDeletedByName(@Param("optionName") String optionName);
 
     // 복구
     int restore(@Param("optionId") Long optionId);
-    // ✅ 추가: 특정 차종의 옵션 전체 Soft Delete
-    int softDeleteAllBySpecId(@Param("carSpecId") Long carSpecId);
+
 
 }

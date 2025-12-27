@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class AdminCarOptionDto {
     private Long optionId;
-    private Long carSpecId;
+
     private String optionName;
     private String optionDescription;
 

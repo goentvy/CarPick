@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 차량관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS -->
+    <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+    <!-- amchart css (CDN) -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+    <!-- Others CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <!-- JS -->
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+    <title>관리자 - 가격 정책 관리</title>
+
+
+    <style>
+        /* 엑셀 느낌을 위한 스타일링 */
+        body { background-color: #f8f9fa; padding: 20px; }
+        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; overflow-x: auto;}
+
+        /* 테이블 헤더 */
+        th { vertical-align: middle; text-align: center; background-color: #f1f3f5; font-size: 0.9rem; white-space: nowrap; }
+
+        /* 테이블 셀 공통 */
+        td { vertical-align: middle; padding: 5px !important; }
+
+        /* 입력 필드 스타일 (엑셀처럼 보이게) */
+        .form-control-sm {
+            border: 1px solid #dee2e6;
+            text-align: right; /* 숫자는 우측 정렬 */
+            font-size: 0.9rem;
+        }
+        .form-control-sm:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+        }
+
+        /* 수정 불가능한 계산 필드 (회색 처리) */
+        .readonly-input {
+            background-color: #e9ecef;
+            border: none;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        /* 섹션 구분선 */
+        .border-start-thick { border-left: 2px solid #dee2e6 !important; }
+
+        /* 모델명 강조 */
+        .model-name { font-weight: bold; color: #212529; }
+        .brand-name { font-size: 0.8rem; color: #868e96; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">💰 가격 및 할인 정책 관리</h3>
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">🔄 목록 새로고침</button>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-light">
+            <tr>
+                <th rowspan="2" style="width: 150px;">차량 정보</th>
+                <th rowspan="2" style="width: 80px;">할인율(%)</th>
+
+                <th colspan="2" class="border-start-thick table-warning">단기 렌트 (1일)</th>
+
+                <th colspan="2" class="border-start-thick table-info">장기 (1개월)</th>
+                <th colspan="2" class="table-info">장기 (3개월)</th>
+                <th colspan="2" class="table-info">장기 (6개월)</th>
+
+                <th rowspan="2" style="width: 80px;" class="border-start-thick">관리</th>
+            </tr>
+            <tr>
+                <th class="border-start-thick">원가</th>
+                <th>최종가</th>
+
+                <th class="border-start-thick">원가</th>
+                <th>최종가</th>
+                <th>원가</th>
+                <th>최종가</th>
+                <th>원가</th>
+                <th>최종가</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="dto : ${priceList}" th:id="'row-' + ${dto.carSpecId}">
+
+                <input type="hidden" class="spec-id" th:value="${dto.carSpecId}">
+                <input type="hidden" class="price-id" th:value="${dto.priceId}">
+                <input type="hidden" class="policy-id" th:value="${dto.pricePolicyId}">
+
+                <td>
+                    <div class="brand-name" th:text="${dto.brand}">현대</div>
+                    <div class="model-name" th:text="${dto.modelName}">쏘나타</div>
+                </td>
+
+                <td>
+                    <input type="number" class="form-control form-control-sm fw-bold text-danger discount-input"
+                           min="0" max="100" th:value="${dto.discountRate}" placeholder="0">
+                </td>
+
+                <td class="border-start-thick">
+                    <input type="number" class="form-control form-control-sm daily-price"
+                           th:value="${dto.dailyPrice}" placeholder="원가">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm readonly-input" readonly
+                           th:value="${#numbers.formatInteger(dto.finalDailyPrice, 0, 'COMMA') + '원'}" tabindex="-1">
+                </td>
+
+                <td class="border-start-thick">
+                    <input type="number" class="form-control form-control-sm price-1m"
+                           th:value="${dto.price1m}" placeholder="원가">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm readonly-input" readonly
+                           th:value="${#numbers.formatInteger(dto.finalPrice1m, 0, 'COMMA')}" tabindex="-1">
+                </td>
+
+                <td>
+                    <input type="number" class="form-control form-control-sm price-3m"
+                           th:value="${dto.price3m}" placeholder="원가">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm readonly-input" readonly
+                           th:value="${#numbers.formatInteger(dto.finalPrice3m, 0, 'COMMA')}" tabindex="-1">
+                </td>
+
+                <td>
+                    <input type="number" class="form-control form-control-sm price-6m"
+                           th:value="${dto.price6m}" placeholder="원가">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm readonly-input" readonly
+                           th:value="${#numbers.formatInteger(dto.finalPrice6m, 0, 'COMMA')}" tabindex="-1">
+                </td>
+
+                <td class="border-start-thick text-center">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="saveRow(this)">
+                        저장
+                    </button>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(priceList)}">
+                <td colspan="12" class="text-center py-4 text-muted">등록된 차량이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    /**
+     * [행 단위 저장 함수]
+     * 버튼이 눌린 해당 행(tr)의 데이터만 긁어와서 서버로 전송합니다.
+     */
+    function saveRow(btn) {
+        // 1. 버튼이 속한 행(tr) 찾기
+        const row = btn.closest('tr');
+
+        // 2. 데이터 수집 (hidden inputs & value inputs)
+        const data = {
+            carSpecId: row.querySelector('.spec-id').value,
+            priceId: row.querySelector('.price-id').value || null,       // 값이 없으면 null 전송
+            pricePolicyId: row.querySelector('.policy-id').value || null, // 값이 없으면 null 전송
+
+            discountRate: row.querySelector('.discount-input').value || 0,
+
+            dailyPrice: row.querySelector('.daily-price').value || 0,
+            price1m: row.querySelector('.price-1m').value || 0,
+            price3m: row.querySelector('.price-3m').value || 0,
+            price6m: row.querySelector('.price-6m').value || 0
+        };
+
+        // 3. 유효성 검사 (간단하게 음수 체크만)
+        if (data.discountRate < 0 || data.discountRate > 100) {
+            alert("할인율은 0~100 사이여야 합니다.");
+            return;
+        }
+
+        // 4. AJAX 요청 (fetch)
+        fetch('/admin/api/price/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(res => {
+                if (res.success) {
+                    alert(res.message);
+                    // 저장 후 계산된 '최종가'를 보기 위해 페이지 새로고침 (가장 확실한 방법)
+                    location.reload();
+                } else {
+                    alert("실패: " + res.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("시스템 오류가 발생했습니다.");
+            });
+    }
+</script>
+
+</body>
+</html>

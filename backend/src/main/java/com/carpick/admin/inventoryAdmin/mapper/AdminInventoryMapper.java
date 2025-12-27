@@ -23,6 +23,10 @@ public interface AdminInventoryMapper {
 
     // 5. 논리 삭제 (use_yn = 'N')
     int softDelete(@Param("vehicleId") Long vehicleId);
+    // 삭제된 데이터 중 같은 차량번호 있는지 체크
+    AdminVehicleInventoryDto selectDeletedByVehicleNo(@Param("vehicleNo") String vehicleNo);
 
+    // 복구
+    int restore(@Param("vehicleId") Long vehicleId);
 
 }
