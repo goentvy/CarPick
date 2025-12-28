@@ -2,9 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <title>카픽 - 차량관리</title>
+	<meta charset="UTF-8">
+	<title>카픽 - 차량 모델(Spec) 관리</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+
 	<!-- CSS -->
 	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
 	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
@@ -24,227 +25,392 @@
 	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
 
-	<!-- JS -->
 	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 
+	<style>
+		/* 모달 스타일 보정 */
+		.modal-body label { font-weight: 600; margin-top: 10px; }
+	</style>
 </head>
 
 <body>
 
 <div class="page-container">
 
-    <!-- ⭐ 사이드바 include -->
-    <div th:replace="fragments/fragments :: sidebar"></div>
+	<div th:replace="fragments/fragments :: sidebar"></div>
 
+	<div th:replace="fragments/fragments :: header"></div>
 
-    <!-- ⭐ header include -->
-    <div th:replace="fragments/fragments :: header"></div>
-
-    <!-- ⭐ 본문 영역 -->
-    <!-- main content area start -->
 	<div class="main-content">
-	    <!-- page title area start -->
-	    <div class="page-title-area">
-	        <div class="row align-items-center">
-	            <div class="col-sm-6">
-	                <div class="breadcrumbs-area clearfix">
-	                    <h4 class="page-title pull-left">차량 관리</h4>
-	                    <ul class="breadcrumbs pull-left">
-	                        <li><a href="index.html">홈</a></li>
-	                        <li><span>차량 관리</span></li>
-	                    </ul>
-	                </div>
-	            </div>
-	            <div class="col-sm-6 clearfix">
-	                <button class="user-profile user_writeBtn pull-right" onclick="location.href='/admin/car_write'">
-	                    차량 등록
-	                </button>
-	            </div>
-	        </div>
-	    </div>
-	    <!-- page title area end -->
+		<div class="page-title-area">
+			<div class="row align-items-center">
+				<div class="col-sm-6">
+					<div class="breadcrumbs-area clearfix">
+						<h4 class="page-title pull-left">차량 모델(Spec) 관리</h4>
+						<ul class="breadcrumbs pull-left">
+							<li><a href="/admin">홈</a></li>
+							<li><span>차량 모델 관리</span></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-sm-6 clearfix">
+					<button class="user-profile user_writeBtn pull-right" onclick="openModal('new')">
+						<i class="ti-plus"></i> 신규 등록
+					</button>
+				</div>
+			</div>
+		</div>
+
 		<div class="main-content-inner">
-            <div class="row">
-				<form>
-					<div class="col-lg-12 mt-4">
-						<div class="row">
-							<div class="form-group mr-1">
-		                        <select class="form-control">
-		                            <option>차종 검색</option>
-		                            <option>중형</option>
-		                            <option>소형</option>
-		                        </select>
-		                    </div>
-							<div class="form-group mr-1">
-		                        <select class="form-control">
-		                            <option>차량상태 검색</option>
-		                            <option>사용가능</option>
-		                            <option>렌트중</option>
-									<option>수리중</option>
-									<option>픽업예정</option>
-		                        </select>
-		                    </div>
-							<div class="form-group mr-1">
-		                        <select class="form-control">
-		                            <option>소모품상태 검색</option>
-		                            <option>교체권장</option>
-		                            <option>양호</option>
-		                        </select>
-		                    </div>
-							<div class="search-box pull-left mr-1">
-		                        <input type="text" name="search" placeholder="Search..." required>
-		                    </div>
-							<div class="search-btn">
-								<button type="button" class="btn btn-light mb-3"><i class="ti-search"></i></button>
+			<div class="row">
+
+				<div class="col-lg-12 mt-4">
+					<div class="card">
+						<div class="card-body">
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<h4 class="header-title mb-0">보유 차종 목록</h4>
+								<span class="text-muted small">총 <b id="totalCount">0</b>개 모델</span>
+							</div>
+
+							<div class="single-table">
+								<div class="table-responsive">
+									<table class="table text-center table-hover">
+										<thead class="text-uppercase bg-light">
+										<tr>
+											<th scope="col" width="5%">ID</th>
+											<th scope="col" width="10%">브랜드</th>
+											<th scope="col" width="15%">모델명(표시)</th>
+											<th scope="col" width="10%">연식</th>
+											<th scope="col" width="10%">연료</th>
+											<th scope="col" width="10%">등급</th>
+											<th scope="col">옵션요약</th>
+											<th scope="col" width="15%">관리</th>
+										</tr>
+										</thead>
+										<tbody id="carListBody">
+										</tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div>
-				</form>
-                <!-- basic table start -->
-                <div class="col-lg-12 mt-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="header-title">차량 관리</h4>
-                            <div class="single-table">
-                                <div class="table-responsive">
-                                    <table class="table text-center">
-                                        <thead class="text-uppercase">
-                                            <tr>
-                                                <th scope="col">NO</th>
-                                                <th scope="col">차량모델</th>
-                                                <th scope="col">차량번호</th>
-												<th scope="col">연료</th>
-												<th scope="col">연식</th>
-												<th scope="col">총주행거리</th>
-												<th scope="col">차량상태</th>
-												<th scope="col">소모품상태</th>
-                                                <th scope="col">관리</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <td onclick="location.href='./car_write?id=1'">CT6</td>
-                                                <td onclick="location.href='./car_write?id=1'">가123 1234</td>
-                                                <td onclick="location.href='./car_write?id=1'">가솔린</td>
-												<td onclick="location.href='./car_write?id=1'">2023</td>
-												<td onclick="location.href='./car_write?id=1'">93,231 km</td>
-												<td><span type="button" class="btn btn-success mb-3">이용가능</span></td>
-												<td><span type="button" class="btn btn-danger mb-3">교체권장</span></td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(4)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">2</th>
-												<td onclick="location.href='./car_write?id=1'">CT6</td>
-                                                <td onclick="location.href='./car_write?id=1'">가123 1234</td>
-                                                <td onclick="location.href='./car_write?id=1'">가솔린</td>
-												<td onclick="location.href='./car_write?id=1'">2023</td>
-												<td onclick="location.href='./car_write?id=1'">98,231 km</td>
-												<td><span type="button" class="btn btn-success mb-3">이용가능</span></td>
-												<td><span type="button" class="btn btn-danger mb-3">교체권장</span></td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(3)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">3</th>
-												<td onclick="location.href='./car_write?id=1'">CT6</td>
-                                                <td onclick="location.href='./car_write?id=1'">가123 1234</td>
-                                                <td onclick="location.href='./car_write?id=1'">가솔린</td>
-												<td onclick="location.href='./car_write?id=1'">2023</td>
-												<td onclick="location.href='./car_write?id=1'">2,231 km</td>
-												<td><span type="button" class="btn btn-warning mb-3">렌트중</span></td>
-												<td><span type="button" class="btn btn-light mb-3">양호</span></td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(2)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">1</th>
-												<td onclick="location.href='./car_write?id=1'">CT6</td>
-                                                <td onclick="location.href='./car_write?id=1'">가123 1234</td>
-                                                <td onclick="location.href='./car_write?id=1'">가솔린</td>
-												<td onclick="location.href='./car_write?id=1'">2023</td>
-												<td onclick="location.href='./car_write?id=1'">1 km</td>
-												<td><span type="button" class="btn btn-danger mb-3">점검중</span></td>
-												<td><span type="button" class="btn btn-light mb-3">양호</span></td>
-                                                <td><button type="button" class="btn btn-light" onclick="deleteItem(1)"><i class="ti-trash"></i></button></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+				</div>
 			</div>
 		</div>
-		<nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                </li>
-            </ul>
-        </nav>
 	</div>
-	
-	<script>
-	function deleteItem(id) {
-	    if (confirm('정말 삭제하시겠습니까?')) {
-	        // 삭제 처리 로직
-	        // 예: 폼 submit, AJAX 호출, location 이동 등
-	        console.log('삭제 진행');
-	    } else {
-	        console.log('삭제 취소');
-	    }
-	}
-	</script>
-	<!-- main content area end -->
-
-    <!-- ⭐ footer include -->
-    <div th:replace="fragments/fragments :: footer"></div>
+	<div th:replace="fragments/fragments :: footer"></div>
 
 </div>
 
-<!-- jquery latest version -->
-<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<div class="modal fade" id="specModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalTitle">차량 모델 정보</h5>
+				<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<form id="specForm">
+					<input type="hidden" id="specId">
 
-<!-- bootstrap 4 js -->
+					<h6 class="text-primary border-bottom pb-2">📌 기본 제원 (폴더명 연동)</h6>
+					<div class="form-row">
+						<div class="col-md-6 mb-3">
+							<label>브랜드</label>
+							<select class="form-control" id="brand">
+								<option value="HYUNDAI">현대 (HYUNDAI)</option>
+								<option value="KIA">기아 (KIA)</option>
+								<option value="GENESIS">제네시스 (GENESIS)</option>
+								<option value="BMW">BMW</option>
+								<option value="BENZ">벤츠 (BENZ)</option>
+							</select>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label>모델 코드 (폴더명)</label>
+							<input type="text" class="form-control" id="modelName" placeholder="예: avante_cn7">
+							<small class="text-muted">※ 이미지 폴더명과 정확히 일치해야 합니다.</small>
+						</div>
+						<div class="form-row mt-3">
+							<div class="col-md-6 mb-3">
+								<label class="text-danger">📸 메인 이미지 (JPG)</label>
+								<input type="file" class="form-control-file" id="mainImageFile" accept=".jpg, .jpeg">
+								<small class="text-muted">차량 목록 및 상세 상단에 노출됩니다.</small>
+							</div>
+							<div class="col-md-6 mb-3">
+								<label class="text-primary">🔄 360도 이미지 (WEBP)</label>
+								<input type="file" class="form-control-file" id="rotatableImageFile" accept=".webp">
+								<small class="text-muted">360도 뷰어에 사용됩니다.</small>
+							</div>
+						</div>
+					</div>
+
+					<h6 class="text-success border-bottom pb-2 mt-3">✏️ 상세 정보 (자유 수정)</h6>
+					<div class="form-row">
+						<div class="col-md-4 mb-3">
+							<label>표시 모델명 (한글)</label>
+							<input type="text" class="form-control" id="displayNameShort" placeholder="예: 더 뉴 아반떼">
+						</div>
+						<div class="col-md-4 mb-3">
+							<label>연식 (Year)</label>
+							<input type="number" class="form-control" id="modelYearBase" placeholder="2025">
+						</div>
+						<div class="col-md-4 mb-3">
+							<label>연료 타입</label>
+							<select class="form-control" id="fuelType">
+								<option value="GASOLINE">가솔린</option>
+								<option value="DIESEL">디젤</option>
+								<option value="HYBRID">하이브리드</option>
+								<option value="ELECTRIC">전기(EV)</option>
+								<option value="LPG">LPG</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="form-row">
+						<div class="col-md-6 mb-3">
+							<label>차량 등급</label>
+							<select class="form-control" id="carClass">
+								<option value="COMPACT">준중형</option>
+								<option value="MID">중형</option>
+								<option value="LARGE">대형</option>
+								<option value="SUV">SUV</option>
+								<option value="RV">RV</option>
+							</select>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label>승차 정원</label>
+							<input type="number" class="form-control" id="seatingCapacity" value="5">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label>AI 요약 문구</label>
+						<textarea class="form-control" id="aiSummary" rows="2" placeholder="차량 상세페이지 상단에 노출될 문구입니다."></textarea>
+					</div>
+
+					<div class="form-group">
+						<label>보유 옵션 (쉼표 구분)</label>
+						<input type="text" class="form-control" id="carOptions" placeholder="예: 네비게이션,썬루프,통풍시트">
+					</div>
+
+					<div class="form-row">
+						<div class="col-md-6 mb-3">
+							<label>최소 운전 연령</label>
+							<input type="number" class="form-control" id="minDriverAge" value="21">
+						</div>
+						<div class="col-md-6 mb-3">
+							<label>최소 면허 경력(년)</label>
+							<input type="number" class="form-control" id="minLicenseYears" value="1">
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" onclick="saveData()">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
 <script th:src="@{/assets/js/popper.min.js}"></script>
 <script th:src="@{/assets/js/bootstrap.min.js}"></script>
-
-<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
 <script th:src="@{/assets/js/metisMenu.min.js}"></script>
 <script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
 <script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
-
-<!-- start chart js (CDN) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-
-<!-- start highcharts js (CDN) -->
-<script src="https://code.highcharts.com/highcharts.js"></script>
-
-<!-- start zingchart js (CDN) -->
-<script src="https://cdn.zingchart.com/zingchart.min.js"></script>
-<script>
-    zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
-    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];
-</script>
-
-<!-- all line chart activation -->
-<script th:src="@{/assets/js/line-chart.js}"></script>
-
-<!-- all bar chart activation -->
-<script th:src="@{/assets/js/bar-chart.js}"></script>
-
-<!-- all pie chart -->
-<script th:src="@{/assets/js/pie-chart.js}"></script>
-
-<!-- others plugins -->
-<script th:src="@{/assets/js/plugins.js}"></script>
 <script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+	$(document).ready(function() {
+		loadCarList();
+	});
+
+	// 1. 목록 조회
+	function loadCarList() {
+		$.ajax({
+			url: '/admin/api/car/spec',
+			type: 'GET',
+			success: function(data) {
+				let html = '';
+				$('#totalCount').text(data.length); // 총 개수 표시
+
+				if(data.length === 0) {
+					html = '<tr><td colspan="8" class="py-4">등록된 차량 모델이 없습니다. 신규 등록을 진행해주세요.</td></tr>';
+				} else {
+					data.forEach(function(car) {
+						html += `
+                            <tr>
+                                <th scope="row">${car.specId}</th>
+                                <td><span class="badge badge-dark">${car.brand}</span></td>
+                                <td class="font-weight-bold">${car.displayNameShort || car.modelName}</td>
+                                <td>${car.modelYearBase}</td>
+                                <td>${car.fuelType}</td>
+                                <td>${car.carClass}</td>
+                                <td class="text-left"><small>${car.carOptions || '-'}</small></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick='openModal("edit", ${JSON.stringify(car)})' title="수정">
+                                        <i class="ti-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick='cloneCar(${JSON.stringify(car)})' title="복제등록">
+                                        <i class="ti-files"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteItem(${car.specId})" title="삭제">
+                                        <i class="ti-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+					});
+				}
+				$('#carListBody').html(html);
+			},
+			error: function(err) {
+				console.error(err);
+				alert('데이터 로드 실패');
+			}
+		});
+	}
+
+	// 2. 모달 열기
+	function openModal(mode, car = null) {
+		$('#specForm')[0].reset();
+
+		if (mode === 'new') {
+			$('#modalTitle').text('✨ 신규 모델 등록');
+			$('#specId').val('');
+			$('#brand').prop('disabled', false);
+			$('#modelName').prop('readonly', false);
+		} else if (mode === 'edit') {
+			$('#modalTitle').text('🔧 모델 정보 수정');
+			fillFormData(car);
+			// 수정 시 브랜드/모델코드는 수정 불가
+			$('#brand').prop('disabled', true);
+			$('#modelName').prop('readonly', true);
+		}
+		$('#specModal').modal('show');
+	}
+
+	// 3. 복제 등록
+	function cloneCar(car) {
+		if (!confirm(`[${car.displayNameShort}] 정보를 복사하시겠습니까?`)) return;
+
+		openModal('new'); // 신규 모드로 열기
+		fillFormData(car); // 데이터 채우기
+		$('#specId').val(''); // ID 제거 (신규 등록)
+
+		// 복제 후에는 수정 가능하도록 품
+		$('#brand').prop('disabled', false);
+		$('#modelName').prop('readonly', false);
+
+		// 안내
+		setTimeout(() => alert('정보가 복사되었습니다. 연식(Year) 등을 수정한 뒤 저장하세요!'), 300);
+	}
+
+	function fillFormData(car) {
+		$('#specId').val(car.specId);
+		$('#brand').val(car.brand);
+		$('#modelName').val(car.modelName);
+		$('#displayNameShort').val(car.displayNameShort);
+		$('#modelYearBase').val(car.modelYearBase);
+		$('#fuelType').val(car.fuelType);
+		$('#carClass').val(car.carClass);
+		$('#aiSummary').val(car.aiSummary);
+		$('#carOptions').val(car.carOptions);
+		$('#seatingCapacity').val(car.seatingCapacity);
+		$('#minDriverAge').val(car.minDriverAge);
+		$('#minLicenseYears').val(car.minLicenseYears);
+	}
+
+	// 4. 저장 (파일 업로드 지원 버전)
+	function saveData() {
+		// 1. 파일과 텍스트를 담을 FormData 객체 생성
+		const formData = new FormData();
+
+		// 2. 일반 텍스트 데이터 담기
+		formData.append('brand', $('#brand').val());
+		formData.append('modelName', $('#modelName').val());
+		formData.append('displayNameShort', $('#displayNameShort').val());
+		formData.append('modelYearBase', parseInt($('#modelYearBase').val() || 0));
+		formData.append('fuelType', $('#fuelType').val());
+		formData.append('carClass', $('#carClass').val());
+		formData.append('aiSummary', $('#aiSummary').val());
+		formData.append('carOptions', $('#carOptions').val());
+		formData.append('seatingCapacity', parseInt($('#seatingCapacity').val() || 5));
+		formData.append('minDriverAge', parseInt($('#minDriverAge').val() || 21));
+		formData.append('minLicenseYears', parseInt($('#minLicenseYears').val() || 1));
+
+		// 3. 파일 데이터 담기 (파일이 선택되었을 때만)
+		const mainFile = $('#mainImageFile')[0].files[0];
+		const rotateFile = $('#rotatableImageFile')[0].files[0];
+
+		if(mainFile) {
+			formData.append('mainImage', mainFile); // 백엔드 DTO의 필드명과 일치해야 함
+		}
+		if(rotateFile) {
+			formData.append('rotatableImage', rotateFile); // 백엔드 DTO의 필드명과 일치해야 함
+		}
+
+		// 4. 필수값 체크
+		if(!$('#brand').val() || !$('#modelName').val() || !$('#modelYearBase').val()) {
+			alert('브랜드, 모델코드, 연식은 필수입니다.');
+			return;
+		}
+
+		// 5. URL 설정
+		const id = $('#specId').val();
+		// 수정(ID있음)이면 URL 뒤에 ID 붙임
+		const url = id ? '/admin/api/car/spec/' + id : '/admin/api/car/spec';
+
+		// 중요: 파일 업로드는 보통 POST를 사용합니다.
+		// (백엔드에서 수정 요청도 POST로 받도록 처리하는 게 정신건강에 좋습니다)
+		const method = 'POST';
+
+		$.ajax({
+			url: url,
+			type: method,
+			data: formData,           // JSON.stringify가 아니라 formData를 그대로 넣습니다.
+			enctype: 'multipart/form-data',
+			processData: false,       // 필수: 데이터를 쿼리스트링으로 변환 금지
+			contentType: false,       // 필수: 헤더 자동 설정 금지 (multipart 자동 인식)
+			success: function(res) {
+				if (res.success) {
+					alert(res.message);
+					$('#specModal').modal('hide');
+					loadCarList();
+				} else {
+					alert('실패: ' + res.message);
+				}
+			},
+			error: function(xhr) {
+				const res = xhr.responseJSON;
+				alert(res && res.message ? res.message : '서버 오류 발생');
+			}
+		});
+	}
+
+	// 5. 삭제
+	function deleteItem(id) {
+		if (!confirm('정말 삭제하시겠습니까?')) return;
+
+		$.ajax({
+			url: '/admin/api/car/spec/' + id,
+			type: 'DELETE',
+			success: function(res) {
+				if (res.success) {
+					alert(res.message);
+					loadCarList();
+				} else {
+					alert('삭제 불가: ' + res.message);
+				}
+			},
+			error: function(xhr) {
+				const res = xhr.responseJSON;
+				alert(res && res.message ? res.message : '삭제 중 오류 발생');
+			}
+		});
+	}
+</script>
 
 </body>
 </html>

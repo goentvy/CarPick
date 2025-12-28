@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import useUserStore from "../../store/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -13,6 +15,7 @@ const ProfilePage = () => {
     // 회원정보 불러오기
     api.get("/users/me")
       .then((res) => {
+        console.log(res.data);
         setUserInfo(res.data);
         setPhone(res.data.phone); // 초기값 세팅
       })
@@ -63,7 +66,7 @@ const ProfilePage = () => {
         // 로그아웃 처리
         logout();
         localStorage.removeItem("user-storage");
-        window.location.href = "/";
+        navigate("/");
       } catch (err) {
         alert("회원탈퇴 실패");
         console.error(err);
@@ -71,22 +74,39 @@ const ProfilePage = () => {
     }
   };
 
-  const handleUnlinkKakao = async () => {
-    if (window.confirm("카카오 연동을 해제하시겠습니까?")) {
+  const handleUnlinkSocial = async () => {
+    console.log(userInfo);
+    if (!userInfo?.provider) {
+      alert("소셜 연동 정보가 없습니다.");
+      return;
+    }
+
+    const provider = userInfo.provider.toUpperCase(); // "KAKAO" or "NAVER"
+
+    if (window.confirm(`${provider} 연동을 해제하시겠습니까?`)) {
       try {
-        await api.post("/auth/unlink/kakao"); // 백엔드 API 호출
-        alert("카카오 연동이 해제되었습니다.");
+        if (provider === "KAKAO") {
+          await api.post("/auth/unlink/kakao");
+          alert("카카오 연동이 해제되었습니다.");
+        } else if (provider === "NAVER") {
+          await api.post("/auth/unlink/naver");
+          alert("네이버 연동이 해제되었습니다.");
+        } else {
+          alert("지원하지 않는 소셜 연동입니다.");
+          return;
+        }
 
         // 로그아웃 처리
         logout();
         localStorage.removeItem("user-storage");
         window.location.href = "/";
       } catch (err) {
-        alert("카카오 연동 해제 실패");
+        alert(`${provider} 연동 해제 실패`);
         console.error(err);
       }
     }
   };
+
 
   if (!userInfo) return <p>회원정보를 불러오는 중...</p>;
 
@@ -109,7 +129,7 @@ const ProfilePage = () => {
         <label className="block text-sm mb-1">휴대폰 번호</label>
         <input
           type="text"
-          value={phone}
+          value={phone ?? ""}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full border rounded px-3 py-2"
         />
@@ -154,10 +174,10 @@ const ProfilePage = () => {
           회원탈퇴
         </button>
         <button
-          onClick={handleUnlinkKakao}
+          onClick={handleUnlinkSocial}
           className="px-4 py-2 bg-yellow-500 text-black rounded"
         >
-          카카오 연동 해제
+          {userInfo.provider === "KAKAO" ? "카카오 연동 해제" : "네이버 연동 해제"}
         </button>
       </div>
     </div>

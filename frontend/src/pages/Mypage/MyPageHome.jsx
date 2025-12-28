@@ -26,7 +26,7 @@ function MyPageHome() {
         const timeout = setTimeout(() => {
             setOngoingOrder({
                 id: 123,
-                carName: "Test Name",
+                carName: "진행 중인 주문 테스트용",
                 pickupDate: "픽업 날짜 : 2025-12-20 (토)",
                 status: "예약완료",
                 pickupLocation: "서울역 카픽존",

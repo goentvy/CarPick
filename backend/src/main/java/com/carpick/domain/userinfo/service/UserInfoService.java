@@ -32,7 +32,8 @@ public class UserInfoService {
                 user.getBirth(),
                 user.getGender(),
                 user.isMarketingAgree(),
-                user.getMembershipGrade()
+                user.getMembershipGrade(),
+                user.getProvider()
         );
     }
 

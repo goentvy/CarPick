@@ -7,12 +7,14 @@ import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;
 import com.carpick.domain.auth.service.client.KaKaoClient;
 import com.carpick.domain.auth.service.client.NaverClient;
+import com.carpick.global.exception.AuthenticationException;
+import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.jwt.JwtProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional; // Spring 트랜잭션 권장
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,47 +30,86 @@ public class OAuthService {
     private final JwtProvider jwtProvider;
     private final RestTemplate restTemplate;
 
+    /**
+     * OAuth 로그인 처리
+     */
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
-        log.info("OAuth login start: provider={}, code={}", provider, request.getCode());
+        log.info("소셜 로그인 동작: provider={}, code={}", provider, request.getCode());
 
         User socialUser;
+
         if ("KAKAO".equalsIgnoreCase(provider)) {
-            String accessToken = kakaoClient.getAccessToken(request.getCode());
-            log.info("Kakao accessToken={}", accessToken); // 카카오 액세스 토큰 확인
-            socialUser = kakaoClient.getProfile(accessToken);
-            // ✅ 로그인 시 액세스 토큰 저장 (연동 해제 시 필요)
-            socialUser.setAccessToken(accessToken);
+            try {
+                String accessToken = kakaoClient.getAccessToken(request.getCode());
+                log.info("Kakao accessToken={}", accessToken);
+                socialUser = kakaoClient.getProfile(accessToken);
+                socialUser.setAccessToken(accessToken);
+            } catch (Exception e) {
+                throw new AuthenticationException(ErrorCode.OAUTH_INVALID_CODE);
+            }
         } else if ("NAVER".equalsIgnoreCase(provider)) {
-            String accessToken = naverClient.getAccessToken(request.getCode(), request.getState());
-            log.info("Naver accessToken={}", accessToken); // 네이버 액세스 토큰 확인
-            socialUser = naverClient.getProfile(accessToken);
-            socialUser.setAccessToken(accessToken);
+            try {
+                String accessToken = naverClient.getAccessToken(request.getCode(), request.getState());
+                log.info("Naver accessToken={}", accessToken);
+                socialUser = naverClient.getProfile(accessToken);
+                socialUser.setAccessToken(accessToken);
+            } catch (Exception e) {
+                throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
+            }
         } else {
-            throw new IllegalArgumentException("지원하지 않는 소셜 서비스입니다: " + provider);
+            throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
         }
 
-        // DB에서 기존 유저 확인
+        // DB 유저 확인 및 신규 가입/복구 처리
         User existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
 
         if (existUser == null) {
-            if (socialUser.getEmail() == null || socialUser.getEmail().isBlank()) {
-                socialUser.setEmail(provider.toLowerCase() + "_" + socialUser.getProviderId() + "@social.local");
-            }
-            socialUser.setPassword("");
-            socialUser.setMembershipGrade("BASIC");
-            if (socialUser.getGender() == null) socialUser.setGender(Gender.UNKNOWN);
-            if (socialUser.getMarketingAgree() == null) socialUser.setMarketingAgree(0);
+            User deletedUser = userMapper.findDeletedByProvider(
+                    socialUser.getProvider(),
+                    socialUser.getProviderId()
+            );
 
-            userMapper.insertSocialUser(socialUser);
-            existUser = socialUser;
+            if (deletedUser != null) {
+                userMapper.reviveSocialUser(socialUser.getAccessToken(), deletedUser.getUserId());
+                existUser = deletedUser;
+            } else {
+                if (socialUser.getEmail() == null || socialUser.getEmail().isBlank()) {
+                    socialUser.setEmail(provider.toLowerCase() + "_" + socialUser.getProviderId() + "@social.local");
+                }
+
+                if (userMapper.existsByEmail(socialUser.getEmail()) > 0) {
+                    log.warn("이메일 중복 발생: {}", socialUser.getEmail());
+                    existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
+                } else {
+                    try {
+                        socialUser.setPassword("");
+                        socialUser.setMembershipGrade("BASIC");
+                        if (socialUser.getGender() == null) socialUser.setGender(Gender.UNKNOWN);
+                        if (socialUser.getMarketingAgree() == null) socialUser.setMarketingAgree(0);
+
+                        userMapper.insertSocialUser(socialUser);
+                        existUser = socialUser;
+                    } catch (Exception e) {
+                        throw new AuthenticationException(ErrorCode.DB_DUPLICATE_KEY);
+                    }
+                }
+            }
+        } else if (existUser.getDeletedAt() != null) {
+            userMapper.reviveSocialUser(socialUser.getAccessToken(), existUser.getUserId());
+            existUser.setDeletedAt(null);
+            existUser.setAccessToken(socialUser.getAccessToken());
         }
+
         log.info("existUser userId = {}", existUser.getUserId());
         if (existUser.getUserId() == null) {
-            throw new IllegalStateException("UserId가 null입니다. DB INSERT/조회 로직을 확인하세요.");
+            throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
 
-        String role = (existUser.getMembershipGrade() != null) ? existUser.getMembershipGrade() : "BASIC";
+        String role = (existUser.getMembershipGrade() != null)
+                ? existUser.getMembershipGrade()
+                : "BASIC";
+
         String token = jwtProvider.generateToken(existUser.getUserId(), role);
 
         return OAuthLoginResponse.builder()
@@ -76,37 +117,47 @@ public class OAuthService {
                 .token(token)
                 .name(existUser.getName())
                 .email(existUser.getEmail())
+                .provider(existUser.getProvider())
                 .build();
     }
 
     /**
-     * ✅ 카카오 연동 해제
+     * 소셜 연동 해제 (카카오/네이버 통합)
      */
     @Transactional
-    public void unlinkKakao(String jwtToken) {
+    public void unlinkSocial(String provider, String jwtToken) {
         Long userId = jwtProvider.getUserId(jwtToken);
         User user = userMapper.findById(userId);
 
-        if (user == null || !"KAKAO".equalsIgnoreCase(user.getProvider())) {
-            throw new IllegalStateException("카카오 연동된 계정이 아닙니다.");
+        if (user == null || !provider.equalsIgnoreCase(user.getProvider())) {
+            throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
         if (user.getAccessToken() == null) {
-            throw new IllegalStateException("카카오 액세스 토큰이 없습니다. 다시 로그인 후 시도하세요.");
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
 
-        String url = "https://kapi.kakao.com/v1/user/unlink";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(user.getAccessToken()); // ✅ 액세스 토큰 사용
+        if ("KAKAO".equalsIgnoreCase(provider)) {
+            String url = "https://kapi.kakao.com/v1/user/unlink";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(user.getAccessToken());
 
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new IllegalStateException("카카오 연동 해제 실패: " + response.getBody());
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
+            }
+            log.info("카카오 연동 해제 완료: userId={}", userId);
+
+        } else if ("NAVER".equalsIgnoreCase(provider)) {
+            naverClient.unlink(user.getAccessToken());
+            log.info("네이버 연동 해제 완료: userId={}", userId);
+
+        } else {
+            throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
         }
 
-        // DB에서 유저 탈퇴 처리 (소셜 유저는 하드 삭제)
-        userMapper.hardDeleteSocialUser(userId);
-        log.info("카카오 연동 해제 완료: userId={}", userId);
+        // DB에서 유저 탈퇴 처리 (소셜 유저는 소프트 삭제)
+        userMapper.softDeleteSocialUser(userId);
     }
 }

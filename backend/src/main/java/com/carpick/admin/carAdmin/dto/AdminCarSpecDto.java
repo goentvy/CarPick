@@ -25,7 +25,7 @@ public class AdminCarSpecDto {
 
     private Integer minDriverAge;
     private Integer minLicenseYears;
-
+    private  String  carOptions;
     private Integer seatingCapacity;
     private String trunkCapacity;
     private String fuelEfficiency;

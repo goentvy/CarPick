@@ -1,5 +1,6 @@
 package com.carpick.admin.controller;
 
+import com.carpick.admin.carAdmin.service.AdminCarOptionService;
 import com.carpick.admin.insuranceAdmin.service.AdminInsuranceService;
 import com.carpick.domain.auth.dto.LoginRequest;
 import com.carpick.domain.auth.dto.LoginResponse;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class AdminController {
 
+    private  final AdminCarOptionService adminCarOptionService;
     private final AdminInsuranceService adminInsuranceService;
     // AdminController에서 분리해서 새로 개발하실 경우, 관련 메소드를 삭제 후 이동해주세요!
 
@@ -24,17 +26,31 @@ public class AdminController {
     }
     ///  관리자 메인 ///
 
-    ///  차량관리 ///
+    // ================== 1. 차종 관리 (Spec + Option) ==================
+    // ================== 1. 차량 스펙 관리 (CAR_SPEC) ==================
     @GetMapping("/car")
-    public String carAdmin() {
-        return "car";
+    public String carSpecList() {
+        return "car";   // car.html
+    }
+    // 메서드 추가
+    @GetMapping("/option")
+    public String optionAdmin(Model model) {
+        model.addAttribute("optionList", adminCarOptionService.getOptionList());
+        return "option";  // templates/option.html
+    }
+// 지점관리
+    @GetMapping("/branch")
+    public String branchAdmin() {
+        return "branch";
     }
 
-    @GetMapping("/car_write")
-    public String carWriteAdmin() {
-        return "carWrite";
+    // ================== 2. 차량 재고 관리 (Inventory - 실차) ==================
+    // [NEW] 방금 만드신 기능을 위한 페이지입니다.
+    @GetMapping("/inventory")
+    public String vehicleInventoryList() {
+        return "inventory"; // inventory.html 생성 필요
     }
-    ///  차량관리 ///
+
     // "보험 관리" 메뉴를 눌렀을 때 실행되는 메서드
     @GetMapping("/insurance")
     public String insurancePage(Model model) {
@@ -43,10 +59,14 @@ public class AdminController {
         model.addAttribute("list", adminInsuranceService.getInsuranceList());
 
         // 2. insurance.html 파일을 열어라!
-        return "admin/insurance"; // 파일 위치에 따라 경로 수정 (templates/admin/insurance.html 이라면)
+        return "insurance"; // 파일 위치에 따라 경로 수정 (templates/insurance.html 이라면)
     }
 
-
+// 가격 추가
+    @GetMapping("/price")
+    public String priceAdmin() {
+        return "price";
+    }
     ///  FAQ관리 ///
     @GetMapping("/faq")
     public String faqAdmin() {
