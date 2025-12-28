@@ -6,28 +6,48 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 📋 [관리자] 가격 및 할인 정책 통합 DTO
+ * * [설명]
+ * - 차종 정보(CAR_SPEC), 기본 요금(PRICE), 할인 정책(PRICE_POLICY)을 하나로 합친 객체입니다.
+ * - 단기/장기 요금의 '원가'와 할인율이 적용된 '최종 금액'을 한 행(Row)에서 관리합니다.
+ * - 'useYn' 필드를 통해 데이터의 논리 삭제 및 노출 여부를 제어합니다.
+ */
+
+
 @Data
 public class AdminPriceDto {
-    // 1️⃣ [식별자]
-    private Long priceId;            // 가격 ID (PK)
+    // ===== 🔑 식별자 (PK/FK) =====
+    private Long priceId;           // [PRICE 테이블] PK - 장기 요금 수정 시 사용
+    private Long pricePolicyId;     // [PRICE_POLICY 테이블] PK - 단기 요금/할인율 수정 시 사용
+    private Long carSpecId;         // [CAR_SPEC 테이블] FK - 차종 식별 ID
 
-    // 2️⃣ [연결 정보]
-    private Long carSpecId;          // 차량 스펙 ID (FK) - 저장용
+    // ===== 🚗 조인용 필드 (차종 정보) =====
+    private String brand;           // 브랜드 (현대, 기아 등)
+    private String modelName;       // 모델명 (아반떼, 쏘나타 등)
 
-    // 🌟 [화면 표시용] - 리스트에서 "ID:5" 대신 "그랜저"라고 보여주기 위함 (JOIN)
-    private String modelName;        // 차종명
 
-    // 3️⃣ [가격 설정] - 인라인 편집 대상
-    private BigDecimal dailyPrice;   // 1일 표준 대여료
-    private BigDecimal price1m;      // 1개월 장기 대여료
-    private BigDecimal price3m;      // 3개월 장기 대여료
-    private BigDecimal price6m;      // 6개월 장기 대여료
+    // ===== 📉 할인 정책 (PRICE_POLICY) =====
+    private Integer discountRate;   // 적용 할인율 (0~100 정수값)
 
-    // 4️⃣ [운영용]
-    private String useYn;            // 소프트 삭제 여부 (Y/N)
+    // ===== ⏱️ 단기 가격 정보 (PRICE / 계산 결과) =====
+    private BigDecimal dailyPrice;          // 1일 대여료 원가
+    private BigDecimal finalDailyPrice;     // [계산 필드] 할인율이 적용된 1일 최종 금액
 
-    // 5️⃣ [정보용]
+    // ===== 📅 장기 가격 정보 (PRICE / 계산 결과) =====
+    private BigDecimal price1m;             // 1개월 대여료 원가
+    private BigDecimal price3m;             // 3개월 대여료 원가
+    private BigDecimal price6m;             // 6개월 대여료 원가
+
+    private BigDecimal finalPrice1m;        // [계산 필드] 할인 적용된 1개월 최종금액
+    private BigDecimal finalPrice3m;        // [계산 필드] 할인 적용된 3개월 최종금액
+    private BigDecimal finalPrice6m;        // [계산 필드] 할인 적용된 6개월 최종금액
+
+    // ===== ⚙️ 운영 및 상태 관리 =====
+    private String useYn;           // 사용 여부 ('Y': 활성, 'N': 비활성/논리삭제)
+    private LocalDateTime deletedAt; // 삭제 처리된 일시 (논리 삭제 시 기록)
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime updatedAt; // 최근 수정일
+    private LocalDateTime updatedAt; // 마지막 데이터 수정 일시
 
 }

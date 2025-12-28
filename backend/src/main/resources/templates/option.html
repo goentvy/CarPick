@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 추가 옵션 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS -->
+    <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+    <!-- amchart css (CDN) -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+    <!-- Others CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <!-- JS -->
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+    <style>
+        /* 인라인 편집용 입력 폼 살짝 정리 */
+        .option-input {
+            width: 100%;
+            font-size: 0.85rem;
+        }
+        .option-price-input {
+            width: 90px;
+            text-align: right;
+        }
+        .option-desc-input {
+            min-width: 200px;
+        }
+        .option-actions button {
+            margin-right: 4px;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- ⭐ 사이드바 include -->
+    <div th:replace="fragments/fragments :: sidebar"></div>
+
+    <!-- ⭐ header include -->
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <!-- ⭐ 본문 영역 -->
+    <div class="main-content">
+        <!-- page title area start -->
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">추가 옵션 관리</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">홈</a></li>
+                            <li><span>추가 옵션 관리</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-6 clearfix">
+                    <button type="button"
+                            class="user-profile user_writeBtn pull-right"
+                            onclick="addEmptyRow()">
+                        옵션 추가
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- page title area end -->
+
+        <div class="main-content-inner">
+            <div class="row">
+                <!-- basic table start -->
+                <div class="col-lg-12 mt-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">추가 옵션 목록</h4>
+                            <p class="text-muted" style="font-size: 0.85rem;">
+                                · 예: 카시트, 베이비시트, 내비게이션 등 차량 대여 시 선택 가능한 부가 옵션을 관리합니다.<br>
+                                · 이름/설명/가격/대표 노출 여부를 행에서 바로 수정 후 <strong>저장</strong> 버튼을 눌러 주세요.
+                            </p>
+                            <div class="single-table">
+                                <div class="table-responsive">
+                                    <table class="table text-center">
+                                        <thead class="text-uppercase">
+                                        <tr>
+                                            <th scope="col" style="width: 60px;">NO</th>
+                                            <th scope="col" style="width: 180px;">옵션명</th>
+                                            <th scope="col">설명</th>
+                                            <th scope="col" style="width: 120px;">1일 대여료(원)</th>
+                                            <th scope="col" style="width: 110px;">대표 노출</th>
+                                            <th scope="col" style="width: 160px;">최종 수정일</th>
+                                            <th scope="col" style="width: 150px;">관리</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="option-table-body">
+                                        <!-- JS로 동적 렌더링 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 간단한 안내 -->
+                            <div class="mt-2">
+                                <span class="badge badge-info">TIP</span>
+                                <span style="font-size: 0.8rem;">
+                                    옵션을 삭제해도 나중에 같은 이름으로 다시 등록하면 복구되어 재사용됩니다.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- basic table end -->
+            </div>
+        </div>
+    </div>
+    <!-- main content area end -->
+
+    <!-- ⭐ footer include -->
+    <div th:replace="fragments/fragments :: footer"></div>
+
+</div>
+
+<!-- jquery latest version -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+
+<!-- bootstrap 4 js -->
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+
+<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+
+<!-- start chart js (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+<!-- start highcharts js (CDN) -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<!-- start zingchart js (CDN) -->
+<script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+<script>
+    zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
+    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];
+</script>
+
+<!-- all line chart activation -->
+<script th:src="@{/assets/js/line-chart.js}"></script>
+
+<!-- all bar chart activation -->
+<script th:src="@{/assets/js/bar-chart.js}"></script>
+
+<!-- all pie chart -->
+<script th:src="@{/assets/js/pie-chart.js}"></script>
+
+<!-- others plugins -->
+<script th:src="@{/assets/js/plugins.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+    // ================================
+    //  옵션 목록 로딩
+    // ================================
+    $(document).ready(function () {
+        loadOptions();
+    });
+
+    function loadOptions() {
+        $.ajax({
+            url: '/admin/api/car-option',
+            method: 'GET',
+            success: function (data) {
+                renderTable(data);
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                alert('옵션 목록을 불러오는 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    function renderTable(list) {
+        const $tbody = $('#option-table-body');
+        $tbody.empty();
+
+        if (!list || list.length === 0) {
+            $tbody.append('<tr><td colspan="7">등록된 옵션이 없습니다. 상단의 [옵션 추가] 버튼으로 새 옵션을 추가해 주세요.</td></tr>');
+            return;
+        }
+
+        list.forEach(function (opt, index) {
+            const rowHtml = createRowHtml(opt, index + 1);
+            $tbody.append(rowHtml);
+        });
+    }
+
+    // 옵션 한 행 HTML (인라인 입력폼)
+    function createRowHtml(option, no) {
+        const id = option.optionId || '';
+        const name = option.optionName || '';
+        const desc = option.optionDescription || '';
+        const price = option.optionDailyPrice != null ? option.optionDailyPrice : 0;
+        const highlight = option.isHighlight ? 'checked' : '';
+        const updatedAt = option.updatedAt || '';
+
+        return `
+            <tr data-id="${id}">
+                <th scope="row">${no}</th>
+                <td>
+                    <input type="text"
+                           class="form-control form-control-sm option-input"
+                           value="${escapeHtml(name)}"
+                           placeholder="옵션명 입력">
+                </td>
+                <td>
+                    <input type="text"
+                           class="form-control form-control-sm option-input option-desc-input"
+                           value="${escapeHtml(desc)}"
+                           placeholder="옵션 설명 입력">
+                </td>
+                <td>
+                    <input type="number"
+                           class="form-control form-control-sm option-input option-price-input"
+                           value="${price}"
+                           min="0" step="100"
+                           placeholder="0">
+                </td>
+                <td>
+                    <input type="checkbox"
+                           class="form-check-input option-highlight"
+                           ${highlight}>
+                </td>
+                <td>${updatedAt}</td>
+                <td class="option-actions">
+                    <button type="button"
+                            class="btn btn-sm btn-primary"
+                            onclick="saveRow(this)">저장</button>
+                    <button type="button"
+                            class="btn btn-sm btn-danger"
+                            onclick="deleteRow(this)">삭제</button>
+                </td>
+            </tr>
+        `;
+    }
+
+    // ================================
+    //  옵션 추가 (빈 행)
+    // ================================
+    function addEmptyRow() {
+        const $tbody = $('#option-table-body');
+        // 안내 문구 행이 있으면 제거
+        const firstRow = $tbody.children('tr').first();
+        if (firstRow.find('td').length > 0 && firstRow.find('td').attr('colspan') === '7') {
+            $tbody.empty();
+        }
+
+        // 현재 실제 데이터 행 개수 기준으로 NO 매기기
+        const no = $tbody.children('tr').length + 1;
+
+        const empty = {
+            optionId: null,
+            optionName: '',
+            optionDescription: '',
+            optionDailyPrice: 0,
+            isHighlight: false,
+            updatedAt: ''
+        };
+        const rowHtml = createRowHtml(empty, no);
+        $tbody.append(rowHtml);
+    }
+
+    // ================================
+    //  저장 (신규/수정 공통)
+    // ================================
+    function saveRow(btn) {
+        const $tr = $(btn).closest('tr');
+        const id = $tr.data('id'); // 신규면 undefined
+
+        const name = $tr.find('input[type="text"]').eq(0).val();
+        const desc = $tr.find('input[type="text"]').eq(1).val();
+        const priceStr = $tr.find('input[type="number"]').val();
+        const highlight = $tr.find('.option-highlight').is(':checked');
+
+        const price = priceStr ? parseInt(priceStr, 10) : 0;
+
+        const payload = {
+            optionName: name,
+            optionDescription: desc,
+            optionDailyPrice: price,
+            isHighlight: highlight
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? '/admin/api/car-option/' + id : '/admin/api/car-option';
+
+        $.ajax({
+            url: url,
+            method: method,
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const msg = res && res.message ? res.message : '저장되었습니다.';
+                alert(msg);
+                loadOptions();
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                let msg = '저장 중 오류가 발생했습니다.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                } else if (xhr.responseText) {
+                    msg = xhr.responseText;
+                }
+                alert(msg);
+            }
+        });
+    }
+
+    // ================================
+    //  삭제
+    // ================================
+    function deleteRow(btn) {
+        const $tr = $(btn).closest('tr');
+        const id = $tr.data('id');
+
+        if (!id) {
+            // 아직 저장 안 된 신규 행이면 그냥 제거
+            $tr.remove();
+            return;
+        }
+
+        if (!confirm('해당 옵션을 삭제하시겠습니까?\n(나중에 같은 이름으로 다시 등록하면 복구됩니다.)')) {
+            return;
+        }
+
+        $.ajax({
+            url: '/admin/api/car-option/' + id,
+            method: 'DELETE',
+            success: function (res) {
+                const msg = res && res.message ? res.message : '삭제되었습니다.';
+                alert(msg);
+                loadOptions();
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                let msg = '삭제 중 오류가 발생했습니다.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                } else if (xhr.responseText) {
+                    msg = xhr.responseText;
+                }
+                alert(msg);
+            }
+        });
+    }
+
+    // ================================
+    //  간단한 HTML 이스케이프 처리
+    // ================================
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+</script>
+
+</body>
+</html>

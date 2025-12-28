@@ -3,7 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>카픽 - 차량 재고 관리</title>
+    <title>카픽 - 지점 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSS -->
     <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
@@ -29,34 +31,19 @@
 
 
     <style>
-        .inventory-input {
+        .branch-input {
             width: 100%;
             font-size: 0.85rem;
         }
-        .inventory-input-sm {
-            width: 100px;
+        .branch-input-sm {
+            width: 80px;
         }
-        .inventory-actions button {
+        .branch-actions button {
             margin-right: 4px;
         }
         .table td, .table th {
             vertical-align: middle !important;
         }
-        .car-thumbnail {
-            width: 60px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .badge-status {
-            padding: 6px 10px;
-            font-size: 11px;
-            border-radius: 12px;
-        }
-        .badge-AVAILABLE { background-color: #28a745; color: white; }
-        .badge-RESERVED { background-color: #ffc107; color: black; }
-        .badge-RENTED { background-color: #17a2b8; color: white; }
-        .badge-MAINTENANCE { background-color: #dc3545; color: white; }
     </style>
 </head>
 
@@ -76,10 +63,10 @@
             <div class="row align-items-center">
                 <div class="col-sm-6">
                     <div class="breadcrumbs-area clearfix">
-                        <h4 class="page-title pull-left">차량 재고 관리</h4>
+                        <h4 class="page-title pull-left">지점 관리</h4>
                         <ul class="breadcrumbs pull-left">
                             <li><a href="/admin">홈</a></li>
-                            <li><span>차량 재고 관리</span></li>
+                            <li><span>지점 관리</span></li>
                         </ul>
                     </div>
                 </div>
@@ -87,7 +74,7 @@
                     <button type="button"
                             class="user-profile user_writeBtn pull-right"
                             onclick="addEmptyRow()">
-                        차량 등록
+                        지점 추가
                     </button>
                 </div>
             </div>
@@ -98,10 +85,10 @@
                 <div class="col-lg-12 mt-3">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="header-title">차량 재고 목록</h4>
+                            <h4 class="header-title">지점 목록</h4>
                             <p class="text-muted" style="font-size: 0.85rem;">
-                                · 실제 운영 차량(실차)을 관리합니다.<br>
-                                · 차량번호, 차종, 지점, 연식 등을 입력 후 <strong>저장</strong> 버튼을 눌러 주세요.
+                                · 지점 코드/이름/주소/전화번호/영업시간을 관리합니다.<br>
+                                · 행에서 바로 수정 후 <strong>저장</strong> 버튼을 눌러 주세요.
                             </p>
                             <div class="single-table">
                                 <div class="table-responsive">
@@ -109,18 +96,18 @@
                                         <thead class="text-uppercase">
                                         <tr>
                                             <th style="width: 50px;">NO</th>
-                                            <th style="width: 80px;">이미지</th>
-                                            <th style="width: 150px;">차종 선택</th>
-                                            <th style="width: 120px;">차량번호</th>
-                                            <th style="width: 80px;">연식</th>
-                                            <th style="width: 100px;">주행거리</th>
-                                            <th style="width: 130px;">지점</th>
-                                            <th style="width: 110px;">상태</th>
-                                            <th style="width: 130px;">최종수정일</th>
+                                            <th style="width: 100px;">지점코드</th>
+                                            <th style="width: 120px;">지점명</th>
+                                            <th>주소</th>
+                                            <th style="width: 130px;">전화번호</th>
+                                            <th style="width: 80px;">오픈</th>
+                                            <th style="width: 80px;">마감</th>
+                                            <th style="width: 80px;">지역</th>
+                                            <th style="width: 140px;">최종수정일</th>
                                             <th style="width: 120px;">관리</th>
                                         </tr>
                                         </thead>
-                                        <tbody id="inventory-table-body">
+                                        <tbody id="branch-table-body">
                                         <!-- JS로 동적 렌더링 -->
                                         </tbody>
                                     </table>
@@ -130,7 +117,7 @@
                             <div class="mt-2">
                                 <span class="badge badge-info">TIP</span>
                                 <span style="font-size: 0.8rem;">
-                                    차량 등록 시 상태는 자동으로 '대여 가능'으로 설정됩니다.
+                                    지점에 등록된 차량 재고가 있으면 삭제할 수 없습니다. 재고를 먼저 이동하거나 삭제해 주세요.
                                 </span>
                             </div>
                         </div>
@@ -157,148 +144,97 @@
 <script th:src="@{/assets/js/scripts.js}"></script>
 
 <script>
-    // 전역 데이터 (차종, 지점 목록)
-    let specList = [];
-    let branchList = [];
-
     // ================================
-    //  초기 로딩
+    //  지점 목록 로딩
     // ================================
     $(document).ready(function () {
-        // 차종, 지점 먼저 로드 → 재고 목록 로드
-        Promise.all([
-            loadSpecs(),
-            loadBranches()
-        ]).then(() => {
-            loadInventory();
-        });
+        loadBranches();
     });
 
-    function loadSpecs() {
-        return $.ajax({
-            url: '/admin/api/car/spec',
-            method: 'GET',
-            success: function (data) {
-                specList = data || [];
-            }
-        });
-    }
-
     function loadBranches() {
-        return $.ajax({
-            url: '/admin/api/branch',
-            method: 'GET',
-            success: function (data) {
-                branchList = data || [];
-            }
-        });
-    }
-
-    function loadInventory() {
         $.ajax({
-            url: '/admin/api/inventory',
+            url: '/admin/api/branch',
             method: 'GET',
             success: function (data) {
                 renderTable(data);
             },
             error: function (xhr) {
                 console.error(xhr);
-                alert('차량 재고 목록을 불러오는 중 오류가 발생했습니다.');
+                alert('지점 목록을 불러오는 중 오류가 발생했습니다.');
             }
         });
     }
 
-    // ================================
-    //  테이블 렌더링
-    // ================================
     function renderTable(list) {
-        const $tbody = $('#inventory-table-body');
+        const $tbody = $('#branch-table-body');
         $tbody.empty();
 
         if (!list || list.length === 0) {
-            $tbody.append('<tr><td colspan="10">등록된 차량이 없습니다. 상단의 [차량 등록] 버튼으로 새 차량을 추가해 주세요.</td></tr>');
+            $tbody.append('<tr><td colspan="10">등록된 지점이 없습니다. 상단의 [지점 추가] 버튼으로 새 지점을 추가해 주세요.</td></tr>');
             return;
         }
 
-        list.forEach(function (item, index) {
-            const rowHtml = createRowHtml(item, index + 1);
+        list.forEach(function (branch, index) {
+            const rowHtml = createRowHtml(branch, index + 1);
             $tbody.append(rowHtml);
         });
     }
 
-    function createRowHtml(item, no) {
-        const id = item.vehicleId || '';
-        const specId = item.specId || '';
-        const branchId = item.branchId || '';
-        const vehicleNo = item.vehicleNo || '';
-        const modelYear = item.modelYear || '';
-        const mileage = item.mileage || 0;
-        const status = item.operationalStatus || 'AVAILABLE';
-        const updatedAt = item.updatedAt || '';
-        const imageUrl = item.mainImageUrl || '/assets/images/no-image.png';
-        const modelName = item.modelName || '';
-        const brand = item.brand || '';
+    function createRowHtml(branch, no) {
+        const id = branch.branchId || '';
+        const code = branch.branchCode || '';
+        const name = branch.branchName || '';
+        const addrBasic = branch.addressBasic || '';
+        const addrDetail = branch.addressDetail || '';
+        const phone = branch.phone || '';
+        const openTime = branch.openTime || '';
+        const closeTime = branch.closeTime || '';
+        const region = branch.regionDept1 || '';
+        const updatedAt = branch.updatedAt || '';
 
-        // 차종 select 옵션 생성
-        let specOptions = '<option value="">차종 선택</option>';
-        specList.forEach(function (spec) {
-            const selected = (spec.specId == specId) ? 'selected' : '';
-            specOptions += `<option value="${spec.specId}" ${selected}>${spec.brand} ${spec.modelName}</option>`;
-        });
-
-        // 지점 select 옵션 생성
-        let branchOptions = '<option value="">지점 선택</option>';
-        branchList.forEach(function (branch) {
-            const selected = (branch.branchId == branchId) ? 'selected' : '';
-            branchOptions += `<option value="${branch.branchId}" ${selected}>${branch.branchName}</option>`;
-        });
-
-        // 상태 select 옵션 생성
-        const statusOptions = `
-            <option value="AVAILABLE" ${status === 'AVAILABLE' ? 'selected' : ''}>대여 가능</option>
-            <option value="RESERVED" ${status === 'RESERVED' ? 'selected' : ''}>예약 중</option>
-            <option value="RENTED" ${status === 'RENTED' ? 'selected' : ''}>대여 중</option>
-            <option value="MAINTENANCE" ${status === 'MAINTENANCE' ? 'selected' : ''}>정비/점검</option>
-        `;
+        // 주소는 기본 + 상세 합쳐서 표시
+        const fullAddr = addrDetail ? addrBasic + ' ' + addrDetail : addrBasic;
 
         return `
             <tr data-id="${id}">
                 <th scope="row">${no}</th>
                 <td>
-                    <img src="${imageUrl}" alt="차량" class="car-thumbnail" id="img-${id || 'new'}">
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="branchCode"
+                           value="${escapeHtml(code)}" placeholder="예) BR001">
                 </td>
                 <td>
-                    <select class="form-control form-control-sm inventory-input" data-field="specId" onchange="updateImage(this)">
-                        ${specOptions}
-                    </select>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="branchName"
+                           value="${escapeHtml(name)}" placeholder="지점명">
                 </td>
                 <td>
-                    <input type="text" class="form-control form-control-sm inventory-input"
-                           data-field="vehicleNo"
-                           value="${escapeHtml(vehicleNo)}" placeholder="12가3456">
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="addressBasic"
+                           value="${escapeHtml(addrBasic)}" placeholder="주소">
                 </td>
                 <td>
-                    <input type="number" class="form-control form-control-sm inventory-input-sm"
-                           data-field="modelYear"
-                           value="${modelYear}" placeholder="2024" min="2015" max="2030">
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="phone"
+                           value="${escapeHtml(phone)}" placeholder="010-0000-0000">
                 </td>
                 <td>
-                    <input type="number" class="form-control form-control-sm inventory-input-sm"
-                           data-field="mileage"
-                           value="${mileage}" placeholder="0" min="0">
+                    <input type="time" class="form-control form-control-sm branch-input-sm"
+                           data-field="openTime"
+                           value="${openTime}">
                 </td>
                 <td>
-                    <select class="form-control form-control-sm inventory-input" data-field="branchId">
-                        ${branchOptions}
-                    </select>
+                    <input type="time" class="form-control form-control-sm branch-input-sm"
+                           data-field="closeTime"
+                           value="${closeTime}">
                 </td>
                 <td>
-                    <select class="form-control form-control-sm inventory-input" data-field="operationalStatus">
-                        ${statusOptions}
-                    </select>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="regionDept1"
+                           value="${escapeHtml(region)}" placeholder="서울">
                 </td>
                 <td style="font-size:0.8rem;">${updatedAt}</td>
-                <td class="inventory-actions">
+                <td class="branch-actions">
                     <button type="button" class="btn btn-sm btn-primary" onclick="saveRow(this)">저장</button>
                     <button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button>
                 </td>
@@ -307,36 +243,28 @@
     }
 
     // ================================
-    //  차종 선택 시 이미지 변경
-    // ================================
-    function updateImage(selectEl) {
-        const $tr = $(selectEl).closest('tr');
-        const id = $tr.data('id') || 'new';
-        const specId = $(selectEl).val();
-
-        const spec = specList.find(s => s.specId == specId);
-        const imageUrl = spec && spec.mainImageUrl ? spec.mainImageUrl : '/assets/images/no-image.png';
-
-        $('#img-' + id).attr('src', imageUrl);
-    }
-
-    // ================================
-    //  차량 등록 (빈 행)
+    //  지점 추가 (빈 행)
     // ================================
     function addEmptyRow() {
-        const $tbody = $('#inventory-table-body');
+        const $tbody = $('#branch-table-body');
+        // 🔍 핵심 수정: "등록된 지점이 없습니다" 안내 메시지가 있으면 먼저 지운다!
+        // (행이 1개인데 그 안에 colspan(병합)된 칸이 있다면 안내 문구로 간주)
+        if ($tbody.children('tr').length === 1 && $tbody.find('td[colspan]').length > 0) {
+            $tbody.empty();
+        }
         const no = $tbody.children('tr').length + 1;
 
         const empty = {
-            vehicleId: null,
-            specId: '',
-            branchId: '',
-            vehicleNo: '',
-            modelYear: new Date().getFullYear(),
-            mileage: 0,
-            operationalStatus: 'AVAILABLE',
-            updatedAt: '',
-            mainImageUrl: ''
+            branchId: null,
+            branchCode: '',
+            branchName: '',
+            addressBasic: '',
+            addressDetail: '',
+            phone: '',
+            openTime: '',
+            closeTime: '',
+            regionDept1: '',
+            updatedAt: ''
         };
         const rowHtml = createRowHtml(empty, no);
         $tbody.append(rowHtml);
@@ -350,20 +278,17 @@
         const id = $tr.data('id');
 
         const payload = {
-            specId: $tr.find('[data-field="specId"]').val() || null,
-            branchId: $tr.find('[data-field="branchId"]').val() || null,
-            vehicleNo: $tr.find('[data-field="vehicleNo"]').val(),
-            modelYear: parseInt($tr.find('[data-field="modelYear"]').val()) || null,
-            mileage: parseInt($tr.find('[data-field="mileage"]').val()) || 0,
-            operationalStatus: $tr.find('[data-field="operationalStatus"]').val()
+            branchCode: $tr.find('[data-field="branchCode"]').val(),
+            branchName: $tr.find('[data-field="branchName"]').val(),
+            addressBasic: $tr.find('[data-field="addressBasic"]').val(),
+            phone: $tr.find('[data-field="phone"]').val(),
+            openTime: $tr.find('[data-field="openTime"]').val() || null,
+            closeTime: $tr.find('[data-field="closeTime"]').val() || null,
+            regionDept1: $tr.find('[data-field="regionDept1"]').val()
         };
 
-        // 숫자 변환
-        if (payload.specId) payload.specId = parseInt(payload.specId);
-        if (payload.branchId) payload.branchId = parseInt(payload.branchId);
-
         const method = id ? 'PUT' : 'POST';
-        const url = id ? '/admin/api/inventory/' + id : '/admin/api/inventory';
+        const url = id ? '/admin/api/branch/' + id : '/admin/api/branch';
 
         $.ajax({
             url: url,
@@ -373,7 +298,7 @@
             success: function (res) {
                 const msg = res && res.message ? res.message : '저장되었습니다.';
                 alert(msg);
-                loadInventory();
+                loadBranches();
             },
             error: function (xhr) {
                 console.error(xhr);
@@ -398,17 +323,17 @@
             return;
         }
 
-        if (!confirm('해당 차량을 삭제하시겠습니까?')) {
+        if (!confirm('해당 지점을 삭제하시겠습니까?')) {
             return;
         }
 
         $.ajax({
-            url: '/admin/api/inventory/' + id,
+            url: '/admin/api/branch/' + id,
             method: 'DELETE',
             success: function (res) {
                 const msg = res && res.message ? res.message : '삭제되었습니다.';
                 alert(msg);
-                loadInventory();
+                loadBranches();
             },
             error: function (xhr) {
                 console.error(xhr);
