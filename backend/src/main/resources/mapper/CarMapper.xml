@@ -32,53 +32,52 @@
 
     <!-- 차량 상세 정보 조회 -->
     <select id="selectCarDetail" parameterType="Long" resultType="com.carpick.domain.car.dto.raw.CarDetailRawDto">
-SELECT
-/* CAR_SPEC */
-    cs.spec_id           AS specId,
-    cs.model_name        AS modelName,
-    cs.display_name_short AS displayNameShort,
-    cs.car_class         AS carClass,
-    cs.fuel_type         AS fuelType,
-    cs.seating_capacity  AS seatingCapacity,
-    cs.model_year_base   AS modelYearBase,
-    cs.main_image_url    AS mainImageUrl,
-    cs.min_driver_age    AS minDriverAge,
-    cs.min_license_years AS minLicenseYears,
-    cs.fuel_efficiency   AS fuelEfficiency,
+        SELECT
+            /* CAR_SPEC */
+            cs.spec_id            AS specId,
+            cs.model_name         AS modelName,
+            cs.display_name_short AS displayNameShort,
+            cs.car_class          AS carClass,
+            cs.fuel_type          AS fuelType,
+            cs.seating_capacity   AS seatingCapacity,
+            cs.model_year_base    AS modelYearBase,
+            cs.main_image_url     AS mainImageUrl,
+            cs.min_driver_age     AS minDriverAge,
+            cs.min_license_years  AS minLicenseYears,
+            cs.fuel_efficiency    AS fuelEfficiency,
 
-    /* VEHICLE_INVENTORY */
-    vi.vehicle_id        AS vehicleId,
+            /* VEHICLE_INVENTORY */
+            vi.vehicle_id         AS vehicleId,
 
-    /* BRANCH */
-    b.branch_id          AS branchId,
-    b.branch_name        AS branchName,
-    b.address_basic      AS addressBasic,
-    b.latitude           AS latitude,
-    b.longitude          AS longitude,
-    b.open_time          AS openTime,     /* 추가 */
-    b.close_time         AS closeTime,    /* 추가 */
+            /* BRANCH */
+            b.branch_id           AS branchId,
+            b.branch_name         AS branchName,
+            b.address_basic       AS addressBasic,
+            b.latitude            AS latitude,
+            b.longitude           AS longitude,
+            b.open_time           AS openTime,
+            b.close_time          AS closeTime,
 
-    /* PRICE */
-    p.daily_price        AS dailyPrice,
+            /* PRICE_POLICY (DAILY) */
+            pp.base_price         AS dailyPrice,
+            pp.discount_rate      AS discountRate
 
-    /* PRICE_POLICY */
-    pp.discount_rate     AS discountRate
-From VEHICLE_INVENTORY vi
-         INNER JOIN CAR_SPEC cs ON vi.spec_id = cs.spec_id
-         INNER JOIN BRANCH b ON vi.branch_id = b.branch_id
-         LEFT JOIN PRICE p ON cs.spec_id = p.car_spec_id
-         LEFT JOIN PRICE_POLICY pp ON cs.spec_id = pp.spec_id
-    AND (pp.branch_id = vi.branch_id OR pp.branch_id IS NULL)
-    AND pp.is_active = TRUE
-WHERE vi.vehicle_id = #{vehicleId}
-  AND vi.is_active = TRUE
-ORDER BY (pp.branch_id IS NULL) ASC, pp.valid_from DESC
-    LIMIT 1
+        FROM VEHICLE_INVENTORY vi
+                 JOIN CAR_SPEC cs ON vi.spec_id = cs.spec_id
+                 JOIN BRANCH b ON vi.branch_id = b.branch_id
 
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND (pp.branch_id = vi.branch_id OR pp.branch_id IS NULL)
+                               AND pp.unit_type = 'DAILY'
+                               AND pp.is_active = TRUE
+                               AND pp.use_yn = 'Y'
 
+        WHERE vi.vehicle_id = #{vehicleId}
+          AND vi.is_active = TRUE
 
-
+        ORDER BY (pp.branch_id IS NULL) ASC, pp.valid_from DESC
+            LIMIT 1
     </select>
-
 
 </mapper>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
-import { getCarDetail } from "@/services/carApi";
+import { getCarDetail } from "@/services/carApi.js";
 import { createGlobalStyle } from "styled-components";
 
 const HideHeaderFooter = createGlobalStyle`
@@ -113,49 +113,37 @@ export default function CarDetailPage() {
 
   useEffect(() => {
   if (!id) return;
+  let mounted = true;
 
-  console.log("🚗 carId:", id);
+  (async () => {
+    try {
+      setLoading(true);
+      setErrorText("");
 
-  getCarDetail(id)
-    .then((res) => {
-      console.log("✅ API 응답:", res.data);
+      const res = await getCarDetail(id); // ✅ res 확정
+      console.log("getCarDetail raw:", res);
+      console.log("res.data:", res?.data);
+
+      if (!mounted) return;
       setCar(res.data);
-    })
-    .catch((e) => {
-      console.error("❌ API 에러:", e?.response?.status, e?.response?.data, e);
+    } catch (e) {
+      console.error("API error:", e);
+      console.error("status:", e?.response?.status);
+      console.error("data:", e?.response?.data);
+
+      if (!mounted) return;
       setCar(null);
       setErrorText("차량 정보를 불러오지 못했어요.");
-    })
-    .finally(() => setLoading(false));
+    } finally {
+      if (!mounted) return;
+      setLoading(false);
+    }
+  })();
+
+  return () => {
+    mounted = false;
+  };
 }, [id]);
-
-
-  useEffect(() => {
-    if (!id) return;
-    let mounted = true;
-    setLoading(true);
-    setErrorText("");
-
-    getCarDetail(id)
-      .then((res) => {
-        if (!mounted) return;
-        setCar(res.data);
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        console.error(e);
-        setCar(null);
-        setErrorText("차량 정보를 불러오지 못했어요.");
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -316,8 +304,7 @@ export default function CarDetailPage() {
           {/* 후기 (임시 유지) */}
           <SectionTitle>
             {top?.title ?? "이 차량을"}
-            <br />
-            탄 사람들 이야기
+            <br />탄 사람들 이야기
           </SectionTitle>
 
           {[0, 1, 2].map((idx) => (
