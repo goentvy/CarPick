@@ -60,6 +60,7 @@ public class SecurityConfigDev {
                                 "/api/cars/**",
                                 "/api/ai-pick/**",
                                 "/api/admin/**",
+                                "/api/reservation/**",
                                 // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                                 "/",
                                 "/admin/**",
@@ -69,7 +70,7 @@ public class SecurityConfigDev {
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
-                                "/api/reservation/**",
+                                
                                 // 4. Swagger 및 API 문서 관련
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
