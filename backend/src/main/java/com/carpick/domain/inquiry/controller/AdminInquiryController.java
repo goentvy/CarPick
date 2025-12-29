@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 
 @Controller
-@RequestMapping("/admin/inquiries")
+@RequestMapping("/admin/inquiry")
 @RequiredArgsConstructor
 public class AdminInquiryController {
 
@@ -61,6 +61,6 @@ public class AdminInquiryController {
 			@RequestParam String status
 	) {
 		inquiryService.answerInquiry(id, reply, status);
-		return "redirect:/admin/inquiries";
+		return "redirect:/admin/inquiry";
 	}
 }

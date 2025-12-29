@@ -105,15 +105,15 @@
 														</span>
 													</td>
 													<td th:text="${inquiry.title}"
-														th:onclick="|location.href='@{/admin/inquiries/{id}(id=${inquiry.id})}'|">
+														th:onclick="|location.href='@{/admin/inquiry/{id}(id=${inquiry.id})}'|">
 													</td>
 													<td>
 														<span th:if="${inquiry.status == 'pending'}" class="text-muted">답변전</span>
 														<span th:if="${inquiry.status == 'answered'}" class="text-primary">답변완료</span>
 													</td>
 													<td>
-														<a th:if="${inquiry.status == 'pending'}" th:href="@{/admin/inquiries/{id}(id=${inquiry.id})}" class="btn btn-outline-primary btn-sm">답변하기</a>
-														<a th:if="${inquiry.status == 'answered'}" th:href="@{/admin/inquiries/{id}(id=${inquiry.id})}" class="btn btn-outline-secondary btn-sm">수정하기</a>
+														<a th:if="${inquiry.status == 'pending'}" th:href="@{/admin/inquiry/{id}(id=${inquiry.id})}" class="btn btn-outline-primary btn-sm">답변하기</a>
+														<a th:if="${inquiry.status == 'answered'}" th:href="@{/admin/inquiry/{id}(id=${inquiry.id})}" class="btn btn-outline-secondary btn-sm">수정하기</a>
 													</td>
 												</tr>
 											</tbody>
@@ -127,16 +127,16 @@
 				<nav aria-label="Page navigation example" th:if="${totalPages > 1}">
 					<ul class="pagination justify-content-center">
 						<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-							<a class="page-link" th:href="${currentPage > 0} ? @{/admin/inquiries(page=${currentPage - 1})} : '#'" tabindex="-1">Previous</a>
+							<a class="page-link" th:href="${currentPage > 0} ? @{/admin/inquiry(page=${currentPage - 1})} : '#'" tabindex="-1">Previous</a>
 						</li>
 						<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
 							th:classappend="${i == currentPage} ? 'active' : ''">
-							<a class="page-link" th:href="@{/admin/inquiries(page=${i})}" 
+							<a class="page-link" th:href="@{/admin/inquiry(page=${i})}" 
 							   th:text="${i + 1}"
 							   th:style="${i == currentPage} ? 'background-color: #e3f2fd; color: #1976d2; border-color: #bbdefb;' : ''"></a>
 						</li>
 						<li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
-							<a class="page-link" th:href="${currentPage < totalPages - 1} ? @{/admin/inquiries(page=${currentPage + 1})} : '#'">Next</a>
+							<a class="page-link" th:href="${currentPage < totalPages - 1} ? @{/admin/inquiry(page=${currentPage + 1})} : '#'">Next</a>
 						</li>
 					</ul>
 				</nav>
