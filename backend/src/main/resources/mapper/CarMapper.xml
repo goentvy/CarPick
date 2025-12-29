@@ -30,6 +30,53 @@
 
 <!--    </sql>-->
 
+    <!-- AI 추천용: 차종별 카드 목록 -->
+    <select id="selectCarCardByCarClass" resultType="com.carpick.domain.aipick.dto.AiCarCardDto">
+        SELECT
+            vi.vehicle_id        AS vehicleId,
+            cs.spec_id           AS specId,
+            cs.display_name_short AS displayNameShort,
+            cs.brand             AS brand,
+            cs.ai_summary        AS aiSummary,
+            cs.main_image_url    AS mainImageUrl,
+            cs.drive_labels      AS driveLabels,
+            pp.base_price        AS basePrice,
+            pp.discount_rate     AS discountRate,
+            ROUND(pp.base_price * (1 - pp.discount_rate / 100)) AS finalPrice
+        FROM VEHICLE_INVENTORY vi
+                 INNER JOIN CAR_SPEC cs ON cs.spec_id = vi.spec_id
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND pp.is_active = TRUE
+                               AND pp.unit_type = 'DAILY'
+        WHERE vi.operational_status = 'AVAILABLE'
+          AND vi.use_yn = 'Y'
+          AND cs.use_yn = 'Y'
+          AND cs.car_class = #{carClass}
+        ORDER BY pp.base_price ASC
+    </select>
+
+    <!-- AI 추천용: 차종별 차량 목록 -->
+    <select id="selectCarListByCarClass" resultType="com.carpick.domain.car.dto.CarListDto">
+        SELECT
+            vi.vehicle_id       AS vehicleId,
+            cs.display_name_short AS displayNameShort,
+            cs.brand            AS brand,
+            cs.car_class        AS carClass,
+            cs.fuel_type        AS fuelType,
+            cs.main_image_url   AS mainImageUrl,
+            pp.base_price       AS basePrice,
+            pp.discount_rate    AS discountRate
+        FROM VEHICLE_INVENTORY vi
+                 INNER JOIN CAR_SPEC cs ON cs.spec_id = vi.spec_id
+                 LEFT JOIN PRICE_POLICY pp ON pp.spec_id = cs.spec_id AND pp.is_active = TRUE
+        WHERE vi.operational_status = 'AVAILABLE'
+          AND vi.use_yn = 'Y'
+          AND cs.use_yn = 'Y'
+          AND cs.car_class = #{carClass}
+        ORDER BY pp.base_price ASC
+    </select>
+
     <!-- 차량 상세 정보 조회 -->
     <select id="selectCarDetail" parameterType="Long" resultType="com.carpick.domain.car.dto.raw.CarDetailRawDto">
         SELECT

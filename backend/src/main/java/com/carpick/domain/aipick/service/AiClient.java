@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.carpick.domain.car.enums.CarClass;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -99,7 +100,8 @@ public class AiClient {
     private ChatResponse parseAiResponse(String aiText) {
         try {
             // 🔥 JSON 문자열 → 객체로 바로 변환
-            return objectMapper.readValue(aiText, ChatResponse.class);
+            String cleanText = aiText.replace("```json", "").replace("```", "").trim();
+            return objectMapper.readValue(cleanText, ChatResponse.class);
         } catch (Exception e) {
             throw new RuntimeException("AI JSON 파싱 실패: " + aiText, e);
         }
@@ -112,4 +114,28 @@ public class AiClient {
                 .findFirst()
                 .orElse(null);
     }
+    // 🔹 [대체] fromAiValue 대신 사용하는 강력한 변환기
+    public static CarClass convertToCarClass(String aiValue) {
+        if (aiValue == null || aiValue.isBlank()) return null;
+
+        String target = aiValue.trim();
+
+        // 한글 단어들을 내 Enum으로 매핑
+        return switch (target) {
+            case "경차" -> CarClass.LIGHT;
+            case "소형" -> CarClass.SMALL;
+            case "준중형" -> CarClass.COMPACT;
+            case "중형" -> CarClass.MID;
+            case "대형" -> CarClass.LARGE;
+            case "SUV" -> CarClass.SUV;
+            case "RV", "밴", "승합" -> CarClass.RV;
+            case "수입" -> CarClass.IMPORT;
+            default -> {
+                // 혹시 영어나 다른게 오면 원래 이름으로 시도
+                try { yield CarClass.valueOf(target.toUpperCase()); }
+                catch (Exception e) { yield null; }
+            }
+        };
+    }
+
 }
