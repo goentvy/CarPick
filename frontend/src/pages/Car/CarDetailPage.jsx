@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
-import carDetailMock from "@/mocks/carDetail.json";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
-// import api from "@/service/api";
+import { getCarDetail } from "@/services/carApi.js";
 import { createGlobalStyle } from "styled-components";
 
 const HideHeaderFooter = createGlobalStyle`
@@ -49,7 +48,10 @@ const CARD_ICON_MAP = {
 /** ---------- Adapter: BE cards -> UI cards (6 fixed) ---------- */
 function normalizeCards(cards) {
   const byType = {};
-  (cards ?? []).forEach((c) => (byType[c.type] = c));
+  (cards ?? []).forEach((c) => {
+    if (!c?.type) return;
+    byType[String(c.type).toUpperCase()] = c;
+  });
 
   const slots = ["FUEL", "YEAR", "SEATS", "CAREER", "AGE", "FUEL_EFF"];
 
@@ -84,9 +86,12 @@ function normalizeCards(cards) {
       }
     }
 
+    // icon 키가 BE에서 "fuel" 같은 소문자일 수도, "FUEL" 같은 값일 수도 있어서 방어
+    const iconKey = c.icon ? String(c.icon).toLowerCase() : null;
+
     return {
       type,
-      icon: c.icon, // "fuel" | "year" | ...
+      iconKey, // fuel | year | seats | career | age | fuel_eff
       title: c.title,
       displayText,
     };
@@ -95,42 +100,50 @@ function normalizeCards(cards) {
 
 export default function CarDetailPage() {
   const nav = useNavigate();
-  const { carId } = useParams();
+  const { id } = useParams();
 
   const spinRef = useRef(null);
 
   const [toast, setToast] = useState("");
   const toastTimerRef = useRef(null);
 
-  // ✅ data: mock -> (later) api
-  const [car, setCar] = useState(carDetailMock);
+  const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errorText, setErrorText] = useState("");
 
   useEffect(() => {
-    if (!carId) return;
+  if (!id) return;
+  let mounted = true;
 
-    let mounted = true;
-    setLoading(true);
+  (async () => {
+    try {
+      setLoading(true);
+      setErrorText("");
 
-    api
-      .get(`/api/cars/${carId}`)
-      .then((res) => {
-        if (!mounted) return;
-        setCar(res.data);
-      })
-      .catch(() => {
-        if (!mounted) return;
-        setCar(carDetailMock);
-      })
-      .finally(() => {
-        if (!mounted) return;
-        setLoading(false);
-      });
+      const res = await getCarDetail(id); // ✅ res 확정
+      console.log("getCarDetail raw:", res);
+      console.log("res.data:", res?.data);
 
-    return () => {
-      mounted = false;
-    };
-  }, [carId]);
+      if (!mounted) return;
+      setCar(res.data);
+    } catch (e) {
+      console.error("API error:", e);
+      console.error("status:", e?.response?.status);
+      console.error("data:", e?.response?.data);
+
+      if (!mounted) return;
+      setCar(null);
+      setErrorText("차량 정보를 불러오지 못했어요.");
+    } finally {
+      if (!mounted) return;
+      setLoading(false);
+    }
+  })();
+
+  return () => {
+    mounted = false;
+  };
+}, [id]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -147,14 +160,14 @@ export default function CarDetailPage() {
         showToast("공유창을 열었어요");
         return;
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
 
     try {
       await navigator.clipboard.writeText(url);
       showToast("링크를 복사했어요");
-    } catch (e) {
+    } catch {
       const ok = window.prompt("복사해서 공유하세요:", url);
       if (ok !== null) showToast("링크를 준비했어요");
     }
@@ -163,12 +176,12 @@ export default function CarDetailPage() {
   const top = car?.topCarDetailDto;
   const cards = car?.carCardSectionDto?.cards ?? [];
   const pickup = car?.locationDto?.pickup;
-
   const uiCards = normalizeCards(cards);
 
   return (
     <div className="min-h-screen bg-white">
       <HideHeaderFooter />
+
       {/* 640 컨테이너 */}
       <div className="mx-auto w-full max-w-[640px] pb-28">
         {/* Top App Bar */}
@@ -229,7 +242,7 @@ export default function CarDetailPage() {
         </div>
 
         <section className="px-8 pt-4">
-          {/* Title */}
+          {/* Title  타이틀*/}
           <div className="mt-4">
             <h1 className="text-[20px] font-bold text-[#111] leading-snug">
               {top?.title ?? "차량 정보"}
@@ -241,17 +254,19 @@ export default function CarDetailPage() {
                 데이터를 불러오는 중이에요…
               </div>
             )}
+
+            {!loading && errorText && (
+              <div className="mt-2 text-[11px] text-red-500">{errorText}</div>
+            )}
           </div>
 
-          {/* AI Summary Card (일단 유지) */}
+          {/* AI Summary Card: 실데이터 우선, 없으면 빈칸 */}
           <div className="mt-4 rounded-3xl bg-[#EEF3FF] p-5">
             <div className="text-xs font-bold text-[#1D6BF3]">
               AI가 정리한 이 차량의 한 줄 요약
             </div>
             <p className="mt-2 text-sm text-[#1A1A1A] leading-snug">
-              유지비를 아끼면서도 가족과 편하게 탈 수 있는, 연비 좋은 패밀리 LPG
-              차량입니다. <br />
-              연식 2024년식LPG크루즈 컨트롤차선 이탈 경보열선시트·핸들
+              {top?.aiSummary ?? "요약 정보를 준비 중이에요."}
             </p>
           </div>
 
@@ -259,8 +274,8 @@ export default function CarDetailPage() {
           <SectionTitle>차량정보</SectionTitle>
           <div className="grid grid-cols-3 gap-3">
             {uiCards.map((c) => {
-              const iconSrc = c.icon
-                ? CARD_ICON_MAP[c.icon] ?? ICON.data
+              const iconSrc = c.iconKey
+                ? CARD_ICON_MAP[c.iconKey] ?? ICON.data
                 : ICON.data;
 
               return (
@@ -286,69 +301,36 @@ export default function CarDetailPage() {
             따라 달라질 수 있어요.)
           </div>
 
-          {/* 후기 (그대로) */}
+          {/* 후기 (임시 유지) */}
           <SectionTitle>
-            더 뉴 쏘렌토를
+            {top?.title ?? "이 차량을"}
             <br />탄 사람들 이야기
           </SectionTitle>
 
-          {/* (후기 3개 동일한 건 일단 유지: 최소 수정 원칙) */}
-          <div className="rounded-2xl bg-white border border-black/5 shadow-sm p-4 mt-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-[#111]">
-                  CARNIVAL KA4 (G) 3.5
+          {[0, 1, 2].map((idx) => (
+            <div
+              key={idx}
+              className={`rounded-2xl bg-white border border-black/5 shadow-sm p-4 ${
+                idx === 0 ? "mt-5" : "mt-3"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-[#111]">
+                    (임시) 리뷰 데이터 준비 중
+                  </div>
+                  <div className="mt-1 text-xs text-[#2B56FF]">★★★★★</div>
+                  <p className="mt-2 text-sm text-[#333] leading-relaxed">
+                    리뷰 영역은 추후 API 연동으로 교체하면 돼요.
+                  </p>
                 </div>
-                <div className="mt-1 text-xs text-[#2B56FF]">★★★★★</div>
-                <p className="mt-2 text-sm text-[#333] leading-relaxed">
-                  가족끼리 여행다니기에는 카니발만한 차가 없는 것 같습니다. 짐도
-                  많이 싣고 장거리도 편했어요.
-                </p>
-              </div>
-              <div className="text-xs text-[#8A8A8A] whitespace-nowrap">
-                3일 전
-              </div>
-            </div>
-            <div className="mt-3 text-xs text-[#6B6B6B]">50대 남성</div>
-          </div>
-
-          <div className="rounded-2xl bg-white border border-black/5 shadow-sm p-4 mt-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-[#111]">
-                  CARNIVAL KA4 (G) 3.5
+                <div className="text-xs text-[#8A8A8A] whitespace-nowrap">
+                  -
                 </div>
-                <div className="mt-1 text-xs text-[#2B56FF]">★★★★★</div>
-                <p className="mt-2 text-sm text-[#333] leading-relaxed">
-                  가족끼리 여행다니기에는 카니발만한 차가 없는 것 같습니다. 짐도
-                  많이 싣고 장거리도 편했어요.
-                </p>
               </div>
-              <div className="text-xs text-[#8A8A8A] whitespace-nowrap">
-                3일 전
-              </div>
+              <div className="mt-3 text-xs text-[#6B6B6B]">-</div>
             </div>
-            <div className="mt-3 text-xs text-[#6B6B6B]">50대 남성</div>
-          </div>
-
-          <div className="rounded-2xl bg-white border border-black/5 shadow-sm p-4 mt-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-[#111]">
-                  CARNIVAL KA4 (G) 3.5
-                </div>
-                <div className="mt-1 text-xs text-[#2B56FF]">★★★★★</div>
-                <p className="mt-2 text-sm text-[#333] leading-relaxed">
-                  가족끼리 여행다니기에는 카니발만한 차가 없는 것 같습니다. 짐도
-                  많이 싣고 장거리도 편했어요.
-                </p>
-              </div>
-              <div className="text-xs text-[#8A8A8A] whitespace-nowrap">
-                3일 전
-              </div>
-            </div>
-            <div className="mt-3 text-xs text-[#6B6B6B]">50대 남성</div>
-          </div>
+          ))}
 
           {/* 세차 이미지 */}
           <SectionTitle>99.9% 살균 세차</SectionTitle>
@@ -377,7 +359,8 @@ export default function CarDetailPage() {
               </div>
             ))}
           </div>
-          {/* 대여 및 반납장소 */}
+
+          {/* 대여 장소 */}
           <SectionTitle>대여 장소</SectionTitle>
           <CarDetailMap pickup={pickup} label="대여 장소" />
 

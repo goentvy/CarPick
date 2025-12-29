@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, cost, price, day }) => {
   const navigate = useNavigate();
   const handleClickCar = (id) => {
-        navigate(`/car/detail/${id}`);
+        navigate(`/cars/detail/${id}`);
     };
 
   return (
