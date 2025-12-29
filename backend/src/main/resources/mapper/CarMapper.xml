@@ -46,10 +46,7 @@
             cs.min_license_years  AS minLicenseYears,
             cs.fuel_efficiency    AS fuelEfficiency,
 
-            /* VEHICLE_INVENTORY */
-            vi.vehicle_id         AS vehicleId,
-
-            /* BRANCH */
+            /* BRANCH (다이어트: 대표 지점 1개만 붙임 - 가격정책의 branch 기준) */
             b.branch_id           AS branchId,
             b.branch_name         AS branchName,
             b.address_basic       AS addressBasic,
@@ -62,20 +59,20 @@
             pp.base_price         AS dailyPrice,
             pp.discount_rate      AS discountRate
 
-        FROM VEHICLE_INVENTORY vi
-                 JOIN CAR_SPEC cs ON vi.spec_id = cs.spec_id
-                 JOIN BRANCH b ON vi.branch_id = b.branch_id
-
+        FROM CAR_SPEC cs
+                 /* 가격정책이 있어야 branch를 알 수 있으니 PRICE_POLICY를 기준으로 조인 */
                  LEFT JOIN PRICE_POLICY pp
                            ON pp.spec_id = cs.spec_id
-                               AND (pp.branch_id = vi.branch_id OR pp.branch_id IS NULL)
                                AND pp.unit_type = 'DAILY'
                                AND pp.is_active = TRUE
                                AND pp.use_yn = 'Y'
+                 LEFT JOIN BRANCH b
+                           ON b.branch_id = pp.branch_id
 
-        WHERE vi.vehicle_id = #{vehicleId}
-          AND vi.is_active = TRUE
+        WHERE cs.spec_id = #{specId}
+          AND cs.use_yn = 'Y'
 
+        /* branch_id가 있는 정책을 우선 + 최신 valid_from 우선 */
         ORDER BY (pp.branch_id IS NULL) ASC, pp.valid_from DESC
             LIMIT 1
     </select>
