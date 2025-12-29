@@ -259,6 +259,58 @@ INSERT INTO VEHICLE_INVENTORY (
           'Y'
       );
 
+-- 기존 가격 데이터 정리 (선택)
+
+ALTER TABLE PRICE AUTO_INCREMENT = 1;
+
+-- CAR_SPEC 기준 일일 가격 가데이터
+INSERT INTO PRICE (
+    car_spec_id,
+    daily_price,
+    price_1m,
+    price_3m,
+    price_6m,
+    use_yn,
+    created_at,
+    updated_at
+) VALUES
+-- 1. 모닝 (경형)
+(1,  50000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 2. K3 (준중형)
+(2,  65000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 3. 모닝 F/L
+(3,  52000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 4. K3 F/L
+(4,  68000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 5. 모닝 신형
+(5,  55000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 6. K5 LPG
+(6,  85000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 7. 아반떼
+(7,  70000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 8. 쏘나타
+(8,  90000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 9. 레이
+(9,  60000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 10. K5 F/L
+(10, 95000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 11. 티볼리
+(11, 100000, 0, 0, 0, 'Y', NOW(), NOW()),
+
+-- 12. 스포티지
+(12, 120000, 0, 0, 0, 'Y', NOW(), NOW());
+
+COMMIT;
 
 
 COMMIT;

@@ -179,23 +179,23 @@ CREATE TABLE IF NOT EXISTS PRICE_POLICY (
     base_price INT NOT NULL COMMENT '기준 대여료(Dynamic Pricing용)',
 
     /* MVP 핵심 가짜 할인율*/
-                                            discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '할인율(0~100)',
-                                            valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '적용 시작일',
-                                            valid_to DATETIME NULL COMMENT '적용 종료일',
-                                            is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '할인율(0~100)',
+    valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '적용 시작일',
+    valid_to DATETIME NULL COMMENT '적용 종료일',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
 -- 기본 조회 조건: use_yn='Y'
-                                            use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
-                                            deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+    use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
+    deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
 
 
-                                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                                            INDEX idx_price_lookup (spec_id, branch_id, unit_type, is_active),
-                                            CONSTRAINT fk_price_policy_spec
-                                                FOREIGN KEY (spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE,
-                                            CONSTRAINT fk_price_policy_branch
-                                                FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
+    INDEX idx_price_lookup (spec_id, branch_id, unit_type, is_active),
+    CONSTRAINT fk_price_policy_spec
+        FOREIGN KEY (spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE,
+    CONSTRAINT fk_price_policy_branch
+        FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
