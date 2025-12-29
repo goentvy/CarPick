@@ -242,7 +242,7 @@ export default function CarDetailPage() {
         </div>
 
         <section className="px-8 pt-4">
-          {/* Title */}
+          {/* Title  타이틀*/}
           <div className="mt-4">
             <h1 className="text-[20px] font-bold text-[#111] leading-snug">
               {top?.title ?? "차량 정보"}
