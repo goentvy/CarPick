@@ -123,5 +123,70 @@
         ORDER BY (pp.branch_id IS NULL) ASC, pp.valid_from DESC
             LIMIT 1
     </select>
+<!--차량 목록 페이지 쿼리 -->
+    <select id="selectCarListItems"
+            resultType="com.carpick.domain.car.dto.carListPage.CarListItemDto">
+
+        SELECT
+            /* 🔑 대표 실차 ID (상세/예약 연결용: 가장 빠른 번호 1개) */
+            MIN(vi.vehicle_id)           AS vehicleId,
+
+            /* 차종(스펙) 정보 */
+            cs.spec_id                   AS specId,
+            cs.display_name_short        AS displayNameShort,
+            cs.main_image_url            AS mainImageUrl,
+            cs.model_year_base           AS modelYear,
+            cs.seating_capacity          AS seatingCapacity,
+            cs.drive_labels              AS driveLabels,
+
+            /* 가격(표시용, optional) */
+            p.daily_price                AS originalPrice,
+
+            /* 🔥 [수정] 정책이 여러 개 겹칠 경우, 가장 높은 할인율 적용 (안전장치) */
+            MAX(pp.discount_rate)        AS discountRate,
+
+            /* 최종가 (백엔드 기준값) */
+            /* MAX(pp.discount_rate)를 반영하여 계산식도 살짝 수정됨 */
+            CASE
+                WHEN p.daily_price IS NULL THEN 0
+                WHEN MAX(pp.discount_rate) IS NULL THEN p.daily_price
+                ELSE FLOOR(p.daily_price * (1 - (MAX(pp.discount_rate) / 100.0)))
+                END                          AS finalPrice
+
+        FROM CAR_SPEC cs
+
+                 /* 🔎 실차는 "존재 여부" 판단용 (재고 없으면 안 나옴) */
+                 JOIN VEHICLE_INVENTORY vi
+                      ON vi.spec_id = cs.spec_id
+                          AND vi.is_active = TRUE
+                          AND vi.use_yn = 'Y'
+                          AND vi.operational_status = 'AVAILABLE'
+
+            /* 원가 */
+                 LEFT JOIN PRICE p
+                           ON p.car_spec_id = cs.spec_id
+                               AND p.use_yn = 'Y'
+                               AND p.deleted_at IS NULL
+
+            /* 할인 정책 */
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND pp.is_active = TRUE
+
+        WHERE cs.use_yn = 'Y'
+
+        /* 🔥 GROUP BY: 집계 함수(MIN, MAX)를 제외한 모든 컬럼 명시 (SQL 표준 준수) */
+        GROUP BY
+            cs.spec_id,
+            cs.display_name_short,
+            cs.main_image_url,
+            cs.model_year_base,
+            cs.seating_capacity,
+            cs.drive_labels,
+            p.daily_price
+        /* pp.discount_rate는 집계함수(MAX) 썼으므로 그룹바이에서 뺌 */
+
+        ORDER BY cs.spec_id DESC
+    </select>
 
 </mapper>
