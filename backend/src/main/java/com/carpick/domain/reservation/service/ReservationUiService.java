@@ -78,12 +78,12 @@ public class ReservationUiService {
         List<ReservationFormResponseDto.InsuranceOptionDto> insuranceOptions = insuranceList.stream()
                 .map(raw ->{
                     ReservationFormResponseDto.InsuranceOptionDto dto = new ReservationFormResponseDto.InsuranceOptionDto();
-                    dto.setCode(raw.getCode());
+                    dto.setCode(raw.getInsuranceCode());
                     dto.setLabel(raw.getLabel());
                     dto.setSummaryLabel(raw.getSummaryLabel());
                     dto.setExtraDailyPrice(raw.getExtraDailyPrice().intValue());
                     dto.setDefault(raw.getIsDefault());
-                    dto.setDesc(getInsuranceDesc(raw.getCode()));
+                    dto.setDesc(getInsuranceDesc(raw.getInsuranceCode()));
                     return dto;
 
 
@@ -171,13 +171,18 @@ public class ReservationUiService {
     /**
      * 보험 코드 → 설명 변환 (InsuranceCode enum 활용)
      */
-    private  String getInsuranceDesc(String code){
-     try {
-         return InsuranceCode.valueOf(code).getDescription();
-     }catch (IllegalArgumentException e){
-         return "";
-     }
+    private String getInsuranceDesc(String code) {
+        if (code == null || code.isBlank()) {
+            return ""; // 또는 "보험 선택 안함"
+        }
+
+        try {
+            return InsuranceCode.valueOf(code).getDescription();
+        } catch (IllegalArgumentException e) {
+            return "";
+        }
     }
+
 
 
 //    private ReservationFormResponseDto.CarBadgeDto badge(String icon, String text) {

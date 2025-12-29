@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.carpick.domain.aipick.dto.AiCarCardDto;
 import com.carpick.domain.car.dto.CarListDto;
+import com.carpick.domain.car.dto.carListPage.CarListItemDto;
 import com.carpick.domain.car.dto.raw.CarDetailRawDto;
 import com.carpick.domain.car.enums.CarClass;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,9 +17,14 @@ import org.apache.ibatis.annotations.Select;
 public interface CarMapper {
 
 
+    /**
+     * 차량 목록 조회 (메인 → 목록 페이지)
+     */
+    List<CarListItemDto> selectCarListItems();
+
 
     // 목록 조회 (XML id="selectCarList"와 이름 일치)
-    List<CarListDto> selectCarList();
+//    List<CarListDto> selectCarList111();
 
 //    CarDetailDto selectCarDetail(@Param("vehicleId") Long vehicleId);
     // ★ [추가] 상세 페이지용 단건 조회

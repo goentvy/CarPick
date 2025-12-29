@@ -63,14 +63,13 @@ public class SecurityConfigDev {
                                 // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                                 "/",
                                 "/admin/**",
-
                                 // 3. 정적 리소스 경로 허용 (CSS, JS, Images 등 - 추가됨)
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
-
+                                "/api/reservation/**",
                                 // 4. Swagger 및 API 문서 관련
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
