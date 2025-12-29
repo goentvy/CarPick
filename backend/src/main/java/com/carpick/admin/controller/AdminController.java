@@ -68,17 +68,6 @@ public class AdminController {
     public String priceAdmin() {
         return "price";
     }
-    ///  FAQ관리 ///
-    @GetMapping("/faq")
-    public String faqAdmin() {
-        return "faq";
-    }
-
-    @GetMapping("/faq_write")
-    public String faqWriteAdmin() {
-        return "faqWrite";
-    }
-    ///  FAQ관리 ///
 
     ///  예약 관리 ///
     @GetMapping("/reservation")

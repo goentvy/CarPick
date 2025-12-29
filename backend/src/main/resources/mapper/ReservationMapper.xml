@@ -7,8 +7,8 @@
     <select id="selectInsuranceOptions" resultType="com.carpick.domain.insurance.dto.raw.InsuranceRawDto">
 SELECT
     insurance_id     AS insuranceId,
-    code             AS code,
-    label            AS label,
+    insurance_code             AS insuranceCode,
+    insurance_label            AS insuranceLabel,
     summary_label    AS summaryLabel,
     extra_daily_price AS extraDailyPrice,
     is_default       AS isDefault,
@@ -24,14 +24,14 @@ ORDER BY  sort_order ASC
             resultType="com.carpick.domain.insurance.dto.raw.InsuranceRawDto">
 SELECT
     insurance_id     AS insuranceId,
-    code             AS code,
-    label            AS label,
+    insurance_code             AS insuranceCode,
+    insurance_label            AS insuranceLabel,
     summary_label    AS summaryLabel,
     extra_daily_price AS extraDailyPrice,
     is_default       AS isDefault,
     sort_order       AS sortOrder
 FROM INSURANCE
-WHERE code = #{code}
+WHERE insurance_code = #{insuranceCode}
 AND is_active = TRUE
 LIMIT 1
 
