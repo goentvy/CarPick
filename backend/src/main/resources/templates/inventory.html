@@ -176,7 +176,7 @@
 
     function loadSpecs() {
         return $.ajax({
-            url: '/admin/api/car/spec',
+            url: '/api/admin/car-spec',
             method: 'GET',
             success: function (data) {
                 specList = data || [];
@@ -196,7 +196,7 @@
 
     function loadInventory() {
         $.ajax({
-            url: '/admin/api/inventory',
+            url: '/api/admin/inventory',
             method: 'GET',
             success: function (data) {
                 renderTable(data);

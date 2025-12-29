@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -69,15 +70,19 @@ public class AdminController {
     }
 
     ///  예약 관리 ///
-    @GetMapping("/reserve")
+    @GetMapping("/reservation")
     public String reserveAdmin() {
-        return "reserve";
+        return "reservation";
     }
-    @GetMapping("/reserve_write")
-    public String reserveWriteAdmin() {
-        return "reserveWrite";
+    /**
+     * 2) 예약 상세 페이지
+     * URL: /admin/reservation/{reservationId}
+     * 파일위치: templates/reservationDetail.html
+     */
+    @GetMapping("/reservation/{reservationId}")
+    public String reserveDetailAdmin(@PathVariable Long reservationId) {
+        return "reservationDetail"; // 여기도 파일명만 적어주세요 (확장자 제외)
     }
-    ///  예약 관리 ///
 
     ///  지점 관리 ///
     @GetMapping("/spot")

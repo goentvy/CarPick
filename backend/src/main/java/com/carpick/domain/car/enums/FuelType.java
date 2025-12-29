@@ -1,12 +1,19 @@
 package com.carpick.domain.car.enums;
 
-public enum FuelType {
-    GASOLINE,   // 휘발유
-    DIESEL,     // 경유
-    LPG,
-    ELECTRIC,   // 전기
-    HYBRID,     // 하이브리드
-    HYDROGEN    // 수소
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum FuelType {
+    GASOLINE("휘발유"),   // 휘발유
+    DIESEL("디젤"),       // 경유
+    LPG("LPG"),
+    ELECTRIC("전기"),
+    HYBRID("하이브리드"),
+    HYDROGEN("수소");
+
+    private final String description;
 
 }

@@ -31,7 +31,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/api/inventory")
+@RequestMapping("/api/admin/inventory")
 public class AdminInventoryController {
     private final AdminInventoryService inventoryService;
 

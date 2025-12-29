@@ -170,6 +170,7 @@
 						<div class="col-md-6 mb-3">
 							<label>차량 등급</label>
 							<select class="form-control" id="carClass">
+								<option value="LIGHT">경형</option>
 								<option value="COMPACT">준중형</option>
 								<option value="MID">중형</option>
 								<option value="LARGE">대형</option>
@@ -229,8 +230,9 @@
 	// 1. 목록 조회
 	function loadCarList() {
 		$.ajax({
-			url: '/admin/api/car/spec',
+			url: '/api/admin/car-spec',
 			type: 'GET',
+
 			success: function(data) {
 				let html = '';
 				$('#totalCount').text(data.length); // 총 개수 표시
@@ -360,7 +362,7 @@
 		// 5. URL 설정
 		const id = $('#specId').val();
 		// 수정(ID있음)이면 URL 뒤에 ID 붙임
-		const url = id ? '/admin/api/car/spec/' + id : '/admin/api/car/spec';
+		const url = id ? '/api/admin/car-spec/' + id : '/api/admin/car-spec';
 
 		// 중요: 파일 업로드는 보통 POST를 사용합니다.
 		// (백엔드에서 수정 요청도 POST로 받도록 처리하는 게 정신건강에 좋습니다)
@@ -394,7 +396,7 @@
 		if (!confirm('정말 삭제하시겠습니까?')) return;
 
 		$.ajax({
-			url: '/admin/api/car/spec/' + id,
+			url: '/api/admin/car-spec/' + id,
 			type: 'DELETE',
 			success: function(res) {
 				if (res.success) {

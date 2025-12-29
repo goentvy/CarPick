@@ -130,7 +130,7 @@ export default function CarPickZonePage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-[640px]">
-        <section className="relative h-[100dvh] w-full overflow-hidden">
+        <section className="relative h-dvh w-full overflow-hidden">
           {/* 지도 */}
           <div className="absolute inset-0">
             <ZoneMapKakao

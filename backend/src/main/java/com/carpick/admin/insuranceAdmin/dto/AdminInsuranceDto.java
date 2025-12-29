@@ -16,7 +16,7 @@ public class AdminInsuranceDto {
     private InsuranceCode insuranceCode;              // 보험 코드
 
     // 3️⃣ [화면 표시용]
-    private String label;                    // 표시 이름 (선택안함 / 일반자차 / 완전자차)
+    private String insuranceLabel;                    // 표시 이름 (선택안함 / 일반자차 / 완전자차)
     private String summaryLabel;             // 요약 문구 (사고 시 고객부담금 면제 등)
 
     // 4️⃣ [금액 정보]

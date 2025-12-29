@@ -43,7 +43,7 @@ public class AdminInsuranceService {
 
         // 2. 수정 가능한 필드만 갱신 (보험 코드는 건드리지 않음!)
         // 기존 객체(existing)에 화면에서 넘어온 값(dto)을 덮어씌웁니다.
-        existing.setLabel(dto.getLabel());                 // 보험명
+        existing.setInsuranceLabel(dto.getInsuranceLabel());               // 보험명
         existing.setSummaryLabel(dto.getSummaryLabel());   // 설명
         existing.setExtraDailyPrice(dto.getExtraDailyPrice()); // 가격
         existing.setIsDefault(dto.getIsDefault());         // 기본값 여부
