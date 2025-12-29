@@ -59,7 +59,7 @@ public class SecurityConfigDev {
                                 "/api/about/values",
                                 "/api/cars/**",
                                 "/api/ai-pick/**",
-
+                                "/api/admin/**",
                                 // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                                 "/",
                                 "/admin/**",
