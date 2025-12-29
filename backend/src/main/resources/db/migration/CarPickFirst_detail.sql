@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS INSURANCE (
                                          insurance_code ENUM('NONE','STANDARD','FULL')
                                              NOT NULL
                                              COMMENT '보험 코드',
-                                         label VARCHAR(50) NOT NULL COMMENT '표시 이름 (선택안함 / 일반자차 / 완전자차)',
+                                         insurance_label VARCHAR(50) NOT NULL COMMENT '표시 이름 (선택안함 / 일반자차 / 완전자차)',
                                          summary_label VARCHAR(100) NULL COMMENT '요약 문구 (사고 시 고객부담금 면제 등)',
 
     /* 요금 */
