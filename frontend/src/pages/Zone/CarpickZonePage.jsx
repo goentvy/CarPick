@@ -6,6 +6,9 @@ import LocationPermissionModal from "../../components/zone/LocationPermissionMod
 import zonesMock from "../../mocks/zones.json";
 
 export default function CarPickZonePage() {
+  // ✅ (권장) 나중에 API로 바뀔 걸 대비해서 원본 데이터를 state로 둠
+  const [zones] = useState(zonesMock);
+
   // 모두보기 / 카픽존만 / 드롭존만
   const [viewMode, setViewMode] = useState("ALL"); // "ALL" | "BRANCH" | "DROP"
   const [filterOpen, setFilterOpen] = useState(false);
@@ -17,28 +20,42 @@ export default function CarPickZonePage() {
   const [myPos, setMyPos] = useState(null);
   const [locModalOpen, setLocModalOpen] = useState(true);
 
+  // ✅ center를 setState로 갖고, panTo의 근거를 "center" 하나로 통일
+  const [camera, setCamera] = useState({
+    lat: 37.5665,
+    lng: 126.978,
+    reason: "INIT",
+  });
+
+  // ✅ 카메라 이동 함수
+  const moveCamera = (next, reason = "UNKNOWN") => {
+    // 방어코드: lat/lng 없으면 무시
+    if (next?.lat == null || next?.lng == null) return;
+
+    setCamera({
+      lat: Number(next.lat),
+      lng: Number(next.lng),
+      reason,
+    });
+  };
+
   // 바텀시트
   const [sheetOpen, setSheetOpen] = useState(false);
 
   // 데이터 분리
   const branchItems = useMemo(
-    () => zonesMock.filter((it) => it.kind === "BRANCH"),
-    []
+    () => zones.filter((it) => it.kind === "BRANCH"),
+    [zones]
   );
-
-  const dropItems = useMemo(
-    () => zonesMock.filter((it) => it.kind === "DROP"),
-    []
-  ); // (현재 미사용) 필요 없으면 지워도 됨
 
   // 보여줄 아이템
   const visibleItems = useMemo(() => {
-    if (viewMode === "ALL") return zonesMock;
-    return zonesMock.filter((it) => it.kind === viewMode);
-  }, [viewMode]);
+    if (viewMode === "ALL") return zones;
+    return zones.filter((it) => it.kind === viewMode);
+  }, [viewMode, zones]);
 
   // 선택된 id
-  const [selectedId, setSelectedId] = useState(zonesMock[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState(zones[0]?.id ?? null);
 
   // visibleItems 변경 시 선택 보정
   useEffect(() => {
@@ -59,15 +76,6 @@ export default function CarPickZonePage() {
     return branchItems.find((b) => b.id === selected.parentZoneId) ?? null;
   }, [selected, branchItems]);
 
-  // map center 우선순위: 내 위치 > 선택 지점 > 기본 서울
-  const mapCenter = useMemo(() => {
-    if (myPos) return myPos;
-    return {
-      lat: selected?.lat ?? 37.5665,
-      lng: selected?.lng ?? 126.978,
-    };
-  }, [myPos, selected]);
-
   // 검색 결과 (카픽존만 대상으로)
   const results = useMemo(() => {
     const kw = q.trim().toLowerCase();
@@ -77,16 +85,45 @@ export default function CarPickZonePage() {
       .slice(0, 8);
   }, [q, branchItems]);
 
+  // ✅ 존 선택 함수 (검색/마커 공통으로 사용)
+  const selectZone = (id, source = "UNKNOWN") => {
+    setSelectedId(id);
+    setSheetOpen(true);
+    setFilterOpen(false);
+
+    const target = zones.find((z) => z.id === id);
+    if (target) {
+      // ✅ 지도를 선택된 존으로 이동
+      moveCamera({ lat: target.lat, lng: target.lng }, `SELECT:${source}`);
+    }
+  };
+
+  // ✅ 검색으로 카픽존 선택 (❗️onGoMyLocation 밖으로 빼야 함)
+  const onPickZone = (zoneId) => {
+    // 검색 결과는 BRANCH만 나오니까 보기 모드도 BRANCH로 맞추기
+    setViewMode("BRANCH");
+    selectZone(zoneId, "SEARCH");
+
+    setQ("");
+    setSheetOpen(true);
+    setFilterOpen(false); // 검색 후 드롭다운 닫기
+  };
+
   // 첫 진입 위치 요청
   const requestMyLocation = () => {
     if (!navigator.geolocation) {
       setLocModalOpen(false);
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setMyPos(next);
+
+        // ✅ camera로 통일했으니, 허용 직후 지도도 내 위치로 이동
+        moveCamera(next, "INIT_MY_LOCATION");
+
         setLocModalOpen(false);
       },
       () => {
@@ -96,25 +133,35 @@ export default function CarPickZonePage() {
     );
   };
 
-  // 검색으로 카픽존 선택
-  const onPickZone = (zoneId) => {
-    setSelectedId(zoneId);
-    setSheetOpen(true);
-    setQ("");
-  };
-
   // “내 위치로”
   const onGoMyLocation = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setMyPos(next);
-      },
-      () => { },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
+    if (!myPos) return;
+    moveCamera(myPos, "MY_LOCATION"); // ✅ 여기서만 이동
   };
+
+  // ✅ 내 위치 갱신(옵션)
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setMyPos({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      },
+      (err) => {
+        console.log("위치 오류:", err);
+      },
+      {
+        enableHighAccuracy: false, // ⭐ 중요
+        maximumAge: 10000, // 10초 캐시
+        timeout: 8000,
+      }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
 
   // CTA 핸들러
   const handlePickup = () => {
@@ -130,36 +177,38 @@ export default function CarPickZonePage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-[640px]">
-        <section className="relative h-dvh w-full overflow-hidden">
+        <section className="relative h-screen md:h-[100dvh] w-full overflow-hidden">
           {/* 지도 */}
           <div className="absolute inset-0">
             <ZoneMapKakao
               items={visibleItems}
               selectedId={selected?.id}
               onSelect={(id) => {
-                setSelectedId(id);
-                setSheetOpen(true);
+                selectZone(id, "MARKER");
               }}
-              onMapClick={() => setSheetOpen(false)}   // ✅ 여기 추가
-              center={mapCenter}
+              onMapClick={() => {
+                setSheetOpen(false);
+                setFilterOpen(false);
+              }}
+              center={camera} // ✅ camera 단일 근거
               myPos={myPos}
             />
           </div>
 
-
-          {/* 상단 오버레이: 검색/필터/내위치 */}
+          {/* 상단 오버레이 */}
           <div className="absolute top-3 left-4 right-4 z-30 space-y-2 pointer-events-none">
-            <ZoneSearchBar
-              value={q}
-              onChange={setQ}
-              results={results}
-              onPick={onPickZone}
-              onClear={() => setQ("")}
-            />
+            <div className="pointer-events-auto">
+              <ZoneSearchBar
+                value={q}
+                onChange={setQ}
+                results={results}
+                onPick={onPickZone} // ✅ 이제 정상 동작
+                onClear={() => setQ("")}
+              />
+            </div>
 
-            {/* 필터 + 내 위치 */}
+            {/* 필터 */}
             <div className="flex items-center justify-between gap-2 pointer-events-auto">
-              {/* Filter Dropdown */}
               <div className="relative">
                 <button
                   type="button"
@@ -169,8 +218,8 @@ export default function CarPickZonePage() {
                   {viewMode === "ALL"
                     ? "모두보기"
                     : viewMode === "BRANCH"
-                      ? "카픽존"
-                      : "드롭존"}
+                    ? "카픽존"
+                    : "드롭존"}
                   <span className="ml-1 text-black/40">▾</span>
                 </button>
 
@@ -201,51 +250,40 @@ export default function CarPickZonePage() {
                   </div>
                 )}
               </div>
-
             </div>
           </div>
-           {/* My Location */}
-          <div className="absolute right-4 bottom-36 z-30 pointer-events-auto">
+
+          {/* 내 위치 버튼 */}
+          <div className="fixed right-4 bottom-36 z-[999] pointer-events-auto">
             <button
               type="button"
-              onClick={onGoMyLocation}
-              className="h-8 px-4 rounded-full text-xs font-semibold
-               bg-white/95 text-[#111] border border-black/10
-               shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur"
+              onClick={() => {
+                console.log("[UI] 내 위치 버튼 클릭됨");
+                onGoMyLocation();
+                setFilterOpen(false);
+              }}
+              className="h-8 px-4 rounded-full text-xs font-semibold bg-white/95 text-[#111] border border-black/10 shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur"
             >
               내 위치
             </button>
-            </div>
+          </div>
 
-            {/* 하단: 브랜드 한줄 (bottom-15는 비표준이라 bottom-24 추천) */}
-            <div className="absolute left-4 right-4 bottom-24 z-20 pointer-events-none">
-              <div className="rounded-2xl bg-white/88 border border-black/5 shadow-[0_16px_50px_rgba(0,0,0,0.16)] px-4 py-3 backdrop-blur">
-                <div className="text-xs font-semibold text-[#2B56FF]">
-                  도착을 출발로 바꾸는, 여행의 가장 빠른 픽
-                </div>
-                <div className="mt-1 text-sm text-[#111] leading-relaxed">
-                  <b>카픽존</b>에서 바로 출발하고, 필요하면{" "}
-                  <b>드롭존</b>에 가볍게 반납하세요.
-                </div>
-              </div>
-            </div>
+          {/* 바텀시트 */}
+          <ZoneBottomSheet
+            open={sheetOpen}
+            onClose={() => setSheetOpen(false)}
+            selected={selected}
+            parentZone={parentZone}
+            onPickup={handlePickup}
+            onReturnDrop={handleReturnDrop}
+          />
 
-            {/* 바텀시트 */}
-            <ZoneBottomSheet
-              open={sheetOpen}
-              onClose={() => setSheetOpen(false)}
-              selected={selected}
-              parentZone={parentZone}
-              onPickup={handlePickup}
-              onReturnDrop={handleReturnDrop}
-            />
-
-            {/* 첫 진입 위치 모달 */}
-            <LocationPermissionModal
-              open={locModalOpen}
-              onAllow={requestMyLocation}
-              onSkip={() => setLocModalOpen(false)}
-            />
+          {/* 첫 진입 위치 모달 */}
+          <LocationPermissionModal
+            open={locModalOpen}
+            onAllow={requestMyLocation}
+            onSkip={() => setLocModalOpen(false)}
+          />
         </section>
       </div>
     </div>
