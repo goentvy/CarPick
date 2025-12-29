@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum FuelType {
-    GASOLINE("가솔린"),   // 휘발유
+    GASOLINE("휘발유"),   // 휘발유
     DIESEL("디젤"),       // 경유
     LPG("LPG"),
     ELECTRIC("전기"),

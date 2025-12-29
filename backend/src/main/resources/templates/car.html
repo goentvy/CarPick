@@ -232,10 +232,7 @@
 		$.ajax({
 			url: '/api/admin/car-spec',
 			type: 'GET',
-			// ✅ [핵심] 여기에 토큰을 직접 넣어서 보냅니다!
-			headers: {
-				"Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NjY5MjM4MjIsImV4cCI6MTc2NjkyNzQyMn0.xa3K4QPn3Kp-2ddnSAzs3XMtX2_HdBIH5w38f6lwyWI"
-			},
+
 			success: function(data) {
 				let html = '';
 				$('#totalCount').text(data.length); // 총 개수 표시

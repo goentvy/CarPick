@@ -17,7 +17,7 @@
 
         <result property="insuranceCode" column="insurance_code"/>
 
-        <result property="label" column="label"/>
+        <result property="insuranceLabel" column="insurance_label"/>
         <result property="summaryLabel" column="summary_label"/>
         <result property="extraDailyPrice" column="extra_daily_price"/>
         <result property="isDefault" column="is_default"/>
@@ -33,7 +33,7 @@
 
 
     <sql id="insertColumns">
-        insurance_code, label, summary_label,
+        insurance_code, insurance_label, summary_label,
         extra_daily_price, is_default, is_active, sort_order,
         use_yn, created_at, updated_at
     </sql>
@@ -41,7 +41,7 @@
 
 
     <sql id="insertValues">
-        #{insuranceCode}, #{label}, #{summaryLabel},
+        #{insuranceCode}, #{insuranceLabel}, #{summaryLabel},
         #{extraDailyPrice}, #{isDefault}, #{isActive}, #{sortOrder},
         'Y', NOW(), NOW()
     </sql>
@@ -49,7 +49,7 @@
 
 
     <sql id="selectColumns">
-        insurance_id, insurance_code, label, summary_label,
+        insurance_id, insurance_code, insurance_label, summary_label,
         extra_daily_price, is_default, is_active, sort_order,
         use_yn, updated_at
     </sql>
@@ -106,7 +106,7 @@
     <update id="update" parameterType="com.carpick.admin.insuranceAdmin.dto.AdminInsuranceDto">
         UPDATE INSURANCE
         SET
-            insurance_code = #{insuranceCode},  label = #{label},
+            insurance_code = #{insuranceCode},  insurance_label = #{insuranceLabel},
             summary_label = #{summaryLabel},
             extra_daily_price = #{extraDailyPrice},
             is_default = #{isDefault},
