@@ -77,12 +77,12 @@ public class ReservationController {
      * Body: { "insuranceCode": "FULL" }
      */
     @PostMapping("/price")
-    private ReservationPriceResponseDto calcPrice(@RequestParam Long carId
+    public ReservationPriceResponseDto calcPrice(@RequestParam Long carId
             , @RequestBody(required = false) ReservationPriceRequestDto req){
         return reservationUiService.calcPrice(carId, req);
     }
     @PostMapping("/create")
-    private ReservationCreateResponseDto createDemo(
+    public ReservationCreateResponseDto createDemo(
             @RequestBody ReservationCreateRequestDto req
             ){
         return reservationUiService.createDemo(req);
