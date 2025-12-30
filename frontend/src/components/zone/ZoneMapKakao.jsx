@@ -13,7 +13,6 @@ function loadKakaoSdk(appKey) {
     const SDK_URL = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`;
     const SCRIPT_ID = "kakao-maps-sdk";
 
-    // 이전 스크립트가 있는데 kakao가 없는 경우(실패/차단) → 제거 후 재시도
     const prev = document.getElementById(SCRIPT_ID);
     if (prev && !window.kakao?.maps) prev.remove();
 
@@ -33,7 +32,6 @@ function loadKakaoSdk(appKey) {
       document.head.appendChild(script);
     }
 
-    // 타임아웃(광고차단/네트워크/403 등)
     setTimeout(() => {
       if (!window.kakao?.maps) {
         reject(
@@ -44,10 +42,7 @@ function loadKakaoSdk(appKey) {
   });
 }
 
-/**
- * Branch / Drop 마커 HTML 생성
- * - selected 상태에 따라 스타일 변경
- */
+/** Branch / Drop 마커 HTML */
 function buildHtmlMarker({ kind, selected }) {
   const isBranch = kind === "BRANCH";
 
@@ -82,41 +77,30 @@ export default function ZoneMapKakao({
   onSelect,
   onMapClick,
   center, // {lat,lng}
-  myPos, // {lat,lng} optional
+  myPos, // {lat,lng}
 }) {
   const APP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
 
-  // ✅ 디버그가 필요하면 true로 바꿔서 myPos 들어오는지 바로 확인
-  const DEBUG = false;
+  const mapElRef = useRef(null);
+  const mapRef = useRef(null);
 
-  const mapElRef = useRef(null); // 실제 DOM
-  const mapRef = useRef(null); // kakao.maps.Map 인스턴스
-
-  // 마커 오버레이 저장(스타일 반영 위해 재생성)
   const overlaysRef = useRef(new Map()); // id -> CustomOverlay
-  // 내 위치 오버레이
   const myOverlayRef = useRef(null);
 
   const [status, setStatus] = useState("idle"); // idle | loading | ready | error
   const [errorMsg, setErrorMsg] = useState("");
 
-  // center가 없을 때 대비한 안전 좌표
+  // center 안전값
   const safeCenter = useMemo(
     () => ({
       lat: Number(center?.lat ?? 37.5665),
       lng: Number(center?.lng ?? 126.978),
+      nonce: center?.nonce ?? 0,
     }),
-    [center?.lat, center?.lng]
+    [center?.lat, center?.lng, center?.nonce]
   );
 
-  // ✅ 디버그: status / myPos / center 확인
-  useEffect(() => {
-    if (!DEBUG) return;
-    // eslint-disable-next-line no-console
-    console.log("[ZoneMapKakao] status:", status, "myPos:", myPos, "center:", center);
-  }, [DEBUG, status, myPos, center]);
-
-  // 1) 지도 생성 (1회)
+  // 1) 지도 생성 1회
   useEffect(() => {
     let canceled = false;
 
@@ -158,25 +142,34 @@ export default function ZoneMapKakao({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [APP_KEY]);
 
-  // 2) 지도 클릭 이벤트 (바텀시트 닫기 등)
+  // 2) 지도 클릭 이벤트
   useEffect(() => {
     const map = mapRef.current;
     const kakao = window.kakao;
 
-    // ✅ ready 전에는 이벤트 달지 않음(안정)
     if (status !== "ready") return;
     if (!map || !kakao?.maps) return;
 
     const handler = () => onMapClick?.();
 
     kakao.maps.event.addListener(map, "click", handler);
-
-    return () => {
-      kakao.maps.event.removeListener(map, "click", handler);
-    };
+    return () => kakao.maps.event.removeListener(map, "click", handler);
   }, [status, onMapClick]);
 
-  // 3) center 이동(부드럽게) - ✅ 이동 로직은 이 effect 하나로 통일
+  /**
+   * ✅ 3) center 이동 
+   */
+  useEffect(() => {
+  const map = mapRef.current;
+  const kakao = window.kakao;
+
+  if (status !== "ready") return;
+  if (!map || !kakao?.maps) return;
+
+  map.setCenter(new kakao.maps.LatLng(safeCenter.lat, safeCenter.lng));
+}, [status, safeCenter.lat, safeCenter.lng, safeCenter.nonce]);
+
+  // 4) 내 위치 점 표시
   useEffect(() => {
     const map = mapRef.current;
     const kakao = window.kakao;
@@ -184,18 +177,6 @@ export default function ZoneMapKakao({
     if (status !== "ready") return;
     if (!map || !kakao?.maps) return;
 
-    map.panTo(new kakao.maps.LatLng(safeCenter.lat, safeCenter.lng));
-  }, [status, safeCenter.lat, safeCenter.lng]);
-
-  // 4) 내 위치 표시(점) - 생성/갱신/삭제
-  useEffect(() => {
-    const map = mapRef.current;
-    const kakao = window.kakao;
-
-    if (status !== "ready") return;
-    if (!map || !kakao?.maps) return;
-
-    // myPos 없으면 제거
     if (!myPos?.lat || !myPos?.lng) {
       if (myOverlayRef.current) {
         myOverlayRef.current.setMap(null);
@@ -207,7 +188,6 @@ export default function ZoneMapKakao({
     const pos = new kakao.maps.LatLng(Number(myPos.lat), Number(myPos.lng));
 
     if (!myOverlayRef.current) {
-      // ✅ 내 위치 점 DOM
       const dot = document.createElement("div");
       dot.style.width = "14px";
       dot.style.height = "14px";
@@ -215,12 +195,12 @@ export default function ZoneMapKakao({
       dot.style.background = "#0A56FF";
       dot.style.boxShadow = "0 8px 20px rgba(10,86,255,0.35)";
       dot.style.border = "3px solid white";
-      dot.style.pointerEvents = "none"; // 지도 클릭 방해 X
+      dot.style.pointerEvents = "none";
 
       const overlay = new kakao.maps.CustomOverlay({
         position: pos,
         content: dot,
-        yAnchor: 0.5, // 점 중심
+        yAnchor: 0.5,
         zIndex: 9999,
       });
 
@@ -232,7 +212,7 @@ export default function ZoneMapKakao({
     }
   }, [status, myPos?.lat, myPos?.lng]);
 
-  // 5) 마커(오버레이) 생성/갱신
+  // 5) 마커 생성/갱신
   useEffect(() => {
     const map = mapRef.current;
     const kakao = window.kakao;
@@ -243,7 +223,7 @@ export default function ZoneMapKakao({
     const store = overlaysRef.current;
     const nextIds = new Set(items.map((it) => it.id));
 
-    // (A) 제거: items에서 사라진 것들
+    // 제거
     for (const [id, overlay] of store.entries()) {
       if (!nextIds.has(id)) {
         overlay.setMap(null);
@@ -251,29 +231,26 @@ export default function ZoneMapKakao({
       }
     }
 
-    // (B) 생성/갱신: selected 스타일 반영을 위해 항상 재생성
+    // 생성/갱신(선택 스타일 반영 위해 재생성)
     items.forEach((it) => {
       const pos = new kakao.maps.LatLng(Number(it.lat), Number(it.lng));
       const selected = it.id === selectedId;
 
-      // 기존 제거 후 재생성(스타일 업데이트)
       if (store.has(it.id)) {
         store.get(it.id).setMap(null);
         store.delete(it.id);
       }
 
-      // HTML 버튼 생성
       const wrapper = document.createElement("div");
       wrapper.innerHTML = buildHtmlMarker({ kind: it.kind, selected });
       const btn = wrapper.firstElementChild;
 
-      // ✅ 클릭 시 선택
-      const onClick = (e) => {
+      const handle = (e) => {
         e.preventDefault();
         e.stopPropagation();
         onSelect?.(it.id);
       };
-      btn.addEventListener("click", onClick);
+      btn.addEventListener("click", handle);
 
       const overlay = new kakao.maps.CustomOverlay({
         position: pos,
@@ -284,16 +261,10 @@ export default function ZoneMapKakao({
 
       overlay.setMap(map);
       store.set(it.id, overlay);
-
-      // ✅ 이 overlay가 교체/제거될 때 이벤트 제거되긴 하지만,
-      // 안전하게 wrapper/btn이 GC될 수 있게 참조를 끊어줌(옵션 성격)
-      // (별도 cleanup은 재생성 로직에서 이미 overlay.setMap(null)로 충분)
     });
-
-    // items/selectedId 바뀔 때마다 재생성하는 구조라 별도 cleanup 불필요
   }, [status, items, selectedId, onSelect]);
 
-  // ---- UI ----
+  // UI
   if (!APP_KEY) {
     return (
       <div className="h-full w-full bg-[#F4F6FA] grid place-items-center text-sm text-black/60">
@@ -324,3 +295,4 @@ export default function ZoneMapKakao({
     </div>
   );
 }
+

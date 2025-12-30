@@ -16,17 +16,27 @@ export default function ZoneBottomSheet({
   return (
     <div
       className={[
-        "fixed left-1/2 -translate-x-1/2 z-[90] w-full max-w-[640px]",
-        "bottom-0",
+        "fixed left-1/2 -translate-x-1/2 z-[90] w-full max-w-[640px] bottom-0",
+        open ? "pointer-events-auto" : "pointer-events-none",
       ].join(" ")}
     >
+
       {/* backdrop */}
       {show && (
         <div
-          className="fixed inset-0 bg-black/25 z-[80]"
+          className="fixed inset-0 z-[80]"
           onClick={onClose}
         />
       )}
+
+      <div
+    className={[
+      "relative z-[90] rounded-t-3xl bg-white border border-black/5",
+      "shadow-[0_-10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 ease-out",
+      open ? "translate-y-0" : "translate-y-[105%]",
+    ].join(" ")}
+  >
+      
 
       {/* sheet */}
       <div
@@ -162,6 +172,7 @@ export default function ZoneBottomSheet({
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
