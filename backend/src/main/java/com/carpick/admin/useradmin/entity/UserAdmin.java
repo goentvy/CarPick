@@ -3,6 +3,7 @@ package com.carpick.admin.useradmin.entity;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,5 +14,8 @@ public class UserAdmin {
     private String email;
     private String name;
     private String phone;
+    private String membershipGrade;
+    private LocalDate birth;
+    private String gender;
     private LocalDateTime createdAt;
 }

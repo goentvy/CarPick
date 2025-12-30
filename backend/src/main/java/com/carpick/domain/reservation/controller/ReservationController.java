@@ -67,7 +67,7 @@ public class ReservationController {
      * 예: GET /api/reservation/form?carId=1
      */
     @GetMapping("/form")
-    public ReservationFormResponseDto getForm(@RequestParam Long carId){
+    public ReservationFormResponseDto getForm(@RequestParam("carId") Long carId){
         return reservationUiService.getForm(carId);
 
     }
@@ -77,7 +77,7 @@ public class ReservationController {
      * Body: { "insuranceCode": "FULL" }
      */
     @PostMapping("/price")
-    public ReservationPriceResponseDto calcPrice(@RequestParam Long carId
+    public ReservationPriceResponseDto calcPrice(@RequestParam("carId") Long carId
             , @RequestBody(required = false) ReservationPriceRequestDto req){
         return reservationUiService.calcPrice(carId, req);
     }

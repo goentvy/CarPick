@@ -31,7 +31,7 @@ public class AdminCarSpecController {
      * ✅ 단건 조회
      */
     @GetMapping("/{specId}")
-    public ResponseEntity<?> getOne(@PathVariable Long specId) {
+    public ResponseEntity<?> getOne(@PathVariable( "specId") Long specId) {
         try {
             AdminCarSpecDto dto = adminCarSpecService.getCarSpec(specId);
             return ResponseEntity.ok(dto);

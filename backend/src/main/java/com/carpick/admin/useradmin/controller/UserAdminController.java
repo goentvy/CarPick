@@ -8,80 +8,82 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/admin/user")
 public class UserAdminController {
 
     private final UserAdminService userAdminService;
 
     /**
-     * ✅ 고객관리 목록 페이지
-     * URL: /admin/user
-     * VIEW: user.html
+     * 고객관리 메인 (기존 user.html)
+     * GET  /admin/user
      */
-    @GetMapping("/user")
-    public String usersList(
+    @GetMapping
+    public String userList(
             @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model
     ) {
-        List<UserAdminResponse> userList =
-                userAdminService.getUserList(search);
-
-        model.addAttribute("userList", userList);
+        // user.html을 안 건드린다고 했으니, model은 있어도 없어도 됨.
+        // 나중에 user.html을 동적으로 바꾸고 싶으면 아래 값 사용 가능.
+        model.addAttribute("userList", userAdminService.getUserList(search, page, size));
         model.addAttribute("search", search);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("totalCount", userAdminService.getTotalCount(search));
 
-        return "user"; // templates/user.html
+        return "user";
     }
 
     /**
-     * ✅ 고객 등록 화면
-     * URL: /admin/user_write
-     * VIEW: userWrite.html
+     * 등록 폼
+     * GET  /admin/user/write
      */
-    @GetMapping("/user_write")
-    public String userWriteForm(Model model) {
+    @GetMapping("/write")
+    public String writeForm(Model model) {
         model.addAttribute("user", new UserAdminRequest());
-        return "userWrite"; // templates/userWrite.html
+        return "user_write";
     }
 
     /**
-     * ✅ 고객 수정 화면
-     * URL: /admin/user_write?id=1
+     * 등록 처리
+     * POST /admin/user/write
      */
-    @GetMapping(value = "/user_write", params = "id")
-    public String userWrite(
-            @RequestParam Long id,
-            Model model
-    ) {
-        UserAdminResponse user = userAdminService.getUser(id);
-        model.addAttribute("user", user);
-        return "userWrite";
-    }
-
-    /**
-     * ✅ 등록 / 수정 처리
-     */
-    @PostMapping("/user_write")
-    public String saveUser(
-            @ModelAttribute UserAdminRequest request
-    ) {
-        if (request.getUserId() == null) {
-            userAdminService.insertUser(request);
-        } else {
-            userAdminService.updateUser(request.getUserId(), request);
-        }
-
+    @PostMapping("/write")
+    public String write(@ModelAttribute UserAdminRequest request) {
+        userAdminService.createUser(request);
         return "redirect:/admin/user";
     }
 
     /**
-     * ✅ 삭제
+     * 수정 폼
+     * GET  /admin/user/edit?id=1
      */
-    @PostMapping("/user_delete")
-    public String deleteUser(@RequestParam Long id) {
+    @GetMapping("/edit")
+    public String editForm(@RequestParam Long id, Model model) {
+        UserAdminResponse user = userAdminService.getUser(id);
+        model.addAttribute("user", user);
+        return "user_edit";
+    }
+
+    /**
+     * 수정 처리
+     * POST /admin/user/edit
+     */
+    @PostMapping("/edit")
+    public String edit(@ModelAttribute UserAdminRequest request) {
+        userAdminService.updateUser(request);
+        return "redirect:/admin/user";
+    }
+
+    /**
+     * 삭제 처리 (휴지통 버튼이 이 URL로 POST 하면 즉시 삭제됨)
+     * POST /admin/user/delete
+     */
+    @PostMapping("/delete")
+    public String delete(@RequestParam Long id) {
         userAdminService.deleteUser(id);
         return "redirect:/admin/user";
     }
