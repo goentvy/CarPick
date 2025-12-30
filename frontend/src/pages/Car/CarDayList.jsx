@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import RentHeader from "./RentHeader";
 import CarCard from "./CarCard";
 import PickupFilterModal from '../../components/common/PickupFilterModal';
 
 const CarList = () => {
+    const [cars, setCars] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const [ShowFilter, setShowFilter] = useState(false);
 
     // 필터 상태
@@ -32,14 +36,20 @@ const CarList = () => {
         setPriceRange([10000, 1000000]);
     };
 
-    const features = {
-        option: ['가솔린','경차', '도심 주행']
-    };
-    const info = {
-        year: "2020년식",
-        seats: "4인승"
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`)
+        .then((res) => {
+            setCars(res.data);
+        })
+        .catch((err) => console.error("차량 리스트 불러오기 실패:", err))
+        .finally(() => setLoading(false));
+    }, []);
+
+    const handleClickCar = (id) => {
+        navigate(`/cars/detail/${id}`);
     };
 
+    if (loading) return <p>Loading...</p>;
 
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
@@ -99,108 +109,48 @@ const CarList = () => {
                 </select>
             </div>
 
-            {/* 차량목록 */}
-            {/* 차량 목록이 없을 때 */}
-            {/*
-            <div className="text-center min-h-[200px] mt-20 space-y-4">
-                <img src="/images/common/filterNull.svg" className="mx-auto"/>
-                <h3 className="text-[24px] font-bold mb-[8px]">필터 조건에서는 함께 떠날 차를 찾지 못했어요.</h3>
-                <p className="text-[20px] text-gray-400 font-medium mb-[42px]">필터를 조금만 넓히면 더 빠르게 픽할 수 있어요.</p>
-                <button type="button" className="bg-blue-50 px-4 py-2 rounded-[50px] border border-blue-500 font-bold" onClick={handleResetFilter}>필터 초기화</button>
-            </div> */}
-
-            <div className="xx:p-2 sm:p-6 flex xx:flex-col xs:flex-row justify-between gap-2 flex-wrap">
-                <div className="w-full sm:w-[49%]">
-                    <CarCard
-                        id={1}
-                        discount={true}
-                        discountRate={30}
-                        imageSrc="/images/common/carList.png"
-                        title="Carnival High- Limousine"
-                        info={info}
-                        features={features}
-                        cost={190000}
-                        price={128000}
-                        day={true} /* 단기면 true, 장기면 false */
-                        onClick={() => handleClickCar(1)}
-                    />
+           {/* 차량목록 */}
+           {cars.length === 0 ? (
+                <div className="text-center min-h-[200px] mt-20 space-y-4">
+                    <img src="/images/common/filterNull.svg" className="mx-auto" alt="차량 없음"/>
+                    <h3 className="text-[24px] font-bold mb-[8px]">
+                        필터 조건에서는 함께 떠날 차를 찾지 못했어요.
+                    </h3>
+                    <p className="text-[20px] text-gray-400 font-medium mb-[42px]">
+                        필터를 조금만 넓히면 더 빠르게 픽할 수 있어요.
+                    </p>
+                    <button
+                        type="button"
+                        className="bg-blue-50 px-4 py-2 rounded-[50px] border border-blue-500 font-bold"
+                        onClick={handleResetFilter}
+                    >
+                        필터 초기화
+                    </button>
                 </div>
-                <div className="w-full sm:w-[49%]">
-                    <CarCard
-                        id={2}
-                        discount={true}
-                        discountRate={30}
-                        imageSrc="/images/common/carList.png"
-                        title="Carnival High- Limousine"
-                        info={info}
-                        features={features}
-                        cost={190000}
-                        price={128000}
-                        day={true} /* 단기면 true, 장기면 false */
-                        onClick={() => handleClickCar(1)}
-                    />
-                </div>
-                <div className="w-full sm:w-[49%]">
-                    <CarCard
-                        id={3}
-                        discount={true}
-                        discountRate={30}
-                        imageSrc="/images/common/carList.png"
-                        title="Carnival High- Limousine"
-                        info={info}
-                        features={features}
-                        cost={190000}
-                        price={128000}
-                        day={true} /* 단기면 true, 장기면 false */
-                        onClick={() => handleClickCar(1)}
-                    />
-                </div>
-                <div className="w-full sm:w-[49%]">
-                    <CarCard
-                        id={4}
-                        discount={true}
-                        discountRate={30}
-                        imageSrc="/images/common/carList.png"
-                        title="Carnival High- Limousine"
-                        info={info}
-                        features={features}
-                        cost={190000}
-                        price={128000}
-                        day={true} /* 단기면 true, 장기면 false */
-                        onClick={() => handleClickCar(1)}
-                    />
-                </div>
-                <div className="w-full sm:w-[49%]">
-                    <CarCard
-                        id={5}
-                        discount={true}
-                        discountRate={30}
-                        imageSrc="/images/common/carList.png"
-                        title="Carnival High- Limousine"
-                        info={info}
-                        features={features}
-                        cost={190000}
-                        price={128000}
-                        day={true} /* 단기면 true, 장기면 false */
-                        onClick={() => handleClickCar(1)}
-                    />
-                </div>
-                <div className="w-full sm:w-[49%]">
-                    <CarCard
-                        id={6}
-                        discount={true}
-                        discountRate={30}
-                        imageSrc="/images/common/carList.png"
-                        title="Carnival High- Limousine"
-                        info={info}
-                        features={features}
-                        cost={190000}
-                        price={128000}
-                        day={true} /* 단기면 true, 장기면 false */
-                        onClick={() => handleClickCar(1)}
-                    />
-                </div>
+                ) : (
+                <div className="xx:p-2 sm:p-6 flex xx:flex-col xs:flex-row justify-between gap-2 flex-wrap">
+                {cars.map((car) => (
+                    <div key={car.vehicleId} className="w-full sm:w-[49%]">
+                        <CarCard
+                            id={car.vehicleId}
+                            discount={car.discountRate !== null}
+                            discountRate={car.discountRate || 0}
+                            imageSrc={car.mainImageUrl || "/images/common/carList.png"}
+                            title={car.displayNameShort}
+                            info={{
+                            year: car.modelYear,
+                            seat: car.seatingCapacity+"인승",
+                            }}
+                            features={car.driveLabels} // "가솔린,SUV,패밀리카"
+                            cost={car.originalPrice}
+                            price={car.finalPrice}
+                            day={true} // 단기면 true, 장기면 false
+                            onClick={() => handleClickCar(car.vehicleId)}
+                        />
+                    </div>
+                ))}
             </div>
+           )}
         </div>
     );
 };

@@ -13,7 +13,9 @@ export default function ZoneSearchBar({
     <div className="pt-15 pointer-events-auto">
       <div className="rounded-2xl bg-white/95 border border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.12)] backdrop-blur">
         <div className="flex items-center gap-2 px-3 h-12">
-          <span className="text-black/60 text-sm">🔎</span>
+          <span className="flex items-center">
+           <i className="fa-solid fa-magnifying-glass text-[20px] mr-3" alt="차량검색"></i>
+          </span>
           <input
             value={value}
             onChange={(e) => onChange(e.target.value)}

@@ -2,34 +2,55 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.carpick.domain.member.mapper.ReservationHistoryMapper">
+<mapper namespace="com.carpick.domain.reservationHistory.mapper.ReservationStatusHistoryMapper">
 
-    <select id="selectMyHistory"
-            resultType="com.carpick.domain.member.dto.ReservationHistoryResponse">
+    <resultMap id="HistoryResultMap"
+               type="com.carpick.domain.reservationHistory.entity.ReservationStatusHistory">
+        <id property="historyId" column="history_id"/>
+        <result property="reservationId" column="reservation_id"/>
+
+        <result property="statusPrev" column="status_prev"/>
+        <result property="statusCurr" column="status_curr"/>
+
+        <result property="actorType" column="actor_type"/>
+        <result property="actorId" column="actor_id"/>
+        <result property="reason" column="reason"/>
+
+        <result property="recordedAt" column="recorded_at"/>
+    </resultMap>
+
+    <insert id="insertHistory"
+            parameterType="com.carpick.domain.reservationHistory.entity.ReservationStatusHistory">
+        INSERT INTO RESERVATION_STATUS_HISTORY (
+            reservation_id,
+            status_prev,
+            status_curr,
+            actor_type,
+            actor_id,
+            reason
+        ) VALUES (
+                     #{reservationId},
+                     #{statusPrev},
+                     #{statusCurr},
+                     #{actorType},
+                     #{actorId},
+                     #{reason}
+                 )
+    </insert>
+
+    <select id="selectHistoryByReservationId" resultMap="HistoryResultMap">
         SELECT
-            rh.id,
-            rh.reservation_id AS reservationId,
-            rh.action_type     AS actionType,
-            rh.change_types    AS changeTypes,
-
-            -- 변경전
-            rh.old_car_name AS oldCarName,
-            DATE_FORMAT(rh.old_start_date, '%Y-%m-%d') AS oldStartDate,
-            DATE_FORMAT(rh.old_end_date,   '%Y-%m-%d') AS oldEndDate,
-            rh.old_location AS oldLocation,
-
-            -- 변경후
-            rh.new_car_name AS newCarName,
-            DATE_FORMAT(rh.new_start_date, '%Y-%m-%d') AS newStartDate,
-            DATE_FORMAT(rh.new_end_date,   '%Y-%m-%d') AS newEndDate,
-            rh.new_location AS newLocation,
-
-            rh.reason,
-            DATE_FORMAT(rh.created_at, '%Y-%m-%d %H:%i') AS createdAt
-
-        FROM reservation_history rh
-        WHERE rh.user_id = #{userId}
-        ORDER BY rh.created_at DESC
+            history_id,
+            reservation_id,
+            status_prev,
+            status_curr,
+            actor_type,
+            actor_id,
+            reason,
+            recorded_at
+        FROM RESERVATION_STATUS_HISTORY
+        WHERE reservation_id = #{reservationId}
+        ORDER BY recorded_at DESC, history_id DESC
     </select>
 
 </mapper>

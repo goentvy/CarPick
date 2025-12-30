@@ -19,10 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CarController {
     private final CarService carService;
-  private  final   CarListService carListService;
+   private final CarListService carListService;
 //차량상세 (DB 연동)
     @GetMapping("/{carId}")
-    private ResponseEntity<CarDetailResponseDto> getCarDetail(@PathVariable Long carId){
+    private ResponseEntity<CarDetailResponseDto> getCarDetail(@PathVariable("carId") Long carId){
         CarDetailResponseDto carDetailResponseDto = carService.getCarDetail(carId);
         return ResponseEntity.ok(carDetailResponseDto);
     }

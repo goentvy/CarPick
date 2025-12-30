@@ -40,10 +40,7 @@ public class UserInfoService {
     //개인 정보 수정 로직 처리
     @Transactional
     public void updateUserInfo(Long userId, UserInfoUpdateRequest request) {
-        // 로그 추가: 프론트에서 넘어온 값을 직접 확인
-        System.out.println("DEBUG: 넘어온 데이터 확인 -> " + request.toString());
-
-        // 만약 여기서 passwordHash=null 이라고 뜬다면 프론트와 이름이 안 맞는 것입니다.
+        
 
         // 1. 요청으로 들어온 비밀번호가 있다면 암호화 진행
         String encodedPassword = null;
