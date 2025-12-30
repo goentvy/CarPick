@@ -107,7 +107,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="guest/cancel/complete" element={<GuestCancelComplete />} />
 
           {/* 예약 */}
-          <Route path="reservation" element={<ReservationPage />} />
+          <Route path="reservation/:id" element={<ReservationPage />} />
 
           {/* 결제 */}
           <Route path="payment" element={<PaymentTestSection />} />
