@@ -22,6 +22,8 @@ public interface ReservationMapper {
     /** 예약 단건 조회 (RESERVATION 단독) */
     Reservation selectReservationById(@Param("reservationId") long reservationId);
 
+    Long selectAvailableVehicleIdBySpecId(Long specId);
+
     /** 예약번호로 조회 (필요 시) */
     Reservation selectReservationByReservationNo(@Param("reservationNo") String reservationNo);
 

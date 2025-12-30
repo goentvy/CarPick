@@ -137,10 +137,10 @@ public class ReservationUiService {
     /**
      * 예약 생성 (진짜 저장) - Command로 위임
      */
-//    public ReservationCreateResponseDto create(ReservationCreateRequestDto req) {
-//        Long userId = 1L; // TODO: 로그인 붙으면 세션/토큰에서
-//        return commandService.createReservation(req, userId);
-//    }
+    public ReservationCreateResponseDto create(ReservationCreateRequestDto req) {
+        Long userId = 1L; // TODO: 로그인 붙으면 세션/토큰에서
+        return commandService.createReservation(req, userId);
+    }
 
 
 
