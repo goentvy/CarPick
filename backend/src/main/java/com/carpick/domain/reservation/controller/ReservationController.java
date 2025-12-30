@@ -81,13 +81,10 @@ public class ReservationController {
             , @RequestBody(required = false) ReservationPriceRequestDto req){
         return reservationUiService.calcPrice(carId, req);
     }
-//    @PostMapping("/create")
-//    public ReservationCreateResponseDto createDemo(
-//            @RequestBody ReservationCreateRequestDto req
-//            ){
-//        return reservationUiService.createDemo(req);
-//
-//    }
-
-
+    @PostMapping("/create")
+    public ReservationCreateResponseDto create(
+            @RequestBody ReservationCreateRequestDto req
+    ) {
+        return reservationUiService.create(req);
+    }
 }
