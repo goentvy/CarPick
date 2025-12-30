@@ -1,27 +1,20 @@
-package com.carpick.domain.inquiry.vo;
+package com.carpick.domain.inquiry.dto;
 
 import java.time.LocalDateTime;
 
 import com.carpick.domain.inquiry.enums.InquiryStatus;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class Inquiry {
+@AllArgsConstructor
+public class AdminInquiryListResponse {
 
 	private Long id;
-	private Long userId;
-	
+	private String userEmail;
 	private String category;
 	private String title;
-	private String content;
-	
 	private InquiryStatus status;
-	private String adminReply;
-	
 	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
-	
 }

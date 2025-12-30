@@ -21,7 +21,7 @@ export default function InquiryPrivacy() {
 
           <h4>1. 수집 항목</h4>
           <ul>
-            <li>회원 고유 식별자 (user ID)</li>
+            <li>회원 고유 식별자 </li>
             <li>문의 카테고리</li>
             <li>문의 제목</li>
             <li>문의 내용</li>

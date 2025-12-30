@@ -7,12 +7,12 @@ import useUserStore from "../../store/useUserStore";
 // 상태 코드 → 라벨/색 매핑 (DB: pending/answered)
 const getStatusMeta = (status) => {
     switch (status) {
-        case "pending":
+        case "PENDING":
             return {
                 label: "대기 중",
                 className: "bg-[#FFF7D7] text-[#F5C542]",
             };
-        case "answered":
+        case "ANSWERED":
             return {
                 label: "답변 완료",
                 className: "bg-[#E9F9F1] text-[#2ECC71]",

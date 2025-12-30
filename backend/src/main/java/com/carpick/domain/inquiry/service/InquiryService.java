@@ -5,10 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carpick.domain.inquiry.dto.AdminInquiryDetailResponse;
+import com.carpick.domain.inquiry.dto.AdminInquiryListResponse;
 import com.carpick.domain.inquiry.dto.AdminInquiryPageResponse;
 import com.carpick.domain.inquiry.dto.InquiryCreateRequest;
 import com.carpick.domain.inquiry.dto.InquiryCreateResponse;
 import com.carpick.domain.inquiry.dto.MyPageInquiryResponse;
+import com.carpick.domain.inquiry.enums.InquiryStatus;
 import com.carpick.domain.inquiry.mapper.InquiryMapper;
 import com.carpick.domain.inquiry.vo.Inquiry;
 
@@ -41,41 +44,52 @@ public class InquiryService {
 	}
 
 	// 관리자 - 문의 목록 + 페이징
-	public AdminInquiryPageResponse getInquiryPage(int page, int pageSize) {
+	public AdminInquiryPageResponse getInquiryPage(
+		    int page,
+		    int pageSize,
+		    String search
+		) {
+		    int totalCount =
+		        inquiryMapper.countAdminInquiries(search);
 
-		List<Inquiry> allInquiries = inquiryMapper.findAll();
-		int totalCount = allInquiries.size();
+		    int totalPages = totalCount == 0 ? 1 :
+		        (int) Math.ceil((double) totalCount / pageSize);
 
-		int totalPages = totalCount == 0 ? 1 : (int) Math.ceil((double) totalCount / pageSize);
+		    page = Math.max(0, Math.min(page, totalPages - 1));
+		    int offset = page * pageSize;
 
-		// 페이지 범위 보정 
-		if (page < 0)
-			page = 0;
-		if (page >= totalPages)
-			page = Math.max(0, totalPages - 1);
+		    List<AdminInquiryListResponse> inquiries =
+		        inquiryMapper.findAdminPage(offset, pageSize, search);
 
-		int startIndex = page * pageSize;
-		int endIndex = Math.min(startIndex + pageSize, totalCount);
-
-		List<Inquiry> inquiries = totalCount == 0 ? List.of() : allInquiries.subList(startIndex, endIndex);
-
-		return new AdminInquiryPageResponse(inquiries, page, totalPages, totalCount);
-	}
-
-	// 관리자 - 문의 상세
-	public Inquiry getInquiry(Long id) {
-		return inquiryMapper.findById(id);
-	}
-
-	// 관리자 - 답변 등록 / 수정
-	@Transactional
-	public void answerInquiry(Long id, String reply, String status) {
-		Inquiry inquiry = inquiryMapper.findById(id);
-
-		if (inquiry == null) {
-			throw new IllegalArgumentException("존재하지 않는 문의입니다.");
+		    return new AdminInquiryPageResponse(
+		        inquiries,
+		        page,
+		        totalPages,
+		        totalCount
+		    );
 		}
 
-		inquiryMapper.updateAnswer(id, reply, status);
-	}
+	// 관리자 - 문의 상세
+	    public AdminInquiryDetailResponse getAdminInquiry(Long id) {
+	        return inquiryMapper.findDetailForAdmin(id);
+	    }
+
+	// 관리자 - 답변 등록 / 수정
+	    @Transactional
+	    public void answerInquiry(Long id, String reply) {
+
+	        AdminInquiryDetailResponse inquiry =
+	            inquiryMapper.findDetailForAdmin(id);
+
+	        if (inquiry == null) {
+	            throw new IllegalArgumentException("존재하지 않는 문의입니다.");
+	        }
+
+	        // ✅ 상태는 서버가 결정
+	        inquiryMapper.updateAnswer(
+	            id,
+	            reply,
+	            InquiryStatus.ANSWERED
+	        );
+	    }
 }
