@@ -1,4 +1,7 @@
-import { useLocation } from "react-router-dom";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+
 import HomeRentHeader from "./HomeRentHeader";
 import AIRecommendation from "./AIRecommendation";
 import VehicleCard from "./VehicleCard";
@@ -9,25 +12,48 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Home = () => {
-    const location = useLocation();
     const [showPickupModal, setShowPickupModal] = useState(false);
+    const [segment, setSegment] = useState("정보 없음");
+    const [reason, setReason] = useState("추천 이유를 불러올 수 없습니다.");
     const [selectedCar, setSelectedCar] = useState(null);
     const [cars, setCars] = useState([]);
 
-    const segment = location.state?.segment || "정보 없음";
-    const reason = location.state?.reason || "추천 이유를 불러올 수 없습니다.";
-    const features = {
-        year: '25년식',
-        seat: '4인승',
-        option: ['가솔린', '경차', '도심 주행']
+
+    // 슬라이더 설정
+    const settings = {
+        dots: true,
+        infinite: true,      // 슬라이드 끝나도 반복
+        speed: 500,
+        slidesToShow: 2,     
+        slidesToScroll: 2,   
+        autoplay: true,       // 자동 슬라이드
+        autoplaySpeed: 5000,  // 5초마다 이동
+        responsive: [
+            {
+                breakpoint: 640,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                },
+            },
+        ],
     };
 
+
     useEffect(() => {
+        const storedSegment = localStorage.getItem("recommendedSegment");
+        const storedReason = localStorage.getItem("recommendedReason");
+
+        if (storedSegment) setSegment(storedSegment);
+        if (storedReason) setReason(storedReason);
+
         if(segment !== "정보 없음") {
-            axios.get(`/api/cars`, { params: { segment }})
+           axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/ai-pick/cars`, {
+                params: { carClass: segment }
+            })
             .then((res) => {
                 setCars(res.data);
-                console.log(cars);
+                console.log(res.datat);
             })
             .catch((err) => {
                 console.error("차량 리스트 불러오기 실패:", err);
@@ -48,30 +74,31 @@ const Home = () => {
             <div className="xx:p-2 sm:p-6">
                 <div className="xx:text-[18px] sm:text-2xl font-bold mt-2">AI 추천차량</div>
                 <AIRecommendation content={reason}/>
-                <div className="flex xx:flex-col xs:flex-row justify-between gap-4">
-                    <VehicleCard
-                        discount={30}
-                        imageSrc="./images/common/car.png"
-                        title="캐스퍼 가솔린"
-                        features={features}
-                        price={324000}
+                <div className="my-8">
+                <Slider {...settings} className="space-x-4">
+                    {cars.slice(0, 6).map((car, index) => (
+                    <div key={index} className="px-2">
+                        <VehicleCard
+                        discount={car.discountRate}
+                        imageSrc={car.mainImageUrl || "/images/common/car.png"}
+                        title={car.displayNameShort}
+                        aiSummary={car.aiSummary}
+                        features={{ option: car.driveLabels.split(',') }}
+                        price={car.finalPrice}
                         onClick={() => {
-                            setSelectedCar({ title: "캐스퍼 가솔린", price: 324000, discount: 30})
+                            setSelectedCar({
+                            title: car.displayNameShort,
+                            price: car.finalPrice,
+                            discount: car.discountRate,
+                            });
                             setShowPickupModal(true);
                         }}
-                    />
-                    <VehicleCard
-                        discount={50}
-                        imageSrc="./images/common/car.png"
-                        title="캐스퍼"
-                        features={features}
-                        price={128000}
-                        onClick={() => {
-                            setSelectedCar({ title: "캐스퍼", price: 128000, discount: 50})
-                            setShowPickupModal(true)
-                        }}
-                    />
+                        />
+                    </div>
+                    ))}
+                </Slider>
                 </div>
+
 
                 {/* 카픽존 찾기 */}
                 <h2 className="xx:text-[18px] sm:text-2xl font-bold mb-2">카픽존 찾기</h2>

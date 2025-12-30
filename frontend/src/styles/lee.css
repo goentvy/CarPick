@@ -172,3 +172,7 @@
 #popup .inner .content .scroll{overflow:auto; height:300px; margin:20px 0; font-size: 14px;}
 #popup .inner .content .scroll pre{text-wrap: wrap;}
 #popup .inner .btns .btn{background:var(--logo-blue); color:#fff; width:100%; border-radius: 15px; padding: 5px 0;} 
+
+@media (hover: none) and (pointer: coarse) {
+    .chatContent{ height: calc(100vh - 358px); }
+}

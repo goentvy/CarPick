@@ -66,7 +66,7 @@ function Aipick() {
   setMessage("");
 
   try {
-    const res = await fetch("http://3.236.8.244:8080/api/chat", {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: userMessage })

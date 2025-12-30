@@ -76,12 +76,12 @@ export default function Intro() {
       const data = await res.json();
       const result = data.recommendedSegment;
 
-      navigate("/home", {
-        state: {
-          segment: result.segment,
-          reason: result.reason
-        }
-      });
+      // 로컬스토리지에 저장
+      localStorage.setItem("recommendedSegment", result.segment);
+      localStorage.setItem("recommendedReason", result.reason);
+
+      // Home으로 이동
+      navigate("/home");
 
     } catch (err) {
       console.error(err);
@@ -111,7 +111,7 @@ export default function Intro() {
                 </h2>
                 <h4>
                     <img src="./images/common/logo_w.svg" className={styles.logo_icon} alt="logo" />
-                    AI가
+                    가
                     <br />
                     당신에게 맞는 차량을 추천할 수 있도록
                     <br />

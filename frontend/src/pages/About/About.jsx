@@ -16,7 +16,7 @@ const About = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/about/values')
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/about/values`)
             .then(res => setValues(res.data))
             .catch(err => console.error("데이터 로딩 실패:", err));
     }, []);

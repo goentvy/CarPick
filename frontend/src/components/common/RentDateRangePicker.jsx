@@ -60,6 +60,10 @@ const RentDateRangePicker = ({ onChange, onClose }) => {
 
   return (
     <Modal onClose={onClose}>
+        <div className="tab">
+          <button type="button" className="btn btn-active">단기렌트</button>
+          <button type="button" className="btn">장기렌트</button>
+        </div>
         {/* 상단: 대여/반납 날짜 및 시간 */}
         <div className="mx-auto w-full max-w-[332px] text-center">
           <p className="text-sm font-semibold text-gray-700 mb-2">
