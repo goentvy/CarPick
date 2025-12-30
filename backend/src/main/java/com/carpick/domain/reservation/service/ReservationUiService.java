@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReservationUiService {
-    public  final CarService carService;
-    private  final ReservationMapper reservationMapper;
+    private final CarService carService;
+    private final ReservationMapper reservationMapper;
+    private final ReservationPriceService priceService;
+    private final ReservationCommandService commandService;
     /**
      * 예약 페이지 초기 로딩 데이터
      */
@@ -133,36 +135,14 @@ public class ReservationUiService {
 
     }
     /**
-     * 예약 생성 (데모)
+     * 예약 생성 (진짜 저장) - Command로 위임
      */
+//    public ReservationCreateResponseDto create(ReservationCreateRequestDto req) {
+//        Long userId = 1L; // TODO: 로그인 붙으면 세션/토큰에서
+//        return commandService.createReservation(req, userId);
+//    }
 
-    public ReservationCreateResponseDto createDemo(ReservationCreateRequestDto req){
-        // 1️⃣ 차량 가격 다시 계산 (프론트 절대 신뢰 ❌)
-        CarDetailResponseDto detail = carService.getCarDetail(req.getCarId());
-        int carDailyPrice = detail.getPriceSummary()
-                .getDailyPrice()
-                .intValue();
-        // 2️⃣ 보험 가격 다시 계산 (프론트 절대 신뢰 ❌)
-        String code =(req.getInsuranceCode() == null) ? "NONE" : req.getInsuranceCode();
-        // DB에서 보험 가격 조회
-        InsuranceRawDto insurance = reservationMapper.selectInsuranceByCode(code);
-        int insuranceDailyPrice = (insurance != null)
-                ? insurance.getExtraDailyPrice().intValue()
-                : 0;
-        int totalPrice = carDailyPrice + insuranceDailyPrice;
-        // 3️⃣ 임시 예약번호 생성 (데모용)
-        String reservationNo = "R-" + System.currentTimeMillis();
-        // 4️⃣ 응답 생성
-        return  new ReservationCreateResponseDto(
-                reservationNo,
-                req.getCarId(),
-                code,
-                carDailyPrice,
-                insuranceDailyPrice,
-                totalPrice,
-                "예약이 완료 되었습니다.");
 
-    }
 
 
 
