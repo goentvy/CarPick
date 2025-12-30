@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 고객 삭제</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+</head>
+
+<body>
+<div class="page-container">
+
+    <div th:replace="~{fragments/fragments :: sidebar}"></div>
+    <div th:replace="~{fragments/fragments :: header}"></div>
+
+    <div class="main-content">
+        <div class="container-fluid mt-4">
+
+            <h4 class="mb-4 text-danger">고객 삭제</h4>
+
+            <div class="card">
+                <div class="card-body">
+                    <p>이 고객을 삭제합니다.</p>
+
+                    <form th:action="@{/admin/user/delete}" method="post">
+                        <input type="hidden" name="id" th:value="${userId}">
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                        <a href="/admin/user" class="btn btn-secondary">취소</a>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/fragments :: footer}"></div>
+</div>
+</body>
+</html>
