@@ -86,14 +86,14 @@
          ========================================================= -->
     <sql id="searchCondition">
         <where>
-            <if test="status != null">
-                r.reservation_status = #{status}
+            <if test="status != null and status != ''">
+                AND r.reservation_status = #{status}
             </if>
 
+            <!-- 기간 겹침(overlap) 기준 -->
             <if test="fromDateTime != null">
-                AND r.start_date <![CDATA[>=]]> #{fromDateTime}
+                AND r.end_date <![CDATA[>=]]> #{fromDateTime}
             </if>
-
             <if test="toDateTime != null">
                 AND r.start_date <![CDATA[<=]]> #{toDateTime}
             </if>
@@ -105,8 +105,10 @@
                 OR vi.vehicle_no LIKE CONCAT('%', #{keyword}, '%')
                 )
             </if>
+
         </where>
     </sql>
+
 
 
     <!-- =========================================================
@@ -132,7 +134,15 @@
         INNER JOIN VEHICLE_INVENTORY vi ON vi.vehicle_id = r.vehicle_id
         INNER JOIN CAR_SPEC cs          ON cs.spec_id = vi.spec_id
         <include refid="searchCondition"/>
-        ORDER BY r.created_at DESC
+        ORDER BY
+            <if test="keyword != null and keyword != ''">
+        CASE
+        WHEN r.reservation_no LIKE CONCAT('%', #{keyword}, '%') THEN 0
+        ELSE 1
+        END,
+         </if>
+        r.created_at DESC,
+        r.reservation_id DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
