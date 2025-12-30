@@ -51,7 +51,7 @@ public class AdminCarOptionController {
      * GET /admin/api/carOption/{optionId}
      */
     @GetMapping("/{optionId}")
-    public ResponseEntity<?> getOption(@PathVariable Long optionId) {
+    public ResponseEntity<?> getOption(@PathVariable("optionId") Long optionId) {
         try {
             AdminCarOptionDto dto = optionService.getOption(optionId);
             return ResponseEntity.ok(dto);
