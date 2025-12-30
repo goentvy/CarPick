@@ -5,13 +5,30 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.carpick.domain.faq.dto.FaqResponse;
+import com.carpick.domain.faq.vo.Faq;
 
 @Mapper
 public interface FaqMapper {
 
-	List<FaqResponse> search(
+	//사용자
+	
+	List<Faq> search(
 	@Param("category") String category,
 	@Param("keyword") String keyword
 	);
+	
+	//관리자
+	
+	List<Faq> findAll();
+	
+	List<Faq> adminSearch(
+	@Param("category") String category,
+	@Param("keyword") String keyword
+	);
+	
+	Faq findById(@Param ("id") Long id);
+	void insert(Faq faq);
+	void update(Faq faq);
+	void delete(@Param ("id") Long id);
+	
 }

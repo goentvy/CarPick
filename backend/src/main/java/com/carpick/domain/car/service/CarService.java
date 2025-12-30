@@ -38,7 +38,11 @@ public class CarService {
                 + raw.getSeatingCapacity() + "인승 - "
                 + raw.getFuelType() + " " + raw.getCarClass()
         );
-        top.setImageUrls(List.of(raw.getMainImageUrl()));
+//        수정부분
+        top.setImageUrls(
+                raw.getMainImageUrl() == null ? List.of() : List.of(raw.getMainImageUrl())
+        );
+//        top.setImageUrls(List.of(raw.getMainImageUrl()));
         top.setCarType(raw.getCarClass());
 //2. 카드 영역
         // 카드 1 - 연료
