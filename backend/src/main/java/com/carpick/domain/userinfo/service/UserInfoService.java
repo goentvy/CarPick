@@ -19,7 +19,7 @@ public class UserInfoService {
 
     public UserInfoResponse getUserInfo(Long userId) {
         //개인정보 조회 처리 로직
-        UserInfo user = userInfoMapper.selectByUserId(userId);
+        UserInfo user = userInfoMapper.findById(userId);
 
         if (user == null) {
             throw new IllegalStateException("회원 정보가 존재하지 않습니다.");
@@ -66,7 +66,6 @@ public class UserInfoService {
 
     }
 
-    //개인 정보 탈퇴 처리 로직
     @Transactional
     public void withdraw(Long userId) {
         UserInfo user = userInfoMapper.findById(userId);
@@ -75,13 +74,19 @@ public class UserInfoService {
             throw new IllegalArgumentException("사용자 없음");
         }
 
-        userInfoMapper.markDeleted(userId); // deleted_at = now()
+        if ("LOCAL".equalsIgnoreCase(user.getProvider())) {
+            // 로컬 → 하드 탈퇴
+            int deleted = userInfoMapper.deleteUser(userId);
+            if (deleted == 0) {
+                throw new IllegalStateException("로컬 회원 탈퇴 실패");
+            }
 
-
-        int updated = userInfoMapper.withdrawUser(userId);
-
-        if (updated == 0) {
-            throw new IllegalStateException("회원 탈퇴 실패");
+        } else {
+            // 소셜 → 소프트 탈퇴
+            int updated = userInfoMapper.softDeleteUser(userId);
+            if (updated == 0) {
+                throw new IllegalStateException("소셜 회원 탈퇴 실패");
+            }
         }
     }
 

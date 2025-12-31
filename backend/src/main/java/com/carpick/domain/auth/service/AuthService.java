@@ -7,10 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.carpick.domain.auth.dto.LoginRequest;
-import com.carpick.domain.auth.dto.LoginResponse;
-import com.carpick.domain.auth.dto.SignupRequest;
-import com.carpick.domain.auth.dto.SignupResponse;
+import com.carpick.domain.auth.dto.login.LoginRequest;
+import com.carpick.domain.auth.dto.login.LoginResponse;
+import com.carpick.domain.auth.dto.signup.SignupRequest;
+import com.carpick.domain.auth.dto.signup.SignupResponse;
 import com.carpick.domain.auth.entity.Role;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;

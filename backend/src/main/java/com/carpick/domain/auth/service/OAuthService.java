@@ -1,8 +1,7 @@
 package com.carpick.domain.auth.service;
 
-import com.carpick.domain.auth.dto.OAuthLoginRequest;
-import com.carpick.domain.auth.dto.OAuthLoginResponse;
-import com.carpick.domain.auth.entity.Gender;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginRequest;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginResponse;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;
 import com.carpick.domain.auth.service.client.KaKaoClient;
@@ -10,13 +9,13 @@ import com.carpick.domain.auth.service.client.NaverClient;
 import com.carpick.global.exception.AuthenticationException;
 import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.jwt.JwtProvider;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -30,87 +29,122 @@ public class OAuthService {
     private final JwtProvider jwtProvider;
     private final RestTemplate restTemplate;
 
-    /**
-     * OAuth 로그인 처리
-     */
+    /* ==================================================
+       소셜 로그인
+    ================================================== */
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
         log.info("소셜 로그인 동작: provider={}, code={}", provider, request.getCode());
 
         User socialUser;
 
-        if ("KAKAO".equalsIgnoreCase(provider)) {
-            try {
+        /* 1️⃣ 소셜 토큰 발급 + 프로필 조회 */
+        try {
+            if ("KAKAO".equalsIgnoreCase(provider)) {
                 String accessToken = kakaoClient.getAccessToken(request.getCode());
-                log.info("Kakao accessToken={}", accessToken);
                 socialUser = kakaoClient.getProfile(accessToken);
                 socialUser.setAccessToken(accessToken);
-            } catch (Exception e) {
-                throw new AuthenticationException(ErrorCode.OAUTH_INVALID_CODE);
-            }
-        } else if ("NAVER".equalsIgnoreCase(provider)) {
-            try {
-                String accessToken = naverClient.getAccessToken(request.getCode(), request.getState());
-                log.info("Naver accessToken={}", accessToken);
+
+            } else if ("NAVER".equalsIgnoreCase(provider)) {
+                String accessToken = naverClient.getAccessToken(
+                        request.getCode(),
+                        request.getState()
+                );
                 socialUser = naverClient.getProfile(accessToken);
                 socialUser.setAccessToken(accessToken);
-            } catch (Exception e) {
-                throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
+
+            } else {
+                throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
             }
-        } else {
-            throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
+        } catch (Exception e) {
+            throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
         }
 
-        // DB 유저 확인 및 신규 가입/복구 처리
-        User existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
+        /* 2️⃣ provider + providerId 기준 기존 유저 조회 */
+        User existUser = userMapper.findByProvider(
+                socialUser.getProvider(),
+                socialUser.getProviderId()
+        );
 
+        /* 3️⃣ 신규 / 복구 / 차단 처리 */
         if (existUser == null) {
+
+            // 3-1️⃣ 소프트 탈퇴 이력 복구
             User deletedUser = userMapper.findDeletedByProvider(
                     socialUser.getProvider(),
                     socialUser.getProviderId()
             );
 
             if (deletedUser != null) {
-                userMapper.reviveSocialUser(socialUser.getAccessToken(), deletedUser.getUserId());
+                userMapper.reviveSocialUser(
+                        socialUser.getAccessToken(),
+                        deletedUser.getUserId()
+                );
                 existUser = deletedUser;
+
             } else {
+                // 3-2️⃣ 이메일 세팅 (없으면 더미)
                 if (socialUser.getEmail() == null || socialUser.getEmail().isBlank()) {
-                    socialUser.setEmail(provider.toLowerCase() + "_" + socialUser.getProviderId() + "@social.local");
+                    socialUser.setEmail(
+                            provider.toLowerCase() + "_" +
+                                    socialUser.getProviderId() + "@social.local"
+                    );
                 }
 
-                if (userMapper.existsByEmail(socialUser.getEmail()) > 0) {
-                    log.warn("이메일 중복 발생: {}", socialUser.getEmail());
-                    existUser = userMapper.findByProvider(socialUser.getProvider(), socialUser.getProviderId());
-                } else {
-                    try {
-                        socialUser.setPassword("");
-                        socialUser.setMembershipGrade("BASIC");
-                        if (socialUser.getGender() == null) socialUser.setGender(Gender.UNKNOWN);
-                        if (socialUser.getMarketingAgree() == null) socialUser.setMarketingAgree(0);
+                // 🔥 이메일 중복 차단
+                User emailUser = userMapper.findByEmail(socialUser.getEmail());
+                if (emailUser != null) {
+                    throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
+                }
 
-                        userMapper.insertSocialUser(socialUser);
-                        existUser = socialUser;
-                    } catch (Exception e) {
-                        throw new AuthenticationException(ErrorCode.DB_DUPLICATE_KEY);
-                    }
+                // 3-3️⃣ 신규 소셜 가입
+                socialUser.setPassword("");
+                socialUser.setMembershipGrade("BASIC");
+
+                // ✅ DB 안 건드리기: gender는 NULL로 저장
+                socialUser.setGender(null);
+
+                if (socialUser.getMarketingAgree() == null) {
+                    socialUser.setMarketingAgree(0);
+                }
+
+                userMapper.insertSocialUser(socialUser);
+
+                // INSERT 후 PK 재조회
+                existUser = userMapper.findByProvider(
+                        socialUser.getProvider(),
+                        socialUser.getProviderId()
+                );
+
+                if (existUser == null || existUser.getUserId() == null) {
+                    throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
                 }
             }
+
         } else if (existUser.getDeletedAt() != null) {
-            userMapper.reviveSocialUser(socialUser.getAccessToken(), existUser.getUserId());
+            // 4️⃣ 소프트 삭제된 유저 복구
+            userMapper.reviveSocialUser(
+                    socialUser.getAccessToken(),
+                    existUser.getUserId()
+            );
             existUser.setDeletedAt(null);
             existUser.setAccessToken(socialUser.getAccessToken());
         }
 
-        log.info("existUser userId = {}", existUser.getUserId());
-        if (existUser.getUserId() == null) {
+        /* 5️⃣ 최종 안전 체크 */
+        if (existUser == null || existUser.getUserId() == null) {
             throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
 
+        /* 6️⃣ JWT 발급 */
         String role = (existUser.getMembershipGrade() != null)
                 ? existUser.getMembershipGrade()
                 : "BASIC";
 
-        String token = jwtProvider.generateToken(existUser.getUserId(), role);
+        String token = jwtProvider.generateToken(
+                existUser.getUserId(),
+                role
+        );
 
         return OAuthLoginResponse.builder()
                 .success(true)
@@ -121,35 +155,45 @@ public class OAuthService {
                 .build();
     }
 
-    /**
-     * 소셜 연동 해제 (카카오/네이버 통합)
-     */
+    /* ==================================================
+       소셜 연동 해제
+    ================================================== */
     @Transactional
     public void unlinkSocial(String provider, String jwtToken) {
-        Long userId = jwtProvider.getUserId(jwtToken);
-        User user = userMapper.findById(userId);
 
-        if (user == null || !provider.equalsIgnoreCase(user.getProvider())) {
+        Long userId = jwtProvider.getUserId(jwtToken);
+
+        User user = userMapper.findById(userId);
+        if (user == null) {
             throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
-        if (user.getAccessToken() == null) {
+
+        if (!provider.equalsIgnoreCase(user.getProvider())) {
+            throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
+        }
+
+        if (user.getAccessToken() == null || user.getAccessToken().isBlank()) {
             throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
 
         if ("KAKAO".equalsIgnoreCase(provider)) {
+
             String url = "https://kapi.kakao.com/v1/user/unlink";
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(user.getAccessToken());
 
             HttpEntity<Void> request = new HttpEntity<>(headers);
-            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(url, request, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
             }
+
             log.info("카카오 연동 해제 완료: userId={}", userId);
 
         } else if ("NAVER".equalsIgnoreCase(provider)) {
+
             naverClient.unlink(user.getAccessToken());
             log.info("네이버 연동 해제 완료: userId={}", userId);
 
@@ -157,7 +201,7 @@ public class OAuthService {
             throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
         }
 
-        // DB에서 유저 탈퇴 처리 (소셜 유저는 소프트 삭제)
+        // 소셜 계정은 소프트 탈퇴
         userMapper.softDeleteSocialUser(userId);
     }
 }
