@@ -1,10 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+// ✅ CarPickZonePage.jsx (최소 수정 버전)
+// - return 1개만 남김
+// - selected/parentZone 중복 선언 제거
+// - 기존 ZoneBottomSheet → Branch/Drop 2시트로 교체
+// - 나머지 로직(지도/검색/필터/내위치/모달) 유지
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ZoneMapKakao from "../../components/zone/ZoneMapKakao.jsx";
 import ZoneSearchBar from "../../components/zone/ZoneSearchBar.jsx";
-import ZoneBottomSheet from "../../components/zone/ZoneBottomSheet.jsx";
+// import ZoneBottomSheet from "../../components/zone/ZoneBottomSheet.jsx"; // ❌ 구버전 제거
 import LocationPermissionModal from "../../components/zone/LocationPermissionModal.jsx";
 import zonesMock from "../../mocks/zones.json";
 import myLocationIcon from "@/assets/icons/icon_myLocation.png";
+
+// ✅ 신규: 분리된 2시트 import (경로는 네가 만든 위치에 맞춰)
+// - 내가 이전에 제안한 트리: src/components/zone/sheet/*
+import ZoneBottomSheetBranch from "../../components/zone/sheet/ZoneBottomSheetBranch.jsx";
+import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop.jsx";
 
 /**
  * ✅ useMyLocation
@@ -14,20 +25,14 @@ import myLocationIcon from "@/assets/icons/icon_myLocation.png";
  */
 function useMyLocation() {
   const [myPos, setMyPos] = useState(null);
-
-  // 모달 열림 여부
   const [locModalOpen, setLocModalOpen] = useState(false);
-
-  // watchPosition 시작 게이트 (허용된 뒤에만 true)
   const [trackingOn, setTrackingOn] = useState(false);
 
-  // 1) 진입 시 권한 상태 확인(가능하면)
   useEffect(() => {
     let mounted = true;
 
     async function checkPermission() {
       try {
-        // Permissions API가 없으면: 사용자에게 먼저 묻는 UX로
         if (!navigator.permissions) {
           if (mounted) setLocModalOpen(true);
           return;
@@ -38,20 +43,16 @@ function useMyLocation() {
         if (!mounted) return;
 
         if (res.state === "granted") {
-          // ✅ 이미 허용: 모달 X, 추적 ON
           setLocModalOpen(false);
           setTrackingOn(true);
         } else if (res.state === "prompt") {
-          // ✅ 아직 물어봐야 함: 모달 O
           setLocModalOpen(true);
           setTrackingOn(false);
         } else {
-          // denied
           setLocModalOpen(true);
           setTrackingOn(false);
         }
       } catch {
-        // 예외면 안전하게 모달부터
         if (mounted) setLocModalOpen(true);
       }
     }
@@ -63,7 +64,6 @@ function useMyLocation() {
     };
   }, []);
 
-  // 2) 사용자가 "허용" 눌렀을 때 호출 (여기서 브라우저 팝업 뜸)
   const requestMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setLocModalOpen(false);
@@ -74,10 +74,9 @@ function useMyLocation() {
       (pos) => {
         setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLocModalOpen(false);
-        setTrackingOn(true); // ✅ 허용 이후부터 watch 시작
+        setTrackingOn(true);
       },
       () => {
-        // 거절/실패
         setLocModalOpen(false);
         setTrackingOn(false);
       },
@@ -85,7 +84,6 @@ function useMyLocation() {
     );
   }, []);
 
-  // 3) trackingOn일 때만 watchPosition으로 myPos 갱신
   useEffect(() => {
     if (!trackingOn) return;
     if (!navigator.geolocation) return;
@@ -138,7 +136,7 @@ export default function CarPickZonePage() {
   const moveCamera = useCallback((next) => {
     if (!next?.lat || !next?.lng) return;
 
-    setCamera((prev) => ({
+    setCamera(() => ({
       lat: Number(next.lat),
       lng: Number(next.lng),
       nonce: Date.now(),
@@ -149,7 +147,7 @@ export default function CarPickZonePage() {
    *  5) 바텀시트/선택 상태
    * ---------------------- */
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState(zones[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState(null);
 
   /** -----------------------
    *  6) 파생 데이터
@@ -161,24 +159,27 @@ export default function CarPickZonePage() {
     return zones.filter((it) => it.kind === viewMode);
   }, [viewMode, zones]);
 
-  // visibleItems 바뀌면 선택 보정
+  // ✅ 최초 진입/필터 변경 시 selectedId 보정
   useEffect(() => {
     if (!visibleItems.length) return;
-    const exists = visibleItems.some((it) => it.id === selectedId);
+
+    const exists = selectedId != null && visibleItems.some((it) => it.id === selectedId);
     if (!exists) setSelectedId(visibleItems[0].id);
   }, [visibleItems, selectedId]);
 
+  // ✅ 선택된 아이템
   const selected = useMemo(() => {
     if (!visibleItems.length) return null;
     return visibleItems.find((it) => it.id === selectedId) ?? visibleItems[0];
   }, [visibleItems, selectedId]);
 
+  // ✅ DROP이면 연결된 BRANCH 찾기
   const parentZone = useMemo(() => {
     if (!selected || selected.kind !== "DROP") return null;
     return branchItems.find((b) => b.id === selected.parentZoneId) ?? null;
   }, [selected, branchItems]);
 
-  // 검색 결과는 BRANCH만
+  // ✅ 검색 결과는 BRANCH만
   const results = useMemo(() => {
     const kw = q.trim().toLowerCase();
     if (!kw) return [];
@@ -222,20 +223,12 @@ export default function CarPickZonePage() {
     requestMyLocation();
   }, [requestMyLocation]);
 
-  /**
-   * ✅ 핵심: "내 위치" 버튼 누를 때마다
-   * - myPos(점이 찍힌 좌표)가 있으면 즉시 그 좌표로 이동
-   * - myPos가 아직 없으면: 권한 요청/초기 위치 획득 먼저
-   *
-   * ※ GPS를 매번 getCurrentPosition으로 다시 부르지 않아도 됨
-   *   (watchPosition이 이미 최신 myPos로 갱신 중)
-   */
+  // ✅ 내 위치 버튼
   const onGoMyLocation = useCallback(() => {
     if (!myPos) {
-      requestMyLocation(); // 최초 권한 요청
+      requestMyLocation();
       return;
     }
-
     moveCamera(myPos);
   }, [myPos, moveCamera, requestMyLocation]);
 
@@ -253,7 +246,7 @@ export default function CarPickZonePage() {
   }, [selected]);
 
   /** -----------------------
-   *  9) 렌더
+   *  9) 렌더 (return 1개만!)
    * ---------------------- */
   return (
     <div className="min-h-screen bg-white">
@@ -338,7 +331,7 @@ export default function CarPickZonePage() {
             </div>
           )}
 
-          {/* ✅ 내 위치 버튼 */}
+          {/* 내 위치 버튼 */}
           <div className="fixed left-1/2 -translate-x-1/2 bottom-36 z-[999] w-full max-w-[640px] px-4 pointer-events-none">
             <div className="flex justify-end pointer-events-auto">
               <button
@@ -355,17 +348,27 @@ export default function CarPickZonePage() {
             </div>
           </div>
 
-          {/* 바텀시트 */}
-          <ZoneBottomSheet
-            open={sheetOpen}
+          {/* ✅ 바텀시트: 2종 분리 (기존 ZoneBottomSheet 대체) */}
+          <ZoneBottomSheetBranch
+            open={sheetOpen && selected?.kind === "BRANCH"}
             onClose={() => setSheetOpen(false)}
-            selected={selected}
-            parentZone={parentZone}
+            zone={selected?.kind === "BRANCH" ? selected : null}
             onPickup={handlePickup}
+            onCarClick={(car) => {
+              // TODO: 차량 상세 이동
+              console.log("car click:", car);
+            }}
+          />
+
+          <ZoneBottomSheetDrop
+            open={sheetOpen && selected?.kind === "DROP"}
+            onClose={() => setSheetOpen(false)}
+            dropZone={selected?.kind === "DROP" ? selected : null}
+            parentZone={parentZone}
             onReturnDrop={handleReturnDrop}
           />
 
-          {/* ✅ 첫 진입 위치 모달 */}
+          {/* 첫 진입 위치 모달 */}
           <LocationPermissionModal
             open={locModalOpen}
             onAllow={onAllowLocation}

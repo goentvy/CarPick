@@ -49,7 +49,7 @@ function buildHtmlMarker({ kind, selected }) {
   const bg = selected ? (isBranch ? "#0A56FF" : "#111") : "rgba(255,255,255,0.96)";
   const color = selected ? "#fff" : "rgba(17,17,17,0.92)";
   const dot = selected ? "#fff" : isBranch ? "#0A56FF" : "#111";
-  const label = isBranch ? "카픽존" : "반납";
+  const label = isBranch ? "카픽존" : "드롭존";
 
   return `
     <button type="button"
