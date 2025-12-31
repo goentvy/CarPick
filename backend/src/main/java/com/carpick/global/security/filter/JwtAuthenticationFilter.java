@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 5. 유저 정보 조회 및 탈퇴 확인
             Long userId = jwtProvider.getUserId(token);
-            UserInfo user = userInfoMapper.selectByUserId(userId);
+            UserInfo user = userInfoMapper.findById(userId);
 
             if (user == null) {
 
