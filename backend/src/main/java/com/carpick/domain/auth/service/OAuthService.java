@@ -1,7 +1,7 @@
 package com.carpick.domain.auth.service;
 
-import com.carpick.domain.auth.dto.OAuthLoginRequest;
-import com.carpick.domain.auth.dto.OAuthLoginResponse;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginRequest;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginResponse;
 import com.carpick.domain.auth.entity.Gender;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;

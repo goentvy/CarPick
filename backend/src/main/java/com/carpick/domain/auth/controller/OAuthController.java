@@ -1,7 +1,7 @@
 package com.carpick.domain.auth.controller;
 
-import com.carpick.domain.auth.dto.OAuthLoginRequest;
-import com.carpick.domain.auth.dto.OAuthLoginResponse;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginRequest;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginResponse;
 import com.carpick.domain.auth.service.OAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

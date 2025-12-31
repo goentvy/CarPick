@@ -1,6 +1,6 @@
 package com.carpick.domain.auth.mapper;
 
-import com.carpick.domain.auth.dto.SignupRequest;
+import com.carpick.domain.auth.dto.signup.SignupRequest;
 import com.carpick.domain.auth.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

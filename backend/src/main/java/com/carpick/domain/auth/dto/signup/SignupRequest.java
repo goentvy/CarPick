@@ -1,11 +1,10 @@
-package com.carpick.domain.auth.dto;
+package com.carpick.domain.auth.dto.signup;
 
 
 import java.util.Date;
 
 import com.carpick.domain.auth.entity.Gender;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
