@@ -260,8 +260,8 @@
         SET
         reservation_status = #{status},
         <if test="status != null and status == 'CANCELED'">
-            cancel_reason = #{cancelReason},
-            cancelled_at = CURRENT_TIMESTAMP,
+            , cancel_reason = #{cancelReason}
+            , cancelled_at = CURRENT_TIMESTAMP
         </if>
         updated_at = CURRENT_TIMESTAMP
         WHERE reservation_id = #{reservationId}
@@ -328,5 +328,15 @@ LIMIT 1
 
     </select>
 
+    <select id="selectReservationIdByReservationNo" resultType="long">
+        SELECT reservation_id
+        FROM RESERVATION
+        WHERE reservation_no = #{reservationNo}
+    </select>
 
+    <select id="selectReservationStatusById" resultType="string">
+        SELECT reservation_status
+        FROM RESERVATION
+        WHERE reservation_id = #{reservationId}
+    </select>
 </mapper>

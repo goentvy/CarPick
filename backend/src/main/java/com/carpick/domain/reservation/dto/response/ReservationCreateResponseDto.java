@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ReservationCreateResponseDto {
-    private String reservationNo;      // 데모 예약번호
+    private String reservationNo; // 데모 예약번호
     private Long carId;
     private String insuranceCode;
 
