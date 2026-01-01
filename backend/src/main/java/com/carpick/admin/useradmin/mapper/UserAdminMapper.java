@@ -1,6 +1,7 @@
 package com.carpick.admin.useradmin.mapper;
 
-import com.carpick.admin.useradmin.entity.UserAdmin;
+import com.carpick.admin.useradmin.dto.UserAdminRequest;
+import com.carpick.admin.useradmin.dto.UserAdminResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,13 +10,19 @@ import java.util.List;
 @Mapper
 public interface UserAdminMapper {
 
-    List<UserAdmin> findUsers(@Param("search") String search);
+    List<UserAdminResponse> selectUsers(
+            @Param("search") String search,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
 
-    UserAdmin findUserById(@Param("id") Long id);
+    int countUsers(@Param("search") String search);
 
-    void insertUser(UserAdmin user);
+    UserAdminResponse selectUserById(@Param("id") Long id);
 
-    void updateUser(UserAdmin user);
+    int insertUser(UserAdminRequest request);
 
-    void deleteUser(@Param("id") Long id);
+    int updateUser(UserAdminRequest request);
+
+    int deleteUser(@Param("id") Long id);
 }

@@ -26,3 +26,6 @@ logging:
     com.carpick.domain.car.mapper: DEBUG
 
 
+
+    org.springframework.security: DEBUG
+    com.carpick.domain.auth.mapper: TRACE

@@ -5,8 +5,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <mapper namespace="com.carpick.domain.faq.mapper.FaqMapper">
 
+<!--사용자 검색-->
+
 <select id="search"
-resultType="com.carpick.domain.faq.dto.FaqResponse">
+resultType="com.carpick.domain.faq.vo.Faq">
 	
 	SELECT
 		id,
@@ -28,6 +30,82 @@ resultType="com.carpick.domain.faq.dto.FaqResponse">
 		OR answer Like CONCAT('%', #{keyword}, '%')
 	)
 </if> 
-	ORDER BY id ASC
+	ORDER BY id DESC
 </select>
+
+
+<!-- 관리자 검색 -->
+<select id="adminSearch" resultType="com.carpick.domain.faq.vo.Faq">
+        SELECT
+            id,
+            category,
+            question,
+            answer,
+            created_at AS createdAt
+        FROM faq
+        WHERE 1=1
+        
+		<if test="category != null and category != ''">
+        AND category = #{category}
+    </if>
+
+    <if test="keyword != null and keyword != ''">
+        AND (
+            question LIKE CONCAT('%', #{keyword}, '%')
+            OR answer LIKE CONCAT('%', #{keyword}, '%')
+        )
+    </if>
+
+		ORDER BY id DESC
+    </select>
+
+<!-- 관리자 목록 -->
+<select id="findAll" resultType="com.carpick.domain.faq.vo.Faq">
+    SELECT
+        id,
+        category,
+        question,
+        answer,
+        created_at AS createdAt
+    FROM faq
+    ORDER BY id DESC
+</select>
+
+	<!-- 관리자 상세 -->
+<select id="findById" parameterType="long"
+        resultType="com.carpick.domain.faq.vo.Faq">
+    SELECT
+        id,
+        category,
+        question,
+        answer
+    FROM faq
+    WHERE id = #{id}
+</select>
+
+	<!-- 등록 -->
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO faq (
+        category, question, answer
+    ) VALUES (
+        #{category}, #{question}, #{answer}
+    )
+</insert>
+
+	<!-- 수정 -->
+<update id="update">
+    UPDATE faq
+    SET
+        category = #{category},
+        question = #{question},
+        answer = #{answer},
+        updated_at = NOW()
+    WHERE id = #{id}
+</update>
+
+	<!-- 삭제 -->
+<delete id="delete">
+    DELETE FROM faq WHERE id = #{id}
+</delete>
+
 </mapper>

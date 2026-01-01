@@ -16,19 +16,21 @@ export default function ZoneBottomSheet({
   return (
     <div
       className={[
-        "fixed left-1/2 -translate-x-1/2 z-[90] w-full max-w-[640px]",
-        "bottom-0",
+        "fixed left-1/2 -translate-x-1/2 bottom-0 z-[90] w-full max-w-[640px]",
+        show ? "pointer-events-auto" : "pointer-events-none",
       ].join(" ")}
     >
+
       {/* backdrop */}
       {show && (
-        <div
-          className="fixed inset-0 bg-black/25 z-[80]"
+        <button
+          type="button"
+          aria-label="닫기"
+          className="fixed inset-0 z-[80] bg-black/0"
           onClick={onClose}
         />
       )}
 
-      {/* sheet */}
       <div
         className={[
           "relative z-[90] rounded-t-3xl bg-white border border-black/5",
@@ -37,6 +39,7 @@ export default function ZoneBottomSheet({
           show ? "translate-y-0" : "translate-y-[105%]",
         ].join(" ")}
       >
+
         {/* grabber */}
         <div className="pt-2 pb-1 flex justify-center">
           <div className="w-10 h-1 rounded-full bg-black/10" />
@@ -162,6 +165,6 @@ export default function ZoneBottomSheet({
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

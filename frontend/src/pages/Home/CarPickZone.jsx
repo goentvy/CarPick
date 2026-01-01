@@ -11,7 +11,7 @@ const CarPickZone = () => {
 
         <button
             className="bg-lime-300 xx:px-4 sm:px-6 xx:py-1 sm:py-2 sm:mb-12 border border-blue-500 rounded-4xl font-bold xx:text-base sm:text-2xl text-brand hover:bg-lime-400"
-            onClick={() => navigate("/zone/picture")}
+            onClick={() => navigate("/zone")}
         >
             지도 보기
         </button>

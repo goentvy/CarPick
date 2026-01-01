@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, cost, price, day }) => {
   const navigate = useNavigate();
   const handleClickCar = (id) => {
-        navigate(`/car/detail/${id}`);
+        navigate(`/cars/detail/${id}`);
     };
 
   return (
@@ -35,8 +35,8 @@ const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, 
             )}
         </div>
         <div className="xx:text-xs sm:text-sm text-gray-600 mb-2 space-y-1 space-x-2 text-right">
-            {features.option.map((item, idx) => (
-                <button key={idx} className="rounded-4xl bg-gray-100 px-3 py-1">{item}</button>
+            {features?.split(",").map((item, idx) => (
+                <button key={idx} className="rounded-4xl bg-gray-100 px-3 py-1">{item} {idx < features.split(",").length - 1 ? " · " : ""}</button>
             ))}
         </div>
         

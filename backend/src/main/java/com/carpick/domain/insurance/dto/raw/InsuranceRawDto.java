@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Data
 public class InsuranceRawDto {
     private Long insuranceId;           // insurance_id
-    private String code;                // code (NONE/STANDARD/FULL)
+    private String insuranceCode;                // code (NONE/STANDARD/FULL)
     private String label;               // label (선택안함/일반자차/완전자차)
     private String summaryLabel;        // summary_label
     private BigDecimal extraDailyPrice; // extra_daily_price

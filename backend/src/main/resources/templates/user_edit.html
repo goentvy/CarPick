@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 고객 수정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+</head>
+
+<body>
+<div class="page-container">
+
+    <div th:replace="~{fragments/fragments :: sidebar}"></div>
+    <div th:replace="~{fragments/fragments :: header}"></div>
+
+    <div class="main-content">
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">고객 수정</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">홈</a></li>
+                            <li><a href="/admin/user">고객 관리</a></li>
+                            <li><span>수정</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12 mt-4">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <form th:action="@{/admin/user/edit}" method="post">
+                                <input type="hidden" name="id" th:value="${user.id}"/>
+
+                                <div class="form-group">
+                                    <label>이메일(아이디)</label>
+                                    <input type="email" class="form-control" name="email" th:value="${user.email}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>이름</label>
+                                    <input type="text" class="form-control" name="name" th:value="${user.name}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>휴대폰</label>
+                                    <input type="text" class="form-control" name="phone" th:value="${user.phone}">
+                                </div>
+
+                                <!-- 등급 -->
+                                <div class="form-group">
+                                    <label>멤버쉽 등급</label>
+                                    <select class="form-control" name="membershipGrade" required>
+                                        <option value="BASIC" th:selected="${user.membershipGrade == 'BASIC'}">BASIC</option>
+                                        <option value="VIP" th:selected="${user.membershipGrade == 'VIP'}">VIP</option>
+                                    </select>
+                                </div>
+
+                                <!-- marketing -->
+                                <input type="hidden" name="marketingAgree" value="0">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" name="marketingAgree" value="1"
+                                               th:checked="${user.marketingAgree == 1}">
+                                        마케팅 수신 동의
+                                    </label>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">수정 저장</button>
+                                    <a href="/admin/user" class="btn btn-light">목록</a>
+                                </div>
+                            </form>
+
+                            <hr>
+
+                            <!-- 삭제 -->
+                            <form th:action="@{/admin/user/delete}" method="post"
+                                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                <input type="hidden" name="id" th:value="${user.id}"/>
+                                <button type="submit" class="btn btn-danger">삭제</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/fragments :: footer}"></div>
+    </div>
+</div>
+
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/plugins.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+</body>
+</html>

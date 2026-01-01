@@ -38,7 +38,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       endDate: dateRange.endDate.toISOString(),
     });
     console.log(params);
-    navigate(`/result?${params.toString()}`);
+    navigate(`/day?${params.toString()}`);
   };
 
   return (
@@ -143,7 +143,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     price: selectedCar.price,
                     discount: selectedCar.discount,
                   });
-                  navigate(`/result?${params.toString()}`);
+                  navigate(`/day?${params.toString()}`);
                 }}
                 onClose={() => setShowDatePicker(false)}
               />

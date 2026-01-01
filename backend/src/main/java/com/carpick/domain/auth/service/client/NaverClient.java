@@ -3,6 +3,7 @@ package com.carpick.domain.auth.service.client;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.global.exception.AuthenticationException;
 import com.carpick.global.exception.enums.ErrorCode;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,15 @@ public class NaverClient {
 
     private final RestTemplate restTemplate;
 
+    @PostConstruct
+    public void init() {
+        log.info("=== 네이버 OAuth 설정 ===");
+        log.info("Client ID: {}", clientId);
+        log.info("Client Secret: {}", clientSecret != null ? "****" : "null");
+        log.info("Redirect URI: {}", redirectUri);
+        log.info("==========================");
+    }
+
     /**
      * ✅ 네이버 액세스 토큰 발급
      */
@@ -54,7 +64,8 @@ public class NaverClient {
                 tokenUrl,
                 HttpMethod.POST,
                 request,
-                new ParameterizedTypeReference<Map<String, Object>>() {}
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
         );
 
         log.info("Naver token response={}", response.getBody());
@@ -81,7 +92,8 @@ public class NaverClient {
                 profileUrl,
                 HttpMethod.GET,
                 request,
-                new ParameterizedTypeReference<Map<String, Object>>() {}
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
         );
 
         log.info("Naver profile response={}", response.getBody());

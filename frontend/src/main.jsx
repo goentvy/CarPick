@@ -86,7 +86,7 @@ createRoot(document.getElementById('root')).render(
           {/* 차량 목록 */}
           <Route path="day" element={<CarDayList />} />
           <Route path="month" element={<CarMonthList />} />
-          <Route path="car/detail/:id" element={<CarDetailPage />} />
+          <Route path="cars/detail/:id" element={<CarDetailPage />} />
           
           {/* 카픽존 & 드롭존 */}
           <Route path="zone" element={<CarpickZonePage />} />
@@ -107,7 +107,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="guest/cancel/complete" element={<GuestCancelComplete />} />
 
           {/* 예약 */}
-          <Route path="reservation" element={<ReservationPage />} />
+          <Route path="reservation/:id" element={<ReservationPage />} />
 
           {/* 결제 */}
           <Route path="payment" element={<PaymentTestSection />} />
