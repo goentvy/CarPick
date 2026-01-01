@@ -40,8 +40,13 @@ const KakaoCallback = () => {
   }, [navigate]);
 
   return (
-    <div>
-      {loading && <p>카카오 로그인 처리중...</p>}
+    <div className="flex justify-center items-center mt-[70px]">
+      {loading && (
+        <>
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="ml-2 text-gray-600">회원정보를 불러오는 중...</span>
+        </>
+      )}
     </div>
   );
 };
