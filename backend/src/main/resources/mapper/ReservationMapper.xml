@@ -259,11 +259,12 @@
         UPDATE RESERVATION
         SET
         reservation_status = #{status},
+        updated_at = CURRENT_TIMESTAMP
         <if test="status != null and status == 'CANCELED'">
             , cancel_reason = #{cancelReason}
             , cancelled_at = CURRENT_TIMESTAMP
         </if>
-        updated_at = CURRENT_TIMESTAMP
+
         WHERE reservation_id = #{reservationId}
     </update>
 
@@ -328,7 +329,7 @@ LIMIT 1
 
     </select>
 
-    <select id="selectReservationIdByReservationNo" resultType="long">
+    <select id="selectReservationIdByReservationNo" resultType="java.lang.Long">
         SELECT reservation_id
         FROM RESERVATION
         WHERE reservation_no = #{reservationNo}

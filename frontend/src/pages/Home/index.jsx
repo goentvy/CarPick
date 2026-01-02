@@ -87,6 +87,7 @@ const Home = () => {
                         price={car.finalPrice}
                         onClick={() => {
                             setSelectedCar({
+                            id : car.vehicleId,
                             title: car.displayNameShort,
                             price: car.finalPrice,
                             discount: car.discountRate,
