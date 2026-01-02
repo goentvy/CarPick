@@ -54,7 +54,7 @@ const CarList = () => {
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
             {/* 대여장소, 일정 검색 */}
-            <RentHeader />
+            <RentHeader type="short" location="day" />
 
             {/* 필터 버튼 */}
             <div className="overflow-x-auto max-w-[90%] w-full mx-auto">
