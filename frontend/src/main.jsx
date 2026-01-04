@@ -64,6 +64,9 @@ import GuideStep from './pages/Guide/GuideStep.jsx'
 import EmergencyService from './pages/emergency/EmergencyService.jsx'
 
 import About from './pages/About/About.jsx'
+import ReservationsList from "./pages/Mypage/ReservationsList.jsx";
+import ReservationDetail from "./pages/Mypage/ReservationDetail.jsx";
+
 
 
 createRoot(document.getElementById('root')).render(
@@ -107,7 +110,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="guest/cancel/complete" element={<GuestCancelComplete />} />
 
           {/* 예약 */}
-          <Route path="reservation" element={<ReservationPage />} />
+          <Route path="reservation/:id" element={<ReservationPage />} />
 
           {/* 결제 */}
           <Route path="payment" element={<PaymentTestSection />} />
@@ -125,6 +128,9 @@ createRoot(document.getElementById('root')).render(
               <Route path="favorites" element={<Favorites />} />
               <Route path="license" element={<MyLicense />} />
               <Route path="changeHistory" element={<ChangeHistoryPage />} />
+              {/* ✅ 예약 내역 */}
+              <Route path="reservations" element={<ReservationsList />} />
+              <Route path="reservations/:reservationId" element={<ReservationDetail />} />
           </Route>
           {/* 약관 */}
           <Route path="terms" element={<Agree1 />} />

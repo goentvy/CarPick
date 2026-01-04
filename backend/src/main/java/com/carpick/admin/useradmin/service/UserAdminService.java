@@ -2,13 +2,12 @@ package com.carpick.admin.useradmin.service;
 
 import com.carpick.admin.useradmin.dto.UserAdminRequest;
 import com.carpick.admin.useradmin.dto.UserAdminResponse;
-import com.carpick.admin.useradmin.entity.UserAdmin;
 import com.carpick.admin.useradmin.mapper.UserAdminMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,61 +15,41 @@ public class UserAdminService {
 
     private final UserAdminMapper userAdminMapper;
 
-    /**
-     * 전체 목록 + 검색
-     */
-    public List<UserAdminResponse> getUserList(String search) {
-        List<UserAdmin> users = userAdminMapper.findUsers(search);
-
-        return users.stream()
-                .map(UserAdminResponse::new)
-                .collect(Collectors.toList());
+    public List<UserAdminResponse> getUserList(String search, int page, int size) {
+        int offset = (page - 1) * size;
+        return userAdminMapper.selectUsers(search, size, offset);
     }
 
-    /**
-     * 단건 조회
-     */
+    public int getTotalCount(String search) {
+        return userAdminMapper.countUsers(search);
+    }
+
     public UserAdminResponse getUser(Long id) {
-        UserAdmin user = userAdminMapper.findUserById(id);
+        return userAdminMapper.selectUserById(id);
+    }
 
-        if (user == null) {
-            throw new IllegalArgumentException("존재하지 않는 회원입니다. id=" + id);
+    @Transactional
+    public void createUser(UserAdminRequest request) {
+        // NOT NULL 방어
+        if (request.getMarketingAgree() == null) request.setMarketingAgree(0);
+        if (request.getMembershipGrade() == null || request.getMembershipGrade().isBlank()) {
+            request.setMembershipGrade("BASIC");
         }
-
-        return new UserAdminResponse(user);
+        userAdminMapper.insertUser(request);
     }
 
-    /**
-     * 등록
-     */
-    public void insertUser(UserAdminRequest request) {
-        UserAdmin user = UserAdmin.builder()
-                .email(request.getEmail())
-                .name(request.getName())
-                .phone(request.getPhone())
-                .build();
-
-        userAdminMapper.insertUser(user);
+    @Transactional
+    public void updateUser(UserAdminRequest request) {
+        if (request.getMarketingAgree() == null) request.setMarketingAgree(0);
+        if (request.getMembershipGrade() == null || request.getMembershipGrade().isBlank()) {
+            request.setMembershipGrade("BASIC");
+        }
+        userAdminMapper.updateUser(request);
     }
 
-    /**
-     * 수정
-     */
-    public void updateUser(Long userId, UserAdminRequest request) {
-        UserAdmin user = UserAdmin.builder()
-                .userId(userId)
-                .email(request.getEmail())
-                .name(request.getName())
-                .phone(request.getPhone())
-                .build();
-
-        userAdminMapper.updateUser(user);
-    }
-
-    /**
-     * 삭제
-     */
+    @Transactional
     public void deleteUser(Long id) {
+        // 실제 삭제(DELETE)로 처리. 소프트삭제 원하면 UPDATE로 바꿔주면 됨.
         userAdminMapper.deleteUser(id);
     }
 }

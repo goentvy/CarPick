@@ -5,57 +5,72 @@
 
 <mapper namespace="com.carpick.domain.userinfo.mapper.UserInfoMapper">
 
-    <!-- 개인정보 조회 (JWT 인증용) -->
-    <select id="selectByUserId"
+    <!-- =========================
+         유저 조회
+    ========================= -->
+    <select id="findById"
             parameterType="long"
             resultType="com.carpick.domain.userinfo.entity.UserInfo">
-
         SELECT
-            user_id         AS userId,
+            user_id          AS userId,
             email,
-            password   AS password,
+            password         AS password,
             provider,
             name,
             phone,
             birth,
             gender,
-            marketing_agree AS marketingAgree,
+            marketing_agree  AS marketingAgree,
             membership_grade AS membershipGrade,
-            deleted_at      AS deletedAt
+            deleted_at       AS deletedAt
         FROM users
         WHERE user_id = #{userId}
-          AND deleted_at IS NULL
-
     </select>
 
-    <!-- 개인정보 수정 -->
+    <!-- =========================
+         개인정보 수정
+    ========================= -->
     <update id="updateUserInfo">
         UPDATE users
-        SET name            = #{name},
+        SET
+            name            = #{name},
             phone           = #{phone},
             birth           = #{birth},
-            password   = #{password},
+            password        = #{password},
             marketing_agree = #{marketingAgree},
             updated_at      = NOW()
         WHERE user_id = #{userId}
           AND deleted_at IS NULL
     </update>
 
-    <!-- 회원 탈퇴 -->
-    <update id="withdrawUser">
+    <!-- =========================
+         탈퇴 처리
+    ========================= -->
+
+    <!-- LOCAL : 하드 탈퇴 -->
+    <delete id="deleteUser">
+        DELETE FROM users
+        WHERE user_id = #{userId}
+          AND provider = 'LOCAL'
+    </delete>
+
+    <!-- SOCIAL : 소프트 탈퇴 (LOCAL 방어 포함) -->
+    <update id="softDeleteUser">
         UPDATE users
         SET deleted_at = NOW()
         WHERE user_id = #{userId}
+          AND provider != 'LOCAL'
+          AND deleted_at IS NULL
     </update>
 
-    <select id="findById" resultType="com.carpick.domain.userinfo.entity.UserInfo">
-        SELECT * FROM users
-        WHERE user_id = #{userId}
-    </select>
-
-    <update id="markDeleted">
+    <!-- =========================
+         관리자 기능
+    ========================= -->
+    <update id="updateMembershipGrade">
         UPDATE users
-        SET deleted_at = NOW()
+        SET
+            membership_grade = #{membershipGrade},
+            updated_at        = NOW()
         WHERE user_id = #{userId}
     </update>
 

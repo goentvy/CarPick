@@ -25,7 +25,7 @@ public class AiPickController {
     private final CarMapper carMapper;
     private final AiPickService aiPickService;
     @GetMapping("/cars")
-    public ResponseEntity<List<AiCarCardDto>> getCarsByClass(@RequestParam String carClass) {
+    public ResponseEntity<List<AiCarCardDto>> getCarsByClass(@RequestParam("carClass") String carClass) {
 
         CarClass enumClass;
         try {

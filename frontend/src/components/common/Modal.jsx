@@ -7,7 +7,7 @@ const Modal = ({ children, onClose }) => {
       onClick={onClose} // ✅ 바깥 클릭 시 닫기
     >
       <div
-        className="bg-white shadow-lg xs:p-4 w-full mx-auto xx:max-w-[320px] xs:max-w-[640px] max-h-screen overflow-y-auto"
+        className="bg-white shadow-lg xs:p-4 w-full mx-auto xx:max-w-full xx:max-h-full xx:p-4 xs:max-w-[640px] xx:shadow-none max-h-screen overflow-y-auto"
         onClick={(e) => e.stopPropagation()} // ✅ 내부 클릭은 유지
       >
         {children}

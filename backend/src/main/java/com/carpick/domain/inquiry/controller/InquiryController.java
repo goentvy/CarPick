@@ -11,6 +11,7 @@ import com.carpick.domain.inquiry.dto.InquiryCreateResponse;
 import com.carpick.domain.inquiry.service.InquiryService;
 import com.carpick.global.security.details.CustomUserDetails;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,9 +22,11 @@ public class InquiryController {
 	private final InquiryService inquiryService;
 
 	@PostMapping
-	public InquiryCreateResponse create(@RequestBody InquiryCreateRequest req,
-			@AuthenticationPrincipal CustomUserDetails user) {
-		return inquiryService.createInquiry(req, user.getUserId());
+	public InquiryCreateResponse create(
+	    @Valid @RequestBody InquiryCreateRequest req,
+	    @AuthenticationPrincipal CustomUserDetails user
+	) {
+	    return inquiryService.createInquiry(req, user.getUserId());
 	}
 
 }

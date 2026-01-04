@@ -1,6 +1,9 @@
 package com.carpick.domain.inquiry.vo;
 
 import java.time.LocalDateTime;
+
+import com.carpick.domain.inquiry.enums.InquiryStatus;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +18,7 @@ public class Inquiry {
 	private String title;
 	private String content;
 	
-	private String status;
+	private InquiryStatus status;
 	private String adminReply;
 	
 	private LocalDateTime createdAt;

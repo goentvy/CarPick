@@ -1,23 +1,20 @@
-package com.carpick.domain.reservation.entity;
+package com.carpick.domain.reservationHistory.entity;
 
 import com.carpick.domain.reservation.enums.ActorType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.carpick.domain.reservation.enums.ReservationStatus;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class ReservationStatusHistory {
     private Long historyId;
     private Long reservationId;
 
-    private String statusPrev;
-    private String statusCurr;
+    private ReservationStatus statusPrev;
+    private ReservationStatus statusCurr;
 
     private ActorType actorType;
     private String actorId;

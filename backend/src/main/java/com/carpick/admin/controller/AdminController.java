@@ -2,8 +2,6 @@ package com.carpick.admin.controller;
 
 import com.carpick.admin.carAdmin.service.AdminCarOptionService;
 import com.carpick.admin.insuranceAdmin.service.AdminInsuranceService;
-import com.carpick.domain.auth.dto.LoginRequest;
-import com.carpick.domain.auth.dto.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,11 +1,19 @@
 import useReservationStore from "../../store/useReservationStore";
 
-const PickupReturnSection = ({ pickup, dropoff }) => {
+const PickupReturnSection = ({ pickup, dropoff, startDateTime, endDateTime }) => {
   const pickupReturn = useReservationStore((state) => state.pickupReturn);
   const setPickupReturn = useReservationStore((state) => state.setPickupReturn);
 
+ // ✅ 수정: rentalPeriod setter 가져오기
+  const setRentalPeriod = useReservationStore((state) => state.setRentalPeriod);
+
   const handleMethodChange = (method) => {
     setPickupReturn({ ...pickupReturn, method });
+
+     // ✅ 수정: 날짜도 store에 같이 저장
+    if (startDateTime && endDateTime) {
+      setRentalPeriod({ startDateTime, endDateTime });
+    }
   };
 
   return (

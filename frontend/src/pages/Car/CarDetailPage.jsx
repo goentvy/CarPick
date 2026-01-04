@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
 import { getCarDetail } from "@/services/carApi.js";
@@ -99,7 +100,7 @@ function normalizeCards(cards) {
 }
 
 export default function CarDetailPage() {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const spinRef = useRef(null);
@@ -120,7 +121,7 @@ export default function CarDetailPage() {
       setLoading(true);
       setErrorText("");
 
-      const res = await getCarDetail(id); // ✅ res 확정
+      const res = await getCarDetail(id);
       console.log("getCarDetail raw:", res);
       console.log("res.data:", res?.data);
 
@@ -189,7 +190,7 @@ export default function CarDetailPage() {
           <div className="h-[60px] px-4 flex items-center justify-between">
             <button
               type="button"
-              onClick={() => nav(-1)}
+              onClick={() => navigate(-1)}
               className="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5 active:scale-95 transition"
               aria-label="뒤로가기"
             >
@@ -403,7 +404,7 @@ export default function CarDetailPage() {
       {/* Bottom Sticky CTA */}
       <footer className="fixed bottom-0 left-0 right-0 z-40">
         <div className="mx-auto max-w-[640px] bg-white border-t border-black/5 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-          <button className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition">
+          <button className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition" onClick={() => navigate(`/reservation/${id}`) }>
             예약하기
           </button>
         </div>

@@ -3,11 +3,16 @@ package com.carpick.domain.reservation.controller;
 import com.carpick.domain.reservation.dto.ReservationRequest;
 import com.carpick.domain.reservation.dto.ReservationRequest.CardPayment;
 import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
+import com.carpick.domain.reservation.dto.request.ReservationPaymentRequestDto;
 import com.carpick.domain.reservation.dto.request.ReservationPriceRequestDto;
 import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
 import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
+import com.carpick.domain.reservation.dto.response.ReservationPayResponseDto;
 import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
+import com.carpick.domain.reservation.service.ReservationCommandService;
+import com.carpick.domain.reservation.service.ReservationPaymentCommandService;
 import com.carpick.domain.reservation.service.ReservationUiService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,54 +25,29 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReservationController {
     private final ReservationUiService reservationUiService;
+    private final ReservationCommandService reservationCommandService;
+
+    // ▼▼▼ [핵심] 이 줄이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
+    private final ReservationPaymentCommandService paymentService;
+
     @PostMapping("/pay")
-    public ResponseEntity<?> processPayment(@RequestBody ReservationRequest request) {
-        // 1. 카드정보 존재 여부 확인
-        CardPayment card = request.getCardPayment();
-        if (card == null) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "DECLINED",
-                    "message", "결제정보가 누락되었습니다."
-            ));
-        }
+    public ResponseEntity<ReservationPayResponseDto> processPayment(
+            @Valid @RequestBody ReservationPaymentRequestDto request) {
+        Long userId = 1L; // 임시 유저 ID
 
-        // 2. 약관 동의 여부 확인
-        if (!request.isAgreement() || !card.isAgree()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "DECLINED",
-                    "message", "약관 동의가 필요합니다."
-            ));
-        }
+        // ✅ 방금 만드신 Service의 pay 메서드 호출!
+        ReservationPayResponseDto response = paymentService.pay(request, userId);
 
-        // 3. 결제 처리 로직 (예: PG 연동)
-        boolean paymentSuccess = mockPayment(card);
-
-        if (paymentSuccess) {
-            // 주문번호 생성 (예: UUID, 시퀀스, DB 저장 후 PK 반환)
-            String orderId = java.util.UUID.randomUUID().toString();
-            return ResponseEntity.ok(Map.of(
-                    "status", "APPROVED",
-                    "message", "결제 완료",
-                    "orderId", orderId
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "status", "DECLINED",
-                    "message", "결제 실패"
-            ));
-        }
+        return ResponseEntity.ok(response);
     }
 
-    private boolean mockPayment(CardPayment card) {
-        // 실제 PG 연동 대신 카드번호 앞자리로 승인 여부 판단
-        return card.getCardNumber() != null && card.getCardNumber().startsWith("1234");
-    }
+
     /**
      * 예약 페이지 초기 데이터 내려주기
      * 예: GET /api/reservation/form?carId=1
      */
     @GetMapping("/form")
-    public ReservationFormResponseDto getForm(@RequestParam Long carId){
+    public ReservationFormResponseDto getForm(@RequestParam("carId") Long carId){
         return reservationUiService.getForm(carId);
 
     }
@@ -77,17 +57,17 @@ public class ReservationController {
      * Body: { "insuranceCode": "FULL" }
      */
     @PostMapping("/price")
-    public ReservationPriceResponseDto calcPrice(@RequestParam Long carId
+    public ReservationPriceResponseDto calcPrice(@RequestParam("carId") Long carId
             , @RequestBody(required = false) ReservationPriceRequestDto req){
         return reservationUiService.calcPrice(carId, req);
     }
     @PostMapping("/create")
-    public ReservationCreateResponseDto createDemo(
-            @RequestBody ReservationCreateRequestDto req
-            ){
-        return reservationUiService.createDemo(req);
-
+    public ResponseEntity<ReservationCreateResponseDto> create(
+            @RequestBody @Valid ReservationCreateRequestDto req
+    ) {
+        Long userId = 1L; // 임시 유저 ID
+        ReservationCreateResponseDto response = reservationCommandService.createReservation(req, userId);
+        return ResponseEntity.ok(response);
     }
-
 
 }

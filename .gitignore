@@ -11,7 +11,8 @@ dist/
 .vite/
 
 # Editor configs
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 
 # -------------------------
