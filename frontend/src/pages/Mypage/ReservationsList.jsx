@@ -49,13 +49,34 @@ function ReservationsList() {
     fetchReservations();
   }, []);
 
-  const handleCancel = (e, reservationId) => {
-    e.stopPropagation();
-    if (window.confirm("예약을 취소하시겠습니까?")) {
-      // TODO: 취소 API 연동
-      console.log("취소:", reservationId);
-    }
-  };
+    const handleCancel = async (e, reservationId) => {
+        e.stopPropagation();
+        if (!window.confirm("예약을 취소하시겠습니까?")) return;
+
+        const reservation = reservations.find(r => r.reservationId === reservationId);
+
+        try {
+            await api.post(`/mypage/reservations/${reservationId}/cancel`, {
+                action_type: 'CANCEL',
+                old_start_date: reservation.startDate,
+                old_end_date: reservation.endDate,
+                old_car_name: `${reservation.brand} ${reservation.displayNameShort}`,
+                reason: '사용자 취소 요청'
+            });
+
+            // UI 즉시 업데이트
+            setReservations(prev =>
+                prev.map(r => r.reservationId === reservationId
+                    ? { ...r, reservationStatus: 'CANCELED' }
+                    : r
+                )
+            );
+            alert("예약이 취소되었습니다.");
+        } catch (err) {
+            console.error("취소 실패:", err);
+            alert("취소에 실패했습니다. 다시 시도해주세요.");
+        }
+    };
 
   const handleChange = (e, reservationId) => {
     e.stopPropagation();
