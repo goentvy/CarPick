@@ -274,27 +274,55 @@ CREATE TABLE IF NOT EXISTS COUPON (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [7] 지점 내 포인트 */
-CREATE TABLE IF NOT EXISTS BRANCH_SERVICE_POINT (
-                                                    point_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '포인트 ID',
-                                                    branch_id BIGINT NOT NULL COMMENT '지점 ID (FK)',
+/* [7] 지점 내 포인트  수정구간 <경진>*/
+# CREATE TABLE IF NOT EXISTS BRANCH_SERVICE_POINT (
+#                                                     point_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '포인트 ID',
+#                                                     branch_id BIGINT NOT NULL COMMENT '지점 ID (FK)',
+#
+#                                                     point_name VARCHAR(100) NOT NULL COMMENT '장소명(1번출구)',
+#                                                     service_type ENUM('PICKUP','RETURN') NOT NULL COMMENT '타입',
+#
+#                                                     service_start_time TIME NULL,
+#                                                     service_end_time TIME NULL,
+#                                                     service_hours VARCHAR(100) NULL,
+#                                                     location_desc TEXT NULL,
+#                                                     walking_time INT NULL,
+#
+#                                                     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#                                                     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+#
+#                                                     CONSTRAINT fk_point_branch
+#                                                         FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-                                                    point_name VARCHAR(100) NOT NULL COMMENT '장소명(1번출구)',
-                                                    service_type ENUM('PICKUP','RETURN') NOT NULL COMMENT '타입',
+/* [7] 드롭존 포인트 <경진>*/
+CREATE TABLE IF NOT EXISTS DROPZONE_POINT (
+                                              dropzone_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                              branch_id BIGINT NOT NULL,
 
-                                                    service_start_time TIME NULL,
-                                                    service_end_time TIME NULL,
-                                                    service_hours VARCHAR(100) NULL,
-                                                    location_desc TEXT NULL,
-                                                    walking_time INT NULL,
+                                              dropzone_code VARCHAR(30) NOT NULL,
+                                              dropzone_name VARCHAR(100) NOT NULL,
 
-                                                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                              address_text VARCHAR(255) NULL,
+                                              location_desc TEXT NULL,
+                                              walking_time_min INT NULL,
 
-                                                    CONSTRAINT fk_point_branch
-                                                        FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
+                                              latitude DECIMAL(10,8) NOT NULL,
+                                              longitude DECIMAL(11,8) NOT NULL,
+
+                                              service_hours VARCHAR(100) NULL,
+
+                                              is_active BOOLEAN NOT NULL DEFAULT 1,
+                                              deleted_at DATETIME NULL,
+
+                                              created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                              updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+                                              CONSTRAINT fk_dropzone_branch
+                                                  FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE,
+
+                                              UNIQUE KEY uk_branch_dropzone_code (branch_id, dropzone_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 /* [8] 단순 가격표 (Legacy) */
 CREATE TABLE IF NOT EXISTS PRICE (
