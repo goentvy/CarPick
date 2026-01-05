@@ -27,7 +27,6 @@ keyProperty="id">
 <!-- 사용자 마이페이지 문의내역 -->
 
 <select id="findByUserId"
-	parameterType="long"
 	resultType="com.carpick.domain.inquiry.vo.Inquiry">
 	SELECT
 		id,
@@ -83,7 +82,6 @@ keyProperty="id">
 
 <!-- 관리자 문의 상세 -->
 <select id="findDetailForAdmin"
-    parameterType="long"
     resultType="com.carpick.domain.inquiry.dto.AdminInquiryDetailResponse">
 		SELECT
 		i.id,
@@ -108,5 +106,11 @@ keyProperty="id">
         updated_at = NOW()
     WHERE id = #{id}
 </update>
+
+<!-- 문의 삭제-->
+<delete id="deleteById">
+	DELETE FROM inquiry
+	WHERE id = #{id}
+</delete>
 
 </mapper>

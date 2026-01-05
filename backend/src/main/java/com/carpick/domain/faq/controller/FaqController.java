@@ -18,14 +18,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FaqController {
 	
-	private final FaqService faqservice;
+	private final FaqService faqService;
 	
-	@GetMapping
-	public List<FaqResponse>list(
-			@RequestParam(required = false) String category,
-			@RequestParam(required = false) String keyword
-			){
-		return faqservice.getFaq(category, keyword);
-	}
+	 @GetMapping
+	    public List<FaqResponse> list(
+	        @RequestParam(required = false) String category,
+	        @RequestParam(required = false) String keyword
+	    ) {
+	        return faqService.getFaqResponses(category, keyword);
+	    }
 	
 }
