@@ -109,8 +109,14 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="text-center my-4 text-gray-500">or</div>
-
+          <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">다른 로그인 방법</span>
+              </div>
+          </div>
         <button onClick={handleNaverLogin} className="w-full bg-green-500 text-white py-2 rounded-xl mb-2 hover:bg-green-600 transition">
           네이버로 로그인하기
         </button>
@@ -118,12 +124,20 @@ const Login = () => {
         <button onClick={handleKakaoLogin} className="w-full bg-yellow-300 text-black py-2 rounded-xl hover:bg-yellow-400 transition">
           카카오로 로그인하기
         </button>
-
-        <p className="text-base text-center font-medium mt-6 cursor-pointer" onClick={() => navigate('/signup/agree')}>
-          need help for signing in ?
-        </p>
-        <p className="text-xs text-center text-gray-400 my-3">By signing up you are creating an account and</p>
-        <p className="text-xs text-center text-gray-400 my-3">agree to our Term’s and Privacy policy</p>
+          <div className="mt-8 text-center space-y-2">
+          <p className="text-xs text-gray-400">
+              계정이 없으신가요?
+              <span
+                  className="text-[#1D6BF3] font-medium ml-1 hover:underline cursor-pointer transition"
+                  onClick={() => navigate('/signup/agree')}
+              >
+              지금 회원가입
+            </span>
+          </p>
+          </div>
+          <p className="text-xs text-center text-gray-400 my-3">
+              회원가입 시 계정이 생성되며,<br/> 이용약관 및 개인정보처리방침에 동의하는 것으로 간주됩니다.
+          </p>
 
         <div className="flex flex-row mt-8 gap-4">
           <button className="w-full bg-emerald-500 text-white py-2 rounded-xl hover:bg-emerald-600 transition" onClick={() => navigate('/findid')}>
