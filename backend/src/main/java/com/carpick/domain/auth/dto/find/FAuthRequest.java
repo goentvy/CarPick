@@ -9,7 +9,7 @@ public class FAuthRequest {
     @Setter
     public static class FindId {
         private String name;
-        private String email;
+        private String phone;
     }
 
     @Getter

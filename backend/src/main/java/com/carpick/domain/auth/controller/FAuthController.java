@@ -15,8 +15,14 @@ public class FAuthController {
 
     @PostMapping("/find-id")
     public ResponseEntity<?> findId(@RequestBody FAuthRequest.FindId dto) {
-        return ResponseEntity.ok(authService.findId(dto));
+        var result = authService.findId(dto);
+
+        // ✅ 마스킹된 이메일 로그
+        System.out.println("CONTROLLER RESPONSE MASKED EMAIL = " + result.getMaskedEmail());
+
+        return ResponseEntity.ok(result);
     }
+
 
     @PostMapping("/password/reset")
     public ResponseEntity<String> resetPassword(

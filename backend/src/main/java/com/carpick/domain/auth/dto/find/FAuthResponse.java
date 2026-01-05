@@ -10,7 +10,10 @@ public class FAuthResponse {
     public static class FindId {
         private boolean success;
         private String message;
+
         private String maskedEmail;
+
+
     }
 
     @Getter
