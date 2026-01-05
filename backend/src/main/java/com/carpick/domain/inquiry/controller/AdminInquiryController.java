@@ -69,4 +69,11 @@ public class AdminInquiryController {
 	     inquiryService.answerInquiry(id, reply);
 	     return "redirect:/admin/inquiry";
 	 }
+	 
+	 // 문의 삭제
+	 @PostMapping("/{id}/delete")
+	 public String delete(@PathVariable Long id) {
+	     inquiryService.deleteInquiry(id);
+	     return "redirect:/admin/inquiry";
+	 }
 }

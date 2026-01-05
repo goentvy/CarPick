@@ -118,19 +118,39 @@
 												<tr th:each="faq, stat : ${faqs}">
 													<th scope="row" th:text="${stat.count}"></th>
 
-													<td th:text="${faq.category}"></td>
+													<td>
+													  <span th:switch="${faq.category}">
+													    <span th:case="'reservation'">예약 · 결제</span>
+													    <span th:case="'usage'">대여 · 반납 · 이용</span>
+													    <span th:case="'insurance'">보험 · 사고</span>
+													    <span th:case="'short'">단기렌트</span>
+													    <span th:case="'long'">장기렌트</span>
+													    <span th:case="'etc'">기타 서비스</span>
+													    <span th:case="*" th:text="${faq.category}"></span>
+													  </span>
+													</td>
 
 													<td th:text="${faq.question}"
 														th:onclick="|location.href='/admin/faq/' + ${faq.id}|"
 														style="cursor:pointer"></td>
 
 													<td>
-														<form th:action="@{/admin/faq/{id}/delete(id=${faq.id})}"
-															method="post" onsubmit="return confirm('정말 삭제하시겠습니까?')">
-															<button type="submit" class="btn btn-primary mt-3">
-																삭제
-															</button>
-														</form>
+														<a th:href="@{/admin/faq/{id}(id=${faq.id})}"
+														     class="btn btn-outline-secondary btn-sm me-1">
+														    수정
+														  </a>
+														<form
+														   th:action="@{/admin/faq/{id}/delete(id=${faq.id})}"
+														   method="post"
+														   style="display:inline;"
+														 >
+														   <button
+														     type="submit"
+														     class="btn btn-outline-danger btn-sm"
+														     onclick="return confirm('정말 삭제하시겠습니까?');">
+														     삭제
+														   </button>
+														 </form>
 													</td>
 												</tr>
 											</tbody>
