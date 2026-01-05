@@ -5,80 +5,81 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.carpick.domain.faq.dto.AdminFaqDetailResponse;
+import com.carpick.domain.faq.dto.AdminFaqListResponse;
 import com.carpick.domain.faq.dto.AdminFaqPageResponse;
 import com.carpick.domain.faq.dto.AdminFaqRequest;
 import com.carpick.domain.faq.dto.FaqResponse;
 import com.carpick.domain.faq.enums.FaqCategory;
 import com.carpick.domain.faq.mapper.FaqMapper;
 import com.carpick.domain.faq.vo.Faq;
+import com.carpick.global.exception.BusinessException;
+import com.carpick.global.exception.enums.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FaqService {
 	
 	private final FaqMapper faqMapper;
-	private static final int PAGE_SIZE = 10;
-	
-	 // 관리자 목록
-	public AdminFaqPageResponse getFaqPage(int page) {
-	    return getFaqPage(page, null, null);
-	}
-    
-	public AdminFaqPageResponse getFaqPage(int page, String category, String keyword) {
+    private static final int PAGE_SIZE = 10;
 
-	    List<Faq> all;
+    // ===== 관리자 목록 + 페이징 =====
+    public AdminFaqPageResponse getFaqPage(
+        int page,
+        String category,
+        String keyword
+    ) {
+        FaqCategory faqCategory = FaqCategory.from(category);
 
-	    // category 문자열 → enum 검증
-	    FaqCategory faqCategory = FaqCategory.from(category);
+        int totalCount = faqMapper.countAdminFaqs(
+            faqCategory != null ? faqCategory.getCode() : null,
+            keyword
+        );
 
-	    boolean hasCategory = faqCategory != null;
-	    boolean hasKeyword = keyword != null && !keyword.isBlank();
+        int totalPages = totalCount == 0 ? 1 :
+            (int) Math.ceil((double) totalCount / PAGE_SIZE);
 
-	    if (hasCategory || hasKeyword) {
-	        all = faqMapper.adminSearch(
-	                faqCategory != null ? faqCategory.getCode() : null,
-	                keyword
-	        );
-	    } else {
-	        all = faqMapper.findAll();
-	    }
+        page = Math.max(0, Math.min(page, totalPages - 1));
+        int offset = page * PAGE_SIZE;
 
-	    int totalCount = all.size();
-	    int totalPages = totalCount == 0 ? 1 :
-	            (int) Math.ceil((double) totalCount / PAGE_SIZE);
+        List<AdminFaqListResponse> faqs =
+            faqMapper.findAdminPage(
+                offset,
+                PAGE_SIZE,
+                faqCategory != null ? faqCategory.getCode() : null,
+                keyword
+            );
 
-	    if (page < 0) page = 0;
-	    if (page >= totalPages) page = totalPages - 1;
-
-	    int start = page * PAGE_SIZE;
-	    int end = Math.min(start + PAGE_SIZE, totalCount);
-
-	    List<FaqResponse> responses =
-	    	    all.subList(start, end).stream()
-	    	        .map(faq -> new FaqResponse(
-	    	            faq.getId(),
-	    	            FaqCategory.from(faq.getCategory()).getLabel(), // ⭐ 여기서 한글 변환
-	    	            faq.getQuestion(),
-	    	            faq.getAnswer()
-	    	        ))
-	    	        .toList();
-
-	    	return new AdminFaqPageResponse(
-	    	    responses,
-	    	    page,
-	    	    totalPages,
-	    	    totalCount
-	    	);
+        return new AdminFaqPageResponse(
+            faqs,
+            page,
+            totalPages,
+            totalCount
+        );
     }
 
-    public Faq getFaq(Long id) {
-        return faqMapper.findById(id);
+    // ===== 관리자 상세 =====
+    public AdminFaqDetailResponse getAdminFaq(Long id) {
+        Faq faq = faqMapper.findById(id);
+
+
+        if (faq == null) {
+            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
+        }
+
+        return new AdminFaqDetailResponse(
+            faq.getId(),
+            faq.getCategory(),
+            faq.getQuestion(),
+            faq.getAnswer()
+        );
     }
 
     @Transactional
-    public void save(AdminFaqRequest req) {
+    public void createFaq(AdminFaqRequest req) {
         Faq faq = new Faq();
         faq.setCategory(req.getCategory());
         faq.setQuestion(req.getQuestion());
@@ -87,8 +88,13 @@ public class FaqService {
     }
 
     @Transactional
-    public void update(Long id, AdminFaqRequest req) {
+    public void updateFaq(Long id, AdminFaqRequest req) {
         Faq faq = faqMapper.findById(id);
+
+        if (faq == null) {
+            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
+        }
+
         faq.setCategory(req.getCategory());
         faq.setQuestion(req.getQuestion());
         faq.setAnswer(req.getAnswer());
@@ -96,28 +102,24 @@ public class FaqService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void deleteFaq(Long id) {
         faqMapper.delete(id);
     }
-    
-    
-    // 사용자 조회
-    public List<FaqResponse> getFaq(String category, String keyword) {
 
+    // ===== 사용자 =====
+    public List<FaqResponse> getFaqResponses(String category, String keyword) {
         FaqCategory faqCategory = FaqCategory.from(category);
 
-        List<Faq> faq = faqMapper.search(
+        return faqMapper.search(
                 faqCategory != null ? faqCategory.getCode() : null,
                 keyword
-        );
-
-        return faq.stream()
-                .map(faqs -> new FaqResponse(
-                        faqs.getId(),
-                        faqs.getCategory(),
-                        faqs.getQuestion(),
-                        faqs.getAnswer()
-                ))
-                .toList();
-	}
+            ).stream()
+            .map(f -> new FaqResponse(
+                f.getId(),
+                f.getCategory(),
+                f.getQuestion(),
+                f.getAnswer()
+            ))
+            .toList();
+    }
 }
