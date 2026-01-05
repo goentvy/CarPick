@@ -15,12 +15,12 @@ const HomeFooter = () => {
         <div className="my-6">
           <img src="./images/common/logo.svg" alt="logo" />
         </div>
-        <p className="mb-1">주소 : 경기 안산시 단원구 적금로 93</p>
-        <p className="mb-1">문의 : 031-410-0311</p>
+        <p className="mb-1">주소 : 경기도 수원시 팔달구 덕영대로 905, 2층</p>
+        <p className="mb-1">문의 : 031-256-0011</p>
 
         {/* 저작권 */}
         <p className="mt-2 text-gray-400">
-          Copyright©2025 안산시 청년센터 상상스테이션. All Rights Reserved.
+          Copyright©2026 CAR PICK. All Rights Reserved.
         </p>
       </div>
     </footer>

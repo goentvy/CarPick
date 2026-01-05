@@ -33,12 +33,41 @@ const sliderSettings = {
 
 const Home = () => {
   const [showPickupModal, setShowPickupModal] = useState(false);
-  const [segment, setSegment] = useState(
-    () => localStorage.getItem('recommendedSegment') || '정보 없음'
-  );
-  const [reason, setReason] = useState(
-    () => localStorage.getItem('recommendedReason') || '추천 이유를 불러올 수 없습니다.'
-  );
+  const sg = [
+    { key: 'LIGHT', label: '경형', reason: '연비가 뛰어나고 주차가 쉬워 도심 이동에 적합합니다.' },
+    { key: 'SMALL', label: '소형', reason: '유지비 부담이 적고 실용성이 높아 일상 이동에 적합합니다.' },
+    { key: 'COMPACT', label: '준중형', reason: '연비와 공간의 균형이 좋아 가장 무난한 선택입니다.' },
+    { key: 'MID', label: '중형', reason: '승차감과 실내 공간이 넉넉해 장거리 운전에 적합합니다.' },
+    { key: 'LARGE', label: '대형', reason: '넉넉한 공간과 고급스러운 주행 경험을 제공합니다.' },
+    { key: 'SUV', label: 'SUV', reason: '적재 공간이 넓고 안정적인 주행 성능으로 여행에 적합합니다.' },
+    { key: 'RV', label: 'RV/승합', reason: '여러 명이 함께 이동하거나 단체 여행에 최적화된 차량입니다.' },
+  ];
+
+  const getRandomSegment = () => {
+    return sg[Math.floor(Math.random() * sg.length)];
+  };
+
+  const getInitialRecommendation = () => {
+    const savedSegment = localStorage.getItem('recommendedSegment');
+    const savedReason = localStorage.getItem('recommendedReason');
+
+    if (savedSegment && savedReason) {
+      return { segment: savedSegment, reason: savedReason };
+    }
+      const random = getRandomSegment();
+
+      // 최초 진입 시 스토리지에도 저장 (선택)
+      localStorage.setItem('recommendedSegment', random.key);
+      localStorage.setItem('recommendedReason', random.reason);
+
+      return { segment: random.key, reason: random.reason };
+    
+  };
+
+
+  const { segment: initialSegment, reason: initialReason } = getInitialRecommendation();
+  const [segment, setSegment] = useState(initialSegment);
+  const [reason, setReason] = useState(initialReason);
   const [selectedCar, setSelectedCar] = useState(null);
   const [cars, setCars] = useState([]);
 
