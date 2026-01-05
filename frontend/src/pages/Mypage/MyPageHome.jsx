@@ -30,7 +30,7 @@ const menuItems = [
     { label: "리뷰 관리", path: "/Mypage/ReviewHistory" },
     { label: "문의 내역", path: "/mypage/QnA" },
     { label: "면허 관리", path: "/Mypage/license" },
-    { label: "결제 수단", path: "/Mypage/Payment" },
+    /*{ label: "결제 수단", path: "/Mypage/Payment" },*/
     { label: "선호 차량", path: "/Mypage/Favorites" },
 ];
 
@@ -57,7 +57,7 @@ function MyPageHome() {
                         carName: `${ongoing.brand} ${ongoing.displayNameShort}`,
                         pickupDate: `픽업 날짜 : ${formatDate(ongoing.startDate)}`,
                         status: STATUS_MAP[ongoing.reservationStatus]?.label || ongoing.reservationStatus,
-                        pickupLocation: ongoing.pickupLocation || "픽업 장소",
+                        pickupLocation: "픽업 위치 : 김포공항점",  // ✅ 임시
                     });
                 }
             } catch (err) {
