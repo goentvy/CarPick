@@ -115,7 +115,7 @@ function MyPageHome() {
                             // 최신 1개만 표시 (슬라이드 없음)
                             <button
                                 type="button"
-                                onClick={() => navigate("/mypage/reservations")}
+                                onClick={() => navigate(`/Mypage/Reservations/${ongoingOrders[0].id}`)}
                                 className="
                   w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
                   rounded-2xl bg-gradient-to-r from-[#0A56FF] to-white
