@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reservationsssssssss")
+@RequestMapping("/api/mypage/change-history")
 @RequiredArgsConstructor
 public class MyPageReservationHistoryController {
 
     private final ReservationHistoryService historyService;
 
-    @GetMapping("/history/me")
+    @GetMapping("/me")
     public ResponseEntity<List<ReservationHistoryResponse>> getMyHistory(HttpServletRequest request) {
         Long userId = getCurrentUserId(request);
         System.out.println("### HISTORY /me USER_ID = " + userId);

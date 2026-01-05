@@ -69,7 +69,7 @@ function ChangeHistoryPage() {
                 }
 
                 const response = await fetch(
-                    "http://localhost:8080/api/reservations/history/me",
+                    "http://localhost:8080/api/mypage/change-history/me",
                     {
                         method: "GET",
                         headers: {
