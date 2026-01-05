@@ -1,4 +1,4 @@
-package com.carpick.domain.auth.dto;
+package com.carpick.domain.auth.dto.oauth;
 
 
 import lombok.AllArgsConstructor;

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.reservation.mypage.mapper.ReservationMyPageMapper">
+
+    <!-- =========================
+         예약 목록 조회 (마이페이지)
+         ========================= -->
+    <select id="selectReservationListByUserId"
+            parameterType="long"
+            resultType="com.carpick.domain.reservation.mypage.dto.ReservationListDto">
+
+        SELECT
+            r.reservation_id        AS reservationId,
+            r.reservation_no        AS reservationNo,
+
+            cs.brand                AS brand,
+            cs.display_name_short   AS displayNameShort,
+
+            r.start_date            AS startDate,
+            r.end_date              AS endDate,
+
+            r.total_amount_snapshot AS totalAmountSnapshot,
+            r.reservation_status    AS reservationStatus
+        FROM reservation r
+                 JOIN vehicle_inventory vi
+                      ON r.vehicle_id = vi.vehicle_id
+                 JOIN car_spec cs
+                      ON vi.spec_id = cs.spec_id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.created_at DESC
+
+    </select>
+
+
+    <!-- =========================
+         예약 상세 조회 (마이페이지)
+         - userId + reservationId로 본인 예약만 조회
+         ========================= -->
+    <select id="selectReservationDetail"
+            resultType="com.carpick.domain.reservation.mypage.dto.ReservationDetailDto">
+
+        SELECT
+            r.reservation_id                     AS reservationId,
+            r.reservation_no                     AS reservationNo,
+            r.reservation_status                 AS reservationStatus,
+            r.created_at                         AS createdAt,
+
+            r.vehicle_id                         AS vehicleId,
+            cs.brand                             AS brand,
+            cs.model_name                        AS modelName,
+            cs.display_name_short                AS displayNameShort,
+            cs.car_class                         AS carClass,
+
+            r.driver_last_name                   AS driverLastName,
+            r.driver_first_name                  AS driverFirstName,
+            r.driver_birthdate                   AS driverBirthdate,
+            r.driver_phone                       AS driverPhone,
+            r.driver_email                       AS driverEmail,
+            r.driver_license_no                  AS driverLicenseNo,
+
+            r.start_date                         AS startDate,
+            r.end_date                           AS endDate,
+            r.actual_return_date                 AS actualReturnDate,
+
+            r.pickup_type                        AS pickupType,
+            r.pickup_branch_id                   AS pickupBranchId,
+            r.pickup_address                     AS pickupAddress,
+
+            r.return_type                        AS returnType,
+            r.return_branch_id                   AS returnBranchId,
+            r.return_address                     AS returnAddress,
+
+            r.base_rent_fee_snapshot             AS baseRentFeeSnapshot,
+            r.rent_discount_amount_snapshot      AS rentDiscountAmountSnapshot,
+
+            r.base_insurance_fee_snapshot        AS baseInsuranceFeeSnapshot,
+            r.insurance_discount_amount_snapshot AS insuranceDiscountAmountSnapshot,
+
+            r.option_fee_snapshot                AS optionFeeSnapshot,
+            r.coupon_discount_snapshot           AS couponDiscountSnapshot,
+
+            r.member_discount_rate_snapshot      AS memberDiscountRateSnapshot,
+            r.event_discount_amount_snapshot     AS eventDiscountAmountSnapshot,
+
+            r.total_amount_snapshot              AS totalAmountSnapshot,
+
+            r.applied_rent_fee_snapshot          AS appliedRentFeeSnapshot,
+            r.applied_insurance_fee_snapshot     AS appliedInsuranceFeeSnapshot,
+
+            r.insurance_id                       AS insuranceId,
+            r.coupon_id                          AS couponId,
+
+            r.cancel_reason                      AS cancelReason,
+            r.cancelled_at                       AS cancelledAt
+
+        FROM reservation r
+                 JOIN vehicle_inventory vi
+                      ON r.vehicle_id = vi.vehicle_id
+                 JOIN car_spec cs
+                      ON vi.spec_id = cs.spec_id
+        WHERE r.user_id = #{userId}
+          AND r.reservation_id = #{reservationId}
+            LIMIT 1
+
+    </select>
+
+</mapper>

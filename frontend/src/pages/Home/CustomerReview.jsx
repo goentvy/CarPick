@@ -1,40 +1,57 @@
+import { useState, useEffect } from "react";
 import StarRating from "./StarRating";
 
-const reviews = [
-  {
-    id: 1,
-    model: "CARNIVAL KA4 (G) 3.5",
-    comment: "가족끼리 여행가기에는 카니발만한게 없는 것 같습니다.",
-    rating: 5,
-  },
-  {
-    id: 2,
-    model: "THE NEW TORRES (G) 1.5",
-    comment: "토레스 눈여겨보고있던터 다행히 합리적인 가격에 타볼수 있었어요.",
-    rating: 4.5,
-  },
-  {
-    id: 3,
-    model: "RAY (E) 에어 2WD AT",
-    comment: "레이 EV가 타보고싶었는데 저렴한 가격에 타볼수있어서 만족합니다.",
-    rating: 3,
-  },
-];
-
 const CustomerReview = () => {
-  return (
-    <section className="mb-8">
-      <div className="grid gap-4 text-sm">
-        {reviews.map((r) => (
-          <div key={r.id} className="bg-blue-50 rounded-lg shadow-sm p-3">
-            <p className="font-semibold mb-1">{r.model}</p>
-            <StarRating rating={r.rating} />
-            <p className="text-gray-600 text-sm my-3">{r.comment}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                // ✅ 백엔드 직접 호출 (프록시 우회)
+                const response = await fetch("http://localhost:8080/api/reviews/latest");
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                setReviews(Array.isArray(data) ? data.slice(0, 3) : data); // ✅ Array 체크
+            } catch (error) {
+                console.error("리뷰 불러오기 실패:", error);
+                setReviews([]); // 빈 배열 fallback
+            } finally {
+                setLoading(false);
+            }
+        };
+
+
+        fetchReviews();
+    }, []);
+
+    if (loading) {
+        return (
+            <section className="mb-8">
+                <div className="grid gap-4 text-sm">
+                    <div className="bg-blue-50 rounded-lg shadow-sm p-3 animate-pulse h-24" />
+                    <div className="bg-blue-50 rounded-lg shadow-sm p-3 animate-pulse h-24" />
+                    <div className="bg-blue-50 rounded-lg shadow-sm p-3 animate-pulse h-24" />
+                </div>
+            </section>
+        );
+    }
+
+    return (
+        <section className="mb-8">
+            <div className="grid gap-4 text-sm">
+                {reviews.map((r) => (
+                    <div key={r.id} className="bg-blue-50 rounded-lg shadow-sm p-3">
+                        <p className="font-semibold mb-1">{r.carName}</p>  {/* model → carName */}
+                        <StarRating rating={r.rating} />
+                        <p className="text-gray-600 text-sm my-3">{r.content}</p>  {/* comment → content */}
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
 };
 
 export default CustomerReview;

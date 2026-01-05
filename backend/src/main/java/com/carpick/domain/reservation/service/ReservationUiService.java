@@ -66,15 +66,7 @@ public class ReservationUiService {
         dropoff.setAddress(dropoffSrc.getAddress());
         dropoff.setOpenHours("08:00 ~ 20:00");
         res.setDropoffBranch(dropoff);
-        // ===== 차량 뱃지(상단 아이콘 줄) =====
-        // 지금은 mock로 고정 (추후 detail 카드섹션에서 추출해도 됨)
-//        res.setBadges(List.of(
-//                badge("car", "자동차"),
-//                badge("insurance", "보험"),
-//                badge("location", "지역"),
-//                badge("payment", "결제")
-//
-//        ));
+
         // ===== 보험 옵션 (DB 조회)=====
         List<InsuranceRawDto> insuranceList = reservationMapper.selectInsuranceOptions();
         List<ReservationFormResponseDto.InsuranceOptionDto> insuranceOptions = insuranceList.stream()
@@ -108,6 +100,7 @@ public class ReservationUiService {
 
 
     }
+
     /**
      * 보험 선택 시 가격 재계산 (백엔드에서 합산)
      */
@@ -125,9 +118,9 @@ public class ReservationUiService {
                 : 0;
 
         return  new ReservationPriceResponseDto(
-                carDailyPrice,
-                insuranceDailyPrice,
-                carDailyPrice + insuranceDailyPrice
+                carDailyPrice,                    // 1일 차량 요금
+                insuranceDailyPrice,              // 1일 보험 요금
+                carDailyPrice + insuranceDailyPrice // 1일 합계 (기존 계약)
 
         );
 

@@ -10,7 +10,7 @@ const FindIdPage = () => {
     const handleFindId = async () => {
         try {
             const res = await userService.findId({ name, email });
-            setResult(res.data.userId);
+            setResult(res.data.message); // 백엔드 메시지 로 변경 한 부분(아이디찾기존재여부성공 렌더링)
         } catch (err) {
             setResult("등록된 정보가 없습니다.");
             console.error(err);

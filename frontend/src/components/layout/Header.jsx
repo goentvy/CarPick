@@ -129,15 +129,20 @@ function Header() {
                   : ""
                 }`}>
                 <div className="submenu">
-                  <button
-                    className={`gnb-link submenu-trigger ${location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
-                        ? "active"
-                        : ""
-                      }`}
-                    onClick={() => handleToggleMenu("고객센터")}
-                  >
-                    고객센터
-                  </button>
+                    <button
+                        className={`gnb-link submenu-trigger ${location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
+                            ? "active"
+                            : ""
+                        }`}
+                        onClick={() => handleToggleMenu("고객센터")}
+                    >
+                        
+                        {!(location.pathname.includes("/cs/") || activeMenu === "고객센터") ?
+                            <img src="/images/common/arrow_up.svg" alt="" /> :  // 클릭 전: 위 화살표
+                            <img src="/images/common/arrow_down.svg" alt="" />   // 클릭 후: 아래 화살표
+                        }
+                        고객센터
+                    </button>
 
                   <ul className="submenu-list">
 

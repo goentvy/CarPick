@@ -16,22 +16,24 @@ public class ReviewService {
 
     private final ReviewMapper reviewMapper;
 
-    // ✅ 마이페이지 리뷰 조회
+    // ✅ 기존 마이페이지 리뷰 조회
     public List<ReviewResponse> getMyReviews(Long userId) {
         return reviewMapper.findByUserId(userId);
     }
 
-    // ✅ 리뷰 수정
+    // ✅ 기존 리뷰 수정
     @Transactional
     public ReviewResponse updateReview(Long userId, Long reviewId, ReviewUpdateRequest request) {
-        // 작성자 검증
         ReviewResponse existingReview = reviewMapper.findByIdAndUserId(userId, reviewId);
         if (existingReview == null) {
             throw new IllegalArgumentException("수정 권한이 없는 리뷰입니다.");
         }
-
-        // 업데이트
         reviewMapper.updateReview(reviewId, request.getRating(), request.getContent());
         return reviewMapper.findById(reviewId);
+    }
+
+    // 🆕 홈페이지용 최신 리뷰 (MyBatis Mapper 사용)
+    public List<ReviewResponse> getLatestReviews(int limit) {
+        return reviewMapper.findLatestReviews(limit); // Mapper 메서드 직접 호출
     }
 }

@@ -2,17 +2,22 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import prettier from 'eslint-plugin-prettier'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist']),
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx,ts,tsx}'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
+      'plugin:prettier/recommended', // Prettier와 충돌 방지
     ],
+    plugins: {
+      prettier,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -24,6 +29,19 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'prettier/prettier': [
+        'error',
+        {
+          tabWidth: 2,
+          useTabs: false,
+          semi: true,
+          singleQuote: true,
+          trailingComma: 'es5',
+          printWidth: 100,
+          bracketSpacing: true,
+          arrowParens: 'always',
+        },
+      ],
     },
   },
 ])
