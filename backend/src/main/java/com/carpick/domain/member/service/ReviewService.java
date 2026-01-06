@@ -1,5 +1,6 @@
 package com.carpick.domain.member.service;
 
+import com.carpick.domain.member.dto.ReviewCreateRequest;
 import com.carpick.domain.member.dto.ReviewResponse;
 import com.carpick.domain.member.dto.ReviewUpdateRequest;
 import com.carpick.domain.member.mapper.ReviewMapper;
@@ -20,6 +21,13 @@ public class ReviewService {
     public List<ReviewResponse> getMyReviews(Long userId) {
         return reviewMapper.findByUserId(userId);
     }
+
+    @Transactional
+    public ReviewResponse createReview(Long userId, ReviewCreateRequest request) {
+        reviewMapper.createReview(userId, request.getReservationId(), request.getCarName(), request.getRating(), request.getContent());
+        return reviewMapper.findByReservationId(request.getReservationId());
+    }
+
 
     // ✅ 기존 리뷰 수정
     @Transactional

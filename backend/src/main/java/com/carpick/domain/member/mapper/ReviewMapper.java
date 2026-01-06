@@ -14,5 +14,8 @@ public interface ReviewMapper {
     void updateReview(Long reviewId, Double rating, String content);
     List<ReviewResponse> findLatestReviews(@Param("limit") int limit);
     List<ReviewResponse> findBySpecId(@Param("specId") Long specId, @Param("limit") int limit);
-}
 
+    //  리뷰 작성용
+    void createReview(@Param("userId") Long userId, @Param("reservationId") Long reservationId, @Param("carName") String carName, @Param("rating") Double rating, @Param("content") String content);
+    ReviewResponse findByReservationId(Long reservationId);
+}
