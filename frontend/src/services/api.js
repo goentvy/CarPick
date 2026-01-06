@@ -9,16 +9,30 @@ api.interceptors.request.use((config) => {
   const method = config.method?.toLowerCase();
   const url = config.url || "";
 
-  // ✅ 차량 조회(GET /cars, GET /cars/{id})는 토큰 안 붙임
-  if (method === "get" && url.startsWith("/cars")) {
-    return config;
-  }
+  // ✅ 공개 GET API들: 토큰 안 붙임
+  const publicGetPrefixes = [
+    "/cars",
+    "/branches",
+    "/dropzones",
+    "/zone/map",
+  ];
 
+  const isPublicGet =
+    method === "get" && publicGetPrefixes.some((p) => url.startsWith(p));
+
+  if (isPublicGet) return config;
+
+  // ✅ 나머지는 토큰 붙이기
   const raw = localStorage.getItem("user-storage");
   if (raw) {
-    const accessToken = JSON.parse(raw)?.state?.accessToken;
-    if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+    try {
+      const accessToken = JSON.parse(raw)?.state?.accessToken;
+      if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+    } catch {
+      // JSON 깨져있으면 무시
+    }
   }
+
   return config;
 });
 
