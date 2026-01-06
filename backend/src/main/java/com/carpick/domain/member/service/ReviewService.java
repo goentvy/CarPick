@@ -1,5 +1,6 @@
 package com.carpick.domain.member.service;
 
+import com.carpick.domain.member.dto.ReviewCreateRequest;
 import com.carpick.domain.member.dto.ReviewResponse;
 import com.carpick.domain.member.dto.ReviewUpdateRequest;
 import com.carpick.domain.member.mapper.ReviewMapper;
@@ -21,6 +22,13 @@ public class ReviewService {
         return reviewMapper.findByUserId(userId);
     }
 
+    @Transactional
+    public ReviewResponse createReview(Long userId, ReviewCreateRequest request) {
+        reviewMapper.createReview(userId, request.getReservationId(), request.getCarName(), request.getRating(), request.getContent());
+        return reviewMapper.findByReservationId(request.getReservationId());
+    }
+
+
     // ✅ 기존 리뷰 수정
     @Transactional
     public ReviewResponse updateReview(Long userId, Long reviewId, ReviewUpdateRequest request) {
@@ -32,8 +40,13 @@ public class ReviewService {
         return reviewMapper.findById(reviewId);
     }
 
-    // 🆕 홈페이지용 최신 리뷰 (MyBatis Mapper 사용)
+    //  홈페이지용 최신 리뷰
     public List<ReviewResponse> getLatestReviews(int limit) {
         return reviewMapper.findLatestReviews(limit); // Mapper 메서드 직접 호출
+    }
+
+    //  차량 상세 페이지: spec_id별 리뷰 (최근순)
+    public List<ReviewResponse> getReviewsBySpecId(Long specId, int limit) {
+        return reviewMapper.findBySpecId(specId, limit);
     }
 }
