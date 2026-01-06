@@ -362,21 +362,6 @@ function ReservationsList() {
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-in fade-in zoom-in duration-200">
                     <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200">
                         <div className="text-center mb-6">
-                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
-                                modalType === 'cancel'
-                                    ? 'bg-red-100'
-                                    : 'bg-blue-100'
-                            }`}>
-                                {modalType === 'cancel' ? (
-                                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                ) : (
-                                    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                )}
-                            </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                 {modalType === 'cancel' ? '예약을 취소하시겠습니까?' : '예약을 변경하시겠습니까?'}
                             </h3>
