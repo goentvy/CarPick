@@ -87,29 +87,49 @@ function ReservationsList() {
                     reason: '사용자 취소 요청'
                 });
 
+                // 상태 즉시 업데이트
                 setReservations(prev =>
                     prev.map(r => r.reservationId === modalData.reservationId
                         ? { ...r, reservationStatus: 'CANCELED' }
                         : r
                     )
                 );
-                alert("예약이 취소되었습니다.");
+
+                // 성공 모달로 전환
+                setModalType('success');
+                setModalData({
+                    ...modalData,
+                    message: '예약이 취소되었습니다.',
+                    carInfo: `${modalData.brand} ${modalData.displayNameShort}`
+                });
             } else if (modalType === 'change') {
                 navigate(`/Mypage/ReservationsList/${modalData.reservationId}/change`);
             }
         } catch (err) {
             console.error(`${modalType} 실패:`, err);
-            alert(`${modalType === 'cancel' ? '취소' : '변경'}에 실패했습니다.`);
+            setModalType('error');
+            setModalData({
+                message: '취소에 실패했습니다.',
+                carInfo: `${modalData.brand} ${modalData.displayNameShort}`
+            });
         } finally {
             setIsProcessing(false);
-            closeModal();
         }
     };
 
     const closeModal = () => {
-        setShowModal(false);
-        setModalType(null);
-        setModalData(null);
+        if (modalType === 'success' || modalType === 'error') {
+            // 성공/에러 모달은 2초 후 자동 닫기
+            setTimeout(() => {
+                setShowModal(false);
+                setModalType(null);
+                setModalData(null);
+            }, 2000);
+        } else {
+            setShowModal(false);
+            setModalType(null);
+            setModalData(null);
+        }
     };
 
     const handleReviewClick = (e, reservation) => {
@@ -138,13 +158,18 @@ function ReservationsList() {
             });
 
             if (response.ok) {
-                alert('리뷰가 작성되었습니다!');
                 setReviewedReservations(prev => new Set([...prev, editingReview.reservationId]));
                 handleCloseReview();
+                // 리뷰 성공 모달
+                setModalType('success');
+                setModalData({ message: '리뷰가 작성되었습니다!' });
+                setShowModal(true);
             }
         } catch (error) {
             console.error('리뷰 작성 실패:', error);
-            alert('리뷰 작성에 실패했습니다.');
+            setModalType('error');
+            setModalData({ message: '리뷰 작성에 실패했습니다.' });
+            setShowModal(true);
         }
     };
 
@@ -277,7 +302,7 @@ function ReservationsList() {
                                                             : 'bg-[#2C7FFF] text-white hover:bg-[#1E5BBF]'
                                                     }`}
                                                 >
-                                                    {isReviewed ? '리뷰작성' : '리뷰작성'}
+                                                    {isReviewed ? '리뷰작성됨' : '리뷰작성'}
                                                 </button>
                                             )}
                                         </div>
@@ -357,48 +382,70 @@ function ReservationsList() {
                 </div>
             )}
 
-            {/* 공통 확인 모달 (취소/변경) */}
+            {/* 공통 모달 (확인/성공/에러) */}
             {showModal && modalData && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-in fade-in zoom-in duration-200">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200">
-                        <div className="text-center mb-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                {modalType === 'cancel' ? '예약을 취소하시겠습니까?' : '예약을 변경하시겠습니까?'}
-                            </h3>
-                            <p className="text-sm text-gray-600 mb-4">
-                                <span className="font-medium">{modalData.brand} {modalData.displayNameShort}</span>
-                                <br />
-                                {formatDate(modalData.startDate)} ~ {formatDate(modalData.endDate)}
-                            </p>
-                        </div>
-
-                        <div className="flex justify-end space-x-3 pt-2">
-                            <button
-                                onClick={handleModalConfirm}
-                                disabled={isProcessing}
-                                className={`px-6 py-2 text-sm text-white font-medium rounded-xl shadow-sm border-2 transition-all flex-1 flex items-center justify-center ${
-                                    modalType === 'cancel'
-                                        ? 'bg-red-500 hover:bg-red-600 border-[#FF5151] hover:border-[#E43F3F]'
-                                        : 'bg-[#2C7FFF] hover:bg-[#1E5BBF] border-[#2C7FFF] hover:border-[#1E5BBF]'
-                                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                                {isProcessing ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                        처리 중...
-                                    </>
-                                ) : (
-                                    modalType === 'cancel' ? '취소' : '변경하기'
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200 text-center">
+                        {modalType === 'success' && (
+                            <>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{modalData.message}</h3>
+                                {modalData.carInfo && (
+                                    <p className="text-sm text-gray-600">{modalData.carInfo}</p>
                                 )}
-                            </button>
-                            <button
-                                onClick={closeModal}
-                                disabled={isProcessing}
-                                className="px-6 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 rounded-xl transition-all flex-1"
-                            >
-                                아니요
-                            </button>
-                        </div>
+                            </>
+                        )}
+
+                        {modalType === 'error' && (
+                            <>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{modalData.message}</h3>
+                                {modalData.carInfo && (
+                                    <p className="text-sm text-gray-600">{modalData.carInfo}</p>
+                                )}
+                            </>
+                        )}
+
+                        {['cancel', 'change'].includes(modalType) && (
+                            <>
+                                <div className="mb-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                        {modalType === 'cancel' ? '예약을 취소하시겠습니까?' : '예약을 변경하시겠습니까?'}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        <span className="font-medium">{modalData.brand} {modalData.displayNameShort}</span>
+                                        <br />
+                                        {formatDate(modalData.startDate)} ~ {formatDate(modalData.endDate)}
+                                    </p>
+                                </div>
+
+                                <div className="flex justify-end space-x-3 pt-2">
+                                    <button
+                                        onClick={handleModalConfirm}
+                                        disabled={isProcessing}
+                                        className={`px-6 py-2 text-sm text-white font-medium rounded-xl shadow-sm border-2 transition-all flex-1 flex items-center justify-center ${
+                                            modalType === 'cancel'
+                                                ? 'bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600'
+                                                : 'bg-[#2C7FFF] hover:bg-[#1E5BBF] border-[#2C7FFF] hover:border-[#1E5BBF]'
+                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                처리 중...
+                                            </>
+                                        ) : (
+                                            modalType === 'cancel' ? '취소' : '변경하기'
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={closeModal}
+                                        disabled={isProcessing}
+                                        className="px-6 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 rounded-xl transition-all flex-1"
+                                    >
+                                        아니요
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
