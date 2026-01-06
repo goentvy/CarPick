@@ -6,11 +6,11 @@
 <mapper namespace="com.carpick.domain.auth.mapper.UserFindMapper">
 
     <!-- 아이디(이메일) 찾기 -->
-    <select id="findEmailByNameAndEmail" resultType="string">
+    <select id="findEmailByNameAndPhone" resultType="string">
         SELECT email
         FROM users
         WHERE name = #{name}
-        AND email = #{email}
+        AND phone = #{phone}
         AND deleted_at IS NULL
     </select>
 

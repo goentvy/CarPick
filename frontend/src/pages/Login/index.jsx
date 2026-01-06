@@ -62,21 +62,21 @@ const Login = () => {
   // ✅ 카카오 로그인 핸들러
   const handleKakaoLogin = () => {
     const REST_API_KEY = import.meta.env.VITE_KAKAO_CLIENT_ID;
-    const REDIRECT_URI = "http://localhost:5173/oauth/kakao/callback";
+    const REDIRECT_URI = `${import.meta.env.VITE_API_BASE_URL}/oauth/kakao/callback`;
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
     window.location.href = kakaoAuthUrl;
   };
 
-  // ✅ 네이버 로그인 핸들러 (state 랜덤 생성 + 저장)
   const handleNaverLogin = () => {
     const CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
-    const REDIRECT_URI = "http://localhost:5173/oauth/naver/callback";
+    const REDIRECT_URI = `${import.meta.env.VITE_API_BASE_URL}/oauth/naver/callback`;
     const STATE = crypto.randomUUID(); // CSRF 방지용
     sessionStorage.setItem("naver_state", STATE);
 
     const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}`;
     window.location.href = naverAuthUrl;
   };
+
 
   return (
     <div className="flex justify-center min-h-[calc(100vh-67px)] w-full mt-[67px] pb-20">
@@ -109,8 +109,14 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="text-center my-4 text-gray-500">or</div>
-
+          <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">다른 로그인 방법</span>
+              </div>
+          </div>
         <button onClick={handleNaverLogin} className="w-full bg-green-500 text-white py-2 rounded-xl mb-2 hover:bg-green-600 transition">
           네이버로 로그인하기
         </button>
@@ -118,12 +124,20 @@ const Login = () => {
         <button onClick={handleKakaoLogin} className="w-full bg-yellow-300 text-black py-2 rounded-xl hover:bg-yellow-400 transition">
           카카오로 로그인하기
         </button>
-
-        <p className="text-base text-center font-medium mt-6 cursor-pointer" onClick={() => navigate('/signup/agree')}>
-          need help for signing in ?
-        </p>
-        <p className="text-xs text-center text-gray-400 my-3">By signing up you are creating an account and</p>
-        <p className="text-xs text-center text-gray-400 my-3">agree to our Term’s and Privacy policy</p>
+          <div className="mt-8 text-center space-y-2">
+          <p className="text-xs text-gray-400">
+              계정이 없으신가요?
+              <span
+                  className="text-[#1D6BF3] font-medium ml-1 hover:underline cursor-pointer transition"
+                  onClick={() => navigate('/signup/agree')}
+              >
+              지금 회원가입
+            </span>
+          </p>
+          </div>
+          <p className="text-xs text-center text-gray-400 my-3">
+              회원가입 시 계정이 생성되며,<br/> 이용약관 및 개인정보처리방침에 동의하는 것으로 간주됩니다.
+          </p>
 
         <div className="flex flex-row mt-8 gap-4">
           <button className="w-full bg-emerald-500 text-white py-2 rounded-xl hover:bg-emerald-600 transition" onClick={() => navigate('/findid')}>

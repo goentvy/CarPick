@@ -34,4 +34,9 @@ public interface InquiryMapper {
 		@Param("adminReply") String adminReply,
 		@Param("status") InquiryStatus status
 		);
+	
+	// 관리자 - 문의 삭제
+	void deleteById(
+		@Param("id") Long id	
+		);
 }

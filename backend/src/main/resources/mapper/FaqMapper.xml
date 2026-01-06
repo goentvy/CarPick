@@ -8,72 +8,70 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <!--사용자 검색-->
 
 <select id="search"
-resultType="com.carpick.domain.faq.vo.Faq">
-	
-	SELECT
-		id,
-		category,
-		question,
-		answer
-	FROM faq
-	where 1=1
-	
-<!--카테고리 필터-->
-<if test="category != null and category !=''">
-	AND category = #{category}
-</if>
-
-<!--검색어 (질문 or 답변)-->
-<if test="keyword != null and keyword != ''">
-	AND (
-		question Like CONCAT('%', #{keyword}, '%')
-		OR answer Like CONCAT('%', #{keyword}, '%')
-	)
-</if> 
-	ORDER BY id DESC
-</select>
-
-
-<!-- 관리자 검색 -->
-<select id="adminSearch" resultType="com.carpick.domain.faq.vo.Faq">
-        SELECT
-            id,
-            category,
-            question,
-            answer,
-            created_at AS createdAt
-        FROM faq
-        WHERE 1=1
-        
-		<if test="category != null and category != ''">
-        AND category = #{category}
-    </if>
-
-    <if test="keyword != null and keyword != ''">
-        AND (
-            question LIKE CONCAT('%', #{keyword}, '%')
-            OR answer LIKE CONCAT('%', #{keyword}, '%')
-        )
-    </if>
-
-		ORDER BY id DESC
-    </select>
-
-<!-- 관리자 목록 -->
-<select id="findAll" resultType="com.carpick.domain.faq.vo.Faq">
+    resultType="com.carpick.domain.faq.vo.Faq">
     SELECT
         id,
         category,
         question,
-        answer,
-        created_at AS createdAt
+        answer
     FROM faq
-    ORDER BY id DESC
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY created_at DESC
 </select>
 
-	<!-- 관리자 상세 -->
-<select id="findById" parameterType="long"
-        resultType="com.carpick.domain.faq.vo.Faq">
+
+<!-- 관리자 검색 -->
+<select id="findAdminPage"
+    resultType="com.carpick.domain.faq.dto.AdminFaqListResponse">
+    SELECT
+        id,
+        category,
+        question,
+        created_at AS createdAt
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY created_at DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="countAdminFaqs" resultType="int">
+    SELECT COUNT(*)
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+</select>
+
+<select id="findById"
+    resultType="com.carpick.domain.faq.vo.Faq">
     SELECT
         id,
         category,
@@ -83,16 +81,11 @@ resultType="com.carpick.domain.faq.vo.Faq">
     WHERE id = #{id}
 </select>
 
-	<!-- 등록 -->
 <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO faq (
-        category, question, answer
-    ) VALUES (
-        #{category}, #{question}, #{answer}
-    )
+    INSERT INTO faq (category, question, answer)
+    VALUES (#{category}, #{question}, #{answer})
 </insert>
 
-	<!-- 수정 -->
 <update id="update">
     UPDATE faq
     SET
@@ -103,7 +96,6 @@ resultType="com.carpick.domain.faq.vo.Faq">
     WHERE id = #{id}
 </update>
 
-	<!-- 삭제 -->
 <delete id="delete">
     DELETE FROM faq WHERE id = #{id}
 </delete>

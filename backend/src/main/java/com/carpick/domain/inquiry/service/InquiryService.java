@@ -14,6 +14,8 @@ import com.carpick.domain.inquiry.dto.MyPageInquiryResponse;
 import com.carpick.domain.inquiry.enums.InquiryStatus;
 import com.carpick.domain.inquiry.mapper.InquiryMapper;
 import com.carpick.domain.inquiry.vo.Inquiry;
+import com.carpick.global.exception.BusinessException;
+import com.carpick.global.exception.enums.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -82,7 +84,7 @@ public class InquiryService {
 	            inquiryMapper.findDetailForAdmin(id);
 
 	        if (inquiry == null) {
-	            throw new IllegalArgumentException("존재하지 않는 문의입니다.");
+	            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
 	        }
 
 	        // ✅ 상태는 서버가 결정
@@ -91,5 +93,10 @@ public class InquiryService {
 	            reply,
 	            InquiryStatus.ANSWERED
 	        );
+	    }
+	    
+	// 관리자 - 문의 삭제
+	    public void deleteInquiry(Long id) {
+	    	inquiryMapper.deleteById(id);
 	    }
 }

@@ -21,22 +21,53 @@ public class FAuthService {
 
     /* 아이디(이메일) 찾기-------------------------------- */
     @Transactional(readOnly = true)
-    public FAuthResponse.FindId findId(FAuthRequest.FindId dto) {
+    // 👉 이 메서드는 DB를 "조회만" 한다는 의미
+    // 👉 INSERT / UPDATE 같은 변경 작업은 없고,
+    // 👉 성능 최적화와 안전성을 위해 readOnly = true 사용
+    public FAuthResponse.FindId findId(FAuthRequest.FindId dto)
 
-        String email = userFindMapper.findEmailByNameAndEmail(
+    // 👉 프론트에서 전달한 요청 데이터(dto)를 받는다
+
+    {
+
+        String email = userFindMapper.findEmailByNameAndPhone(
                 dto.getName(),
-                dto.getEmail()
+                dto.getPhone()
         );
+        // 👉 DB(users 테이블)에서
+        // 👉 이름 + 휴대폰 번호가 일치하는 회원의 이메일을 조회
+        // 👉 일치하는 데이터가 없으면 email = null
 
+
+        // 예외처리
         if (email == null) {
             throw new IllegalArgumentException("일치하는 회원 정보가 없습니다.");
         }
-
+        String maskedEmail = maskEmail(email);
         return new FAuthResponse.FindId(
                 true,
-                "아이디가 존재합니다.",
-                null
+                "아이디 조회 성공",
+                maskedEmail
         );
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return null;
+        }
+
+        String[] parts = email.split("@");
+        String local = parts[0];
+        String domain = parts[1];
+
+        if (local.length() <= 5) {
+            return "*".repeat(local.length()) + "@" + domain;
+        }
+
+        String visible = local.substring(0, 5);
+        String masked = "*".repeat(local.length() - 5);
+
+        return visible + masked + "@" + domain;
     }
 
 
