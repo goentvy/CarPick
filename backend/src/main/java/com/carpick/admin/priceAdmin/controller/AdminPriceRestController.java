@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,6 +18,14 @@ import java.util.Map;
 public class AdminPriceRestController {
 
     private final AdminPriceService priceService;
+
+    /** ✅ 가격 목록 조회 (JSON) */
+    @GetMapping("/list")
+    public List<AdminPriceDto> getPriceList() {
+        // 단순히 JSON 배열로 내려보내면 됩니다.
+        return priceService.getPriceList();
+    }
+
 
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> savePrice(@RequestBody AdminPriceDto dto) {

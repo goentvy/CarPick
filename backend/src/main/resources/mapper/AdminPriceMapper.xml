@@ -23,14 +23,15 @@
 
         <!-- 원가 -->
         <result property="dailyPrice"     column="daily_price"/>
-        <result property="price1m"        column="price_1m"/>
-        <result property="price3m"        column="price_3m"/>
-        <result property="price6m"        column="price_6m"/>
+        <result property="monthlyPrice"        column="monthly_price"/>
+
 
         <!-- 운영 상태 -->
         <result property="useYn"          column="use_yn"/>
         <result property="deletedAt"      column="deleted_at"/>
         <result property="updatedAt"      column="updated_at"/>
+        <result property="version" column="version"/>
+
 
     </resultMap>
 
@@ -44,9 +45,8 @@
         s.model_name,
         pp.discount_rate,
         p.daily_price,
-        p.price_1m,
-        p.price_3m,
-        p.price_6m,
+        p.monthly_price,
+        p.version,
         pp.use_yn       AS use_yn,
         pp.deleted_at   AS deleted_at,
         pp.updated_at   AS updated_at
@@ -81,9 +81,9 @@
             s.model_name,
             pp.discount_rate,
             p.daily_price,
-            p.price_1m,
-            p.price_3m,
-            p.price_6m,
+            p.monthly_price,
+/*  [2] 단건 조회에도 버전 추가 */
+            IFNULL(p.version, 0) AS version,
             p.use_yn,
             p.updated_at
         FROM car_spec s
@@ -106,15 +106,28 @@
         UPDATE price
         SET
             daily_price = #{dailyPrice},
-            price_1m   = #{price1m},
-            price_3m   = #{price3m},
-            price_6m   = #{price6m},
+            monthly_price   = #{monthlyPrice},
             updated_at = NOW()
         WHERE price_id = #{priceId}
           AND use_yn = 'Y'
     </update>
 
+    <update id="updatePriceWithVersion"
+            parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto">
+        UPDATE price
+        SET
+            daily_price = #{dailyPrice},
+            monthly_price = #{monthlyPrice},
+            updated_at = NOW(),
 
+            /* ✅ [핵심] 버전 1 증가 */
+            version = version + 1
+
+        WHERE price_id = #{priceId}
+            /* ✅ [핵심] 버전 체크 (일치해야만 수정됨 -> 아니면 0 리턴) */
+          AND version = #{version}
+          AND use_yn = 'Y'
+    </update>
     <!-- ===================== 4. 할인율 수정 (PRICE_POLICY) ===================== -->
     <update id="updateDiscountRate"
             parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto">
@@ -128,13 +141,11 @@
     <insert id="insertPrice" parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto"
             useGeneratedKeys="true" keyProperty="priceId">
         INSERT INTO price (
-            car_spec_id, daily_price, price_1m, price_3m, price_6m, use_yn, created_at, updated_at
+            car_spec_id, daily_price,  monthly_price,version, use_yn, created_at, updated_at
         ) VALUES (
                      #{carSpecId},
                      IFNULL(#{dailyPrice}, 0),
-                     IFNULL(#{price1m}, 0),
-                     IFNULL(#{price3m}, 0),
-                     IFNULL(#{price6m}, 0),
+                     IFNULL(#{monthlyPrice}, 0),0,
                      'Y', NOW(), NOW()
                  )
     </insert>

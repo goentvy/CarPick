@@ -45,6 +45,7 @@ public interface AdminPriceMapper {
 
     /** [6] 할인 정책 신규 등록 (Insert) */
     int insertPricePolicy(AdminPriceDto dto);
-
+    /** 🔹 낙관적 락 적용 업데이트 */
+    int updatePriceWithVersion(AdminPriceDto dto);
 
 }
