@@ -40,6 +40,12 @@ function ReservationsList() {
     const [editingRating, setEditingRating] = useState(0);
     const [reviewedReservations, setReviewedReservations] = useState(new Set());
 
+    // 공통 모달 상태
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(null);
+    const [modalData, setModalData] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+
     useEffect(() => {
         const fetchReservations = async () => {
             try {
@@ -62,37 +68,48 @@ function ReservationsList() {
         fetchReservations();
     }, []);
 
-    const handleCancel = async (e, reservationId) => {
-        e.stopPropagation();
-        if (!window.confirm("예약을 취소하시겠습니까?")) return;
+    const openModal = (type, reservation) => {
+        setModalType(type);
+        setModalData(reservation);
+        setShowModal(true);
+    };
 
-        const reservation = reservations.find(r => r.reservationId === reservationId);
+    const handleModalConfirm = async () => {
+        setIsProcessing(true);
 
         try {
-            await api.post(`/reservation/${reservationId}/cancel`, {
-                action_type: 'CANCEL',
-                old_start_date: reservation.startDate,
-                old_end_date: reservation.endDate,
-                old_car_name: `${reservation.brand} ${reservation.displayNameShort}`,
-                reason: '사용자 취소 요청'
-            });
+            if (modalType === 'cancel') {
+                await api.post(`/reservation/${modalData.reservationId}/cancel`, {
+                    action_type: 'CANCEL',
+                    old_start_date: modalData.startDate,
+                    old_end_date: modalData.endDate,
+                    old_car_name: `${modalData.brand} ${modalData.displayNameShort}`,
+                    reason: '사용자 취소 요청'
+                });
 
-            setReservations(prev =>
-                prev.map(r => r.reservationId === reservationId
-                    ? { ...r, reservationStatus: 'CANCELED' }
-                    : r
-                )
-            );
-            alert("예약이 취소되었습니다.");
+                setReservations(prev =>
+                    prev.map(r => r.reservationId === modalData.reservationId
+                        ? { ...r, reservationStatus: 'CANCELED' }
+                        : r
+                    )
+                );
+                alert("예약이 취소되었습니다.");
+            } else if (modalType === 'change') {
+                navigate(`/Mypage/ReservationsList/${modalData.reservationId}/change`);
+            }
         } catch (err) {
-            console.error("취소 실패:", err);
-            alert("취소에 실패했습니다. 다시 시도해주세요.");
+            console.error(`${modalType} 실패:`, err);
+            alert(`${modalType === 'cancel' ? '취소' : '변경'}에 실패했습니다.`);
+        } finally {
+            setIsProcessing(false);
+            closeModal();
         }
     };
 
-    const handleChange = (e, reservationId) => {
-        e.stopPropagation();
-        console.log("변경:", reservationId);
+    const closeModal = () => {
+        setShowModal(false);
+        setModalType(null);
+        setModalData(null);
     };
 
     const handleReviewClick = (e, reservation) => {
@@ -228,7 +245,10 @@ function ReservationsList() {
 
                                             {isCancelable && (
                                                 <button
-                                                    onClick={(e) => handleCancel(e, item.reservationId)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openModal('cancel', item);
+                                                    }}
                                                     className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition"
                                                 >
                                                     취소하기
@@ -237,7 +257,10 @@ function ReservationsList() {
 
                                             {isChangeable && (
                                                 <button
-                                                    onClick={(e) => handleChange(e, item.reservationId)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openModal('change', item);
+                                                    }}
                                                     className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition"
                                                 >
                                                     변경하기
@@ -266,6 +289,7 @@ function ReservationsList() {
                 )}
             </div>
 
+            {/* 리뷰 작성 모달 */}
             {editingReview && (
                 <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-[1000] p-4 animate-in fade-in zoom-in duration-200"
                      style={{ backdropFilter: 'blur(4px)' }}>
@@ -327,6 +351,67 @@ function ReservationsList() {
                                 className="px-6 py-2 bg-[#2C7FFF] text-white text-sm font-medium rounded-xl shadow-sm hover:bg-[#1E5BBF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 리뷰 작성
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 공통 확인 모달 (취소/변경) */}
+            {showModal && modalData && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200">
+                        <div className="text-center mb-6">
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+                                modalType === 'cancel'
+                                    ? 'bg-red-100'
+                                    : 'bg-blue-100'
+                            }`}>
+                                {modalType === 'cancel' ? (
+                                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                )}
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {modalType === 'cancel' ? '예약을 취소하시겠습니까?' : '예약을 변경하시겠습니까?'}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                                <span className="font-medium">{modalData.brand} {modalData.displayNameShort}</span>
+                                <br />
+                                {formatDate(modalData.startDate)} ~ {formatDate(modalData.endDate)}
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end space-x-3 pt-2">
+                            <button
+                                onClick={handleModalConfirm}
+                                disabled={isProcessing}
+                                className={`px-6 py-2 text-sm text-white font-medium rounded-xl shadow-sm border-2 transition-all flex-1 flex items-center justify-center ${
+                                    modalType === 'cancel'
+                                        ? 'bg-red-500 hover:bg-red-600 border-[#FF5151] hover:border-[#E43F3F]'
+                                        : 'bg-[#2C7FFF] hover:bg-[#1E5BBF] border-[#2C7FFF] hover:border-[#1E5BBF]'
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                                {isProcessing ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        처리 중...
+                                    </>
+                                ) : (
+                                    modalType === 'cancel' ? '취소' : '변경하기'
+                                )}
+                            </button>
+                            <button
+                                onClick={closeModal}
+                                disabled={isProcessing}
+                                className="px-6 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 rounded-xl transition-all flex-1"
+                            >
+                                아니요
                             </button>
                         </div>
                     </div>
