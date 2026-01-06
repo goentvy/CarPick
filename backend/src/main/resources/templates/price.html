@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>카픽 - 차량관리</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- CSS -->
     <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
     <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
@@ -15,7 +16,9 @@
     <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
 
     <!-- amchart css (CDN) -->
-    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <link rel="stylesheet"
+          href="https://www.amcharts.com/lib/3/plugins/export/export.css"
+          type="text/css" media="all"/>
 
     <!-- Others CSS -->
     <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
@@ -28,30 +31,23 @@
 
     <title>관리자 - 가격 정책 관리</title>
 
-
     <style>
-        /* 엑셀 느낌을 위한 스타일링 */
         body { background-color: #f8f9fa; padding: 20px; }
         .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; overflow-x: auto;}
 
-        /* 테이블 헤더 */
         th { vertical-align: middle; text-align: center; background-color: #f1f3f5; font-size: 0.9rem; white-space: nowrap; }
-
-        /* 테이블 셀 공통 */
         td { vertical-align: middle; padding: 5px !important; }
 
-        /* 입력 필드 스타일 (엑셀처럼 보이게) */
         .form-control-sm {
             border: 1px solid #dee2e6;
-            text-align: right; /* 숫자는 우측 정렬 */
+            text-align: right;
             font-size: 0.9rem;
         }
         .form-control-sm:focus {
             border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.1);
         }
 
-        /* 수정 불가능한 계산 필드 (회색 처리) */
         .readonly-input {
             background-color: #e9ecef;
             border: none;
@@ -59,10 +55,8 @@
             font-weight: bold;
         }
 
-        /* 섹션 구분선 */
         .border-start-thick { border-left: 2px solid #dee2e6 !important; }
 
-        /* 모델명 강조 */
         .model-name { font-weight: bold; color: #212529; }
         .brand-name { font-size: 0.8rem; color: #868e96; }
     </style>
@@ -83,87 +77,24 @@
                 <th rowspan="2" style="width: 80px;">할인율(%)</th>
 
                 <th colspan="2" class="border-start-thick table-warning">단기 렌트 (1일)</th>
-
                 <th colspan="2" class="border-start-thick table-info">장기 (1개월)</th>
-                <th colspan="2" class="table-info">장기 (3개월)</th>
-                <th colspan="2" class="table-info">장기 (6개월)</th>
 
                 <th rowspan="2" style="width: 80px;" class="border-start-thick">관리</th>
             </tr>
             <tr>
                 <th class="border-start-thick">원가</th>
                 <th>최종가</th>
-
                 <th class="border-start-thick">원가</th>
-                <th>최종가</th>
-                <th>원가</th>
-                <th>최종가</th>
-                <th>원가</th>
                 <th>최종가</th>
             </tr>
             </thead>
-            <tbody>
-            <tr th:each="dto : ${priceList}" th:id="'row-' + ${dto.carSpecId}">
 
-                <input type="hidden" class="spec-id" th:value="${dto.carSpecId}">
-                <input type="hidden" class="price-id" th:value="${dto.priceId}">
-                <input type="hidden" class="policy-id" th:value="${dto.pricePolicyId}">
-
-                <td>
-                    <div class="brand-name" th:text="${dto.brand}">현대</div>
-                    <div class="model-name" th:text="${dto.modelName}">쏘나타</div>
+            <!-- ✅ 여기 tbody는 JS가 채움 -->
+            <tbody id="price-tbody">
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    데이터를 불러오는 중입니다...
                 </td>
-
-                <td>
-                    <input type="number" class="form-control form-control-sm fw-bold text-danger discount-input"
-                           min="0" max="100" th:value="${dto.discountRate}" placeholder="0">
-                </td>
-
-                <td class="border-start-thick">
-                    <input type="number" class="form-control form-control-sm daily-price"
-                           th:value="${dto.dailyPrice}" placeholder="원가">
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm readonly-input" readonly
-                           th:value="${#numbers.formatInteger(dto.finalDailyPrice, 0, 'COMMA') + '원'}" tabindex="-1">
-                </td>
-
-                <td class="border-start-thick">
-                    <input type="number" class="form-control form-control-sm price-1m"
-                           th:value="${dto.price1m}" placeholder="원가">
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm readonly-input" readonly
-                           th:value="${#numbers.formatInteger(dto.finalPrice1m, 0, 'COMMA')}" tabindex="-1">
-                </td>
-
-                <td>
-                    <input type="number" class="form-control form-control-sm price-3m"
-                           th:value="${dto.price3m}" placeholder="원가">
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm readonly-input" readonly
-                           th:value="${#numbers.formatInteger(dto.finalPrice3m, 0, 'COMMA')}" tabindex="-1">
-                </td>
-
-                <td>
-                    <input type="number" class="form-control form-control-sm price-6m"
-                           th:value="${dto.price6m}" placeholder="원가">
-                </td>
-                <td>
-                    <input type="text" class="form-control form-control-sm readonly-input" readonly
-                           th:value="${#numbers.formatInteger(dto.finalPrice6m, 0, 'COMMA')}" tabindex="-1">
-                </td>
-
-                <td class="border-start-thick text-center">
-                    <button type="button" class="btn btn-primary btn-sm" onclick="saveRow(this)">
-                        저장
-                    </button>
-                </td>
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(priceList)}">
-                <td colspan="12" class="text-center py-4 text-muted">등록된 차량이 없습니다.</td>
             </tr>
             </tbody>
         </table>
@@ -171,35 +102,147 @@
 </div>
 
 <script>
+    // 페이지 로드 시 목록 불러오기
+    document.addEventListener('DOMContentLoaded', loadPriceList);
+
+    // 금액 포맷터 (3자리 콤마 + "원")
+    function formatWon(value) {
+        if (value === null || value === undefined) return '';
+        const num = Number(value);
+        if (Number.isNaN(num)) return String(value);
+        return num.toLocaleString('ko-KR') + '원';
+    }
+
+    // ✅ 가격 목록 로딩
+    function loadPriceList() {
+        fetch('/admin/api/price/list')
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(list => {
+                const tbody = document.getElementById('price-tbody');
+                tbody.innerHTML = '';
+
+                if (!list || list.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="7" class="text-center py-4 text-muted">등록된 차량이 없습니다.</td></tr>';
+                    return;
+                }
+
+                list.forEach(dto => {
+                    const tr = document.createElement('tr');
+                    tr.id = 'row-' + dto.carSpecId;
+
+                    const priceId = dto.priceId != null ? dto.priceId : '';
+                    const pricePolicyId = dto.pricePolicyId != null ? dto.pricePolicyId : '';
+                    const discountRate = dto.discountRate != null ? dto.discountRate : '';
+                    const dailyPrice = dto.dailyPrice != null ? dto.dailyPrice : '';
+                    const monthlyPrice = dto.monthlyPrice != null ? dto.monthlyPrice : '';
+                    const finalDaily = dto.finalDailyPrice != null ? dto.finalDailyPrice : '';
+                    const finalMonthly = dto.finalMonthlyPrice != null ? dto.finalMonthlyPrice : '';
+                    const version = dto.version != null ? dto.version : 0;
+
+                    tr.innerHTML = `
+                        <input type="hidden" class="spec-id" value="${dto.carSpecId}">
+                        <input type="hidden" class="price-id" value="${priceId}">
+                        <input type="hidden" class="policy-id" value="${pricePolicyId}">
+                        <input type="hidden" class="version" value="${version}">
+
+                        <td>
+                            <div class="brand-name">${dto.brand}</div>
+                            <div class="model-name">${dto.modelName}</div>
+                        </td>
+
+                        <td>
+                            <input type="number"
+                                   class="form-control form-control-sm fw-bold text-danger discount-input"
+                                   min="0" max="100"
+                                   value="${discountRate}"
+                                   placeholder="0">
+                        </td>
+
+                        <td class="border-start-thick">
+                            <input type="number"
+                                   class="form-control form-control-sm daily-price"
+                                   value="${dailyPrice}"
+                                   placeholder="원가">
+                        </td>
+                        <td>
+                            <input type="text"
+                                   class="form-control form-control-sm readonly-input"
+                                   readonly
+                                   value="${finalDaily !== '' ? formatWon(finalDaily) : ''}"
+                                   tabindex="-1">
+                        </td>
+
+                        <td class="border-start-thick">
+                            <input type="number"
+                                   class="form-control form-control-sm monthly-price"
+                                   value="${monthlyPrice}"
+                                   placeholder="원가">
+                        </td>
+                        <td>
+                            <input type="text"
+                                   class="form-control form-control-sm readonly-input"
+                                   readonly
+                                   value="${finalMonthly !== '' ? formatWon(finalMonthly) : ''}"
+                                   tabindex="-1">
+                        </td>
+
+                        <td class="border-start-thick text-center">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="saveRow(this)">
+                                저장
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(err => {
+                console.error('가격 목록 조회 오류:', err);
+                const tbody = document.getElementById('price-tbody');
+                tbody.innerHTML =
+                    '<tr><td colspan="7" class="text-center py-4 text-danger">가격 정보를 불러오는 중 오류가 발생했습니다.</td></tr>';
+            });
+    }
+
     /**
-     * [행 단위 저장 함수]
-     * 버튼이 눌린 해당 행(tr)의 데이터만 긁어와서 서버로 전송합니다.
+     * ✅ 행 단위 저장
+     * - 버튼이 눌린 해당 행(tr)의 데이터만 서버로 전송
+     * - 낙관적 락을 위해 version도 함께 보냄
      */
     function saveRow(btn) {
-        // 1. 버튼이 속한 행(tr) 찾기
         const row = btn.closest('tr');
 
-        // 2. 데이터 수집 (hidden inputs & value inputs)
+        const specIdInput = row.querySelector('.spec-id');
+        const priceIdInput = row.querySelector('.price-id');
+        const policyIdInput = row.querySelector('.policy-id');
+        const versionInput = row.querySelector('.version');
+
+        const discountInput = row.querySelector('.discount-input');
+        const dailyInput = row.querySelector('.daily-price');
+        const monthlyInput = row.querySelector('.monthly-price');
+
         const data = {
-            carSpecId: row.querySelector('.spec-id').value,
-            priceId: row.querySelector('.price-id').value || null,       // 값이 없으면 null 전송
-            pricePolicyId: row.querySelector('.policy-id').value || null, // 값이 없으면 null 전송
+            carSpecId: Number(specIdInput.value),
+            priceId: priceIdInput.value === '' ? null : Number(priceIdInput.value),
+            pricePolicyId: policyIdInput.value === '' ? null : Number(policyIdInput.value),
 
-            discountRate: row.querySelector('.discount-input').value || 0,
+            // 빈 값이면 null, 숫자면 Number로 변환
+            discountRate: discountInput.value === '' ? null : Number(discountInput.value),
+            dailyPrice: dailyInput.value === '' ? null : Number(dailyInput.value),
+            monthlyPrice: monthlyInput.value === '' ? null : Number(monthlyInput.value),
 
-            dailyPrice: row.querySelector('.daily-price').value || 0,
-            price1m: row.querySelector('.price-1m').value || 0,
-            price3m: row.querySelector('.price-3m').value || 0,
-            price6m: row.querySelector('.price-6m').value || 0
+            // ✅ 낙관적 락 버전
+            version: versionInput.value === '' ? 0 : Number(versionInput.value)
         };
 
-        // 3. 유효성 검사 (간단하게 음수 체크만)
-        if (data.discountRate < 0 || data.discountRate > 100) {
+        if (data.discountRate != null && (data.discountRate < 0 || data.discountRate > 100)) {
             alert("할인율은 0~100 사이여야 합니다.");
             return;
         }
 
-        // 4. AJAX 요청 (fetch)
         fetch('/admin/api/price/save', {
             method: 'POST',
             headers: {
@@ -207,11 +250,11 @@
             },
             body: JSON.stringify(data)
         })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(res => {
                 if (res.success) {
                     alert(res.message);
-                    // 저장 후 계산된 '최종가'를 보기 위해 페이지 새로고침 (가장 확실한 방법)
+                    // 서버에서 최종 금액 다시 계산되므로 새로고침
                     location.reload();
                 } else {
                     alert("실패: " + res.message);
