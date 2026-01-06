@@ -67,6 +67,21 @@
         LIMIT #{limit}
     </select>
 
-
+    <select id="findBySpecId" resultType="com.carpick.domain.member.dto.ReviewResponse">
+        SELECT
+            id,
+            reservation_id,
+            spec_id,
+            user_id,
+            car_name,
+            rating,
+            content,
+            period,
+            created_at as createdAt
+        FROM reviews
+        WHERE spec_id = #{specId}
+        ORDER BY created_at DESC
+            LIMIT #{limit}
+    </select>
 
 </mapper>

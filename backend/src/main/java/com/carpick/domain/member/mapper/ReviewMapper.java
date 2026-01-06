@@ -13,4 +13,6 @@ public interface ReviewMapper {
     ReviewResponse findByIdAndUserId(Long userId, Long reviewId);
     void updateReview(Long reviewId, Double rating, String content);
     List<ReviewResponse> findLatestReviews(@Param("limit") int limit);
+    List<ReviewResponse> findBySpecId(@Param("specId") Long specId, @Param("limit") int limit);
 }
+

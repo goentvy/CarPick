@@ -32,8 +32,13 @@ public class ReviewService {
         return reviewMapper.findById(reviewId);
     }
 
-    // 🆕 홈페이지용 최신 리뷰 (MyBatis Mapper 사용)
+    //  홈페이지용 최신 리뷰
     public List<ReviewResponse> getLatestReviews(int limit) {
         return reviewMapper.findLatestReviews(limit); // Mapper 메서드 직접 호출
+    }
+
+    //  차량 상세 페이지: spec_id별 리뷰 (최근순)
+    public List<ReviewResponse> getReviewsBySpecId(Long specId, int limit) {
+        return reviewMapper.findBySpecId(specId, limit);
     }
 }
