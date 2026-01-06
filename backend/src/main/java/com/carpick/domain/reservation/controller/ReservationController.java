@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Map;
 
 @RestController
@@ -29,6 +31,8 @@ public class ReservationController {
 
     // ▼▼▼ [핵심] 이 줄이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
     private final ReservationPaymentCommandService paymentService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @PostMapping("/pay")
     public ResponseEntity<ReservationPayResponseDto> processPayment(
@@ -69,5 +73,41 @@ public class ReservationController {
         ReservationCreateResponseDto response = reservationCommandService.createReservation(req, userId);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/{reservationId}/cancel")
+    public ResponseEntity<Map<String, Object>> cancelReservation(
+            @PathVariable Long reservationId,
+            @RequestBody Map<String, String> request) {
+
+        try {
+            Long userId = 1L;
+
+            // 1. RESERVATION 상태 변경
+            jdbcTemplate.update(
+                    "UPDATE RESERVATION SET reservation_status = 'CANCELED', cancel_reason = ? WHERE reservation_id = ?",
+                    request.get("reason"), reservationId
+            );
+
+            // 2. reservation_history INSERT
+            jdbcTemplate.update(
+                    """
+                    INSERT INTO reservation_history (
+                        reservation_id, action_type, old_start_date, old_end_date,
+                        old_car_name, reason, user_id
+                    ) VALUES (?, 'CANCEL', ?, ?, ?, ?, ?)
+                    """,
+                    reservationId,
+                    request.get("old_start_date"),
+                    request.get("old_end_date"),
+                    request.get("old_car_name"),
+                    request.get("reason"),
+                    userId
+            );
+
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false));
+        }
+    }
+
 
 }

@@ -56,7 +56,7 @@ function ReservationsList() {
         const reservation = reservations.find(r => r.reservationId === reservationId);
 
         try {
-            await api.post(`/mypage/reservations/${reservationId}/cancel`, {
+            await api.post(`/reservation/${reservationId}/cancel`, {
                 action_type: 'CANCEL',
                 old_start_date: reservation.startDate,
                 old_end_date: reservation.endDate,
