@@ -50,6 +50,7 @@ public class SecurityConfigDev {
                                 // 1. API 경로 허용
                                 "/api/branches/**",
                                 "/api/dropzones/**",
+                                "/api/zone/**",
                                 "/api/recommend-cars",
                                 "/api/chat/**",
                                 "/api/faq/**",

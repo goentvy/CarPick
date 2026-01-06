@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * BranchService
- * - 홈/검색모달 리스트
+ * - 홈/검색 리스트
  * - 카픽존 상세보기(1건)
  */
 @Service
@@ -19,7 +19,7 @@ public class BranchService {
 
     private final BranchMapper branchMapper;
 
-    /** 홈/검색모달용 */
+    /** 홈/검색용 */
     public List<BranchHomeDto> getBranchesForHome() {
         return branchMapper.findForHome();
     }
@@ -27,10 +27,13 @@ public class BranchService {
     /** 카픽존 상세보기용 */
     public BranchZoneDetailDto getBranchForZone(long branchId) {
         BranchZoneDetailDto dto = branchMapper.findForZoneDetail(branchId);
+
+        // ✅ 없으면 null 방치하지 말고 즉시 예외로 전환
         if (dto == null) {
-            // 주석: MVP에서도 null 그대로 내려주면 프론트가 더 힘듦 → 명확히 에러
-            throw new IllegalArgumentException("Branch not found: " + branchId);
+            // 커스텀 예외가 있으면 그걸로 교체 추천 (예: ResourceNotFoundException)
+            throw new IllegalStateException("Branch not found: " + branchId);
         }
+
         return dto;
     }
 }

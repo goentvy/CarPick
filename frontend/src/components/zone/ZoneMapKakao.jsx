@@ -160,14 +160,14 @@ export default function ZoneMapKakao({
    * ✅ 3) center 이동 
    */
   useEffect(() => {
-  const map = mapRef.current;
-  const kakao = window.kakao;
+    const map = mapRef.current;
+    const kakao = window.kakao;
 
-  if (status !== "ready") return;
-  if (!map || !kakao?.maps) return;
+    if (status !== "ready") return;
+    if (!map || !kakao?.maps) return;
 
-  map.setCenter(new kakao.maps.LatLng(safeCenter.lat, safeCenter.lng));
-}, [status, safeCenter.lat, safeCenter.lng, safeCenter.nonce]);
+    map.setCenter(new kakao.maps.LatLng(safeCenter.lat, safeCenter.lng));
+  }, [status, safeCenter.lat, safeCenter.lng, safeCenter.nonce]);
 
   // 4) 내 위치 점 표시
   useEffect(() => {

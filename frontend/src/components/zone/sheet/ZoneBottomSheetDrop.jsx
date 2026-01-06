@@ -151,8 +151,6 @@ export default function ZoneBottomSheetDrop({
           ) : null}
         </div>
 
-        {/* CTA 고정 */}
-        <ZoneSheetCTA kind="DROP" onReturnDrop={onReturnDrop} />
       </div>
     </div>
   );

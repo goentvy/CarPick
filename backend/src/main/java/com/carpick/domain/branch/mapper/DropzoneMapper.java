@@ -1,6 +1,7 @@
 package com.carpick.domain.branch.mapper;
 
-import com.carpick.domain.branch.dto.DropzonePointDto;
+import com.carpick.domain.branch.dto.DropzoneDetailDto;
+import com.carpick.domain.branch.dto.DropzoneMapDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -29,7 +30,7 @@ public interface DropzoneMapper {
           AND deleted_at IS NULL
         ORDER BY dropzone_id ASC
     """)
-    List<DropzonePointDto> findByBranchId(@Param("branchId") long branchId);
+    List<DropzoneDetailDto> findByBranchId(@Param("branchId") long branchId);
 
 
     @Select("""
@@ -50,5 +51,28 @@ public interface DropzoneMapper {
           AND deleted_at IS NULL
         LIMIT 1
     """)
-    DropzonePointDto findById(@Param("dropzoneId") long dropzoneId);
+    DropzoneDetailDto findById(@Param("dropzoneId") long dropzoneId);
+
+    /**
+     * ✅ 지도/마커용: 드롭존 포인트 전체
+     * - active + not deleted 기준
+     */
+    @Select("""
+        SELECT
+            dropzone_id       AS dropzoneId,
+            branch_id         AS branchId,
+            dropzone_name     AS dropzoneName,
+            address_text      AS addressText,
+            location_desc     AS locationDesc,
+            walking_time_min  AS walkingTimeMin,
+            CAST(latitude     AS DOUBLE) AS latitude,
+            CAST(longitude    AS DOUBLE) AS longitude,
+            is_active         AS isActive
+        FROM DROPZONE_POINT
+        WHERE deleted_at IS NULL
+          AND is_active = 1
+        ORDER BY dropzone_id ASC
+    """)
+    List<DropzoneMapDto> findForMap();
+
 }

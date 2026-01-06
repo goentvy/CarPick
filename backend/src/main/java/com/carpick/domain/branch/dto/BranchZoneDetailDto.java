@@ -22,5 +22,7 @@ public class BranchZoneDetailDto {
     private Double longitude;
 
     private String businessHours;
+    private String openTime;
+    private String closeTime;
     private Boolean isActive;
 }

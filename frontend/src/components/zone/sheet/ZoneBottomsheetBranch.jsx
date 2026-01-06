@@ -188,9 +188,6 @@ export default function ZoneBottomSheetBranch({
             </div>
           </div>
         </div>
-
-        {/* CTA 고정 */}
-        <ZoneSheetCTA kind="BRANCH" onPickup={onPickup} />
       </div>
     </div>
   );
