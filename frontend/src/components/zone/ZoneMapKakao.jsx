@@ -49,7 +49,7 @@ function buildHtmlMarker({ kind, selected }) {
   const bg = selected ? (isBranch ? "#0A56FF" : "#111") : "rgba(255,255,255,0.96)";
   const color = selected ? "#fff" : "rgba(17,17,17,0.92)";
   const dot = selected ? "#fff" : isBranch ? "#0A56FF" : "#111";
-  const label = isBranch ? "카픽존" : "반납";
+  const label = isBranch ? "카픽존" : "드롭존";
 
   return `
     <button type="button"
@@ -160,14 +160,14 @@ export default function ZoneMapKakao({
    * ✅ 3) center 이동 
    */
   useEffect(() => {
-  const map = mapRef.current;
-  const kakao = window.kakao;
+    const map = mapRef.current;
+    const kakao = window.kakao;
 
-  if (status !== "ready") return;
-  if (!map || !kakao?.maps) return;
+    if (status !== "ready") return;
+    if (!map || !kakao?.maps) return;
 
-  map.setCenter(new kakao.maps.LatLng(safeCenter.lat, safeCenter.lng));
-}, [status, safeCenter.lat, safeCenter.lng, safeCenter.nonce]);
+    map.setCenter(new kakao.maps.LatLng(safeCenter.lat, safeCenter.lng));
+  }, [status, safeCenter.lat, safeCenter.lng, safeCenter.nonce]);
 
   // 4) 내 위치 점 표시
   useEffect(() => {

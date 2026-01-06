@@ -48,6 +48,9 @@ public class SecurityConfigDev {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 // 1. API 경로 허용
+                                "/api/branches/**",
+                                "/api/dropzones/**",
+                                "/api/zone/**",
                                 "/api/recommend-cars",
                                 "/api/chat/**",
                                 "/api/faq/**",
@@ -62,6 +65,8 @@ public class SecurityConfigDev {
                                 "/api/admin/**",
                                 "/api/reservation/**",
                                 "/api/reviews/latest",
+                                "/api/dropzones",
+
                                 // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                                 "/",
                                 "/admin/**",
