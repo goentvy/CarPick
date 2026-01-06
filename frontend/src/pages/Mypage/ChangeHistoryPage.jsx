@@ -246,7 +246,7 @@ function ChangeHistoryPage() {
                                                 </div>
 
                                                 <button
-                                                    onClick={() => navigate(`/mypage/reservation-detail/${item.reservationId}`)}
+                                                    onClick={() => navigate(`/Mypage/Reservations/${item.reservationId}`)}
                                                     className="text-xs bg-[#1D6BF3] text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-[#1E5BBF] transition-colors whitespace-nowrap"
                                                 >
                                                     상세보기

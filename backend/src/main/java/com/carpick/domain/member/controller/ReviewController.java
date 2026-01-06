@@ -1,5 +1,6 @@
 package com.carpick.domain.member.controller;
 
+import com.carpick.domain.member.dto.ReviewCreateRequest;
 import com.carpick.domain.member.dto.ReviewResponse;
 import com.carpick.domain.member.dto.ReviewUpdateRequest;
 import com.carpick.domain.member.service.ReviewService;
@@ -28,6 +29,15 @@ public class ReviewController {
         System.out.println("### REVIEW /me USER_ID = " + userId);
         List<ReviewResponse> reviews = reviewService.getMyReviews(userId);
         return ResponseEntity.ok(reviews);
+    }
+
+    @PostMapping
+    public ResponseEntity<ReviewResponse> createReview(
+            HttpServletRequest request,
+            @RequestBody ReviewCreateRequest requestDto) {
+        Long userId = getCurrentUserId(request);
+        ReviewResponse newReview = reviewService.createReview(userId, requestDto);
+        return ResponseEntity.ok(newReview);
     }
 
     @PutMapping("/{reviewId}")

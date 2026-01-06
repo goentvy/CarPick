@@ -5,6 +5,7 @@ import SpinVideo from "../../components/car/SpinVideo.jsx";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
 import { getCarDetail } from "@/services/carApi.js";
 import { createGlobalStyle } from "styled-components";
+import StarRating from "../Home/StarRating.jsx";
 
 const HideHeaderFooter = createGlobalStyle`
   #head, #footer {
@@ -109,6 +110,7 @@ export default function CarDetailPage() {
   const toastTimerRef = useRef(null);
 
   const [car, setCar] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
 
@@ -127,6 +129,7 @@ export default function CarDetailPage() {
 
       if (!mounted) return;
       setCar(res.data);
+      setReviews(res.data?.reviews ?? []);
     } catch (e) {
       console.error("API error:", e);
       console.error("status:", e?.response?.status);
@@ -134,6 +137,7 @@ export default function CarDetailPage() {
 
       if (!mounted) return;
       setCar(null);
+      setReviews([]);
       setErrorText("차량 정보를 불러오지 못했어요.");
     } finally {
       if (!mounted) return;
@@ -303,35 +307,47 @@ export default function CarDetailPage() {
           </div>
 
           {/* 후기 (임시 유지) */}
-          <SectionTitle>
-            {top?.title ?? "이 차량을"}
-            <br />탄 사람들 이야기
-          </SectionTitle>
+            <SectionTitle>
+                {top?.title ?? "이 차량을"}
+                <br />탄 사람들 이야기
+            </SectionTitle>
 
-          {[0, 1, 2].map((idx) => (
-            <div
-              key={idx}
-              className={`rounded-2xl bg-white border border-black/5 shadow-sm p-4 ${
-                idx === 0 ? "mt-5" : "mt-3"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-sm font-semibold text-[#111]">
-                    (임시) 리뷰 데이터 준비 중
-                  </div>
-                  <div className="mt-1 text-xs text-[#2B56FF]">★★★★★</div>
-                  <p className="mt-2 text-sm text-[#333] leading-relaxed">
-                    리뷰 영역은 추후 API 연동으로 교체하면 돼요.
-                  </p>
+            {reviews.length > 0 ? (
+                <div className="space-y-3">
+                    {reviews.slice(0, 3).map((review) => (
+                        <div
+                            key={review.id}
+                            className="bg-white rounded-2xl shadow-sm px-4 py-4 border border-black/5"
+                        >
+                            <div className="flex items-start justify-between mb-3">
+                                <div>
+                                    <div className="text-sm font-semibold text-[#1A1A1A]">
+                                        {review.carName}
+                                    </div>
+                                    <div className="text-xs text-[#888888] mt-1">
+                                        {review.period}
+                                    </div>
+                                </div>
+                                {/*  StarRating 사용 */}
+                                <div className="flex items-center">
+                                    <StarRating rating={Number(review.rating)} />
+                                    <span className="ml-2 text-sm font-medium text-[#1A1A1A]">
+                        {Number(review.rating).toFixed(1)}
+                      </span>
+                                </div>
+                            </div>
+
+                            <p className="text-sm text-[#666666] leading-relaxed">
+                                {review.content}
+                            </p>
+                        </div>
+                    ))}
                 </div>
-                <div className="text-xs text-[#8A8A8A] whitespace-nowrap">
-                  -
+            ) : (
+                <div className="rounded-2xl bg-[#F6F7FA] p-4 text-center text-sm text-[#999] mt-5">
+                    아직 리뷰가 없어요. 첫 번째 리뷰를 남겨주세요!
                 </div>
-              </div>
-              <div className="mt-3 text-xs text-[#6B6B6B]">-</div>
-            </div>
-          ))}
+            )}
 
           {/* 세차 이미지 */}
           <SectionTitle>99.9% 살균 세차</SectionTitle>
