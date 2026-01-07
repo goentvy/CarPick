@@ -10,17 +10,17 @@ export default function Notice() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [activeKeyword, setActiveKeyword] = useState("");
 
+  // 1. 데이터 로딩 함수 (keyword 대신 activeKeyword 사용)
   const loadNotices = async () => {
     setLoading(true);
     try {
-      const res = await fetchNotices(page - 1, keyword);
+      const res = await fetchNotices(page - 1, activeKeyword); // ✅
       setNotices(res.data.content || []);
       setTotalPages(res.data.totalPages || 1);
     } catch (err) {
       console.error("공지사항 로딩 실패:", err);
-      setNotices([]);
-      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -28,15 +28,15 @@ export default function Notice() {
 
   useEffect(() => {
     loadNotices();
-  }, [page, keyword]);
+  }, [page, activeKeyword]);
 
   const handleSearch = () => {
-    setPage(1);
-    loadNotices();
+    setPage(1); // 페이지 리셋
+    setActiveKeyword(keyword); // ✅ 여기서 검색어를 확정 지으면 useEffect가 실행됨
   };
 
   const handleClickNotice = (id) => {
-    navigate(`/notice/${id}?page=${page}&keyword=${keyword}`);
+    navigate(`/notice/${id}?page=${page}&keyword=${activeKeyword}`);
   };
 
   return (
