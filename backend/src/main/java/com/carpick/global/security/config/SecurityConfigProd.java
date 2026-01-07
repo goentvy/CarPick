@@ -36,8 +36,14 @@ public class SecurityConfigProd {
                 s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+        		.requestMatchers(
+        		        "/admin/upload/**",
+        		        "/upload/**"
+        		    ).permitAll()
         	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-        	    .requestMatchers(
+                    .requestMatchers(
+                    "/api/branches/**",
+                    "/api/dropzones/**",
         	    	"/api/recommend-cars",
         	    	"/api/chat/**",
         	        "/api/faq/**",

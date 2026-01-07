@@ -75,11 +75,12 @@ public class AdminPriceService {
                 throw new IllegalStateException("가격 정보를 신규 등록하지 못했습니다.");
             }
         } else {
-            // 수정
-            int updated = priceMapper.updatePrice(dto);
+            // 수정 version 조건 불일치 시 update count = 0
+            int updated = priceMapper.updatePriceWithVersion(dto);
             if (updated == 0) {
                 throw new IllegalStateException(
-                        "가격 정보를 수정할 수 없습니다. (priceId=" + dto.getPriceId() + ")"
+                        "이미 다른 관리자가 먼저 수정했습니다.\n" +
+                                "화면을 새로고침한 뒤 다시 시도해주세요."
                 );
             }
         }
@@ -125,15 +126,10 @@ public class AdminPriceService {
         if (dto.getDailyPrice() != null && isNegative(dto.getDailyPrice())) {
             throw new IllegalArgumentException("1일 대여료는 0 이상이어야 합니다.");
         }
-        if (dto.getPrice1m() != null && isNegative(dto.getPrice1m())) {
+        if (dto.getMonthlyPrice() != null && isNegative(dto.getMonthlyPrice())) {
             throw new IllegalArgumentException("1개월 대여료는 0 이상이어야 합니다.");
         }
-        if (dto.getPrice3m() != null && isNegative(dto.getPrice3m())) {
-            throw new IllegalArgumentException("3개월 대여료는 0 이상이어야 합니다.");
-        }
-        if (dto.getPrice6m() != null && isNegative(dto.getPrice6m())) {
-            throw new IllegalArgumentException("6개월 대여료는 0 이상이어야 합니다.");
-        }
+
 
         if (dto.getDiscountRate() != null) {
             validateDiscountRate(dto.getDiscountRate());
@@ -156,7 +152,7 @@ public class AdminPriceService {
     // ======================================================
 
     /**
-     * DTO 안의 finalDailyPrice / finalPrice1m / finalPrice3m / finalPrice6m
+     * DTO 안의 finalDailyPrice / finalPrice1m
      * 필드를 채워주는 메서드입니다.
      */
     private void applyFinalPrices(AdminPriceDto dto) {
@@ -181,31 +177,15 @@ public class AdminPriceService {
         }
 
         // 1개월
-        if (dto.getPrice1m() != null) {
-            dto.setFinalPrice1m(
-                    dto.getPrice1m()
+        if (dto.getMonthlyPrice() != null) {
+            dto.setFinalMonthlyPrice(
+                    dto.getMonthlyPrice()
                             .multiply(factor)
                             .setScale(0, RoundingMode.HALF_UP)
             );
         }
 
-        // 3개월
-        if (dto.getPrice3m() != null) {
-            dto.setFinalPrice3m(
-                    dto.getPrice3m()
-                            .multiply(factor)
-                            .setScale(0, RoundingMode.HALF_UP)
-            );
-        }
 
-        // 6개월
-        if (dto.getPrice6m() != null) {
-            dto.setFinalPrice6m(
-                    dto.getPrice6m()
-                            .multiply(factor)
-                            .setScale(0, RoundingMode.HALF_UP)
-            );
-        }
     }
 
 
