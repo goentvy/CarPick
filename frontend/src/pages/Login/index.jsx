@@ -62,9 +62,7 @@ const Login = () => {
   // ✅ 카카오 로그인 핸들러
   const handleKakaoLogin = () => {
     const REST_API_KEY = import.meta.env.VITE_KAKAO_CLIENT_ID;
-
-    // ❗ 백엔드 말고 프론트 주소
-    const REDIRECT_URI = "http://localhost:5173/oauth/kakao/callback";
+    const REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
 
     const kakaoAuthUrl =
       `https://kauth.kakao.com/oauth/authorize` +
