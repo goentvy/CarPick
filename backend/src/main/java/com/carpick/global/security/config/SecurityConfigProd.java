@@ -36,6 +36,10 @@ public class SecurityConfigProd {
                 s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+        		.requestMatchers(
+        		        "/admin/upload/**",
+        		        "/upload/**"
+        		    ).permitAll()
         	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
                     "/api/branches/**",

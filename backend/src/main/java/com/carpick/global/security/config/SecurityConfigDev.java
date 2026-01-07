@@ -45,6 +45,10 @@ public class SecurityConfigDev {
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                		.requestMatchers(
+            		        "/admin/upload/**",
+            		        "/upload/**"
+            		    ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 // 1. API 경로 허용
@@ -103,7 +107,9 @@ public class SecurityConfigDev {
                 "http://localhost:5173",
                 "http://localhost:8081",
                 "http://127.0.0.1:3000",
-                "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173",
+                "http://3.236.8.244",
+                "http://3.236.8.244:5173"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
