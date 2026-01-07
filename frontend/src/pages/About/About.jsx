@@ -15,11 +15,17 @@ const About = () => {
     const [values, setValues] = useState([]);
     const navigate = useNavigate();
 
+    // [수정 포인트 1] 환경 변수에서 URL을 가져옵니다.
+    // .env.production에 설정한 VITE_API_URL 값을 읽어옵니다.
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/about/values`)
+        // [수정 포인트 2] 하드코딩된 주소 대신 환경 변수 주소를 사용합니다.
+        // 백틱(`)을 사용한 템플릿 리터럴 문법입니다.
+        axios.get(`${API_BASE_URL}/api/about/values`)
             .then(res => setValues(res.data))
             .catch(err => console.error("데이터 로딩 실패:", err));
-    }, []);
+    }, [API_BASE_URL]);
 
     return (
         <div className="w-full font-sans text-gray-900 overflow-x-hidden bg-white">

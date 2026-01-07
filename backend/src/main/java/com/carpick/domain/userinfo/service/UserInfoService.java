@@ -1,12 +1,12 @@
 package com.carpick.domain.userinfo.service;
 
-import com.carpick.domain.userinfo.entity.UserInfo;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.carpick.domain.userinfo.dto.UserInfoResponse;
 import com.carpick.domain.userinfo.dto.UserInfoUpdateRequest;
+import com.carpick.domain.userinfo.entity.UserInfo;
 
 import lombok.RequiredArgsConstructor;
 

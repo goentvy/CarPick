@@ -9,7 +9,7 @@ const CustomerReview = () => {
         const fetchReviews = async () => {
             try {
                 // ✅ 백엔드 직접 호출 (프록시 우회)
-                const response = await fetch("http://localhost:8080/api/reviews/latest");
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reviews/latest`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }

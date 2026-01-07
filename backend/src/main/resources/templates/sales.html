@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+	<meta charset="UTF-8">
+	<title>카픽 - 매출 통계</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- CSS -->
+	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/common.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+	<!-- amchart css (CDN) -->
+	<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css"
+		media="all" />
+
+	<!-- Others CSS -->
+	<link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+	<!-- JS -->
+	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+</head>
+
+<body>
+
+	<div class="page-container">
+
+		<!-- ⭐ 사이드바 include -->
+		<div th:replace="fragments/fragments :: sidebar"></div>
+
+
+		<!-- ⭐ header include -->
+		<div th:replace="fragments/fragments :: header"></div>
+
+		<!-- ⭐ 본문 영역 -->
+		<!-- main content area start -->
+		<div class="main-content">
+			<!-- page title area start -->
+			<div class="page-title-area">
+				<div class="row align-items-center">
+					<div class="col-sm-6">
+						<div class="breadcrumbs-area clearfix">
+							<h4 class="page-title pull-left">통계 관리</h4>
+							<ul class="breadcrumbs pull-left">
+								<li><a href="/admin">홈</a></li>
+								<li><span>매출 통계 관리</span></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-sm-6 clearfix">
+					</div>
+				</div>
+			</div>
+			<!-- page title area end -->
+			<div class="main-content-inner">
+				<canvas id="salesChart" width="400" height="200"></canvas>
+			</div>
+			<!-- main content area end -->
+
+			<!-- ⭐ footer include -->
+			<div th:replace="fragments/fragments :: footer"></div>
+
+		</div>
+
+		<!-- jquery latest version -->
+		<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+
+		<!-- bootstrap 4 js -->
+		<script th:src="@{/assets/js/popper.min.js}"></script>
+		<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+
+		<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+		<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+		<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+		<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+
+		<!-- start chart js (CDN) -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+		<!-- start highcharts js (CDN) -->
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+
+		<!-- start zingchart js (CDN) -->
+		<script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+		<script>
+			zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
+			ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];
+		</script>
+
+		<!-- start chart js (CDN) -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+
+		<!-- others plugins -->
+		<script th:src="@{/assets/js/plugins.js}"></script>
+		<script th:src="@{/assets/js/scripts.js}"></script>
+		
+		<script>
+		    // 차트를 그릴 컨텍스트 가져오기
+		    var ctx = document.getElementById('salesChart').getContext('2d');
+
+		    // 차트 데이터
+		    var salesData = {
+		        labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'], // 월별 라벨
+		        datasets: [{
+		            label: '매출', // 데이터 세트 이름
+		            data: [1000, 1500, 2000, 1700, 2500, 3000, 2200, 2700, 3200, 2900, 3100, 3500], // 각 월별 매출 데이터
+		            borderColor: 'rgba(75, 192, 192, 1)', // 선 색
+		            backgroundColor: 'rgba(75, 192, 192, 0.2)', // 배경 색
+		            fill: true, // 선 아래를 채울지 여부
+		            tension: 0.4 // 선의 곡선 정도
+		        }]
+		    };
+
+		    // 차트 옵션
+		    var salesOptions = {
+		        responsive: true,
+		        plugins: {
+		            legend: {
+		                display: true, // 범례 표시 여부
+		            },
+		            tooltip: {
+		                enabled: true, // 툴팁 표시 여부
+		            }
+		        },
+		        scales: {
+		            y: {
+		                beginAtZero: true, // Y축이 0부터 시작하게 설정
+		                title: {
+		                    display: true,
+		                    text: '매출액 (원)', // Y축 제목
+		                }
+		            },
+		            x: {
+		                title: {
+		                    display: true,
+		                    text: '월' // X축 제목
+		                }
+		            }
+		        }
+		    };
+
+		    // 차트 생성
+		    var salesChart = new Chart(ctx, {
+		        type: 'line', // 차트 타입 (line, bar, pie 등)
+		        data: salesData,
+		        options: salesOptions
+		    });
+		</script>
+
+
+</body>
+
+</html>
