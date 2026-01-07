@@ -21,7 +21,7 @@ public interface NoticeRepository extends JpaRepository<NoticeNtt, Long> {
     Optional<NoticeNtt> findByIdAndDeletedFalse(Long id);
 
     // 조회수 증가
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("""
         UPDATE NoticeNtt n
