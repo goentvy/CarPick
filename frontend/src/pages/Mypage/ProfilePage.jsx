@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import useUserStore from "../../store/useUserStore";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -13,7 +14,11 @@ const ProfilePage = () => {
     api.get("/users/me")
       .then((res) => {
         setUserInfo(res.data);
-        setForm((prev) => ({ ...prev, phone: res.data.phone ?? "" }));
+        setForm({
+          phone: res.data.phone ?? "",
+          password: "",
+          confirmPassword: "",
+        });
       })
       .catch((err) => console.error("회원정보 불러오기 실패:", err));
   }, []);
@@ -25,40 +30,69 @@ const ProfilePage = () => {
     navigate("/");
   };
 
-  // 공통 업데이트 함수
-  const updateUserInfo = async (payload, successMsg, failMsg) => {
+  // 폰번호 하이픈 함수 추가
+  const formatPhoneNumber = (value) => {
+    if (!value) return "";
+    const numbers = value.replace(/[^0-9]/g, "");
+    if (numbers.length < 4) return numbers;
+    if (numbers.length < 8)
+      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  const validateForm = () => {
+    // 휴대폰 번호 검사
+    const phoneRegex = /^01[0-9]-\d{3,4}-\d{4}$/;
+    if (!phoneRegex.test(form.phone)) {
+      alert("휴대폰 번호 형식이 올바르지 않습니다.");
+      return false;
+    }
+
+    // 비밀번호는 입력했을 때만 검사
+    if (form.password) {
+      const pwRegex = /^.{6,}$/;
+      if (!pwRegex.test(form.password)) {
+        alert("비밀번호는 6자리 이상이어야 합니다.");
+        return false;
+      }
+
+      if (form.password !== form.confirmPassword) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // 일괄 개인정보 수정 버튼
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    // 항상 "최종값"을 payload로 만든다
+    const payload = {
+      name: userInfo.name,
+      phone: form.phone,              // ✅ 항상 값 있음
+      birth: userInfo.birth,
+      marketingAgree: userInfo.marketingAgree,
+    };
+
+    // 비밀번호는 입력했을 때만 포함
+    if (form.password) {
+      payload.password = form.password;
+    }
+
     try {
       await api.put("/users/me", payload);
-      alert(successMsg);
+      alert("개인정보 수정이 완료되었습니다.");
+      navigate("/home");
     } catch (err) {
-      alert(err.response?.data?.message || failMsg);
-      console.error(err);
+      alert(err.response?.data?.message || "개인정보 수정 실패");
     }
   };
-
-  // 휴대폰 번호 변경
-  const handleUpdatePhone = () => {
-    updateUserInfo(
-      { name: userInfo.name, phone: form.phone, birth: userInfo.birth, marketingAgree: userInfo.marketingAgree },
-      "휴대폰 번호가 변경되었습니다.",
-      "휴대폰 번호 변경 실패"
-    );
-  };
-
-  // 비밀번호 변경
-  const handleUpdatePassword = () => {
-    if (form.password !== form.confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
-      return;
-    }
-    updateUserInfo(
-      { name: userInfo.name, phone: form.phone, birth: userInfo.birth, password: form.password, marketingAgree: userInfo.marketingAgree },
-      "비밀번호 수정 완료",
-      "비밀번호 변경 실패"
-    );
-    setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
-  };
-
   // 회원탈퇴
   const deleteAccount = async () => {
     if (window.confirm("정말 회원탈퇴 하시겠습니까?")) {
@@ -119,67 +153,127 @@ const ProfilePage = () => {
         <p><strong>마케팅 수신 동의:</strong> {userInfo.marketingAgree ? "동의" : "거부"}</p>
       </div>
 
-      {/* 휴대폰 번호 변경 */}
-      <div>
-        <label className="block text-sm mb-1">휴대폰 번호</label>
-        <input
-          type="text"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          className="w-full border rounded px-3 py-2"
-        />
-        <button
-          onClick={handleUpdatePhone}
-          className="mt-2 px-4 py-2 bg-brand text-white rounded"
-        >
-          휴대폰 번호 변경
-        </button>
-      </div>
+      {/* 입력 정보 수정 영역 */}
+      <div className="space-y-6">
 
-      {/* 비밀번호 변경 */}
-      <div>
-        <label className="block text-sm mb-1">새 비밀번호</label>
-        <input
-          type="password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="w-full border rounded px-3 py-2"
-        />
-        <label className="block text-sm mt-2 mb-1">비밀번호 확인</label>
-        <input
-          type="password"
-          value={form.confirmPassword}
-          onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-          className="w-full border rounded px-3 py-2"
-        />
-        <button
-          onClick={handleUpdatePassword}
-          className="mt-2 px-4 py-2 bg-brand text-white rounded"
-        >
-          비밀번호 변경
-        </button>
+        {/* 휴대폰 번호 변경 */}
+        <div className="space-y-2">
+          <label className="block text-sm leading-tight">
+            휴대폰 번호
+          </label>
+          <input
+            type="tel"
+            value={formatPhoneNumber(form.phone)}
+            onChange={(e) =>
+              setForm({ ...form, phone: formatPhoneNumber(e.target.value) })
+            }
+            maxLength={13}
+            className="w-full h-11 border rounded px-3"
+          />
+        </div>
+
+        {/* 비밀번호 변경 */}
+        <div className="space-y-4">
+
+          {/* 새 비밀번호 */}
+          <div className="space-y-2">
+            <label className="block text-sm leading-tight">
+              새 비밀번호
+            </label>
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                className="w-full h-11 border rounded px-3 pr-10"
+              />
+
+              {form.password && (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  aria-label="비밀번호 보기 토글"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* 비밀번호 확인 */}
+          <div className="space-y-2">
+            <label className="block text-sm leading-tight">
+              비밀번호 확인
+            </label>
+
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={(e) =>
+                  setForm({ ...form, confirmPassword: e.target.value })
+                }
+                className="w-full h-11 border rounded px-3 pr-10"
+              />
+
+              {form.confirmPassword && (
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  aria-label="비밀번호 확인 보기 토글"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              )}
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
       {/* 회원탈퇴 / 소셜 연동 해제 */}
-      <div className="pt-4 border-t flex gap-2">
-        {/* 회원탈퇴는 LOCAL만 보이도록 */}
-        {userInfo.provider === "LOCAL" && (
+
+      {/* 하단 액션 영역 */}
+      <div className="pt-6 space-y-4">
+
+        {/* 주요 액션 */}
+        <div className="flex justify-center">
           <button
-            onClick={deleteAccount}
-            className="px-4 py-2 bg-red-500 text-white rounded"
+            onClick={handleSave}
+            className="w-full max-w-[240px] px-4 py-2 bg-brand text-white rounded font-medium"
           >
-            회원탈퇴
+            회원정보 수정
           </button>
-        )}
-        {/* 소셜 연동 해제는 LOCAL이 아닌경우만 */}
-        {userInfo.provider !== "LOCAL" && (
-          <button
-            onClick={() => unlinkSocial(userInfo.provider.toUpperCase())}
-            className="px-4 py-2 bg-yellow-500 text-black rounded"
-          >
-            {userInfo.provider === "KAKAO" ? "카카오 연동 해제" : "네이버 연동 해제"}
-          </button>
-        )}
+        </div>
+
+        {/* 위험 액션 */}
+        <div className="flex justify-center gap-3 text-sm">
+          {userInfo.provider === "LOCAL" && (
+            <button
+              onClick={deleteAccount}
+              className="text-red-500 underline"
+            >
+              회원탈퇴
+            </button>
+          )}
+
+          {userInfo.provider !== "LOCAL" && (
+            <button
+              onClick={() => unlinkSocial(userInfo.provider.toUpperCase())}
+              className="text-yellow-600 underline"
+            >
+              {userInfo.provider === "KAKAO"
+                ? "카카오 연동 해제"
+                : "네이버 연동 해제"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
