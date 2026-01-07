@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import useReservationStore from "../../store/useReservationStore";
-import axios from "axios";
+import api from "../../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
 const AgreementSection = ({ isLoggedIn }) => {
@@ -11,19 +11,19 @@ const AgreementSection = ({ isLoggedIn }) => {
   const setCardPayment = useReservationStore((state) => state.setCardPayment);
   const setDriverInfo = useReservationStore((state) => state.setDriverInfo);
   // ✅ 추가: create / pay 전용 payload
-const getCreatePayload = useReservationStore((state) => state.getCreatePayload);
-const getPayPayload = useReservationStore((state) => state.getPayPayload);
+  const getCreatePayload = useReservationStore((state) => state.getCreatePayload);
+  const getPayPayload = useReservationStore((state) => state.getPayPayload);
 
 
   const totalPrice = useReservationStore((state) => state.payment.summary?.totalPrice || 0);
- 
- 
+
+
   const setReservationNo = useReservationStore((state) => state.setReservationNo);
 
 
 
 
-   // 결제 버튼 클릭 시 실행
+  // 결제 버튼 클릭 시 실행
   const onSubmit = async (formData) => {
     // 1) 운전자 정보 추출 및 저장
     const { birth, email, firstName, lastName, phone } = formData;
@@ -66,8 +66,8 @@ const getPayPayload = useReservationStore((state) => state.getPayPayload);
         };
         console.warn("⚠️ 날짜가 비어있어 임시값으로 createPayload 보정:", createPayload);
       }
-      const createRes = await axios.post(
-        "http://localhost:8080/api/reservation/create",
+      const createRes = await api.post(
+        "/reservation/create",
         createPayload
       );
 
@@ -86,14 +86,14 @@ const getPayPayload = useReservationStore((state) => state.getPayPayload);
       // ============================
       // 2️⃣ 결제 승인 (/pay)
       // ============================
-        const payPayload = {
+      const payPayload = {
         ...getPayPayload(),
         reservationNo: newReservationNo,
       };
       console.log("✅ PAY payload:", payPayload);
 
-      const payRes = await axios.post(
-        "http://localhost:8080/api/reservation/pay",
+      const payRes = await api.post(
+        "/reservation/pay",
         payPayload
       );
 

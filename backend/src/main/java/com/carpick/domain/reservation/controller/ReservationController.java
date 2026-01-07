@@ -12,10 +12,12 @@ import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
 import com.carpick.domain.reservation.service.ReservationCommandService;
 import com.carpick.domain.reservation.service.ReservationPaymentCommandService;
 import com.carpick.domain.reservation.service.ReservationUiService;
+import com.carpick.global.security.details.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +38,13 @@ public class ReservationController {
 
     @PostMapping("/pay")
     public ResponseEntity<ReservationPayResponseDto> processPayment(
-            @Valid @RequestBody ReservationPaymentRequestDto request) {
-        Long userId = 1L; // 임시 유저 ID
+            @Valid @RequestBody ReservationPaymentRequestDto request,
+    @AuthenticationPrincipal CustomUserDetails userDetails ) {
+        if(userDetails == null){
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        }
+        Long userId = userDetails.getUserId(); // 로그인 유저로 수정
 
         // ✅ 방금 만드신 Service의 pay 메서드 호출!
         ReservationPayResponseDto response = paymentService.pay(request, userId);
@@ -67,19 +74,26 @@ public class ReservationController {
     }
     @PostMapping("/create")
     public ResponseEntity<ReservationCreateResponseDto> create(
-            @RequestBody @Valid ReservationCreateRequestDto req
+            @RequestBody @Valid ReservationCreateRequestDto req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = 1L; // 임시 유저 ID
+        if(userDetails == null){
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        }
+        Long userId = userDetails.getUserId(); // 유저 아이디 연동
         ReservationCreateResponseDto response = reservationCommandService.createReservation(req, userId);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/{reservationId}/cancel")
     public ResponseEntity<Map<String, Object>> cancelReservation(
             @PathVariable Long reservationId,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+   ) {
 
         try {
-            Long userId = 1L;
+            Long userId = userDetails.getUserId();
 
             // 1. RESERVATION 상태 변경
             jdbcTemplate.update(
