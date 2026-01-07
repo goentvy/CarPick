@@ -8,12 +8,6 @@ import { getZoneMap } from "@/services/zoneApi.js";
 import ZoneBottomSheetBranch from "../../components/zone/sheet/ZoneBottomSheetBranch.jsx";
 import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop.jsx";
 
-/**
- * ✅ useMyLocation
- * - "모달 뜨기 전"에는 절대 위치 요청/추적을 시작하지 않음
- * - 이미 권한이 granted면 모달 없이 자동 추적 시작
- * - 사용자가 "허용" 눌렀을 때만 getCurrentPosition으로 권한 팝업 유도
- */
 function useMyLocation() {
   const [myPos, setMyPos] = useState(null);
   const [locModalOpen, setLocModalOpen] = useState(false);
@@ -140,6 +134,11 @@ export default function CarPickZonePage() {
    * ---------------------- */
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [sheetH, setSheetH] = useState("0px");
+  const openSheetFor = useCallback((id) => {
+    setSelectedId(id);
+    setSheetOpen(true);
+  }, []);
 
   /** -----------------------
    * [MOD] 최초: ZoneMap 로딩 (branches+dropzones 한 번에)
@@ -168,16 +167,17 @@ export default function CarPickZonePage() {
             lng: Number(b.longitude),
           })),
           ...dropzones.map((d) => ({
-            id: `D-${d.dropzoneId}`, // ✅ 충돌 방지
+            id: `D-${d.dropzoneId}`,
             kind: "DROP",
             name: d.dropzoneName,
             address: d.addressText,
             lat: Number(d.latitude),
             lng: Number(d.longitude),
-            parentZoneId: `B-${d.branchId}`, // ✅ branch 연결
+            parentZoneId: `B-${d.branchId}`,
             walkingTimeMin: d.walkingTimeMin,
             locationDesc: d.locationDesc,
-            isActive: d.isActive,
+            // ✅ 0/1 or true/false 모두 안전하게 boolean으로 정규화
+            isActive: d.isActive === true || d.isActive === 1,
           })),
         ];
 
@@ -242,89 +242,24 @@ export default function CarPickZonePage() {
   }, [q, branchItems]);
 
   /** -----------------------
-   * 6.5) 선택된 BRANCH의 DROP 로딩 함수
-   * - selectZone에서 BRANCH 선택될 때 호출
-   * - API 형태(/dropzones?branchId=)에 맞춰 "지점 기준"으로만 DROP을 붙임
-   * ---------------------- */
-  const loadDropzonesForBranch = useCallback(async (branchIdStr) => {
-    const branchId = Number(branchIdStr);
-    if (!branchId || Number.isNaN(branchId)) return;
-
-    // ✅ 캐시가 있으면 API 호출 없이 바로 붙임
-    if (dropCacheRef.current.has(branchIdStr)) {
-      const cached = dropCacheRef.current.get(branchIdStr);
-
-      setZones((prev) => {
-        const onlyBranches = prev.filter((it) => it.kind === "BRANCH");
-        return [...onlyBranches, ...(cached ?? [])];
-      });
-      return;
-    }
-
-    try {
-      const res = await getDropzones(branchId); // GET /api/dropzones?branchId=...
-      const dropZones = (res.data ?? []).map((d) => ({
-        id: String(d.dropzoneId),
-        kind: "DROP",
-        name: d.dropzoneName,
-        address: d.addressText,
-        lat: Number(d.latitude),
-        lng: Number(d.longitude),
-        parentZoneId: String(d.branchId), // ✅ parentZone 연결용
-        walkingTimeMin: d.walkingTimeMin,
-        // locationDesc: d.locationDesc,
-        // serviceHours: d.serviceHours,
-        // isActive: d.isActive,
-      }));
-
-      // ✅ 캐시에 저장
-      dropCacheRef.current.set(branchIdStr, dropZones);
-
-      // ✅ zones = BRANCH 전체 + (해당 branch DROP만)
-      setZones((prev) => {
-        const onlyBranches = prev.filter((it) => it.kind === "BRANCH");
-        return [...onlyBranches, ...dropZones];
-      });
-    } catch (e) {
-      console.error("dropzones load fail", e);
-    }
-  }, []);
-
-
-  /** -----------------------
    *  7) 핸들러들
    * ---------------------- */
-  const closeOverlays = useCallback(() => setFilterOpen(false), []);
-
-  const openSheetFor = useCallback((id) => {
-    setSelectedId(id);
-    setSheetOpen(true);
-  }, []);
-
-  // ✅ [MOD] selectZone는 기존 흐름 유지 + BRANCH 선택 시 dropzones 로딩만 추가
   const selectZone = useCallback(
     (id, source = "UNKNOWN") => {
       openSheetFor(id);
       setFilterOpen(false);
 
       const target = zones.find((z) => z.id === id);
-      if (target) {
-        moveCamera({ lat: target.lat, lng: target.lng });
-
-        // ✅ BRANCH 선택이면: 해당 지점 dropzones를 API로 불러와 zones에 합치기
-        if (target.kind === "BRANCH") {
-          loadDropzonesForBranch(target.id);
-        }
-
-        // ✅ DROP 선택이면: parentZoneId 기준으로 parentZone도 확실히 잡히게 하고 싶을 때(선택)
-        // - 지금은 parentZone을 branchItems에서 찾고 있으니 필수는 아님
-        // if (target.kind === "DROP" && target.parentZoneId) {
-        //   loadDropzonesForBranch(target.parentZoneId);
-        // }
-      }
+      if (target) moveCamera({ lat: target.lat, lng: target.lng });
     },
-    [zones, moveCamera, openSheetFor, loadDropzonesForBranch]
+    [zones, moveCamera, openSheetFor]
   );
+
+  const closeOverlays = useCallback(() => {
+    setFilterOpen(false);
+    setSheetOpen(false);
+    setSheetH("0px"); // ✅ 핵심: 시트 닫힘 기준
+  }, []);
 
   const onPickZone = useCallback(
     (zoneId) => {
@@ -336,11 +271,8 @@ export default function CarPickZonePage() {
     [selectZone, viewMode]
   );
 
-  const onAllowLocation = useCallback(() => {
-    requestMyLocation();
-  }, [requestMyLocation]);
+  const onAllowLocation = useCallback(() => requestMyLocation(), [requestMyLocation]);
 
-  // ✅ 내 위치 버튼
   const onGoMyLocation = useCallback(() => {
     if (!myPos) {
       requestMyLocation();
@@ -349,8 +281,12 @@ export default function CarPickZonePage() {
     moveCamera(myPos);
   }, [myPos, moveCamera, requestMyLocation]);
 
+  const onCloseSheet = useCallback(() => {
+    closeOverlays();
+  }, [closeOverlays]);
+
   /** -----------------------
-   *  8) 렌더 (return 1개만!)
+   *  8) 렌더 
    * ---------------------- */
   return (
     <div className="min-h-screen bg-white">
@@ -428,11 +364,11 @@ export default function CarPickZonePage() {
               </div>
 
               {/* ✅ [MOD] 로딩 표시(선택) */}
-              {/* {loadingZones && (
+              {loadingZones && (
                 <div className="text-xs text-black/50 bg-white/90 border border-black/10 rounded-full px-3 h-8 flex items-center">
                   지점 불러오는 중...
                 </div>
-              )} */}
+              )}
             </div>
           </div>
 
@@ -451,7 +387,10 @@ export default function CarPickZonePage() {
           )}
 
           {/* 내 위치 버튼 */}
-          <div className="fixed left-1/2 -translate-x-1/2 bottom-36 z-[999] w-full max-w-[640px] px-4 pointer-events-none">
+          <div
+            className="fixed left-1/2 -translate-x-1/2 z-[999] w-full max-w-[640px] px-4 pointer-events-none"
+            style={{ bottom: `calc(${sheetH} + 5.5rem)` }}  // ✅ sheetH가 "420px" 같은 값이면 정확히 올라감
+          >
             <div className="flex justify-end pointer-events-auto">
               <button
                 type="button"
@@ -472,6 +411,7 @@ export default function CarPickZonePage() {
             open={sheetOpen && selected?.kind === "BRANCH"}
             onClose={() => setSheetOpen(false)}
             zone={selected?.kind === "BRANCH" ? selected : null}
+            onHeightChange={sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined}
           />
 
           <ZoneBottomSheetDrop
@@ -479,6 +419,7 @@ export default function CarPickZonePage() {
             onClose={() => setSheetOpen(false)}
             dropZone={selected?.kind === "DROP" ? selected : null}
             parentZone={parentZone}
+            onHeightChange={sheetOpen && selected?.kind === "DROP" ? setSheetH : undefined}
           />
 
           {/* 첫 진입 위치 모달 */}
