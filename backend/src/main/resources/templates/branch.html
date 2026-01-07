@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 지점 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS -->
+    <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+    <!-- amchart css (CDN) -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+    <!-- Others CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <!-- JS -->
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+
+    <style>
+        .branch-input {
+            width: 100%;
+            font-size: 0.85rem;
+        }
+        .branch-input-sm {
+            width: 80px;
+        }
+        .branch-actions button {
+            margin-right: 4px;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- 사이드바 -->
+    <div th:replace="fragments/fragments :: sidebar"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <!-- 본문 -->
+    <div class="main-content">
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">지점 관리</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">홈</a></li>
+                            <li><span>지점 관리</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-6 clearfix">
+                    <button type="button"
+                            class="user-profile user_writeBtn pull-right"
+                            onclick="addEmptyRow()">
+                        지점 추가
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12 mt-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">지점 목록</h4>
+                            <p class="text-muted" style="font-size: 0.85rem;">
+                                · 지점 코드/이름/주소/전화번호/영업시간을 관리합니다.<br>
+                                · 행에서 바로 수정 후 <strong>저장</strong> 버튼을 눌러 주세요.
+                            </p>
+                            <div class="single-table">
+                                <div class="table-responsive">
+                                    <table class="table text-center">
+                                        <thead class="text-uppercase">
+                                        <tr>
+                                            <th style="width: 50px;">NO</th>
+                                            <th style="width: 100px;">지점코드</th>
+                                            <th style="width: 120px;">지점명</th>
+                                            <th>주소</th>
+                                            <th style="width: 130px;">전화번호</th>
+                                            <th style="width: 80px;">오픈</th>
+                                            <th style="width: 80px;">마감</th>
+                                            <th style="width: 80px;">지역</th>
+                                            <th style="width: 140px;">최종수정일</th>
+                                            <th style="width: 120px;">관리</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="branch-table-body">
+                                        <!-- JS로 동적 렌더링 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="mt-2">
+                                <span class="badge badge-info">TIP</span>
+                                <span style="font-size: 0.8rem;">
+                                    지점에 등록된 차량 재고가 있으면 삭제할 수 없습니다. 재고를 먼저 이동하거나 삭제해 주세요.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div th:replace="fragments/fragments :: footer"></div>
+
+</div>
+
+<!-- JS -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/plugins.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+    // ================================
+    //  지점 목록 로딩
+    // ================================
+    $(document).ready(function () {
+        loadBranches();
+    });
+
+    function loadBranches() {
+        $.ajax({
+            url: '/admin/api/branch',
+            method: 'GET',
+            success: function (data) {
+                renderTable(data);
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                alert('지점 목록을 불러오는 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    function renderTable(list) {
+        const $tbody = $('#branch-table-body');
+        $tbody.empty();
+
+        if (!list || list.length === 0) {
+            $tbody.append('<tr><td colspan="10">등록된 지점이 없습니다. 상단의 [지점 추가] 버튼으로 새 지점을 추가해 주세요.</td></tr>');
+            return;
+        }
+
+        list.forEach(function (branch, index) {
+            const rowHtml = createRowHtml(branch, index + 1);
+            $tbody.append(rowHtml);
+        });
+    }
+
+    function createRowHtml(branch, no) {
+        const id = branch.branchId || '';
+        const code = branch.branchCode || '';
+        const name = branch.branchName || '';
+        const addrBasic = branch.addressBasic || '';
+        const addrDetail = branch.addressDetail || '';
+        const phone = branch.phone || '';
+        const openTime = branch.openTime || '';
+        const closeTime = branch.closeTime || '';
+        const region = branch.regionDept1 || '';
+        const updatedAt = branch.updatedAt || '';
+
+        // 주소는 기본 + 상세 합쳐서 표시
+        const fullAddr = addrDetail ? addrBasic + ' ' + addrDetail : addrBasic;
+
+        return `
+            <tr data-id="${id}">
+                <th scope="row">${no}</th>
+                <td>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="branchCode"
+                           value="${escapeHtml(code)}" placeholder="예) BR001">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="branchName"
+                           value="${escapeHtml(name)}" placeholder="지점명">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="addressBasic"
+                           value="${escapeHtml(addrBasic)}" placeholder="주소">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="phone"
+                           value="${escapeHtml(phone)}" placeholder="010-0000-0000">
+                </td>
+                <td>
+                    <input type="time" class="form-control form-control-sm branch-input-sm"
+                           data-field="openTime"
+                           value="${openTime}">
+                </td>
+                <td>
+                    <input type="time" class="form-control form-control-sm branch-input-sm"
+                           data-field="closeTime"
+                           value="${closeTime}">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm branch-input"
+                           data-field="regionDept1"
+                           value="${escapeHtml(region)}" placeholder="서울">
+                </td>
+                <td style="font-size:0.8rem;">${updatedAt}</td>
+                <td class="branch-actions">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="saveRow(this)">저장</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button>
+                </td>
+            </tr>
+        `;
+    }
+
+    // ================================
+    //  지점 추가 (빈 행)
+    // ================================
+    function addEmptyRow() {
+        const $tbody = $('#branch-table-body');
+        // 🔍 핵심 수정: "등록된 지점이 없습니다" 안내 메시지가 있으면 먼저 지운다!
+        // (행이 1개인데 그 안에 colspan(병합)된 칸이 있다면 안내 문구로 간주)
+        if ($tbody.children('tr').length === 1 && $tbody.find('td[colspan]').length > 0) {
+            $tbody.empty();
+        }
+        const no = $tbody.children('tr').length + 1;
+
+        const empty = {
+            branchId: null,
+            branchCode: '',
+            branchName: '',
+            addressBasic: '',
+            addressDetail: '',
+            phone: '',
+            openTime: '',
+            closeTime: '',
+            regionDept1: '',
+            updatedAt: ''
+        };
+        const rowHtml = createRowHtml(empty, no);
+        $tbody.append(rowHtml);
+    }
+
+    // ================================
+    //  저장 (신규/수정 공통)
+    // ================================
+    function saveRow(btn) {
+        const $tr = $(btn).closest('tr');
+        const id = $tr.data('id');
+
+        const payload = {
+            branchCode: $tr.find('[data-field="branchCode"]').val(),
+            branchName: $tr.find('[data-field="branchName"]').val(),
+            addressBasic: $tr.find('[data-field="addressBasic"]').val(),
+            phone: $tr.find('[data-field="phone"]').val(),
+            openTime: $tr.find('[data-field="openTime"]').val() || null,
+            closeTime: $tr.find('[data-field="closeTime"]').val() || null,
+            regionDept1: $tr.find('[data-field="regionDept1"]').val()
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? '/admin/api/branch/' + id : '/admin/api/branch';
+
+        $.ajax({
+            url: url,
+            method: method,
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function (res) {
+                const msg = res && res.message ? res.message : '저장되었습니다.';
+                alert(msg);
+                loadBranches();
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                let msg = '저장 중 오류가 발생했습니다.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                alert(msg);
+            }
+        });
+    }
+
+    // ================================
+    //  삭제
+    // ================================
+    function deleteRow(btn) {
+        const $tr = $(btn).closest('tr');
+        const id = $tr.data('id');
+
+        if (!id) {
+            $tr.remove();
+            return;
+        }
+
+        if (!confirm('해당 지점을 삭제하시겠습니까?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '/admin/api/branch/' + id,
+            method: 'DELETE',
+            success: function (res) {
+                const msg = res && res.message ? res.message : '삭제되었습니다.';
+                alert(msg);
+                loadBranches();
+            },
+            error: function (xhr) {
+                console.error(xhr);
+                let msg = '삭제 중 오류가 발생했습니다.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                alert(msg);
+            }
+        });
+    }
+
+    // ================================
+    //  HTML 이스케이프
+    // ================================
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+</script>
+
+</body>
+</html>

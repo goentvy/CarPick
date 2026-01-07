@@ -1,19 +1,38 @@
-// api.js
-import axios from "axios"; // 기본 Axios 인스턴스 생성
-const api = axios.create({ 
-  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`, // 백엔드 API 주소
-}); 
+// src/service/api.js (또는 src/services/api.js)
+import axios from "axios";
 
-// 요청 인터셉터 추가 → 매번 accessToken 자동으로 붙임 
+const api = axios.create({
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
+});
+
 api.interceptors.request.use((config) => {
+  const method = config.method?.toLowerCase();
+  const url = config.url || "";
+
+  // ✅ 공개 GET API들: 토큰 안 붙임
+  const publicGetPrefixes = [
+    "/cars",
+    "/branches",
+    "/dropzones",
+    "/zone/map",
+  ];
+
+  const isPublicGet =
+    method === "get" && publicGetPrefixes.some((p) => url.startsWith(p));
+
+  if (isPublicGet) return config;
+
+  // ✅ 나머지는 토큰 붙이기
   const raw = localStorage.getItem("user-storage");
   if (raw) {
-    const accessToken = JSON.parse(raw).state.accessToken;
-
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    try {
+      const accessToken = JSON.parse(raw)?.state?.accessToken;
+      if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+    } catch {
+      // JSON 깨져있으면 무시
     }
   }
+
   return config;
 });
 

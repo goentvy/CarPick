@@ -11,7 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AdminInquiryPageResponse {
 
-	private List<Inquiry> inquiries;
+	private List<AdminInquiryListResponse> inquiries;
 	private int currentPage;
 	private int totalPages;
 	private int totalCount;

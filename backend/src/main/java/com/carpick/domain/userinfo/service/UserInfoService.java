@@ -19,7 +19,7 @@ public class UserInfoService {
 
     public UserInfoResponse getUserInfo(Long userId) {
         //개인정보 조회 처리 로직
-        UserInfo user = userInfoMapper.selectByUserId(userId);
+        UserInfo user = userInfoMapper.findById(userId);
 
         if (user == null) {
             throw new IllegalStateException("회원 정보가 존재하지 않습니다.");
@@ -32,17 +32,15 @@ public class UserInfoService {
                 user.getBirth(),
                 user.getGender(),
                 user.isMarketingAgree(),
-                user.getMembershipGrade()
+                user.getMembershipGrade(),
+                user.getProvider()
         );
     }
 
     //개인 정보 수정 로직 처리
     @Transactional
     public void updateUserInfo(Long userId, UserInfoUpdateRequest request) {
-        // 로그 추가: 프론트에서 넘어온 값을 직접 확인
-        System.out.println("DEBUG: 넘어온 데이터 확인 -> " + request.toString());
-
-        // 만약 여기서 passwordHash=null 이라고 뜬다면 프론트와 이름이 안 맞는 것입니다.
+        
 
         // 1. 요청으로 들어온 비밀번호가 있다면 암호화 진행
         String encodedPassword = null;
@@ -68,7 +66,6 @@ public class UserInfoService {
 
     }
 
-    //개인 정보 탈퇴 처리 로직
     @Transactional
     public void withdraw(Long userId) {
         UserInfo user = userInfoMapper.findById(userId);
@@ -77,13 +74,19 @@ public class UserInfoService {
             throw new IllegalArgumentException("사용자 없음");
         }
 
-        userInfoMapper.markDeleted(userId); // deleted_at = now()
+        if ("LOCAL".equalsIgnoreCase(user.getProvider())) {
+            // 로컬 → 하드 탈퇴
+            int deleted = userInfoMapper.deleteUser(userId);
+            if (deleted == 0) {
+                throw new IllegalStateException("로컬 회원 탈퇴 실패");
+            }
 
-
-        int updated = userInfoMapper.withdrawUser(userId);
-
-        if (updated == 0) {
-            throw new IllegalStateException("회원 탈퇴 실패");
+        } else {
+            // 소셜 → 소프트 탈퇴
+            int updated = userInfoMapper.softDeleteUser(userId);
+            if (updated == 0) {
+                throw new IllegalStateException("소셜 회원 탈퇴 실패");
+            }
         }
     }
 

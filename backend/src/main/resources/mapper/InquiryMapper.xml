@@ -20,14 +20,13 @@ keyProperty="id">
 		#{category},
 		#{title},
 		#{content},
-		'pending'
+		'PENDING'
 	)
 </insert>
 
 <!-- 사용자 마이페이지 문의내역 -->
 
 <select id="findByUserId"
-	parameterType="long"
 	resultType="com.carpick.domain.inquiry.vo.Inquiry">
 	SELECT
 		id,
@@ -44,36 +43,58 @@ keyProperty="id">
 </select>
 
 <!-- 관리자 문의 목록 -->
-<select id="findAll"
-    resultType="com.carpick.domain.inquiry.vo.Inquiry">
+<select id="findAdminPage"
+    resultType="com.carpick.domain.inquiry.dto.AdminInquiryListResponse">
     SELECT
-        id,
-        user_id,
-        category,
-        title,
-        content,
-        status,
-        admin_reply AS adminReply,
-        created_at AS createdAt
-    FROM inquiry
-    ORDER BY created_at DESC
+        i.id,
+        u.email AS userEmail,
+        i.category,
+        i.title,
+        i.status,
+        i.created_at AS createdAt
+    FROM inquiry i
+    JOIN users u ON i.user_id = u.user_id
+    <where>
+        <if test="search != null and search != ''">
+            (
+                i.title LIKE CONCAT('%', #{search}, '%')
+                OR u.email LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY i.created_at DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="countAdminInquiries" resultType="int">
+    SELECT COUNT(*)
+    FROM inquiry i
+    JOIN users u ON i.user_id = u.user_id
+    <where>
+        <if test="search != null and search != ''">
+            (
+                i.title LIKE CONCAT('%', #{search}, '%')
+                OR u.email LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+    </where>
 </select>
 
 <!-- 관리자 문의 상세 -->
-<select id="findById"
-    parameterType="long"
-    resultType="com.carpick.domain.inquiry.vo.Inquiry">
-    SELECT
-        id,
-        user_id,
-        category,
-        title,
-        content,
-        status,
-        admin_reply AS adminReply,
-        created_at AS createdAt
-    FROM inquiry
-    WHERE id = #{id}
+<select id="findDetailForAdmin"
+    resultType="com.carpick.domain.inquiry.dto.AdminInquiryDetailResponse">
+		SELECT
+		i.id,
+		u.email AS userEmail,
+		i.category,
+		i.title,
+		i.content,
+		i.status,
+		i.admin_reply AS adminReply,
+		i.created_at AS createdAt
+		FROM inquiry i
+		JOIN users u ON i.user_id = u.user_id
+		WHERE i.id = #{id}
 </select>
 
 <!-- 답변 등록 / 수정 -->
@@ -85,5 +106,11 @@ keyProperty="id">
         updated_at = NOW()
     WHERE id = #{id}
 </update>
+
+<!-- 문의 삭제-->
+<delete id="deleteById">
+	DELETE FROM inquiry
+	WHERE id = #{id}
+</delete>
 
 </mapper>

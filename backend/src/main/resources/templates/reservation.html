@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{admin/layout/admin-layout}">
+
+<head>
+
+	<meta charset="UTF-8">
+
+	<title>예약 관리</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- CSS -->
+	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/common.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+	<!-- amchart css (CDN) -->
+	<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+	<!-- Others CSS -->
+	<link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+	<!-- JS -->
+	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+</head>
+
+<th:block layout:fragment="content">
+	<div class="container-fluid py-4">
+
+		<!-- 페이지 헤더 -->
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h4 class="mb-0">예약 관리</h4>
+		</div>
+
+		<!-- 검색 필터 -->
+		<div class="card mb-4">
+			<div class="card-body">
+				<form id="searchForm" class="row g-3">
+					<!-- 상태 필터 -->
+					<div class="col-md-2">
+						<label class="form-label">예약 상태</label>
+						<select id="status" class="form-select">
+							<option value="">전체</option>
+							<option value="PENDING">대기</option>
+							<option value="CONFIRMED">확정</option>
+							<option value="ACTIVE">이용중</option>
+							<option value="COMPLETED">완료</option>
+							<option value="CANCELED">취소</option>
+						</select>
+					</div>
+
+					<!-- 시작일 -->
+					<div class="col-md-2">
+						<label class="form-label">시작일</label>
+						<input type="date" id="fromDate" class="form-control">
+					</div>
+
+					<!-- 종료일 -->
+					<div class="col-md-2">
+						<label class="form-label">종료일</label>
+						<input type="date" id="toDate" class="form-control">
+					</div>
+
+					<!-- 검색어 -->
+					<div class="col-md-4">
+						<label class="form-label">검색</label>
+						<input type="text" id="keyword" class="form-control"
+							   placeholder="예약번호, 예약자명, 차량번호">
+					</div>
+
+					<!-- 검색 버튼 -->
+					<div class="col-md-2 d-flex align-items-end">
+						<button type="button" id="btnSearch" class="btn btn-primary w-100">
+							<i class="fas fa-search"></i> 검색
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- 목록 테이블 -->
+		<div class="card">
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-hover">
+						<thead class="table-light">
+						<tr>
+							<th>No</th>
+							<th>예약번호</th>
+							<th>예약자</th>
+							<th>차량</th>
+							<th>차량번호</th>
+							<th>대여기간</th>
+							<th>결제금액</th>
+							<th>상태</th>
+							<th>관리</th>
+						</tr>
+						</thead>
+						<tbody id="reservationTableBody">
+						<!-- JS로 동적 렌더링 -->
+						</tbody>
+					</table>
+				</div>
+
+				<!-- 데이터 없음 -->
+				<div id="noData" class="text-center py-5" style="display: none;">
+					<p class="text-muted">조회된 예약이 없습니다.</p>
+				</div>
+
+				<!-- 페이지네이션 -->
+				<nav id="paginationNav" class="d-flex justify-content-center mt-4">
+					<ul class="pagination" id="pagination">
+						<!-- JS로 동적 렌더링 -->
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<th:block layout:fragment="script">
+	<script>
+		// 전역 변수
+		let currentPage = 1;
+		const pageSize = 10;
+
+		// 페이지 로드 시
+		document.addEventListener('DOMContentLoaded', function() {
+			loadReservationList();
+
+			// 검색 버튼 클릭
+			document.getElementById('btnSearch').addEventListener('click', function() {
+				currentPage = 1;
+				loadReservationList();
+			});
+
+			// 엔터키 검색
+			document.getElementById('keyword').addEventListener('keypress', function(e) {
+				if (e.key === 'Enter') {
+					currentPage = 1;
+					loadReservationList();
+				}
+			});
+		});
+
+		// 예약 목록 조회
+		function loadReservationList() {
+			const status = document.getElementById('status').value;
+			const fromDate = document.getElementById('fromDate').value;
+			const toDate = document.getElementById('toDate').value;
+			const keyword = document.getElementById('keyword').value;
+
+			const params = new URLSearchParams();
+			if (status) params.append('status', status);
+			if (fromDate) params.append('fromDate', fromDate);
+			if (toDate) params.append('toDate', toDate);
+			if (keyword) params.append('keyword', keyword);
+			params.append('page', currentPage);
+			params.append('size', pageSize);
+
+			fetch(`/api/admin/reservation/list?${params.toString()}`)
+					.then(response => response.json())
+					.then(result => {
+						renderTable(result.data);
+						renderPagination(result.pagination);
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						alert('데이터 조회 중 오류가 발생했습니다.');
+					});
+		}
+
+		// 테이블 렌더링
+		function renderTable(list) {
+			const tbody = document.getElementById('reservationTableBody');
+			const noData = document.getElementById('noData');
+
+			if (!list || list.length === 0) {
+				tbody.innerHTML = '';
+				noData.style.display = 'block';
+				return;
+			}
+
+			noData.style.display = 'none';
+
+			tbody.innerHTML = list.map((item, index) => `
+            <tr>
+                <td>${index + 1 + (currentPage - 1) * pageSize}</td>
+                <td>${item.reservationNo || '-'}</td>
+                <td>${item.name || '-'}</td>
+                <td>${item.displayNameShort || '-'}</td>
+                <td>${item.carNo || '-'}</td>
+                <td>
+                    ${formatDateTime(item.startDate)}<br>
+                    ~ ${formatDateTime(item.endDate)}
+                </td>
+                <td>${formatCurrency(item.totalAmountSnapshot)}</td>
+                <td>${renderStatusBadge(item.reservationStatus)}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"
+                            onclick="goDetail(${item.reservationId})">
+                        <i class="fas fa-file-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+		}
+
+		// 상태 배지 렌더링
+		function renderStatusBadge(status) {
+			const statusMap = {
+				'PENDING': { text: '대기', class: 'bg-warning' },
+				'CONFIRMED': { text: '확정', class: 'bg-success' },
+				'ACTIVE': { text: '이용중', class: 'bg-primary' },
+				'COMPLETED': { text: '완료', class: 'bg-secondary' },
+				'CANCELED': { text: '취소', class: 'bg-danger' },
+				'CHANGED': { text: '변경', class: 'bg-info' }
+			};
+
+			const info = statusMap[status] || { text: status, class: 'bg-secondary' };
+			return `<span class="badge ${info.class}">${info.text}</span>`;
+		}
+
+		// 페이지네이션 렌더링
+		function renderPagination(pagination) {
+			const nav = document.getElementById('pagination');
+
+			if (!pagination || pagination.totalPage === 0) {
+				nav.innerHTML = '';
+				return;
+			}
+
+			let html = '';
+
+			// 이전 버튼
+			if (pagination.prev) {
+				html += `<li class="page-item">
+                        <a class="page-link" href="#" onclick="goPage(${pagination.startPage - 1})">이전</a>
+                     </li>`;
+			}
+
+			// 페이지 번호
+			for (let i = pagination.startPage; i <= pagination.endPage; i++) {
+				const active = (i === pagination.currentPage) ? 'active' : '';
+				html += `<li class="page-item ${active}">
+                        <a class="page-link" href="#" onclick="goPage(${i})">${i}</a>
+                     </li>`;
+			}
+
+			// 다음 버튼
+			if (pagination.next) {
+				html += `<li class="page-item">
+                        <a class="page-link" href="#" onclick="goPage(${pagination.endPage + 1})">다음</a>
+                     </li>`;
+			}
+
+			nav.innerHTML = html;
+		}
+
+		// 페이지 이동
+		function goPage(page) {
+			currentPage = page;
+			loadReservationList();
+		}
+
+		// 상세 페이지 이동
+		function goDetail(reservationId) {
+			window.location.href = `/admin/reservation/${reservationId}`;
+		}
+
+		// 날짜 포맷
+		function formatDateTime(dateStr) {
+			if (!dateStr) return '-';
+			return dateStr.replace('T', ' ').substring(0, 16);
+		}
+
+		// 금액 포맷
+		function formatCurrency(amount) {
+			if (!amount) return '₩0';
+			return '₩' + Number(amount).toLocaleString();
+		}
+	</script>
+</th:block>
+
+</html>

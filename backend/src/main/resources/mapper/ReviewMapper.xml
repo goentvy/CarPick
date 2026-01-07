@@ -4,56 +4,55 @@
 
 <mapper namespace="com.carpick.domain.member.mapper.ReviewMapper">
 
-    <!-- ✅ 마이페이지 리뷰 조회 -->
     <select id="findByUserId" resultType="com.carpick.domain.member.dto.ReviewResponse">
-        SELECT
-            id,
-            reservation_id as reservationId,
-            car_name as carName,
-            rating,
-            content,
-            period,
-            DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        SELECT id, reservation_id as reservationId, car_name as carName, rating, content, period, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
         FROM reviews
         WHERE user_id = #{userId}
         ORDER BY created_at DESC
     </select>
 
-    <!-- ✅ 리뷰 단건 조회 -->
     <select id="findById" resultType="com.carpick.domain.member.dto.ReviewResponse">
-        SELECT
-            id,
-            reservation_id as reservationId,
-            car_name as carName,
-            rating,
-            content,
-            period,
-            DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        SELECT id, reservation_id as reservationId, car_name as carName, rating, content, period, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
         FROM reviews
         WHERE id = #{reviewId}
     </select>
 
-    <!-- ✅ 작성자 검증 -->
     <select id="findByIdAndUserId" resultType="com.carpick.domain.member.dto.ReviewResponse">
-        SELECT
-            id,
-            reservation_id as reservationId,
-            car_name as carName,
-            rating,
-            content,
-            period,
-            DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        SELECT id, reservation_id as reservationId, car_name as carName, rating, content, period, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
         FROM reviews
         WHERE id = #{reviewId} AND user_id = #{userId}
     </select>
 
-    <!-- ✅ 리뷰 수정 -->
+    <insert id="createReview">
+        INSERT INTO reviews (user_id, reservation_id, spec_id, car_name, rating, content, period, created_at)
+        VALUES (#{userId}, #{reservationId}, 1, #{carName}, #{rating}, #{content}, 'N/A', CURRENT_TIMESTAMP)
+    </insert>
+
+    <select id="findByReservationId" resultType="com.carpick.domain.member.dto.ReviewResponse">
+        SELECT id, reservation_id as reservationId, car_name as carName, rating, content, period, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        FROM reviews
+        WHERE reservation_id = #{reservationId}
+    </select>
+
     <update id="updateReview">
         UPDATE reviews
-        SET rating = #{rating},
-            content = #{content},
-            created_at = CURRENT_TIMESTAMP
+        SET rating = #{rating}, content = #{content}, updated_at = CURRENT_TIMESTAMP
         WHERE id = #{reviewId}
     </update>
+
+    <select id="findLatestReviews" resultType="com.carpick.domain.member.dto.ReviewResponse">
+        SELECT id, car_name as carName, rating, content, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        FROM reviews
+        ORDER BY created_at DESC
+            LIMIT #{limit}
+    </select>
+
+    <select id="findBySpecId" resultType="com.carpick.domain.member.dto.ReviewResponse">
+        SELECT id, reservation_id as reservationId, spec_id, user_id, car_name as carName, rating, content, period, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
+        FROM reviews
+        WHERE spec_id = #{specId}
+        ORDER BY created_at DESC
+            LIMIT #{limit}
+    </select>
 
 </mapper>

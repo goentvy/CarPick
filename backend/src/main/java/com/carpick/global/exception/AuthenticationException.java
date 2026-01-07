@@ -13,7 +13,12 @@ public class AuthenticationException extends RuntimeException {
     private final ErrorCode errorCode;
 
     public AuthenticationException(ErrorCode errorCode) {
-        super();
+        super(errorCode.getLogMessage()); // 로그 메시지 전달
+        this.errorCode = errorCode;
+    }
+
+    public AuthenticationException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getLogMessage(), cause); // 원인까지 전달
         this.errorCode = errorCode;
     }
 
@@ -21,4 +26,3 @@ public class AuthenticationException extends RuntimeException {
         return errorCode;
     }
 }
-

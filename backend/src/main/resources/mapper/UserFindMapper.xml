@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.auth.mapper.UserFindMapper">
+
+    <!-- 아이디(이메일) 찾기 -->
+    <select id="findEmailByNameAndPhone" resultType="string">
+        SELECT email
+        FROM users
+        WHERE name = #{name}
+        AND phone = #{phone}
+        AND deleted_at IS NULL
+    </select>
+
+    <!-- 비밀번호 재설정 대상 존재 여부 -->
+    <select id="existsForResetPassword" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE email = #{email}
+        AND deleted_at IS NULL
+    </select>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updatePassword">
+        UPDATE users
+        SET password = #{password},
+        updated_at = NOW()
+        WHERE email = #{email}
+        AND deleted_at IS NULL
+    </update>
+
+</mapper>

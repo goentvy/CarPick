@@ -2,6 +2,7 @@ package com.carpick.domain.inquiry.dto;
 
 import java.time.LocalDateTime;
 
+import com.carpick.domain.inquiry.enums.InquiryStatus;
 import com.carpick.domain.inquiry.vo.Inquiry;
 
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ public class MyPageInquiryResponse {
     private String category;
     private String title;
     private String content;
-    private String status;
+    private InquiryStatus status;
     private String adminReply;
     private LocalDateTime createdAt;
 

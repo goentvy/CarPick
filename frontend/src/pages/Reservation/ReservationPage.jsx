@@ -13,7 +13,6 @@ import * as yup from "yup";
 import { useEffect, useState } from "react";
 import useReservationStore from "../../store/useReservationStore";
 import api from "../../services/api";
-import axios from "axios";
 
 // ✅ Yup 스키마 정의
 const schema = yup.object().shape({
@@ -83,13 +82,27 @@ const ReservationPage = () => {
 
   // 데이터 초기 셋팅
   useEffect(() => {
-    axios.get("/reservation/form", { params: {carId: 1} })
+    api.get("/reservation/form", { params: {carId: 1} })
     .then(res => {
       setFormData(res.data);
       setVehicle({
         id: res.data.car.carId,
         title: res.data.car.title,
         dailyPrice: res.data.paymentSummary.carDailyPrice,
+      });
+
+      // ▼▼▼ [여기가 핵심!] 이 부분이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
+      setPickupReturn({
+        method: "visit", // 기본값 (방문)
+        pickupBranch: 1,   // 백엔드에서 받은 픽업 지점 정보 저장
+        dropoffBranch: 1// 백엔드에서 받은 반납 지점 정보 저장
+      });
+
+      // ✅ [추가/MVP] 날짜를 store에 주입 (null 방지)
+      // 실제로는 HomeRentHeader/DateRangePicker에서 넘어온 값을 넣는 게 정석
+      setRentalPeriod({
+        startDateTime: "2026-01-01 10:00:00",
+        endDateTime: "2026-01-02 10:00:00",
       });
     })
     .catch(err => console.error("예약 폼 데이터 불러오기 실패:", err));

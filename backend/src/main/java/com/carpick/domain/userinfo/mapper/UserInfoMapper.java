@@ -9,7 +9,15 @@ import java.time.LocalDate;
 @Mapper
 public interface UserInfoMapper {
 
-    UserInfo selectByUserId(@Param("userId") Long userId);
+    /* =========================
+       조회
+    ========================= */
+
+    UserInfo findById(@Param("userId") Long userId);
+
+    /* =========================
+       개인정보 수정
+    ========================= */
 
     int updateUserInfo(
             @Param("userId") Long userId,
@@ -20,15 +28,24 @@ public interface UserInfoMapper {
             @Param("marketingAgree") boolean marketingAgree
     );
 
-    int withdrawUser(@Param("userId") Long userId);
+    /* =========================
+       탈퇴 처리
+       - LOCAL  : 하드 탈퇴
+       - SOCIAL : 소프트 탈퇴
+    ========================= */
 
-    // 멤버십 등급 변경 (관리자)
+    // 로컬 로그인 유저 → 하드 탈퇴
+    int deleteUser(@Param("userId") Long userId);
+
+    // 소셜 로그인 유저 → 소프트 탈퇴
+    int softDeleteUser(@Param("userId") Long userId);
+
+    /* =========================
+       관리자 기능
+    ========================= */
+
     int updateMembershipGrade(
             @Param("userId") Long userId,
             @Param("membershipGrade") String membershipGrade
     );
-
-    UserInfo findById(Long userId);
-
-    void markDeleted(Long userId);
 }

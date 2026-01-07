@@ -1,313 +1,272 @@
-/* =========================================================
-   SEED DATA ONLY (INSERT)
-   - Branch: 김포공항지점 (lat=90, lon=180)
-   - CarSpec: 25 models (from screenshot)
-   - Inventory: 2 vehicles per model (status mixed)
-   - PricePolicy: MONTHLY base_price (from screenshot)
-   - Insurance/Coupon/ServicePoint: minimal MVP data
-   ========================================================= */
-
-
-
-
-
-USE carpick;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- =========================
--- 0) (선택) 기존 데이터 초기화
--- =========================
-DELETE FROM VEHICLE_STATUS_HISTORY;
-DELETE FROM RESERVATION_STATUS_HISTORY;
-DELETE FROM RESERVATION;
+-- 1. 데이터 초기화 (순서 중요)
+TRUNCATE TABLE PENALTY_CHARGE;
+TRUNCATE TABLE PENALTY_POLICY_VERSION;
+TRUNCATE TABLE PENALTY_POLICY;
+TRUNCATE TABLE RESERVATION_EXTENSION;
+TRUNCATE TABLE RESERVATION_STATUS_HISTORY;
+TRUNCATE TABLE VEHICLE_STATUS_HISTORY;
+TRUNCATE TABLE RESERVATION;
+TRUNCATE TABLE VEHICLE_INVENTORY;
+TRUNCATE TABLE PRICE;
+TRUNCATE TABLE PRICE_POLICY;
+TRUNCATE TABLE CAR_OPTION;
+TRUNCATE TABLE INSURANCE;
+TRUNCATE TABLE COUPON;
+TRUNCATE TABLE BRANCH;
+TRUNCATE TABLE CAR_SPEC;
 
-DELETE FROM VEHICLE_INVENTORY;
+SET FOREIGN_KEY_CHECKS = 1;
 
-DELETE FROM PRICE;
-DELETE FROM PRICE_POLICY;
-DELETE FROM CAR_OPTION;
-DELETE FROM INSURANCE;
-DELETE FROM COUPON;
-DELETE FROM BRANCH_SERVICE_POINT;
 
-DELETE FROM BRANCH;
-DELETE FROM CAR_SPEC;
+-- ==========================================
+-- 2. 보험 상품 (INSURANCE)
+-- ==========================================
+INSERT INTO INSURANCE
+(insurance_code, insurance_label , summary_label, extra_daily_price, is_default, is_active, sort_order, use_yn, created_at, updated_at)
+VALUES
+    ('NONE', '미가입', '사고 시 고객부담금 전액', 0, 0, 1, 1, 'Y', NOW(), NOW()),
+    ('STANDARD', '일반자차', '사고 시 고객부담금 30만원', 15000, 0, 1, 2, 'Y', NOW(), NOW()),
+    ('FULL', '완전자차', '사고 시 고객부담금 면제', 30000, 1, 1, 3, 'Y', NOW(), NOW());
 
--- =========================
--- 1) BRANCH: 김포공항지점
--- =========================
+
+-- ==========================================
+-- 3. 지점 (BRANCH)
+-- ==========================================
 INSERT INTO BRANCH (
-    branch_code, branch_name,
+    branch_id, branch_code, branch_name,
     address_basic, address_detail, phone,
-    open_time, close_time, business_hours,
     latitude, longitude, region_dept1,
-    is_active,
+    open_time, close_time, business_hours,
     can_manage_inventory_yn, can_manage_vehicle_status_yn, can_pickup_return_yn,
-    can_delivery_yn, delivery_radius_km
+    use_yn
 ) VALUES (
-             'GMP001', '김포 공항지점',
-             '서울특별시 강서구 하늘길 38', '김포국제공항 인근', '02-0000-0000',
-             '09:00:00', '20:00:00', '09:00~20:00',
-             90.00000000, 180.00000000, '서울/경기',
-             1,
-             'Y','Y','Y',
-             'N', NULL
+             1, 'GMP01', '김포공항점',
+             '서울 강서구 하늘길 112', '국제선 청사 1층 렌터카 데스크', '02-1234-5678',
+             37.558643, 126.801242, 'SEOUL',
+             '08:00:00', '22:00:00', '매일 08:00 ~ 22:00',
+             'Y', 'Y', 'Y',
+             'Y'
          );
 
--- =========================
--- 2) INSURANCE: 3종
--- =========================
-INSERT INTO INSURANCE (
-    code, label, summary_label,
-    extra_daily_price,
-    is_default, is_active, sort_order
-) VALUES
-      ('NONE',     '선택안함', '보험 미선택',                 0,      TRUE, TRUE, 1),
-      ('STANDARD', '일반자차', '일반 보장(기본 자기부담금)',  7000,   FALSE, TRUE, 2),
-      ('FULL',     '완전자차', '사고 시 고객부담금 면제',     15000,  FALSE, TRUE, 3);
-
--- =========================
--- 3) COUPON: 1장 (MVP용)
--- =========================
-INSERT INTO COUPON (
-    coupon_code, coupon_name,
-    discount_type, discount_value, max_discount_amount, min_order_amount,
-    valid_from, valid_to,
-    total_quantity, used_quantity,
+-- 1-1. [지점 기준 드롭존]
+INSERT INTO DROPZONE_POINT (
+    branch_id,
+    dropzone_code,
+    dropzone_name,
+    address_text,
+    location_desc,
+    walking_time_min,
+    latitude,
+    longitude,
+    service_hours,
     is_active
-) VALUES (
-             'OPEN10', '오픈기념 10% 할인',
-             'RATE', 10, 50000, 0,
-             NOW(), DATE_ADD(NOW(), INTERVAL 365 DAY),
-             NULL, 0,
-             TRUE
-         );
+) VALUES
 
--- =========================
--- 4) BRANCH_SERVICE_POINT: 인수/반납 포인트
--- =========================
-INSERT INTO BRANCH_SERVICE_POINT (
-    branch_id, point_name, service_type,
-    service_start_time, service_end_time, service_hours,
-    location_desc, walking_time
-)
-SELECT
-    b.branch_id,
-    x.point_name,
-    x.service_type,
-    x.service_start_time,
-    x.service_end_time,
-    x.service_hours,
-    x.location_desc,
-    x.walking_time
-FROM BRANCH b
-         JOIN (
-    SELECT '국내선 1층 3번 게이트 앞' AS point_name, 'PICKUP' AS service_type,
-           '09:00:00' AS service_start_time, '20:00:00' AS service_end_time,
-           '09:00~20:00' AS service_hours,
-           '렌터카 픽업 안내 표지판 기준 대기' AS location_desc,
-           3 AS walking_time
-    UNION ALL
-    SELECT '국내선 1층 5번 게이트 앞', 'RETURN',
-           '09:00:00', '20:00:00',
-           '09:00~20:00',
-           '반납 후 차량 상태 확인 진행', 4
-) x
-WHERE b.branch_code = 'GMP001';
+/* 1번 드롭존 – 국내선 메인 */
+      (
+          1,
+          '1',
+          '김포공항 국내선 1번 드롭존',
+          '김포공항 국내선 청사 1층 도착장 앞',
+          '렌터카 표지판 기준 우측 2번째 정차 구역',
+          3,
+          37.558870,
+          126.802200,
+          '08:00 ~ 22:00',
+          1
+      ),
 
--- =========================
--- 5) CAR_SPEC: 25개 차종
---    (연식/차급/연료/4WD 여부는 MVP용으로 현실적으로 채움)
--- =========================
+/* 2번 드롭존 – 국내선 보조 */
+      (
+          1,
+          '2',
+          '김포공항 국내선 2번 드롭존',
+          '김포공항 국내선 주차장 P1 인근',
+          '혼잡 시 안내되는 예비 드롭존',
+          5,
+          37.559200,
+          126.803100,
+          '08:00 ~ 22:00',
+          1
+      ),
+
+/* 3번 드롭존 – 국제선 */
+      (
+          1,
+          '3',
+          '김포공항 국제선 드롭존',
+          '김포공항 국제선 청사 출입구 앞',
+          '버스 승강장 맞은편 단기 정차 구역',
+          4,
+          37.558100,
+          126.801900,
+          '08:00 ~ 22:00',
+          1
+      ),
+
+/* 4번 드롭존 – 야간/비상 */
+      (
+          1,
+          '4',
+          '김포공항 야간 드롭존',
+          '김포공항 공영주차장 외곽',
+          '야간 시간대 또는 혼잡 시 사용',
+          7,
+          37.557500,
+          126.800800,
+          '22:00 ~ 08:00',
+          1
+      );
+
+-- ==========================================
+-- 4. 차량 모델 (CAR_SPEC) - 12종
+-- ==========================================
 INSERT INTO CAR_SPEC (
-    brand, model_name, display_name_short,
-    car_class, model_year_base,
-    ai_summary,
-    fuel_type, transmission_type, is_four_wheel_drive,
-    min_driver_age, min_license_years,
+    spec_id, brand, model_name, display_name_short, car_class, model_year_base,
+    ai_summary, fuel_type, transmission_type, is_four_wheel_drive,
+    car_options, min_driver_age, min_license_years,
     seating_capacity, trunk_capacity, fuel_efficiency,
     main_image_url, img_url, ai_keywords, drive_labels
 ) VALUES
--- 기아
-('기아','K3 2세대','K3','COMPACT',2023,'도심 주행에 최적화된 실속형 세단','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'K3,세단','가솔린,세단,도심'),
-('기아','K3 2세대 F/L','K3','COMPACT',2023,'더 세련된 디자인과 안정적인 주행감','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'K3,세단','가솔린,세단,도심'),
-('기아','K5 3세대','K5','MID',2023,'주행 밸런스 좋은 중형 세단','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'K5,세단','가솔린,중형,세단'),
-('기아','K5 3세대 F/L','K5','MID',2024,'편의사양 강화된 중형 세단','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'K5,세단','가솔린,중형,세단'),
-('기아','K7 2세대','K7','LARGE',2022,'안락한 승차감의 준대형 세단','GASOLINE','AUTO',FALSE,21,1,5,'대형','-','',NULL,'K7,세단','가솔린,준대형,세단'),
-('기아','K7 2세대 F/L','K7','LARGE',2023,'고급감과 정숙성이 강점인 준대형','GASOLINE','AUTO',FALSE,21,1,5,'대형','-','',NULL,'K7,세단','가솔린,준대형,세단'),
+/* 1. 경형 (KIA 모닝) */
+      (1, 'KIA', '모닝 3세대', '모닝', 'LIGHT', 2020,
+       '도심 주행에 최적화된 경제적인 경차', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방센서,블루투스,열선시트', 26, 1, 5, '캐리어 1개', '15.7',
+       '/images/cars/morning_2020.png', '/images/cars/morning_detail.png',
+       '#경차,#출퇴근,#가성비,#주차편리', '가솔린,경차,경제적'),
 
-('기아','레이 1세대 F/L1','레이','LIGHT',2021,'실내 공간 활용이 뛰어난 경차','GASOLINE','AUTO',FALSE,21,1,5,'넉넉','-','',NULL,'레이,경차','가솔린,경차,시내'),
-('기아','레이 1세대 F/L2','레이','LIGHT',2022,'초보 운전자에게 편한 컴팩트','GASOLINE','AUTO',FALSE,21,1,5,'넉넉','-','',NULL,'레이,경차','가솔린,경차,시내'),
+/* 2. 준중형 (KIA K3) */
+      (2, 'KIA', 'K3 2세대', 'K3', 'COMPACT', 2020,
+       '기본기가 탄탄한 준중형 세단', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,스마트키,열선시트,차선이탈방지', 26, 1, 5, '캐리어 3개', '15.2',
+       '/images/cars/k3_2020.png', '/images/cars/k3_detail.png',
+       '#준중형,#데이트,#드라이브,#가성비', '가솔린,5인승,인기모델'),
 
-('기아','모닝 3세대','모닝','LIGHT',2020,'연비와 주차가 쉬운 경차','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'모닝,경차','가솔린,경차,시내'),
-('기아','모닝 3세대 F/L','모닝','LIGHT',2021,'도심 이동에 최적화된 경차','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'모닝,경차','가솔린,경차,시내'),
-('기아','모닝 3세대 F/L2','모닝','LIGHT',2022,'가성비 좋은 경차 선택지','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'모닝,경차','가솔린,경차,시내'),
+/* 3. 경형 (KIA 모닝 F/L) */
+      (3, 'KIA', '모닝 3세대 F/L', '모닝', 'LIGHT', 2021,
+       '페이스리프트로 더욱 세련된 모닝', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,통풍시트(운전석),블루투스', 21, 1, 5, '캐리어 1개', '15.7',
+       '/images/cars/morning_2021.png', '/images/cars/morning_fl_detail.png',
+       '#경차,#사회초년생,#마트장보기,#단기렌트', '가솔린,경차,옵션풍부'),
 
-('기아','스토닉','스토닉','SUV',2020,'가볍게 타기 좋은 소형 SUV','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'스토닉,SUV','가솔린,SUV,소형'),
-('기아','스포티지 5세대','스포티지','SUV',2023,'장거리/패밀리 모두 좋은 SUV','GASOLINE','AUTO',TRUE,21,1,5,'넉넉','-','',NULL,'스포티지,SUV','가솔린,SUV,패밀리,4WD'),
-('기아','쏘렌토 4세대','쏘렌토','SUV',2023,'패밀리 여행에 강한 중형 SUV','GASOLINE','AUTO',TRUE,21,1,5,'대형','-','',NULL,'쏘렌토,SUV','가솔린,SUV,패밀리,4WD'),
+/* 4. 준중형 (KIA K3 F/L) */
+      (4, 'KIA', 'K3 2세대 F/L', 'K3', 'COMPACT', 2022,
+       '스타일리시한 디자인의 준중형', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,스마트키,통풍시트,전자식파킹', 26, 1, 5, '캐리어 3개', '14.1',
+       '/images/cars/k3_2022.png', '/images/cars/k3_fl_detail.png',
+       '#디자인,#여행,#2030추천,#쾌적함', '가솔린,준중형,스타일'),
 
-('기아','카니발 3세대 F/L 9인승','카니발','RV',2021,'9인승 대가족 이동에 최적','GASOLINE','AUTO',FALSE,21,1,9,'대형','-','',NULL,'카니발,9인승','가솔린,RV,9인승'),
-('기아','카니발 4세대 하이리무진 9인승','카니발','RV',2023,'프리미엄 9인승 하이리무진','GASOLINE','AUTO',FALSE,21,1,9,'대형','-','',NULL,'카니발,하이리무진,9인승','가솔린,RV,9인승,프리미엄'),
+/* 5. 경형 (KIA 모닝 F/L2) */
+      (5, 'KIA', '모닝 3세대 F/L2', '모닝', 'LIGHT', 2025,
+       '최신 안전 사양이 탑재된 신형 모닝', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,어라운드뷰,스마트크루즈컨트롤,통풍시트', 26, 1, 5, '캐리어 1개', '15.1',
+       '/images/cars/morning_2025.png', '/images/cars/morning_fl2_detail.png',
+       '#신차,#풀옵션,#안전제일,#시내주행', '가솔린,신차,최신옵션'),
 
--- 현대
-('현대','그랜저 GN7','그랜저','LARGE',2023,'정숙성과 승차감이 강점인 준대형','GASOLINE','AUTO',FALSE,21,1,5,'대형','-','',NULL,'그랜저,세단','가솔린,준대형,세단'),
-('현대','스타리아 11인승','스타리아','RV',2022,'단체 이동/공항 픽업에 최적','DIESEL','AUTO',FALSE,21,1,11,'대형','-','',NULL,'스타리아,11인승','디젤,승합,11인승'),
+/* 6. 중형 (KIA K5 LPG) */
+      (6, 'KIA', 'K5 3세대', 'K5', 'MID', 2020,
+       'LPG로 경제성을 잡은 스타일리시 세단', 'LPG', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,스마트키,전동시트', 26, 2, 5, '캐리어 3개', '10.2',
+       '/images/cars/k5_lpg.png', '/images/cars/k5_lpg_detail.png',
+       '#LPG,#연비절약,#장거리,#편안함', 'LPG,중형,경제성'),
 
-('현대','쏘나타 DN8','쏘나타','MID',2022,'균형 잡힌 중형 세단','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'쏘나타,세단','가솔린,중형,세단'),
-('현대','쏘나타 DN8 디 엣지','쏘나타','MID',2023,'디자인 개선된 중형 세단','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'쏘나타,세단','가솔린,중형,세단'),
+/* 7. 준중형 (HYUNDAI 아반떼) */
+      (7, 'HYUNDAI', '아반떼 CN7 F/L', '아반떼', 'COMPACT', 2024,
+       '국민 준중형, 압도적인 상품성', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,애플카플레이,안드로이드오토,차선유지보조', 26, 1, 5, '캐리어 3개', '14.9',
+       '/images/cars/avante_cn7.png', '/images/cars/avante_detail.png',
+       '#국민차,#베스트셀러,#승차감,#넓은실내', '가솔린,준중형,베스트셀러'),
 
-('현대','아반떼 CN7','아반떼','COMPACT',2022,'실용성 좋은 준중형 세단','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'아반떼,세단','가솔린,준중형,세단'),
-('현대','아반떼 CN7 F/L','아반떼','COMPACT',2024,'연비/디자인 모두 잡은 준중형','GASOLINE','AUTO',FALSE,21,1,5,'기본','-','',NULL,'아반떼,세단','가솔린,준중형,세단'),
+/* 8. 중형 (HYUNDAI 쏘나타) */
+      (8, 'HYUNDAI', '쏘나타 DN8', '쏘나타', 'MID', 2022,
+       '편안한 승차감의 중형 세단 정석', 'LPG', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,스마트키,통풍시트,열선시트', 21, 2, 5, '캐리어 3개', '10.2',
+       '/images/cars/sonata_dn8.png', '/images/cars/sonata_detail.png',
+       '#패밀리카,#정숙성,#LPG,#부모님효도', 'LPG,중형,승차감'),
 
--- 제네시스
-('제네시스','제네시스 G80 3세대','G80','LARGE',2023,'고급 세단의 정석, 비즈니스 추천','GASOLINE','AUTO',FALSE,25,3,5,'대형','-','',NULL,'G80,세단','가솔린,대형,프리미엄'),
-('제네시스','제네시스 GV70','GV70','SUV',2023,'프리미엄 SUV, 주행 안정감','GASOLINE','AUTO',TRUE,25,3,5,'넉넉','-','',NULL,'GV70,SUV','가솔린,SUV,프리미엄,4WD'),
+/* 9. 경형 (KIA 레이) */
+      (9, 'KIA', '레이 1세대 F/L2', '레이', 'LIGHT', 2024,
+       '경차 그 이상의 공간 활용성', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,열선시트,폴딩시트', 26, 1, 5, '캐리어 1개', '12.7',
+       '/images/cars/ray_2024.png', '/images/cars/ray_detail.png',
+       '#박스카,#넓은공간,#차박,#짐싣기좋음', '가솔린,공간활용,인기'),
 
--- 테슬라 (전기 -> IMPORT + ELECTRIC 규칙 반영)
-('테슬라','테슬라 모델 3 롱레인지','모델3','IMPORT',2023,'전기차 롱레인지, 장거리 최적','ELECTRIC','AUTO',TRUE,25,3,5,'기본','-','',NULL,'모델3,전기차','전기,세단,롱레인지,4WD');
+/* 10. 중형 (KIA K5 F/L) */
+      (10, 'KIA', 'K5 3세대 F/L', 'K5', 'MID', 2024,
+       '페이스리프트로 완성된 디자인', 'LPG', 'AUTO', FALSE,
+       '네비게이션,블랙박스,어라운드뷰,헤드업디스플레이(HUD),스마트키', 21, 2, 5, '캐리어 3개', '9.8',
+       '/images/cars/k5_fl_2024.png', '/images/cars/k5_fl_detail.png',
+       '#디자인깡패,#젊은감성,#데이트카,#신형', 'LPG,중형,디자인'),
+
+/* 11. SUV (SSANGYONG 티볼리) */
+      (11, 'KG_MOBILITY', '티볼리 아머', '티볼리', 'SUV', 2021,
+       '소형 SUV의 트렌드 세터', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,후방카메라,크루즈컨트롤,루프랙', 26, 1, 5, '캐리어 2개', '11.5',
+       '/images/cars/tivoli.png', '/images/cars/tivoli_detail.png',
+       '#SUV,#초보운전,#시야확보,#튼튼함', '가솔린,SUV,소형SUV'),
+
+/* 12. SUV (KIA 스포티지) */
+      (12, 'KIA', '스포티지 5세대', '스포티지', 'SUV', 2024,
+       '넓은 공간과 하이테크 인테리어', 'GASOLINE', 'AUTO', FALSE,
+       '네비게이션,블랙박스,파노라마썬루프,통풍시트,전동트렁크,차선이탈방지', 26, 1, 5, '캐리어 4개', '12.0',
+       '/images/cars/sportage.png', '/images/cars/sportage_detail.png',
+       '#패밀리SUV,#캠핑,#넉넉한공간,#여행', '가솔린,SUV,패밀리카');
 
 
--- =========================
--- 6) CAR_OPTION: 모든 차종에 공통 옵션 2개 (카시트/네비)
--- =========================
-INSERT INTO CAR_OPTION (car_spec_id, option_name, description, daily_price, is_highlight)
-SELECT
-    s.spec_id,
-    v.option_name,
-    v.description,
-    v.daily_price,
-    v.is_highlight
-FROM CAR_SPEC s
-         JOIN (
-    SELECT '카시트' AS option_name, '유아용 카시트(1개)' AS description, 5000 AS daily_price, TRUE AS is_highlight
-    UNION ALL
-    SELECT '네비게이션', '내장/스마트폰 연동 네비', 0, FALSE
-) v;
+-- ==========================================
+-- 5. 메인 가격표 (PRICE)
+-- ✅ 중요: PRICE 테이블에 'version' 컬럼이 추가되었으므로 Default(0)을 따름
+-- ==========================================
+INSERT INTO PRICE (car_spec_id, daily_price, monthly_price, use_yn, created_at, updated_at) VALUES
+                                                                                                (1,  50000, 0,   'Y', NOW(), NOW()), -- 모닝
+                                                                                                (2,  65000, 0,   'Y', NOW(), NOW()), -- K3
+                                                                                                (3,  52000, 0,   'Y', NOW(), NOW()),
+                                                                                                (4,  68000, 0,   'Y', NOW(), NOW()),
+                                                                                                (5,  55000, 0,   'Y', NOW(), NOW()),
+                                                                                                (6,  85000, 0,   'Y', NOW(), NOW()), -- K5
+                                                                                                (7,  70000, 0,   'Y', NOW(), NOW()), -- 아반떼
+                                                                                                (8,  90000, 0,   'Y', NOW(), NOW()), -- 쏘나타
+                                                                                                (9,  60000, 0,   'Y', NOW(), NOW()), -- 레이
+                                                                                                (10, 95000, 0,   'Y', NOW(), NOW()),
+                                                                                                (11, 100000, 0,   'Y', NOW(), NOW()), -- 티볼리
+                                                                                                (12, 120000, 0,   'Y', NOW(), NOW()); -- 스포티지
 
--- =========================
--- 7) PRICE_POLICY: MONTHLY 기준가 (스크린샷 평균 1개월 가격)
---     - 지점은 김포공항지점으로 고정
--- =========================
+
+-- ==========================================
+-- 6. 가격 정책 (PRICE_POLICY) - MVP 미사용이지만 더미 생성
+-- spec_id 12번 (스포티지) 기준 정책 생성
+-- ==========================================
 INSERT INTO PRICE_POLICY (
     spec_id, branch_id,
-    unit_type, base_price,
-    discount_rate, valid_from, valid_to, is_active
-)
-SELECT
-    s.spec_id,
-    b.branch_id,
-    'MONTHLY' AS unit_type,
-    p.base_price,
-    /* 할인율은 MVP용으로 섞기 */
-    CASE
-        WHEN MOD(s.spec_id, 5) = 0 THEN 15
-        WHEN MOD(s.spec_id, 5) = 1 THEN 5
-        WHEN MOD(s.spec_id, 5) = 2 THEN 10
-        WHEN MOD(s.spec_id, 5) = 3 THEN 0
-        ELSE 7
-        END AS discount_rate,
-    NOW(), NULL, TRUE
-FROM CAR_SPEC s
-         JOIN BRANCH b ON b.branch_code = 'GMP001'
-         JOIN (
-    SELECT 'K3 2세대' AS model_name, 510000 AS base_price UNION ALL
-    SELECT 'K3 2세대 F/L', 539000 UNION ALL
-    SELECT 'K5 3세대', 650000 UNION ALL
-    SELECT 'K5 3세대 F/L', 779000 UNION ALL
-    SELECT 'K7 2세대', 589000 UNION ALL
-    SELECT 'K7 2세대 F/L', 750000 UNION ALL
-    SELECT '그랜저 GN7', 976750 UNION ALL
-    SELECT '레이 1세대 F/L1', 519000 UNION ALL
-    SELECT '레이 1세대 F/L2', 562667 UNION ALL
-    SELECT '모닝 3세대', 444500 UNION ALL
-    SELECT '모닝 3세대 F/L', 489000 UNION ALL
-    SELECT '모닝 3세대 F/L2', 545000 UNION ALL
-    SELECT '스타리아 11인승', 1229000 UNION ALL
-    SELECT '스토닉', 609000 UNION ALL
-    SELECT '스포티지 5세대', 916750 UNION ALL
-    SELECT '쏘나타 DN8', 602333 UNION ALL
-    SELECT '쏘나타 DN8 디 엣지', 724000 UNION ALL
-    SELECT '쏘렌토 4세대', 1114500 UNION ALL
-    SELECT '아반떼 CN7', 659000 UNION ALL
-    SELECT '아반떼 CN7 F/L', 600000 UNION ALL
-    SELECT '제네시스 G80 3세대', 1590000 UNION ALL
-    SELECT '제네시스 GV70', 1640000 UNION ALL
-    SELECT '카니발 3세대 F/L 9인승', 949000 UNION ALL
-    SELECT '카니발 4세대 하이리무진 9인승', 1490000 UNION ALL
-    SELECT '테슬라 모델 3 롱레인지', 1450000
-) p ON p.model_name = s.model_name;
+    base_price, discount_rate, unit_type,
+    is_active, valid_from, valid_to
+) VALUES (
+             12, 1,  -- 스포티지(12), 김포공항점(1)
+             120000, 30, 'DAILY',
+             1, NOW(), '2099-12-31 23:59:59'
+         );
 
--- =========================
--- 8) PRICE (Legacy): 대략값 채움
---     - daily_price = monthly/30 근사
--- =========================
-INSERT INTO PRICE (car_spec_id, daily_price, price_1m, price_3m, price_6m)
-SELECT
-    s.spec_id,
-    ROUND(pp.base_price / 30, 2) AS daily_price,
-    pp.base_price AS price_1m,
-    pp.base_price * 3 AS price_3m,
-    pp.base_price * 6 AS price_6m
-FROM CAR_SPEC s
-         JOIN BRANCH b ON b.branch_code = 'GMP001'
-         JOIN PRICE_POLICY pp
-              ON pp.spec_id = s.spec_id
-                  AND pp.branch_id = b.branch_id
-                  AND pp.unit_type = 'MONTHLY'
-                  AND pp.is_active = TRUE;
 
--- =========================
--- 9) VEHICLE_INVENTORY: 차종당 2대씩 (총 50대)
---     - 상태 섞기: 1대는 AVAILABLE, 2대는 (RESERVED/RENTED/MAINTENANCE) 순환
--- =========================
+-- ==========================================
+-- 7. 차량 실재고 (VEHICLE_INVENTORY)
+-- ==========================================
+-- (1) 스포티지 (ID 12) 재고 2대
 INSERT INTO VEHICLE_INVENTORY (
-    spec_id, branch_id,
-    vehicle_no, vin,
-    model_year,
-    operational_status,
-    mileage, last_inspected_at, is_active
-)
-SELECT
-    s.spec_id,
-    b.branch_id,
-    CONCAT('GMP-', LPAD(s.spec_id, 3, '0'), '-', n.n) AS vehicle_no,
-    CONCAT('VIN-', LPAD(s.spec_id, 3, '0'), '-', n.n) AS vin,
-    s.model_year_base AS model_year,
-    CASE
-        WHEN n.n = 1 THEN 'AVAILABLE'
-        ELSE CASE MOD(s.spec_id, 3)
-                 WHEN 0 THEN 'RESERVED'
-                 WHEN 1 THEN 'RENTED'
-                 ELSE 'MAINTENANCE'
-            END
-        END AS operational_status,
-    (s.spec_id * 1200) + (n.n * 137) AS mileage,
-    DATE_SUB(NOW(), INTERVAL (s.spec_id + n.n) DAY) AS last_inspected_at,
-    TRUE AS is_active
-FROM CAR_SPEC s
-         JOIN BRANCH b ON b.branch_code = 'GMP001'
-         JOIN (SELECT 1 AS n UNION ALL SELECT 2) n;
-UPDATE CAR_SPEC SET car_class = 'LIGHT'   WHERE car_class = '경형';
-UPDATE CAR_SPEC SET car_class = 'SMALL'   WHERE car_class = '소형';
-UPDATE CAR_SPEC SET car_class = 'COMPACT' WHERE car_class = '준중형';
-UPDATE CAR_SPEC SET car_class = 'MID'     WHERE car_class = '중형';
-UPDATE CAR_SPEC SET car_class = 'LARGE'   WHERE car_class = '대형';
-UPDATE CAR_SPEC SET car_class = 'IMPORT'  WHERE car_class = '수입';
-UPDATE CAR_SPEC SET car_class = 'RV'      WHERE car_class IN ('승합', '승합RV', '승합 RV');
-UPDATE CAR_SPEC SET car_class = 'SUV'     WHERE car_class = 'SUV';
-UPDATE CAR_SPEC SET car_class = 'LIGHT' WHERE car_class = '경차';
-UPDATE CAR_SPEC SET car_class = 'LARGE' WHERE car_class = '준대형';
-UPDATE CAR_SPEC SET car_class = 'SUV'   WHERE car_class = '소형SUV';
-UPDATE CAR_SPEC
-SET car_class = 'IMPORT',
-    fuel_type = 'ELECTRIC'
-WHERE car_class = '전기';
-SELECT DISTINCT car_class
-FROM CAR_SPEC
-WHERE car_class NOT IN ('LIGHT','SMALL','COMPACT','MID','LARGE','IMPORT','RV','SUV');
+    spec_id, branch_id, vehicle_no, vin, model_year,
+    operational_status, mileage, last_inspected_at, is_active, use_yn
+) VALUES
+      (12, 1, '105하1554', 'KNA_SPORTAGE_001', 2024, 'AVAILABLE', 5200, NOW(), 1, 'Y'),
+      (12, 1, '333호3333', 'KNA_SPORTAGE_002', 2024, 'AVAILABLE', 12500, NOW(), 1, 'Y');
+
+-- (2) 모닝 (ID 1) 재고 2대 (테스트용 추가)
+INSERT INTO VEHICLE_INVENTORY (
+    spec_id, branch_id, vehicle_no, vin, model_year,
+    operational_status, mileage, last_inspected_at, is_active, use_yn
+) VALUES
+      (1, 1, '11가1111', 'KNA_MORNING_001', 2020, 'AVAILABLE', 35000, NOW(), 1, 'Y'),
+      (1, 1, '22나2222', 'KNA_MORNING_002', 2020, 'AVAILABLE', 42000, NOW(), 1, 'Y');
 
 
-
-
-SET FOREIGN_KEY_CHECKS = 1;
+COMMIT;

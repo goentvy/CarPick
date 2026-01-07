@@ -1,12 +1,15 @@
 package com.carpick.domain.auth.controller;
 
-import com.carpick.domain.auth.dto.OAuthLoginRequest;
-import com.carpick.domain.auth.dto.OAuthLoginResponse;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginRequest;
+import com.carpick.domain.auth.dto.oauth.OAuthLoginResponse;
 import com.carpick.domain.auth.service.OAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -26,19 +29,29 @@ public class OAuthController {
             @PathVariable("provider") String provider,
             @RequestBody OAuthLoginRequest request
     ) {
-        // 1. 서비스(두뇌) 호출하여 로직 수행
+        log.info("소셜 로그인 요청: provider={}", provider);
         OAuthLoginResponse response = oAuthService.login(provider, request);
-
-        // 2. 성공 응답 반환 (200 OK)
         return ResponseEntity.ok(response);
     }
 
-    /** * 카카오 연동 해제 */
-    @PostMapping("/unlink/kakao")
-    public ResponseEntity<?> unlinkKakao(@RequestHeader("Authorization") String bearerToken) {
-        // JWT 토큰에서 사용자 식별
-         String token = bearerToken.replace("Bearer ", "");
-         oAuthService.unlinkKakao(token);
-         return ResponseEntity.ok().body("카카오 연동이 해제되었습니다.");
+    /**
+     * ✅ 소셜 연동 해제 (카카오/네이버)
+     * 프론트에서 /auth/unlink/{provider} 로 POST 요청
+     */
+    @PostMapping("/unlink/{provider}")
+    public ResponseEntity<Void> unlinkSocial(
+            @PathVariable("provider") String provider,
+            HttpServletRequest request
+    ) {
+        // Authorization 헤더에서 JWT 추출
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build();
+        }
+        String jwtToken = authHeader.substring(7);
+
+        log.info("소셜 연동 해제 요청: provider={}", provider);
+        oAuthService.unlinkSocial(provider, jwtToken);
+        return ResponseEntity.ok().build();
     }
 }

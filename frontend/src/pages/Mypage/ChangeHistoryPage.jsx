@@ -20,7 +20,7 @@ function ChangeHistoryPage() {
     };
     const formatWithoutYear = (dateStr) => {
         if (!dateStr) return "";
-        const parts = dateStr.split("-"); // ["2025","12","24"]
+        const parts = dateStr.split("-");
         if (parts.length !== 3) return dateStr;
         return `${parts[1]}-${parts[2]}`;
     };
@@ -48,11 +48,10 @@ function ChangeHistoryPage() {
                     return "변경";
             }
         }
-        // 2중, 3중
         return "복합 변경";
     };
 
-    // 예약번호 포매팅 (예: RES-123 형태)
+    // 예약번호 포매팅
     const formatReservationId = (id) => {
         return `RES-${id}`;
     };
@@ -70,7 +69,7 @@ function ChangeHistoryPage() {
                 }
 
                 const response = await fetch(
-                    "http://localhost:8080/api/reservations/history/me",
+                    "http://localhost:8080/api/mypage/change-history/me",
                     {
                         method: "GET",
                         headers: {
@@ -107,12 +106,11 @@ function ChangeHistoryPage() {
         (item) => filter === "all" || item.actionType === filter.toUpperCase()
     );
 
-    // 취소/변경 카드 - 타입별로 완전히 다른 내용 표시
+    // 취소/변경 카드
     const renderChangeCard = (item) => {
         const isCancel = item.actionType === "CANCEL";
 
         if (isCancel) {
-            // 취소 전용 카드
             return (
                 <div className="p-4 rounded-2xl border bg-gradient-to-r from-red-50 to-pink-50 border-red-100">
                     <p className="text-xs text-red-600 font-medium">
@@ -122,14 +120,12 @@ function ChangeHistoryPage() {
             );
         }
 
-        // 변경 타입 확인
         const showCar = hasType(item, "CAR");
         const showPeriod = hasType(item, "PERIOD");
         const showLocation = hasType(item, "LOCATION");
 
         return (
             <div className="p-4 rounded-2xl border bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100">
-                {/* 태그들 */}
                 <div className="flex flex-wrap gap-1 mb-3">
                     {showCar && (
                         <span className="px-2 py-0.5 rounded-full bg-white/70 text-[10px] text-[#555]">
@@ -149,49 +145,33 @@ function ChangeHistoryPage() {
                 </div>
 
                 <div className="space-y-2 text-xs text-gray-700">
-                    {/* 차종 변경 영역 */}
                     {showCar && (
-                        <div>
-                            <div className="flex items-center gap-1">
-                                <span className="text-gray-500 line-through">
-                                    {item.oldCarName}
-                                </span>
-                                <span className="text-orange-600 font-semibold mx-1">
-                                    →
-                                </span>
-                                <span className="font-semibold">
-                                    {item.newCarName}
-                                </span>
-                            </div>
+                        <div className="flex items-center gap-1">
+                            <span className="text-gray-500 line-through">
+                                {item.oldCarName}
+                            </span>
+                            <span className="text-orange-600 font-semibold mx-1">→</span>
+                            <span className="font-semibold">{item.newCarName}</span>
                         </div>
                     )}
-
-                    {/* 기간 변경 영역 - 섹션 제목 제거 */}
                     {showPeriod && (
                         <div className="flex items-center gap-1">
-    <span className="text-gray-500 line-through">
-      {formatWithoutYear(item.oldStartDate)} ~ {formatWithoutYear(item.oldEndDate)}
-    </span>
-                            <span className="text-orange-600 font-semibold mx-1">
-      →
-    </span>
+                            <span className="text-gray-500 line-through">
+                                {formatWithoutYear(item.oldStartDate)} ~ {formatWithoutYear(item.oldEndDate)}
+                            </span>
+                            <span className="text-orange-600 font-semibold mx-1">→</span>
                             <span className="font-semibold">
-      {formatWithoutYear(item.newStartDate)} ~ {formatWithoutYear(item.newEndDate)}
-    </span>
+                                {formatWithoutYear(item.newStartDate)} ~ {formatWithoutYear(item.newEndDate)}
+                            </span>
                         </div>
                     )}
-                    {/* 위치 변경 영역 - 섹션 제목 제거 */}
                     {showLocation && (
                         <div className="flex items-center gap-1">
                             <span className="text-gray-500 line-through">
                                 {item.oldLocation}
                             </span>
-                            <span className="text-orange-600 font-semibold mx-1">
-                                →
-                            </span>
-                            <span className="font-semibold">
-                                {item.newLocation}
-                            </span>
+                            <span className="text-orange-600 font-semibold mx-1">→</span>
+                            <span className="font-semibold">{item.newLocation}</span>
                         </div>
                     )}
                 </div>
@@ -199,20 +179,14 @@ function ChangeHistoryPage() {
         );
     };
 
-
     return (
         <div
             id="content"
-            className="font-pretendard"
-            style={{
-                minHeight: "calc(100vh - 60px)",
-                paddingBottom: "72px",
-                backgroundColor: "#E7EEFF",
-                boxSizing: "border-box",
-            }}
+            className="font-pretendard min-h-screen bg-[#E7EEFF] flex flex-col"
         >
-            <div className="px-4 py-6">
+            <div className="px-4 py-6 flex-1">
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    {/* 필터 탭 */}
                     <div className="px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
                         <div className="flex gap-2 text-xs">
                             {["all", "cancel", "change"].map((f) => (
@@ -235,68 +209,53 @@ function ChangeHistoryPage() {
                         </div>
                     </div>
 
-                    <div>
+                    {/* 리스트 */}
+                    <div className="divide-y divide-gray-100">
                         {filteredItems.length ? (
-                            <div>
-                                {filteredItems.map((item) => {
-                                    const isCancel =
-                                        item.actionType === "CANCEL";
-                                    const mainLabel =
-                                        getMainChangeLabel(item);
+                            filteredItems.map((item) => {
+                                const isCancel = item.actionType === "CANCEL";
 
-                                    return (
-                                        <div key={item.id} className="p-6">
-                                            <div className="flex flex-col gap-3">
-                                                {/* 상단: 예약번호 | 날짜 | 액션 라벨 */}
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <div className="text-sm font-semibold text-[#1A1A1A]">
-                                                        {formatReservationId(item.reservationId)}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {item.createdAt}
-                                                    </div>
-                                                    <div
-                                                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                                                            isCancel
-                                                                ? "bg-red-100 text-red-700"
-                                                                : "bg-orange-100 text-orange-700"
-                                                        }`}
-                                                    >
-                                                        {isCancel ? "취소" : "변경"}
-                                                    </div>
+                                return (
+                                    <div key={item.id} className="p-6">
+                                        <div className="flex flex-col gap-3">
+                                            {/* 상단: 예약번호 | 날짜 | 액션 라벨 */}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <div className="text-sm font-semibold text-[#1A1A1A]">
+                                                    {formatReservationId(item.reservationId)}
                                                 </div>
-
-                                                {/* 카드 + 상세보기 버튼 같이 */}
-                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                                    <div className="flex-1 min-w-0">
-                                                        {(item.actionType ===
-                                                            "CHANGE" ||
-                                                            item.actionType ===
-                                                            "CANCEL") && (
-                                                            <div>
-                                                                {renderChangeCard(
-                                                                    item
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    <button
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/mypage/reservation-detail/${item.reservationId}`
-                                                            )
-                                                        }
-                                                        className="text-xs bg-[#1D6BF3] text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-[#1E5BBF] transition-colors whitespace-nowrap"
-                                                    >
-                                                        상세보기
-                                                    </button>
+                                                <div className="text-xs text-gray-500">
+                                                    {item.createdAt}
+                                                </div>
+                                                <div
+                                                    className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                                                        isCancel
+                                                            ? "bg-red-100 text-red-700"
+                                                            : "bg-orange-100 text-orange-700"
+                                                    }`}
+                                                >
+                                                    {isCancel ? "취소" : "변경"}
                                                 </div>
                                             </div>
+
+                                            {/* 카드 + 상세보기 버튼 */}
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    {(item.actionType === "CHANGE" || item.actionType === "CANCEL") && (
+                                                        <div>{renderChangeCard(item)}</div>
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => navigate(`/Mypage/Reservations/${item.reservationId}`)}
+                                                    className="text-xs bg-[#1D6BF3] text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-[#1E5BBF] transition-colors whitespace-nowrap"
+                                                >
+                                                    상세보기
+                                                </button>
+                                            </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                    </div>
+                                );
+                            })
                         ) : (
                             <div className="p-12 flex flex-col items-center justify-center text-center">
                                 <p className="text-lg font-semibold text-[#1A1A1A] mb-2">

@@ -1,62 +1,112 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.carpick.admin.useradmin.mapper.UserAdminMapper">
 
-    <select id="findUsers" resultType="com.carpick.admin.useradmin.entity.UserAdmin">
-        SELECT user_id AS userId,
+    <resultMap id="UserAdminResponseMap" type="com.carpick.admin.useradmin.dto.UserAdminResponse">
+        <id property="id" column="user_id"/>
+        <result property="email" column="email"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="membershipGrade" column="membership_grade"/>
+        <result property="marketingAgree" column="marketing_agree"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectUsers" resultMap="UserAdminResponseMap">
+        SELECT
+        user_id,
         email,
         name,
         phone,
-        created_at AS createdAt
+        membership_grade,
+        marketing_agree,
+        created_at
         FROM users
-        <where>
-            <if test="search != null and search != ''">
-                (email LIKE CONCAT('%', #{search}, '%')
-                OR name LIKE CONCAT('%', #{search}, '%'))
-            </if>
-        </where>
+        WHERE deleted_at IS NULL
+        <if test="search != null and search != ''">
+            AND (
+            email LIKE CONCAT('%', #{search}, '%')
+            OR name LIKE CONCAT('%', #{search}, '%')
+            OR phone LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
         ORDER BY user_id DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <select id="findUserById" resultType="com.carpick.admin.useradmin.entity.UserAdmin">
-        SELECT user_id    AS userId,
-               email,
-               name,
-               phone,
-               created_at AS createdAt
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE deleted_at IS NULL
+        <if test="search != null and search != ''">
+            AND (
+            email LIKE CONCAT('%', #{search}, '%')
+            OR name LIKE CONCAT('%', #{search}, '%')
+            OR phone LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+    </select>
+
+    <select id="selectUserById" resultMap="UserAdminResponseMap">
+        SELECT
+        user_id,
+        email,
+        name,
+        phone,
+        membership_grade,
+        marketing_agree,
+        created_at
         FROM users
         WHERE user_id = #{id}
+        AND deleted_at IS NULL
     </select>
 
-    <insert id="insertUser">
-        INSERT INTO users (email, name, phone)
-        VALUES (#{email}, #{name}, #{phone})
+    <insert id="insertUser" parameterType="com.carpick.admin.useradmin.dto.UserAdminRequest">
+        INSERT INTO users
+        (
+        email,
+        name,
+        phone,
+        birth,
+        gender,
+        marketing_agree,
+        membership_grade,
+        provider
+        )
+        VALUES
+        (
+        #{email},
+        #{name},
+        #{phone},
+        #{birth},
+        #{gender},
+        #{marketingAgree},
+        #{membershipGrade},
+        'LOCAL'
+        )
     </insert>
 
-    <update id="updateUser">
+    <update id="updateUser" parameterType="com.carpick.admin.useradmin.dto.UserAdminRequest">
         UPDATE users
-        SET email = #{email},
-            name  = #{name},
-            phone = #{phone}
-        WHERE user_id = #{userId}
+        SET
+        email = #{email},
+        name = #{name},
+        phone = #{phone},
+        birth = #{birth},
+        gender = #{gender},
+        marketing_agree = #{marketingAgree},
+        membership_grade = #{membershipGrade},
+        updated_at = NOW()
+        WHERE user_id = #{id}
+        AND deleted_at IS NULL
     </update>
 
     <delete id="deleteUser">
-        DELETE
-        FROM users
+        DELETE FROM users
         WHERE user_id = #{id}
     </delete>
-    <!-- 관리자용 탈퇴 기능-->
-    <delete id="hardDeleteUser">
-        DELETE
-        FROM users
-        WHERE user_id = #{userId}
-    </delete>
-
-
-
 
 </mapper>

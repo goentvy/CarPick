@@ -14,7 +14,7 @@ export default function Faq() {
 
     const fetchFaqs = async () => {
         try {
-            const res = await axios.get("/api/faq", {
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/faq`, {
                 params: {
                     category: category || null,
                     keyword: keyword || null

@@ -16,105 +16,56 @@ public class AdminInsuranceService {
 
     // ==================== READ ====================
 
-    /**
-     * 보험 옵션 목록 조회
-     * - use_yn = 'Y' 인 것만
-     * - 정렬은 XML에서: sort_order ASC, extra_daily_price ASC, updated_at DESC
-     */
     @Transactional(readOnly = true)
     public List<AdminInsuranceDto> getInsuranceList() {
         return insuranceMapper.selectList();
     }
 
-    /**
-     * 보험 옵션 단건 조회
-     * - use_yn = 'Y' 인 것만 조회
-     */
     @Transactional(readOnly = true)
     public AdminInsuranceDto getInsuranceById(Long insuranceId) {
         return insuranceMapper.selectById(insuranceId);
     }
 
-    // ==================== CREATE / UPDATE ====================
-
-    /**
-     * 보험 옵션 등록
-     *
-     * 1) 같은 insuranceCode 가 "삭제된 상태(use_yn = 'N')"로 이미 있으면
-     *    → 해당 row 복구 + 새 값으로 UPDATE
-     *
-     * 2) 그런 코드가 전혀 없으면
-     *    → 새로 INSERT
-     *
-     * 이렇게 해두면, 실수로 삭제했다가 다시 추가할 때
-     * 히스토리(기존 PK)를 그대로 이어갈 수 있습니다.
-     */
-    public void addInsurance(AdminInsuranceDto dto) {
-
-        // 1. 코드(ENUM) 꺼내기
-        InsuranceCode code = dto.getInsuranceCode();
-
-        // 2. 같은 코드로, 삭제된(use_yn = 'N') row가 있는지 확인
-        AdminInsuranceDto deleted = insuranceMapper.selectDeletedByCode(code);
-
-        if (deleted != null) {
-            // ========== [CASE A] : 삭제된 이력이 있음 → 복구 + 업데이트 ==========
-
-            // 2-1. 우선 복구 (use_yn = 'Y', deleted_at = NULL)
-            insuranceMapper.restore(deleted.getInsuranceId());
-
-            // 2-2. 이번에 입력한 내용으로 덮어쓰기 위해 ID를 기존 것에 맞춰줌
-            dto.setInsuranceId(deleted.getInsuranceId());
-
-            // 2-3. UPDATE로 최신 값 반영
-            insuranceMapper.update(dto);
-
-        } else {
-            // ========== [CASE B] : 완전 신규 코드 → INSERT ==========
-
-            insuranceMapper.insert(dto);
-        }
-    }
+    // ==================== UPDATE (핵심!) ====================
 
     /**
      * 보험 옵션 수정
-     *
-     * - use_yn = 'Y' 인 데이터만 수정 가능 (XML WHERE 조건)
-     * - 수정 대상이 없으면 예외 던져서 컨트롤러에서 메시지 처리 가능
+     * - 안전 장치: DB에서 기존 데이터를 먼저 조회한 뒤, 변경할 필드만 덮어씁니다.
+     * - 보험 코드(insuranceCode)는 절대 변경되지 않도록 보호합니다.
      */
     public void updateInsurance(AdminInsuranceDto dto) {
-        int updatedRows = insuranceMapper.update(dto);
+        // 1. 기존 데이터 조회 (안전 장치)
+        AdminInsuranceDto existing = insuranceMapper.selectById(dto.getInsuranceId());
+
+        if (existing == null) {
+            throw new IllegalStateException("수정할 보험 정보가 존재하지 않습니다. ID=" + dto.getInsuranceId());
+        }
+
+        // 2. 수정 가능한 필드만 갱신 (보험 코드는 건드리지 않음!)
+        // 기존 객체(existing)에 화면에서 넘어온 값(dto)을 덮어씌웁니다.
+        existing.setInsuranceLabel(dto.getInsuranceLabel());               // 보험명
+        existing.setSummaryLabel(dto.getSummaryLabel());   // 설명
+        existing.setExtraDailyPrice(dto.getExtraDailyPrice()); // 가격
+        existing.setIsDefault(dto.getIsDefault());         // 기본값 여부
+        existing.setIsActive(dto.getIsActive());           // 활성 여부
+        existing.setSortOrder(dto.getSortOrder());         // 정렬 순서
+
+        // 주의: existing.setInsuranceCode(...) 는 절대 호출하지 않음!
+
+        // 3. 업데이트 실행
+        // (Mapper XML에서는 모든 필드를 업데이트하더라도, existing 객체에는 이미 안전한 코드값이 들어있음)
+        int updatedRows = insuranceMapper.update(existing);
 
         if (updatedRows == 0) {
-            // 이미 삭제됐거나, ID가 잘못된 경우
-            throw new IllegalStateException("수정할 수 있는 보험 정보가 없습니다. (이미 삭제되었거나 잘못된 ID입니다)");
+            throw new IllegalStateException("업데이트 실패: 데이터가 변경되지 않았습니다.");
         }
     }
 
-    // ==================== DELETE ====================
+    // ==================== [삭제됨] CREATE / DELETE ====================
+    // 정책 변경: 보험 종류는 고정(ENUM)이므로 관리자 페이지에서 추가/삭제 기능을 제공하지 않습니다.
+    // 필요 시 개발자가 DB 초기화 스크립트(INSERT)로 관리합니다.
 
-    /**
-     * 보험 옵션 삭제 (Soft Delete)
-     *
-     * 1) RESERVATION 테이블에서 이 보험을 참조 중인지 카운트
-     *    - 1건이라도 있으면 삭제 불가 (예외 발생)
-     *
-     * 2) 참조가 없으면 softDelete 실행
-     *    - use_yn = 'N', deleted_at = NOW()
-     */
-    public void deleteInsurance(Long insuranceId) {
-
-        // 1. 참조 여부 체크
-        int reservationCount = insuranceMapper.countReservationByInsuranceId(insuranceId);
-
-        if (reservationCount > 0) {
-            // 이 예외 메시지는 컨트롤러에서 그대로 프론트에 내려주면 됩니다.
-            throw new IllegalStateException(
-                    "이 보험을 사용 중인 예약이 " + reservationCount + "건 있어 삭제할 수 없습니다."
-            );
-        }
-
-        // 2. 실제 논리 삭제 수행
-        insuranceMapper.softDelete(insuranceId);
-    }
+    /* public void addInsurance(...) { ... 삭제됨 ... }
+    public void deleteInsurance(...) { ... 삭제됨 ... }
+    */
 }

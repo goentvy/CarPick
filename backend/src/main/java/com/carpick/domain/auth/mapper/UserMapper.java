@@ -1,6 +1,6 @@
 package com.carpick.domain.auth.mapper;
 
-import com.carpick.domain.auth.dto.SignupRequest;
+import com.carpick.domain.auth.dto.signup.SignupRequest;
 import com.carpick.domain.auth.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -32,14 +32,25 @@ public interface UserMapper {
             @Param("providerId") String providerId
     );
 
+    User findDeletedByProvider(
+            @Param("provider") String provider,
+            @Param("providerId") String providerId
+    );
+
     // ✅ userId로 조회
     User findById(@Param("userId") Long userId);
 
     // ✅ 로컬 유저 탈퇴 (소프트 삭제)
     void softDeleteLocalUser(@Param("userId") Long userId);
 
+    // ✅ 소셜 유저 탈퇴 (소프트 삭제)
+    void softDeleteSocialUser(@Param("userId") Long userId);
+
     // ✅ 소셜 유저 탈퇴 (하드 삭제)
     void hardDeleteSocialUser(@Param("userId") Long userId);
+
+    // 소셜 소프트 삭제된 계정 복구
+    void reviveSocialUser(@Param("accessToken") String accessToken, @Param("userId") Long userId);
 
     // ✅ 카카오 액세스 토큰 업데이트 (연동 해제 시 필요)
     void updateAccessToken(

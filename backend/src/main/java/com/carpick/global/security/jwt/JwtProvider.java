@@ -41,15 +41,11 @@ public class JwtProvider {
     /**
      * ✅ Access Token 생성
      * subject = userId
-     * ✅ 토큰 생성 시 userId null 방어
      */
     public String generateToken(Long userId, String role) {
-        if (userId == null) {
-            throw new IllegalArgumentException("UserId cannot be null when generating JWT");
-        }
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
-                .claim("role", role != null ? role : "BASIC")
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(
                         new Date(System.currentTimeMillis() + expiration)
@@ -59,26 +55,14 @@ public class JwtProvider {
     }
 
     /**
-     * ✅ 토큰에서 userId 추출 시 null/비정상 값 방어
+     * ✅ 토큰 검증 (예외 기반)
      */
-    public Long getUserId(String token) {
-        String subject = parseClaims(token).getSubject();
-        if (subject == null || subject.isBlank() || "null".equalsIgnoreCase(subject)) {
-            throw new IllegalStateException("JWT subject(userId)가 비어있거나 잘못된 값입니다: " + subject);
-        }
-        return Long.parseLong(subject);
-    }
-
-    /**
-     * ✅ 토큰 검증
-     */
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-            return true;
 
         } catch (ExpiredJwtException e) {
             throw new AuthenticationException(AUTH_TOKEN_EXPIRED);
@@ -95,6 +79,14 @@ public class JwtProvider {
         } catch (JwtException | IllegalArgumentException e) {
             throw new AuthenticationException(AUTH_TOKEN_INVALID);
         }
+    }
+
+    /**
+     * ✅ 토큰에서 userId 추출
+     * ⚠️ validateToken 이후 호출 전제
+     */
+    public Long getUserId(String token) {
+        return Long.parseLong(parseClaims(token).getSubject());
     }
 
     /**

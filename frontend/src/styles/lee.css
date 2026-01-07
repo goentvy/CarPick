@@ -114,13 +114,14 @@
     margin:auto; 
 }
 .chatContent{display: flex; flex-direction: column; align-items: center; flex-grow: 1; height:calc(100vh - 288px); overflow-y: auto; padding:10px; padding-bottom:30px; background:var(--main-blue-200);}
-.chatContent .a{display:flex; background:var(--gray-500); color:#fff; width:80%; margin-right:auto; border-radius:10px; padding:10px; margin-bottom:10px; word-break:keep-all; }
+.chatContent .a{display:flex; flex-wrap: wrap;background:var(--gray-500); color:#fff; width:80%; margin-right:auto; border-radius:10px; padding:10px; margin-bottom:10px; word-break:keep-all; }
 .chatContent .a span{width:8px; height:8px; display:block; background:url('/images/sub/aipick/aiA.svg') no-repeat; background-size:8px 8px; }
 .chatContent .a img{width:30px;}
 .chatContent .a p{margin:0; margin-left:10px; width:340px; }
+.chatContent .a .btn-recommend{width: 100%;background:var(--logo-yellow); color:var(--gray-500); font-weight:600; padding:5px 10px; border-radius:8px; margin-top:10px; cursor:pointer; border:none; }
 .chatContent .q{display:flex; background:var(--main-blue-300); color:#fff; width:70%; margin-left:auto; border-radius:10px; padding:10px; margin-top:10px; margin-bottom:30px; word-break:keep-all; }
 .chatContent .msg{ font-weight:600; }
-.chatContent .topm{margin-top:10vh;}
+.chatContent .topm{margin-top:5vh;}
 .chatContent .topb{margin-bottom:30px;}
 .chatContent .q p{margin:0; margin-left:5px;}
 .chatContent .c{display:none; width:100%; align-items: center; justify-content:center; flex-direction: column; margin-top:20px; }
@@ -158,7 +159,7 @@
 
 .chatQuestion{width:100%; height:150px; padding:10px; height:10%; display:flex; flex-direction: column; background:#fff; border:20px solid var(--logo-blue); border-radius:0 0 60px 60px }
 .chatQuestion .que{width:100%; height:95px; border:0; padding:5px; background:var(--main-blue-100); resize:none; outline:none;  }
-.chatQuestion .btn{background:var(--gray-400); color:#fff; border-radius:0 0 60px 60px; padding: 5px 0;}
+.chatQuestion .btn{background:var(--logo-blue); color:#fff; border-radius:0 0 60px 60px; padding: 5px 0;}
 .chatQuestion .btn.active{background:var(--logo-blue); }
 .chatQuestion .btn:hover{background:var(--logo-blue);}
 
@@ -171,3 +172,7 @@
 #popup .inner .content .scroll{overflow:auto; height:300px; margin:20px 0; font-size: 14px;}
 #popup .inner .content .scroll pre{text-wrap: wrap;}
 #popup .inner .btns .btn{background:var(--logo-blue); color:#fff; width:100%; border-radius: 15px; padding: 5px 0;} 
+
+@media (hover: none) and (pointer: coarse) {
+    .chatContent{ height: calc(100vh - 358px); }
+}
