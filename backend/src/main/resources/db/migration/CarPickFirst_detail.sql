@@ -661,6 +661,9 @@ CREATE TABLE IF NOT EXISTS RESERVATION_EXTENSION (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+
+
+
 /* ==================================================
    (선택) "연장 1회만 허용"을 DB 레벨에서 강제하고 싶다면
    - 아래 UNIQUE는 'APPROVED'만 대상으로 걸 수 없어서(부분 인덱스 불가)
