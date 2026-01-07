@@ -41,7 +41,7 @@ export default function Notice() {
 
   return (
     <div className="notice-container">
-      <h2 className="notice-title">공지사항📢</h2>
+      <h2 className="notice-title">공지사항 📢</h2>
 
       {/* 검색 */}
       <div className="search-container">
@@ -61,13 +61,13 @@ export default function Notice() {
       {/* 공지사항 테이블 */}
       <table className={`notice-table ${loading ? "loading" : ""}`}>
         <colgroup>
-          <col width="100"/>
-          <col/>
-          <col width="120"/>
+          <col width="100" />
+          <col />
+          <col width="120" />
         </colgroup>
         <thead>
           <tr>
-            <th>번호</th>
+            <th>No.</th>
             <th>제목</th>
             <th>작성일</th>
           </tr>
@@ -75,7 +75,9 @@ export default function Notice() {
         <tbody>
           {(notices || []).map((n) => (
             <tr key={n.id}>
-              <td>{n.id}</td>
+              <td className="notice-id-column">
+                <span className="notice-badge">공지</span>
+              </td>
 
               <td>
                 <span

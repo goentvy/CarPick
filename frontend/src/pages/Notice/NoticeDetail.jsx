@@ -53,7 +53,7 @@ export default function NoticeDetail() {
   return (
     <div className="notice-container-detail">
       <div className="notice-detail-header">
-        <h2 className="notice-detail-title-header">공지사항📢</h2>
+        <h2 className="notice-detail-title-header">공지사항 📢</h2>
       </div>
       <div className="notice-detail-card">
         <div className="notice-detail-title">{notice.title}</div>
