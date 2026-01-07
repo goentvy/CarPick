@@ -3,7 +3,14 @@ import { useEffect, useState, useCallback } from "react";
 import useUserStore from "../../store/useUserStore";
 
 const DriverInfoSection = () => {
-    const { setValue, formState: { errors } } = useFormContext();
+    const {
+        register,
+        setValue,
+        getValues,
+        formState: { errors },
+        clearErrors,
+        trigger
+    } = useFormContext();
     const { accessToken } = useUserStore();
 
     const [licenses, setLicenses] = useState([]);
@@ -11,7 +18,6 @@ const DriverInfoSection = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalStep, setModalStep] = useState("form");
     const [modalLoading, setModalLoading] = useState(false);
-    const [modalErrors, setModalErrors] = useState({});
 
     const hasLicense = licenses.length > 0;
 
@@ -67,55 +73,36 @@ const DriverInfoSection = () => {
         setValue("birth", license.birthday.replace(/-/g, ''));
         setValue("phone", "");
         setValue("email", "");
-    }, [setValue]);
+        clearErrors(["lastName", "firstName", "birth", "phone", "email"]);
+    }, [setValue, clearErrors]);
 
     // 모달 제어
     const openModal = useCallback(() => {
         setIsModalOpen(true);
         setModalStep("form");
-        setModalErrors({});
-    }, []);
+        ["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"].forEach(field => {
+            setValue(field, "");
+        });
+        clearErrors(["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"]);
+    }, [setValue, clearErrors]);
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false);
-        // 입력 필드 초기화
-        ["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = "";
-        });
-    }, []);
-
-    // 검증
-    const validateInputs = useCallback(() => {
-        const newErrors = {};
-        const name = document.getElementById("modal-driverName")?.value?.trim();
-        const birthday = document.getElementById("modal-driverBirthday")?.value;
-        const licenseRaw = document.getElementById("modal-licenseNumber")?.value;
-        const license = licenseRaw?.replace(/-/g, "");
-        const serial = document.getElementById("modal-serialNumber")?.value?.trim();
-
-        if (!name || name.length < 2) newErrors.name = "성명은 2자 이상 입력하세요";
-        if (!birthday) {
-            newErrors.birthday = "생년월일을 선택하세요";
-        } else {
-            const today = new Date();
-            const selected = new Date(birthday);
-            if (selected >= today) newErrors.birthday = "생년월일을 다시 확인해주세요";
-        }
-        if (!license || !/^\d{12}$/.test(license)) {
-            newErrors.license = "면허번호는 하이픈 제외 12자리 숫자여야 합니다";
-        }
-        if (!serial || !/^[A-Za-z0-9]{6}$/.test(serial)) {
-            newErrors.serial = "일련번호는 숫자/영문 6자리입니다";
-        }
-
-        setModalErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    }, []);
+        clearErrors(["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"]);
+    }, [clearErrors]);
 
     // 면허 등록 (1개 제한)
     const registerLicense = useCallback(async () => {
-        if (!validateInputs()) return;
+        const fields = [
+            "modal-driverName",
+            "modal-driverBirthday",
+            "modal-licenseNumber",
+            "modal-serialNumber"
+        ];
+
+        const isValid = await trigger(fields);
+        if (!isValid) return;
+
         if (!accessToken) {
             alert("로그인이 필요합니다.");
             return;
@@ -123,11 +110,7 @@ const DriverInfoSection = () => {
 
         setModalLoading(true);
         try {
-            const name = document.getElementById("modal-driverName").value.trim();
-            const birthday = document.getElementById("modal-driverBirthday").value;
-            const licenseNumber = document.getElementById("modal-licenseNumber").value.replace(/-/g, "");
-            const serialNumber = document.getElementById("modal-serialNumber").value.trim();
-
+            const values = getValues();
             const response = await fetch("/api/licenses", {
                 method: "POST",
                 headers: {
@@ -135,10 +118,10 @@ const DriverInfoSection = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({
-                    driverName: name,
-                    birthday,
-                    licenseNumber,
-                    serialNumber,
+                    driverName: values["modal-driverName"],
+                    birthday: values["modal-driverBirthday"],
+                    licenseNumber: values["modal-licenseNumber"],
+                    serialNumber: values["modal-serialNumber"],
                 }),
             });
 
@@ -164,7 +147,7 @@ const DriverInfoSection = () => {
         } finally {
             setModalLoading(false);
         }
-    }, [accessToken, validateInputs, handleLicenseSelect]);
+    }, [accessToken, trigger, getValues, handleLicenseSelect]);
 
     // 면허 삭제
     const deleteLicense = useCallback(async (licenseId) => {
@@ -219,9 +202,9 @@ const DriverInfoSection = () => {
                                 key={license.id}
                                 className="bg-white rounded-2xl shadow-sm px-5 py-4 flex flex-col border-2 border-[#2C7FFF] bg-gradient-to-r from-white to-[#F0F7FF]"
                             >
-                <span className="mb-3 text-base font-semibold text-[#1A1A1A] flex items-center">
-                    {license.name}
-                </span>
+                                <span className="mb-3 text-base font-semibold text-[#1A1A1A] flex items-center">
+                                    {license.name}
+                                </span>
                                 <div className="text-sm text-[#333333] space-y-1.5 leading-snug mb-4">
                                     <p className="flex items-center">
                                         <span className="w-16 text-[#666666]">생년월일</span>
@@ -279,21 +262,80 @@ const DriverInfoSection = () => {
                                 <p className="text-xs text-[#666666] mb-5">차량 수령 시 실물/전자 운전면허증과 확인합니다.</p>
 
                                 <div className="space-y-3">
+                                    {/* 성명 */}
                                     <div>
-                                        <input id="modal-driverName" placeholder="성명 (2자 이상)" maxLength={10} className={`w-full rounded-lg border px-3 py-2 text-sm ${modalErrors.name ? "border-red-500" : "border-[#dddddd]"}`} />
-                                        {modalErrors.name && <small className="mt-1 block text-xs text-red-500">{modalErrors.name}</small>}
+                                        <input
+                                            {...register("modal-driverName")}
+                                            placeholder="성명 (2자 이상)"
+                                            maxLength={10}
+                                            className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none ${
+                                                errors["modal-driverName"]
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
+                                            }`}
+                                        />
+                                        {errors["modal-driverName"] && (
+                                            <small className="mt-1 block text-xs text-red-500">
+                                                {errors["modal-driverName"].message}
+                                            </small>
+                                        )}
                                     </div>
+
+                                    {/* 생년월일 */}
                                     <div>
-                                        <input id="modal-driverBirthday" type="date" max="2010-12-31" className={`w-full rounded-lg border px-3 py-2 text-sm ${modalErrors.birthday ? "border-red-500" : "border-[#dddddd]"}`} />
-                                        {modalErrors.birthday && <small className="mt-1 block text-xs text-red-500">{modalErrors.birthday}</small>}
+                                        <input
+                                            {...register("modal-driverBirthday")}
+                                            type="date"
+                                            max="2010-12-31"
+                                            className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none ${
+                                                errors["modal-driverBirthday"]
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
+                                            }`}
+                                        />
+                                        {errors["modal-driverBirthday"] && (
+                                            <small className="mt-1 block text-xs text-red-500">
+                                                {errors["modal-driverBirthday"].message}
+                                            </small>
+                                        )}
                                     </div>
+
+                                    {/* 면허번호 */}
                                     <div>
-                                        <input id="modal-licenseNumber" placeholder="면허번호 (예: 11-90-123456-00)" maxLength={14} className={`w-full rounded-lg border px-3 py-2 text-sm ${modalErrors.license ? "border-red-500" : "border-[#dddddd]"}`} />
-                                        {modalErrors.license && <small className="mt-1 block text-xs text-red-500">{modalErrors.license}</small>}
+                                        <input
+                                            {...register("modal-licenseNumber")}
+                                            placeholder="면허번호 (예: 11-90-123456-00)"
+                                            maxLength={14}
+                                            className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none ${
+                                                errors["modal-licenseNumber"]
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
+                                            }`}
+                                        />
+                                        {errors["modal-licenseNumber"] && (
+                                            <small className="mt-1 block text-xs text-red-500">
+                                                {errors["modal-licenseNumber"].message}
+                                            </small>
+                                        )}
                                     </div>
+
+                                    {/* 일련번호 */}
                                     <div>
-                                        <input id="modal-serialNumber" placeholder="일련번호 (6자리)" maxLength={6} className={`w-full rounded-lg border px-3 py-2 text-sm text-center tracking-[0.2em] font-semibold ${modalErrors.serial ? "border-red-500" : "border-[#dddddd]"}`} />
-                                        {modalErrors.serial && <small className="mt-1 block text-xs text-red-500">{modalErrors.serial}</small>}
+                                        <input
+                                            {...register("modal-serialNumber")}
+                                            placeholder="일련번호 (6자리)"
+                                            maxLength={6}
+                                            className={`w-full rounded-lg border px-3 py-2 text-sm text-center tracking-[0.2em] font-semibold transition-colors focus:outline-none ${
+                                                errors["modal-serialNumber"]
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
+                                            }`}
+                                        />
+                                        {errors["modal-serialNumber"] && (
+                                            <small className="mt-1 block text-xs text-red-500">
+                                                {errors["modal-serialNumber"].message}
+                                            </small>
+                                        )}
                                         <small className="mt-1 block text-[11px] text-[#666666]">면허증 뒷면 작은 사진 오른쪽 아래</small>
                                     </div>
                                 </div>
@@ -302,11 +344,18 @@ const DriverInfoSection = () => {
                                     <button
                                         onClick={registerLicense}
                                         disabled={modalLoading}
-                                        className={`flex-1 h-11 rounded-xl text-sm font-medium text-white ${modalLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#2C7FFF] hover:bg-[#215FCC]"}`}
+                                        className={`flex-1 h-11 rounded-xl text-sm font-medium text-white transition-colors ${
+                                            modalLoading
+                                                ? "bg-gray-400 cursor-not-allowed"
+                                                : "bg-[#2C7FFF] hover:bg-[#215FCC]"
+                                        }`}
                                     >
                                         {modalLoading ? "등록 중..." : "등록하기"}
                                     </button>
-                                    <button onClick={closeModal} className="flex-1 h-11 rounded-xl bg-gray-100 text-sm font-medium text-[#333]">
+                                    <button
+                                        onClick={closeModal}
+                                        className="flex-1 h-11 rounded-xl bg-gray-100 text-sm font-medium text-[#333] hover:bg-gray-200 transition-colors"
+                                    >
                                         취소
                                     </button>
                                 </div>
@@ -321,7 +370,7 @@ const DriverInfoSection = () => {
                                 </div>
                                 <button
                                     onClick={closeModal}
-                                    className="mt-6 w-full h-11 rounded-xl bg-[#2C7FFF] text-sm font-medium text-white hover:bg-[#215FCC]"
+                                    className="mt-6 w-full h-11 rounded-xl bg-[#2C7FFF] text-sm font-medium text-white hover:bg-[#215FCC] transition-colors"
                                 >
                                     확인
                                 </button>
