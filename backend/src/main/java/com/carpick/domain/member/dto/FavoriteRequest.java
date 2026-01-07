@@ -1,0 +1,13 @@
+package com.carpick.domain.member.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class FavoriteRequest {
+    private String carName;
+    private String carImageUrl;
+}

@@ -2,53 +2,126 @@ package com.carpick.domain.reservation.controller;
 
 import com.carpick.domain.reservation.dto.ReservationRequest;
 import com.carpick.domain.reservation.dto.ReservationRequest.CardPayment;
+import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
+import com.carpick.domain.reservation.dto.request.ReservationPaymentRequestDto;
+import com.carpick.domain.reservation.dto.request.ReservationPriceRequestDto;
+import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
+import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
+import com.carpick.domain.reservation.dto.response.ReservationPayResponseDto;
+import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
+import com.carpick.domain.reservation.service.ReservationCommandService;
+import com.carpick.domain.reservation.service.ReservationPaymentCommandService;
+import com.carpick.domain.reservation.service.ReservationUiService;
+import com.carpick.global.security.details.CustomUserDetails;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reservation")
+@RequiredArgsConstructor
 public class ReservationController {
+    private final ReservationUiService reservationUiService;
+    private final ReservationCommandService reservationCommandService;
+
+    // ▼▼▼ [핵심] 이 줄이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
+    private final ReservationPaymentCommandService paymentService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @PostMapping("/pay")
-    public ResponseEntity<?> processPayment(@RequestBody ReservationRequest request) {
-        // 1. 카드정보 존재 여부 확인
-        CardPayment card = request.getCardPayment();
-        if (card == null) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "DECLINED",
-                    "message", "결제정보가 누락되었습니다."
-            ));
+    public ResponseEntity<ReservationPayResponseDto> processPayment(
+            @Valid @RequestBody ReservationPaymentRequestDto request,
+    @AuthenticationPrincipal CustomUserDetails userDetails ) {
+        if(userDetails == null){
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
         }
+        Long userId = userDetails.getUserId(); // 로그인 유저로 수정
 
-        // 2. 약관 동의 여부 확인
-        if (!request.isAgreement() || !card.isAgree()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "DECLINED",
-                    "message", "약관 동의가 필요합니다."
-            ));
+        // ✅ 방금 만드신 Service의 pay 메서드 호출!
+        ReservationPayResponseDto response = paymentService.pay(request, userId);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    /**
+     * 예약 페이지 초기 데이터 내려주기
+     * 예: GET /api/reservation/form?carId=1
+     */
+    @GetMapping("/form")
+    public ReservationFormResponseDto getForm(@RequestParam("carId") Long carId){
+        return reservationUiService.getForm(carId);
+
+    }
+    /**
+     * 보험 선택 시 가격 재계산
+     * 예: POST /api/reservation/price?carId=1
+     * Body: { "insuranceCode": "FULL" }
+     */
+    @PostMapping("/price")
+    public ReservationPriceResponseDto calcPrice(@RequestParam("carId") Long carId
+            , @RequestBody(required = false) ReservationPriceRequestDto req){
+        return reservationUiService.calcPrice(carId, req);
+    }
+    @PostMapping("/create")
+    public ResponseEntity<ReservationCreateResponseDto> create(
+            @RequestBody @Valid ReservationCreateRequestDto req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if(userDetails == null){
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
         }
+        Long userId = userDetails.getUserId(); // 유저 아이디 연동
+        ReservationCreateResponseDto response = reservationCommandService.createReservation(req, userId);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/{reservationId}/cancel")
+    public ResponseEntity<Map<String, Object>> cancelReservation(
+            @PathVariable Long reservationId,
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+   ) {
 
-        // 3. 결제 처리 로직 (예: PG 연동)
-        boolean paymentSuccess = mockPayment(card);
+        try {
+            Long userId = userDetails.getUserId();
 
-        if (paymentSuccess) {
-            return ResponseEntity.ok(Map.of(
-                    "status", "APPROVED",
-                    "message", "결제 완료"
-            ));
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "status", "DECLINED",
-                    "message", "결제 실패"
-            ));
+            // 1. RESERVATION 상태 변경
+            jdbcTemplate.update(
+                    "UPDATE RESERVATION SET reservation_status = 'CANCELED', cancel_reason = ? WHERE reservation_id = ?",
+                    request.get("reason"), reservationId
+            );
+
+            // 2. reservation_history INSERT
+            jdbcTemplate.update(
+                    """
+                    INSERT INTO reservation_history (
+                        reservation_id, action_type, old_start_date, old_end_date,
+                        old_car_name, reason, user_id
+                    ) VALUES (?, 'CANCEL', ?, ?, ?, ?, ?)
+                    """,
+                    reservationId,
+                    request.get("old_start_date"),
+                    request.get("old_end_date"),
+                    request.get("old_car_name"),
+                    request.get("reason"),
+                    userId
+            );
+
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false));
         }
     }
 
-    private boolean mockPayment(CardPayment card) {
-        // 실제 PG 연동 대신 카드번호 앞자리로 승인 여부 판단
-        return card.getCardNumber() != null && card.getCardNumber().startsWith("1234");
-    }
+
 }

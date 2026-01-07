@@ -1,0 +1,16 @@
+카카오로그인,네이버로그인 개발자키랑 시크릿키입니다.
+ID가 개발자키, SECRET이 시크릿키입니다.
+인텔리제이에서 실행 -> 구성편집 -> 옵션수정 -> 환경변수 체크(V)
+-> 환경변수등록 하시면 됩니다.
+이클립스에서는 Run -> Run Configrations -> Environment -> Environment variables to set: -> Add -> 환경변수 등록 -> Apply -> Run
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}

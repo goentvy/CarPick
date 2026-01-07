@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carpick.domain.member.mapper.FavoritesMapper">
+
+    <!-- ✅ member.dto 패키지로 수정 -->
+    <resultMap id="FavoriteResultMap" type="com.carpick.domain.member.dto.FavoriteResponse">
+        <id property="id" column="id"/>
+        <result property="carId" column="car_id"/>
+        <result property="carName" column="car_name"/>
+        <result property="carImageUrl" column="car_image_url"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 내 찜 목록 -->
+    <select id="findByUserId" resultMap="FavoriteResultMap">
+        SELECT id, car_id, car_name, car_image_url, created_at
+        FROM favorites
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 찜 추가 -->
+    <insert id="insertFavorite" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO favorites (user_id, car_id, car_name, car_image_url)
+        VALUES (#{userId}, #{carId}, #{carName}, #{carImageUrl})
+    </insert>
+
+    <!-- 찜 존재 여부 -->
+    <select id="existsByUserIdAndCarId" resultType="int">
+        SELECT COUNT(*) FROM favorites
+        WHERE user_id = #{userId} AND car_id = #{carId}
+    </select>
+
+    <!-- 찜 삭제 -->
+    <delete id="deleteByIdAndUserId" parameterType="map">
+        DELETE FROM favorites
+        WHERE id = #{favoriteId} AND user_id = #{userId}
+    </delete>
+</mapper>

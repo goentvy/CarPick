@@ -1,17 +1,21 @@
-.notice-container {
-  width: 1200px;
-  margin: 60px auto;
+.notice-container,
+.notice-container-detail {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 80px 16px 80px; /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
   font-family: "Noto Sans KR", sans-serif;
 }
 
 .notice-list-header {
   position: relative;
   width: 100%;
-  height: 80px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
+  padding: 20px 0;
 }
 
 .notice-logo {
@@ -23,30 +27,35 @@
 }
 
 .notice-title {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-align: center;
 }
 
 .search-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  flex-direction: column;
 }
 
 .search-input-wrapper {
   position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
 }
 
 .search-input {
-  width: 300px;
+  width: 100%;
   padding: 10px 40px 10px 15px;
+  padding-right: 44px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
@@ -62,6 +71,10 @@
 .search-icon {
   position: absolute;
   right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
   font-size: 16px;
   color: #6c757d;
   cursor: pointer;
@@ -113,8 +126,8 @@
 
 .notice-table {
   width: 100%;
-  border-collapse: collapse;
-  background-color: #e9f7fc;
+  table-layout: fixed;
+  background-color: #ffffff;
 }
 
 .notice-table thead {
@@ -127,31 +140,46 @@
   padding: 14px;
   font-size: 15px;
   font-weight: 600;
+  word-break: break-word;
 }
 
 .notice-table td {
-  padding: 14px;
-  border-bottom: 1px solid #ddd;
+  padding: 14px 12px;
   text-align: center;
   font-size: 14px;
+  word-break: break-word;
+  border: none; /* ❗ 기존 border 제거 */
+  vertical-align: middle;
+  border-bottom:1px solid #eee;
 }
 
-.notice-table tr {
+.notice-table tbody tr {
+  position: relative;
+  background-color: #ffffff;
   transition: background-color 0.2s ease;
 }
 
+.notice-table tbody tr:hover {
+  background-color: #e9f7fc;
+}
+
 .notice-subject {
+  font-size: 15px;
+  line-height: 1.4;
   text-align: left;
   cursor: pointer;
   color: #007bff;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  display: inline-block;   /* ❗ block → inline-block */
+  width: 100%;
+  padding: 4px 0;          /* ❗ 여백 최소화 */
+  transition: color 0.2s ease;
 }
 
 .notice-subject:hover {
   text-decoration: underline;
   color: #0056b3;
-  background-color: #f8f9fa;
+  background-color: transparent;
 }
 
 .notice-row-visited {
@@ -178,12 +206,6 @@
   min-width: 60px;
 }
 
-.notice-container-detail {
-  width: 1200px;
-  margin: 60px auto;
-  font-family: "Noto Sans KR", sans-serif;
-}
-
 /* ============================= */
 /*            헤더 영역           */
 /* ============================= */
@@ -191,14 +213,16 @@
 .notice-detail-header {
   position: relative;
   width: 100%;
-  height: 80px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 30px;
+  padding: 20px 0;
 }
 
 .notice-logo {
+  width: 110px;
   position: absolute;
   left: 0;
   width: 140px;
@@ -221,10 +245,11 @@
 /* ============================= */
 
 .notice-detail-card {
-  background: #e9f7fc;
+  background: #f8faff;
   margin-top: 20px;
-  padding: 30px;
-  border-radius: 8px;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid #e9effb;
 }
 
 /* ← 목록으로 버튼 (바디 하단에 배치) */
@@ -323,29 +348,39 @@
 /* 제목 */
 .notice-detail-title {
   font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #333;
-  line-height: 1.3;
-  word-break: keep-all;
+  font-weight: 700;
+  margin-bottom: 0; /* 아래 info 박스와 붙이기 위해 0 */
+  color: #1a1a1a;
+  line-height: 1.4;
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  border-top: 2px solid #333;
+  padding: 24px 24px 16px;
+  border-radius: 12px 12px 0 0; /* 위쪽만 둥글게 */
+  border-top: 3px solid #007bff; /* 포인트 컬러 강조 */
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
 }
 
 /* 작성일 · 수정일 · 조회수 */
 .notice-detail-info {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
+  padding: 0 24px 20px;
   margin-bottom: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: row !important; /* 가로 배열 유지 */
+  justify-content: flex-start;
   gap: 20px;
-  border-bottom: 1px solid #ccc;
+  border-radius: 0 0 12px 12px; /* 아래쪽만 둥글게 */
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+}
+
+.notice-detail-info span {
+  font-size: 13px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .notice-detail-info .info-item {
@@ -372,6 +407,7 @@
 }
 
 .notice-detail-info .info-item:not(:last-child)::after {
+  display: none;
   content: '';
   position: absolute;
   right: -10px;
@@ -388,17 +424,16 @@
 
 /* 본문 내용 */
 .notice-detail-content {
-  font-size: 16px;
-  color: #333;
-  line-height: 1.7;
+  font-size: 15px;
+  color: #444;
+  line-height: 1.8;
   white-space: pre-line;
-  letter-spacing: -0.2px;
-  word-break: keep-all;
-  margin-bottom: 30px;
-  padding: 20px;
   background: white;
-  border-radius: 8px;
-  min-height: 200px;
+  padding: 30px 24px;
+  border-radius: 12px;
+  min-height: 160px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .notice-detail-content p {
@@ -421,8 +456,75 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  gap: 6px;
+}
+
+.pagination-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.pagination-btn:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 5px;
+}
+
+.pagination-page {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  color: #007bff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  min-width: 36px;
+  min-width: 40px;
+  transition: all 0.2s ease;
+}
+
+.pagination-page:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.pagination-page.active {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+.pagination-page.active:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-top: 30px;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pagination-btn {
@@ -463,6 +565,7 @@
   font-size: 14px;
   min-width: 40px;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
 .pagination-page:hover {
@@ -479,4 +582,178 @@
 .pagination-page.active:hover {
   background-color: #0056b3;
   border-color: #0056b3;
+}
+
+@media (max-width: 640px) {
+
+  /* 번호 컬럼 축소 */
+  .notice-table th:nth-child(1),
+  .notice-table td:nth-child(1) {
+    width: 50px;
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  
+
+  /* 작성일 작게 */
+  .notice-table th:nth-child(3),
+  .notice-table td:nth-child(3) {
+    width: 90px;
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  /* 제목 중심 레이아웃 */
+  .notice-subject {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+.contact-container {
+    flex-direction: column; /* 가로에서 세로 정렬로 변경 */
+    text-align: center;
+    padding: 30px 20px;
+    gap: 25px;
+  }
+
+  .contact-text h3 {
+    font-size: 1.3rem;
+  }
+
+  .contact-text p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .contact-button {
+    width: 100%; /* 버튼이 가로 꽉 차게 변경 */
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 12px;
+  }
+  
+}
+
+/* 이전/다음 공지사항 네비게이션    */
+.notice-bottom-nav {
+  margin-top: 30px;
+  background-color: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+/* [추가] 마우스 호버 시 스타일 강화 */
+.nav-row:hover:not(.disabled) {
+  /* 짙은 하늘색 계열로 배경색 변경 */
+  background-color: #e6f2ff; 
+  /* 전체적인 행에 약간의 입체감 부여 */
+  box-shadow: inset 4px 0 0 #007bff; 
+}
+
+/* [추가] 호버 시 제목(subject) 색상 강조 */
+.nav-row:hover:not(.disabled) .nav-subject {
+  color: #0056b3;
+  font-weight: 600; /* 글자를 조금 더 두껍게 하여 가독성 확보 */
+}
+
+/* [추가] 호버 시 라벨(dir) 디자인 동적 변화 */
+.nav-row:hover:not(.disabled) .nav-dir {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.nav-dir {
+  font-size: 12px;
+  font-weight: 800;
+  color: #007bff;
+  background-color: #eef6ff; /* 라벨 배경 추가 */
+  padding: 5px 12px;
+  border-radius: 6px;
+  min-width: 75px;
+  text-align: center;
+  margin-right: 20px;
+}
+
+.contact-section {
+  margin-top: 40px;
+  padding-bottom: 20px;
+}
+
+.contact-container {
+  background: linear-gradient(135deg, #0066ff 0%, #0044cc 100%); /* 카픽 메인 컬러 적용 */
+  border-radius: 15px;
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 10px 20px rgba(0, 102, 255, 0.2);
+}
+
+.contact-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.contact-text h3 {
+  margin: 10px 0 5px 0;
+  font-size: 1.4rem;
+}
+
+.contact-text p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.contact-button {
+  background: white;
+  color: #0066ff;
+  padding: 15px 25px;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s ease;
+}
+
+.contact-button:hover {
+  transform: scale(1.05);
+}
+
+/* 공지 뱃지 디자인 */
+.notice-badge {
+  display: inline-block;
+  background-color: #eef4ff; /* 연한 블루 배경 */
+  color: #0066ff;            /* 카픽 메인 블루 */
+  padding: 6px 12px;         /* 패딩 살짝 여유있게 */
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #cce0ff;
+  line-height: 1;
+  min-width: 50px;           /* 텍스트 정렬을 위해 최소 폭 설정 */
+  text-align: center;
+}
+
+/* 테이블의 번호 열 정렬 */
+.notice-id-column {
+  text-align: center;
+  vertical-align: middle;
 }

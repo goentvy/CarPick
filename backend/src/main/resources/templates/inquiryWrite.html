@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>카픽 - 차량관리</title>
+    <title>카픽 - 일대일문의관리</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- CSS -->
 	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
@@ -56,9 +56,7 @@
 	                </div>
 	            </div>
 	            <div class="col-sm-6 clearfix">
-	                <button type="submit" class="user-profile pull-right user_writeBtn">
-	                    답변 등록
-	                </button>
+
 	            </div>
 	        </div>
 	    </div>
@@ -70,40 +68,87 @@
 	                    <!-- Textual inputs start -->
 	                    <div class="col-12 mt-5">
 	                        <div class="card">
-	                            <div class="card-body">
-	                                <h4 class="header-title">일대일문의 관리</h4>
-									<div class="form-group">
+								<div class="card-body">
+								    <h4 class="header-title">일대일문의 관리</h4>
+
+								    <form th:action="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
+								          method="post">
+
+								        <!-- 문의 카테고리 -->
+								        <div class="form-group">
+								            <label>문의카테고리</label>
+								            <input class="form-control"
+								                   th:value="${inquiry.category == 'reservation' ? '예약문의' : 
+								                            inquiry.category == 'payment' ? '결제문의' : 
+								                            inquiry.category == 'cancel' ? '취소/환불' : 
+								                            inquiry.category == 'etc' ? '기타' : inquiry.category}"
+								                   disabled>
+								        </div>
+
 										<div class="form-group">
-                                            <label for="Select">문의카테고리</label>
-                                            <select id="Select" class="form-control" disabled>
-                                                <option>예약관련</option>
-												<option>사고관련</option>
-												<option>기타</option>
-                                            </select>
-                                        </div>
-	                                </div>
-									<div class="form-group">
-	                                    <label for="example-text-input" class="col-form-label">질문자</label>
-	                                    <input class="form-control" type="text" value="asdsaddsad@asd.com" id="example-text-input" disabled>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="example-text-input" class="col-form-label">질문</label>
-	                                    <input class="form-control" type="text" value="Carlos Rath" id="example-text-input" disabled>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="example-search-input" class="col-form-label">답변</label>
-	                                    <textarea rows="5" class="form-control" type="search" id="example-search-input">Where is google office</textarea>
-	                                </div>
-									<div class="form-group">
+										    <label>문의자 이메일</label>
+										    <input class="form-control"
+										           th:value="${inquiry.userEmail}"
+										           disabled>
+										</div>
+									    <!--문의 등록일-->
 										<div class="form-group">
-                                            <label for="Select">답변유형</label>
-                                            <select id="Select" class="form-control">
-                                                <option>답변전</option>
-												<option>답변완료</option>
-												<option>답변중</option>
-                                            </select>
-                                        </div>
-	                                </div>
+										    <label>문의 등록일</label>
+										    <input class="form-control"
+										           th:value="${#temporals.format(inquiry.createdAt, 'yyyy-MM-dd HH:mm')}"
+										           disabled>
+										</div>
+								        <!-- 질문 제목 -->
+								        <div class="form-group">
+								            <label>질문 제목</label>
+								            <input class="form-control"
+								                   th:value="${inquiry.title}"
+								                   disabled>
+								        </div>
+
+								        <!-- 질문 내용 -->
+								        <div class="form-group">
+								            <label>질문 내용</label>
+								            <textarea class="form-control"
+								                      rows="5"
+								                      disabled
+								                      th:text="${inquiry.content}">
+								            </textarea>
+								        </div>
+
+								        <!-- 관리자 답변 -->
+								        <div class="form-group">
+								            <label>답변</label>
+								            <textarea name="reply"
+								                      class="form-control"
+								                      rows="5"
+								                      th:text="${inquiry.adminReply}">
+								            </textarea>
+								        </div>
+											    <!-- 답변 -->
+											    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
+											            class="btn btn-primary"
+											            th:if="${inquiry.status.name() == 'PENDING'}">
+											        답변 등록하기
+											    </button>
+
+											    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
+											            class="btn btn-secondary"
+											            th:if="${inquiry.status.name() == 'ANSWERED'}">
+											        수정하기
+											    </button>
+
+											    <!-- 삭제 -->
+											    <button th:formaction="@{/admin/inquiry/{id}/delete(id=${inquiry.id})}"
+											            class="btn btn-outline-danger ml-2"
+											            onclick="return confirm('정말 삭제하시겠습니까?');">
+											        삭제
+											    </button>
+
+										</div>
+								    </form>
+								</div>
+
 	                            </div>
 	                        </div>
 	                    </div>

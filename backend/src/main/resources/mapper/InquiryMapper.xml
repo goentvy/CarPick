@@ -5,6 +5,7 @@
 
 <mapper namespace="com.carpick.domain.inquiry.mapper.InquiryMapper">
 
+<!-- 사용자 문의내역 저장 -->
 <insert id="insertInquiry"
 useGeneratedKeys="true"
 keyProperty="id">
@@ -19,8 +20,97 @@ keyProperty="id">
 		#{category},
 		#{title},
 		#{content},
-		'pending'
+		'PENDING'
 	)
 </insert>
+
+<!-- 사용자 마이페이지 문의내역 -->
+
+<select id="findByUserId"
+	resultType="com.carpick.domain.inquiry.vo.Inquiry">
+	SELECT
+		id,
+		user_id,
+		category,
+		title,
+		content,
+		status,
+		admin_reply AS adminReply,
+		created_at AS createdAt
+	FROM inquiry
+	WHERE user_id = #{userId}
+	ORDER BY created_at DESC
+</select>
+
+<!-- 관리자 문의 목록 -->
+<select id="findAdminPage"
+    resultType="com.carpick.domain.inquiry.dto.AdminInquiryListResponse">
+    SELECT
+        i.id,
+        u.email AS userEmail,
+        i.category,
+        i.title,
+        i.status,
+        i.created_at AS createdAt
+    FROM inquiry i
+    JOIN users u ON i.user_id = u.user_id
+    <where>
+        <if test="search != null and search != ''">
+            (
+                i.title LIKE CONCAT('%', #{search}, '%')
+                OR u.email LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY i.created_at DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="countAdminInquiries" resultType="int">
+    SELECT COUNT(*)
+    FROM inquiry i
+    JOIN users u ON i.user_id = u.user_id
+    <where>
+        <if test="search != null and search != ''">
+            (
+                i.title LIKE CONCAT('%', #{search}, '%')
+                OR u.email LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+    </where>
+</select>
+
+<!-- 관리자 문의 상세 -->
+<select id="findDetailForAdmin"
+    resultType="com.carpick.domain.inquiry.dto.AdminInquiryDetailResponse">
+		SELECT
+		i.id,
+		u.email AS userEmail,
+		i.category,
+		i.title,
+		i.content,
+		i.status,
+		i.admin_reply AS adminReply,
+		i.created_at AS createdAt
+		FROM inquiry i
+		JOIN users u ON i.user_id = u.user_id
+		WHERE i.id = #{id}
+</select>
+
+<!-- 답변 등록 / 수정 -->
+<update id="updateAnswer">
+    UPDATE inquiry
+    SET
+        admin_reply = #{adminReply},
+        status = #{status},
+        updated_at = NOW()
+    WHERE id = #{id}
+</update>
+
+<!-- 문의 삭제-->
+<delete id="deleteById">
+	DELETE FROM inquiry
+	WHERE id = #{id}
+</delete>
 
 </mapper>

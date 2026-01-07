@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-  
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.carpick.domain.auth.mapper.UserMapper">
 
     <!-- ===================== -->
     <!-- ResultMap -->
     <!-- ===================== -->
     <resultMap id="UserResultMap" type="com.carpick.domain.auth.entity.User">
-        <id property="user_id" column="user_id"/>
+        <id property="userId" column="user_id"/>
         <result property="email" column="email"/>
-        <result property="password_hash" column="password_hash"/>
+        <result property="password" column="password"/>
         <result property="provider" column="provider"/>
-        <result property="provider_id" column="provider_id"/>
+        <result property="providerId" column="provider_id"/>
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
         <result property="birth" column="birth"/>
-        <result property="gender" column="gender"/>
-        <result property="marketingAgree" column="marketing_agree"/>
+        <result property="gender" column="gender" javaType="com.carpick.domain.auth.entity.Gender"/>
+        <result property="marketingAgree" column="marketing_agree" jdbcType="INTEGER"/>
         <result property="membershipGrade" column="membership_grade"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-        <result property="deletedAt" column="deleted_at"/>
+        <result property="accessToken" column="accesstoken"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
+        <result property="deletedAt" column="deleted_at" javaType="java.time.LocalDateTime"/>
     </resultMap>
+
 
     <!-- ===================== -->
     <!-- SELECT -->
@@ -33,65 +35,109 @@
         SELECT *
         FROM users
         WHERE email = #{email}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </select>
 
+    <!-- provider + providerId로 유저 조회 -->
     <select id="findByProvider" resultMap="UserResultMap">
         SELECT *
         FROM users
         WHERE provider = #{provider}
-          AND provider_id = #{providerId}
-          AND deleted_at IS NULL
+        AND provider_id = #{providerId}
+        AND deleted_at IS NULL
     </select>
 
+    <!-- userId로 유저 조회 -->
     <select id="findById" resultMap="UserResultMap">
         SELECT *
         FROM users
-        WHERE user_id = #{user_Id}
-          AND deleted_at IS NULL
+        WHERE user_id = #{userId}
+        AND deleted_at IS NULL
     </select>
 
+    <!-- 이메일 중복 체크 -->
     <select id="existsByEmail" resultType="int">
         SELECT COUNT(*)
         FROM users
         WHERE email = #{email}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </select>
 
+    <!-- provider + providerId로 중복유저 조회 -->
     <select id="existsByProvider" resultType="int">
         SELECT COUNT(*)
         FROM users
         WHERE provider = #{provider}
-          AND provider_id = #{provider_Id}
-          AND deleted_at IS NULL
+        AND provider_id = #{providerId}
+        AND deleted_at IS NULL
+    </select>
+
+    <!--  소프트 삭제된 유저 조회  -->
+    <select id="findDeletedByProvider" resultMap="UserResultMap">
+        SELECT *
+        FROM users
+        WHERE provider = #{provider}
+        AND provider_id = #{providerId}
+        AND deleted_at IS NOT NULL
     </select>
 
     <!-- ===================== -->
     <!-- INSERT -->
     <!-- ===================== -->
-
-    <insert id="insertUser">
-        INSERT INTO users (email,
-                           password_hash,
-                           provider,
-                           provider_id,
-                           name,
-                           phone,
-                           birth,
-                           gender,
-                           marketing_agree,
-                           membership_grade)
-        VALUES (#{email},
-                #{password},
-                #{provider},
-                #{provider_Id},
-                #{name},
-                #{phone},
-                #{birth},
-                #{gender},
-                #{marketingAgree},
-                'BASIC')
+    <!-- 일반로그인용 INSERT -->
+    <insert id="insertLocalUser">
+        INSERT INTO users (
+        email,
+        password,
+        phone,
+        birth,
+        name,
+        gender,
+        marketing_agree,
+        membership_grade,
+        accesstoken,
+        provider
+        )
+        VALUES (
+        #{email},
+        #{password},
+        #{phone},
+        #{birth},
+        #{name},
+        #{gender},
+        #{marketingAgree},
+        'BASIC',
+        #{accessToken},
+        'LOCAL'
+        )
     </insert>
+
+    <!-- 소셜 유저 INSERT-->
+    <insert id="insertSocialUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+        INSERT INTO users (
+        email,
+        password,
+        name,
+        provider,
+        provider_id,
+        gender,
+        marketing_agree,
+        membership_grade,
+        accesstoken
+        )
+        VALUES (
+        #{email},
+        #{password},
+        #{name},
+        #{provider},
+        #{providerId},
+        #{gender},
+        #{marketingAgree},
+        'BASIC',
+        #{accessToken}
+        )
+    </insert>
+
 
     <!-- ===================== -->
     <!-- UPDATE -->
@@ -99,35 +145,75 @@
 
     <update id="updateUserInfo">
         UPDATE users
-        SET name            = #{name},
-            phone           = #{phone},
-            birth           = #{birth},
-            gender          = #{gender},
-            marketing_agree = #{marketingAgree}
+        SET name = #{name},
+        phone = #{phone},
+        birth = #{birth},
+        gender = #{gender},
+        marketing_agree = #{marketingAgree}
         WHERE user_id = #{user_id}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </update>
 
     <update id="updatePassword">
         UPDATE users
-        SET password_hash = #{passwordHash}
+        SET password = #{password}
         WHERE user_id = #{userId}
-          AND provider = 'local'
-          AND deleted_at IS NULL
+        AND provider =#{provider}
+        AND deleted_at IS NULL
     </update>
 
     <update id="updateMembershipGrade">
         UPDATE users
         SET membership_grade = #{membershipGrade}
         WHERE user_id = #{userId}
-          AND deleted_at IS NULL
+        AND deleted_at IS NULL
     </update>
 
-    <update id="deleteUser">
-        UPDATE users
-        SET deleted_at = NOW()
+    <!-- 로컬 유저 탈퇴 (소프트 삭제) -->
+    <update id="softDeleteLocalUser" parameterType="long">
+        UPDATE users SET deleted_at = NOW()
         WHERE user_id = #{userId}
-          AND deleted_at IS NULL
+        AND provider = 'LOCAL'
+        AND deleted_at IS NULL
     </update>
+
+    <!--  소셜 유저 탈퇴 ( 소프트 삭제 )  -->
+    <update id="softDeleteSocialUser" parameterType="long">
+        UPDATE users SET deleted_at = NOW()
+        WHERE user_id = #{userId}
+        AND provider != 'LOCAL'
+    </update>
+
+    <!--  소셜 유저 탈퇴 (하드 삭제)  -->
+    <update id="hardDeleteSocialUser" parameterType="long">
+        DELETE FROM users
+        WHERE user_id = #{userId}
+        AND provider != 'LOCAL'
+    </update>
+
+    <!--  소셜 토큰  -->
+    <update id="updateAccessToken">
+        UPDATE users
+        SET accesstoken = #{accessToken}, updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <!--  소셜 탈퇴 복구  -->
+    <update id="reviveSocialUser">
+        UPDATE users
+        SET deleted_at = NULL,
+            accesstoken = #{accessToken},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 탈퇴 복구 sql-->
+    <update id="restoreUser">
+        UPDATE users
+        SET deleted_at = NULL
+        WHERE user_id = #{userId}
+        AND deleted_at IS NOT NULL
+    </update>
+
 
 </mapper>

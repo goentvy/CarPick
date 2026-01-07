@@ -13,6 +13,7 @@ CarPick은 AI 기능을 탑재한 렌트카 서비스를 제공하는 웹 애플
 - **UI Library**: TailwindCSS
 - **State Management**: React Query / Zustand
 - **Build Tool**: Vite
+- **Date Design**: React Date Range
 
 ### Backend
 - **Framework**: Spring Boot
@@ -51,19 +52,31 @@ main ← 배포 기준 (README.md, .gitignore만 존재)
 
 ### 1. 저장소 클론
 ```bash
-git clone git@github.com:goentvy/CarPick.git
+git clone https://github.com/goentvy/CarPick.git
 cd CarPick
 ```
 
 ### 2. 개인 브랜치 이동 
 ```bash
-# 개인브랜치 이동 
+# 로컬 브랜치 확인
+git branch
+# 원격 브랜치 확인
+git branch -r
+# dev 브랜치로 이동 ( main 브랜치일 경우 )
+git checkout dev
+# 개인브랜치로 이동 ( dev 브랜치일 경우 )
 git checkout dev-이주환
+# 원격브랜치 생성
+# 1. 로컬 브랜치 생성
+git checkout -b dev-이주환
+# 2. 원격 브랜치 생성
+git push -u origin dev-이주환
 ```
 
 ### 3. 작업 흐름
 - 개인 브랜치에서 작업 후 add & commit & push
 - 작업 완료 시 `dev` 브랜치로 Pull Request 생성
+- `base: dev`  `compare: dev-이주환`
 - 코드 리뷰 및 테스트 후 `dev`에 병합
 - 배포 시점에만 `dev` → `main` 병합
 
@@ -73,9 +86,13 @@ git checkout dev-이주환
 git status
 
 # 최신 dev 반영
+# dev 브랜치로 이동
 git checkout dev
+# dev 원격 브랜치를 로컬브랜치로 불러오기
 git pull origin dev
+# 개인브랜치로 이동
 git checkout dev-이주환
+# 최신반영된 로컬 dev브랜치 코드 개인브랜치로 병합
 git merge dev
 
 # 커밋 & 푸시

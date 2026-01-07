@@ -13,9 +13,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    private Long user_id;
+    private Long userId;
     private String email;
-    private String password_hash;
+    private String password;
 
     private String provider;
     private String providerId;
@@ -33,4 +33,7 @@ public class User {
     private LocalDateTime deletedAt;
 
     private Role role;   // ✅ 권한 Enum
+
+    // 카카오/네이버 액세스 토큰 저장용
+    private String accessToken;
 }

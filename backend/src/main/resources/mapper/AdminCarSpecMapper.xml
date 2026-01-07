@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.carAdmin.mapper.AdminCarSpecMapper">
+
+    <resultMap id="AdminCarSpecResultMap" type="com.carpick.admin.carAdmin.dto.AdminCarSpecDto">
+        <id property="specId" column="spec_id"/>
+        <result property="brand" column="brand"/>
+        <result property="modelName" column="model_name"/>
+        <result property="displayNameShort" column="display_name_short"/>
+        <result property="carClass" column="car_class"/>
+        <result property="modelYearBase" column="model_year_base"/>
+        <result property="aiSummary" column="ai_summary"/>
+        <result property="fuelType" column="fuel_type"/>
+        <result property="transmissionType" column="transmission_type"/>
+        <result property="minDriverAge" column="min_driver_age"/>
+        <result property="minLicenseYears" column="min_license_years"/>
+
+        <result property="carOptions" column="car_options"/>
+
+        <result property="seatingCapacity" column="seating_capacity"/>
+        <result property="trunkCapacity" column="trunk_capacity"/>
+        <result property="fuelEfficiency" column="fuel_efficiency"/>
+        <result property="mainImageUrl" column="main_image_url"/>
+        <result property="imgUrl" column="img_url"/>
+        <result property="aiKeywords" column="ai_keywords"/>
+        <result property="driveLabels" column="drive_labels"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="carSpecColumns">
+        spec_id, brand, model_name, display_name_short,
+        car_class, model_year_base, ai_summary,
+        fuel_type, transmission_type,
+        min_driver_age, min_license_years,
+        car_options, seating_capacity, trunk_capacity, fuel_efficiency,
+        main_image_url, img_url, ai_keywords, drive_labels,
+        use_yn, updated_at
+    </sql>
+
+    <sql id="carSpecInsertColumns">
+        brand, model_name, display_name_short,
+        car_class, model_year_base, ai_summary,
+        fuel_type, transmission_type,
+        min_driver_age, min_license_years,
+        car_options, seating_capacity, trunk_capacity, fuel_efficiency,
+        main_image_url, img_url, ai_keywords, drive_labels,
+        use_yn
+    </sql>
+
+    <sql id="carSpecInsertValues">
+        #{brand}, #{modelName}, #{displayNameShort},
+        #{carClass}, #{modelYearBase}, #{aiSummary},
+        #{fuelType}, #{transmissionType},
+        #{minDriverAge}, #{minLicenseYears},
+        #{carOptions}, #{seatingCapacity}, #{trunkCapacity}, #{fuelEfficiency},
+        #{mainImageUrl}, #{imgUrl}, #{aiKeywords}, #{driveLabels},
+        'Y'
+    </sql>
+
+
+    <select id="selectList" resultMap="AdminCarSpecResultMap">
+        SELECT <include refid="carSpecColumns"/>
+        FROM CAR_SPEC
+        WHERE use_yn = 'Y'
+        ORDER BY updated_at DESC
+    </select>
+
+    <select id="selectById" parameterType="long" resultMap="AdminCarSpecResultMap">
+        SELECT <include refid="carSpecColumns"/>
+        FROM CAR_SPEC
+        WHERE spec_id = #{specId}
+    </select>
+
+    <insert id="insert" parameterType="com.carpick.admin.carAdmin.dto.AdminCarSpecDto" useGeneratedKeys="true" keyProperty="specId">
+        INSERT INTO CAR_SPEC (
+        <include refid="carSpecInsertColumns"/>
+        ) VALUES (
+        <include refid="carSpecInsertValues"/>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.carpick.admin.carAdmin.dto.AdminCarSpecDto">
+        UPDATE CAR_SPEC
+        SET brand = #{brand},
+            model_name = #{modelName},
+            display_name_short = #{displayNameShort},
+            car_class = #{carClass},
+            model_year_base = #{modelYearBase},
+            ai_summary = #{aiSummary},
+            fuel_type = #{fuelType},
+            transmission_type = #{transmissionType},
+            min_driver_age = #{minDriverAge},
+            min_license_years = #{minLicenseYears},
+            car_options = #{carOptions}, seating_capacity = #{seatingCapacity},
+            trunk_capacity = #{trunkCapacity},
+            fuel_efficiency = #{fuelEfficiency},
+            main_image_url = #{mainImageUrl},
+            img_url = #{imgUrl},
+            ai_keywords = #{aiKeywords},
+            drive_labels = #{driveLabels}
+        WHERE spec_id = #{specId} AND use_yn = 'Y'
+    </update>
+
+    <update id="softDelete" parameterType="long">
+        UPDATE CAR_SPEC
+        SET use_yn = 'N', deleted_at = NOW()
+        WHERE spec_id = #{specId}
+    </update>
+
+    <select id="selectDeletedByName" resultMap="AdminCarSpecResultMap">
+        SELECT <include refid="carSpecColumns"/>
+        FROM CAR_SPEC
+        WHERE brand = #{brand}
+        AND model_name = #{modelName}
+        AND model_year_base = #{modelYearBase}
+        AND use_yn = 'N'
+    </select>
+
+    <update id="restore" parameterType="long">
+        UPDATE CAR_SPEC
+        SET use_yn = 'Y', deleted_at = NULL
+        WHERE spec_id = #{specId}
+    </update>
+
+    <select id="countVehicleBySpecId" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM VEHICLE_INVENTORY
+        WHERE spec_id = #{specId} AND use_yn = 'Y'
+    </select>
+
+</mapper>

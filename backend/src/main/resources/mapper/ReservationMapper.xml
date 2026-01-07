@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carpick.domain.reservation.mapper.ReservationMapper">
+
+
+
+    <!-- =========================================================
+         2. ResultMap : Reservation
+         ========================================================= -->
+    <resultMap id="ReservationResultMap"
+               type="com.carpick.domain.reservation.entity.Reservation">
+
+        <id property="reservationId" column="reservation_id"/>
+
+        <result property="reservationNo" column="reservation_no"/>
+
+        <result property="userId" column="user_id"/>
+        <result property="vehicleId" column="vehicle_id"/>
+
+        <result property="driverLastName" column="driver_last_name"/>
+        <result property="driverFirstName" column="driver_first_name"/>
+        <result property="driverBirthdate" column="driver_birthdate"/>
+        <result property="driverPhone" column="driver_phone"/>
+        <result property="driverEmail" column="driver_email"/>
+        <result property="driverLicenseNo" column="driver_license_no"/>
+
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="actualReturnDate" column="actual_return_date"/>
+
+        <result property="pickupType" column="pickup_type"/>
+        <result property="pickupBranchId" column="pickup_branch_id"/>
+        <result property="pickupAddress" column="pickup_address"/>
+
+        <result property="returnType" column="return_type"/>
+        <result property="returnBranchId" column="return_branch_id"/>
+        <result property="returnAddress" column="return_address"/>
+
+        <result property="insuranceId" column="insurance_id"/>
+        <result property="couponId" column="coupon_id"/>
+
+        <result property="baseRentFeeSnapshot" column="base_rent_fee_snapshot"/>
+        <result property="rentDiscountAmountSnapshot" column="rent_discount_amount_snapshot"/>
+
+        <result property="baseInsuranceFeeSnapshot" column="base_insurance_fee_snapshot"/>
+        <result property="insuranceDiscountAmountSnapshot" column="insurance_discount_amount_snapshot"/>
+
+        <result property="optionFeeSnapshot" column="option_fee_snapshot"/>
+        <result property="couponDiscountSnapshot" column="coupon_discount_snapshot"/>
+
+        <result property="memberDiscountRateSnapshot" column="member_discount_rate_snapshot"/>
+        <result property="eventDiscountAmountSnapshot" column="event_discount_amount_snapshot"/>
+
+        <result property="totalAmountSnapshot" column="total_amount_snapshot"/>
+
+        <result property="appliedRentFeeSnapshot" column="applied_rent_fee_snapshot"/>
+        <result property="appliedInsuranceFeeSnapshot" column="applied_insurance_fee_snapshot"/>
+
+        <result property="agreementYn" column="agreement_yn"/>
+
+        <result property="reservationStatus" column="reservation_status"/>
+        <result property="cancelReason" column="cancel_reason"/>
+        <result property="cancelledAt" column="cancelled_at"/>
+
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <!-- =========================================================
+             1. 공통 SELECT 컬럼
+             - SELECT * 금지
+             - 조회 쿼리에서만 재사용
+             ========================================================= -->
+    <sql id="reservationColumns">
+        reservation_id,
+        reservation_no,
+
+        user_id,
+        vehicle_id,
+
+        driver_last_name,
+        driver_first_name,
+        driver_birthdate,
+        driver_phone,
+        driver_email,
+        driver_license_no,
+
+        start_date,
+        end_date,
+        actual_return_date,
+
+        pickup_type,
+        pickup_branch_id,
+        pickup_address,
+
+        return_type,
+        return_branch_id,
+        return_address,
+
+        insurance_id,
+        coupon_id,
+
+        base_rent_fee_snapshot,
+        rent_discount_amount_snapshot,
+
+        base_insurance_fee_snapshot,
+        insurance_discount_amount_snapshot,
+
+        option_fee_snapshot,
+        coupon_discount_snapshot,
+
+        member_discount_rate_snapshot,
+        event_discount_amount_snapshot,
+
+        total_amount_snapshot,
+
+        applied_rent_fee_snapshot,
+        applied_insurance_fee_snapshot,
+
+        agreement_yn,
+
+        reservation_status,
+        cancel_reason,
+        cancelled_at,
+
+        created_at,
+        updated_at
+    </sql>
+
+    <!-- =========================================================
+         3. 예약 생성
+         ========================================================= -->
+    <insert id="insertReservation"
+            parameterType="com.carpick.domain.reservation.entity.Reservation"
+            useGeneratedKeys="true"
+            keyProperty="reservationId">
+        INSERT INTO RESERVATION (
+            reservation_no,
+            user_id,
+            vehicle_id,
+
+            driver_last_name,
+            driver_first_name,
+            driver_birthdate,
+            driver_phone,
+            driver_email,
+            driver_license_no,
+
+            start_date,
+            end_date,
+            actual_return_date,
+
+            pickup_type,
+            pickup_branch_id,
+            pickup_address,
+
+            return_type,
+            return_branch_id,
+            return_address,
+
+            insurance_id,
+            coupon_id,
+
+            base_rent_fee_snapshot,
+            rent_discount_amount_snapshot,
+
+            base_insurance_fee_snapshot,
+            insurance_discount_amount_snapshot,
+
+            option_fee_snapshot,
+            coupon_discount_snapshot,
+
+            member_discount_rate_snapshot,
+            event_discount_amount_snapshot,
+
+            total_amount_snapshot,
+
+            applied_rent_fee_snapshot,
+            applied_insurance_fee_snapshot,
+
+            agreement_yn,
+            reservation_status
+        ) VALUES (
+                     #{reservationNo},
+                     #{userId},
+                     #{vehicleId},
+
+                     #{driverLastName},
+                     #{driverFirstName},
+                     #{driverBirthdate},
+                     #{driverPhone},
+                     #{driverEmail},
+                     #{driverLicenseNo},
+
+                     #{startDate},
+                     #{endDate},
+                     #{actualReturnDate},
+
+                     #{pickupType},
+                     #{pickupBranchId},
+                     #{pickupAddress},
+
+                     #{returnType},
+                     #{returnBranchId},
+                     #{returnAddress},
+
+                     #{insuranceId},
+                     #{couponId},
+
+                     #{baseRentFeeSnapshot},
+                     #{rentDiscountAmountSnapshot},
+
+                     #{baseInsuranceFeeSnapshot},
+                     #{insuranceDiscountAmountSnapshot},
+
+                     #{optionFeeSnapshot},
+                     #{couponDiscountSnapshot},
+
+                     #{memberDiscountRateSnapshot},
+                     #{eventDiscountAmountSnapshot},
+
+                     #{totalAmountSnapshot},
+
+                     #{appliedRentFeeSnapshot},
+                     #{appliedInsuranceFeeSnapshot},
+
+                     #{agreementYn},
+                     #{reservationStatus}
+                 )
+    </insert>
+
+    <!-- =========================================================
+         4. 예약 단건 조회 (ID)
+         ========================================================= -->
+    <select id="selectReservationById"
+            resultMap="ReservationResultMap">
+        SELECT
+        <include refid="reservationColumns"/>
+        FROM RESERVATION
+        WHERE reservation_id = #{reservationId}
+    </select>
+
+    <!-- =========================================================
+         5. 예약 단건 조회 (예약번호)
+         ========================================================= -->
+    <select id="selectReservationByReservationNo"
+            resultMap="ReservationResultMap">
+        SELECT
+        <include refid="reservationColumns"/>
+        FROM RESERVATION
+        WHERE reservation_no = #{reservationNo}
+    </select>
+
+    <!-- =========================================================
+         6. 예약 상태 변경
+         ========================================================= -->
+    <update id="updateReservationStatus">
+        UPDATE RESERVATION
+        SET
+        reservation_status = #{status},
+        updated_at = CURRENT_TIMESTAMP
+        <if test="status != null and status == 'CANCELED'">
+            , cancel_reason = #{cancelReason}
+            , cancelled_at = CURRENT_TIMESTAMP
+        </if>
+
+        WHERE reservation_id = #{reservationId}
+    </update>
+
+    <!-- =========================================================
+         7. 차량 중복 예약 체크 (기간 겹침)
+         ========================================================= -->
+    <select id="countOverlappingReservations" resultType="int">
+        SELECT COUNT(*)
+        FROM RESERVATION r
+        WHERE r.vehicle_id = #{vehicleId}
+        AND r.reservation_status != 'CANCELED'
+        AND r.start_date <![CDATA[<]]> #{endDate}
+        AND r.end_date <![CDATA[>]]> #{startDate}
+        <if test="excludeReservationId != null">
+            AND r.reservation_id != #{excludeReservationId}
+        </if>
+    </select>
+
+
+    <select id="selectAvailableVehicleIdBySpecId" resultType="long">
+        SELECT vi.vehicle_id
+        FROM VEHICLE_INVENTORY vi
+        WHERE vi.spec_id = #{specId}
+          AND vi.use_yn = 'Y'
+        ORDER BY vi.vehicle_id ASC
+            LIMIT 1
+    </select>
+
+    <!-- 보험 옵션 전체 조회 -->
+    <select id="selectInsuranceOptions" resultType="com.carpick.domain.insurance.dto.raw.InsuranceRawDto">
+SELECT
+    insurance_id     AS insuranceId,
+    insurance_code             AS insuranceCode,
+    insurance_label            AS insuranceLabel,
+    summary_label    AS summaryLabel,
+    extra_daily_price AS extraDailyPrice,
+    is_default       AS isDefault,
+    sort_order       AS sortOrder
+From INSURANCE
+WHERE is_active = TRUE
+ORDER BY  sort_order ASC
+
+
+    </select>
+    <!-- 보험 코드로 단건 조회 -->
+    <select id="selectInsuranceByCode" parameterType="String"
+            resultType="com.carpick.domain.insurance.dto.raw.InsuranceRawDto">
+SELECT
+    insurance_id     AS insuranceId,
+    insurance_code             AS insuranceCode,
+    insurance_label            AS insuranceLabel,
+    summary_label    AS summaryLabel,
+    extra_daily_price AS extraDailyPrice,
+    is_default       AS isDefault,
+    sort_order       AS sortOrder
+FROM INSURANCE
+WHERE insurance_code = #{insuranceCode}
+AND is_active = TRUE
+LIMIT 1
+
+
+
+    </select>
+
+    <select id="selectReservationIdByReservationNo" resultType="java.lang.Long">
+        SELECT reservation_id
+        FROM RESERVATION
+        WHERE reservation_no = #{reservationNo}
+    </select>
+
+    <select id="selectReservationStatusById" resultType="string">
+        SELECT reservation_status
+        FROM RESERVATION
+        WHERE reservation_id = #{reservationId}
+    </select>
+</mapper>

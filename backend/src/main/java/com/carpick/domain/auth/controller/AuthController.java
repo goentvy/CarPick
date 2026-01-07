@@ -1,10 +1,10 @@
 package com.carpick.domain.auth.controller;
 
 
-import com.carpick.domain.auth.dto.LoginRequest;
-import com.carpick.domain.auth.dto.LoginResponse;
-import com.carpick.domain.auth.dto.SignupRequest;
-import com.carpick.domain.auth.dto.SignupResponse;
+import com.carpick.domain.auth.dto.login.LoginRequest;
+import com.carpick.domain.auth.dto.login.LoginResponse;
+import com.carpick.domain.auth.dto.signup.SignupRequest;
+import com.carpick.domain.auth.dto.signup.SignupResponse;
 import com.carpick.domain.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +21,7 @@ public class AuthController {
     public LoginResponse login(@RequestBody LoginRequest request) {
         return authService.login(request);
     }
+
 
 
     // POST 회원가입(API 엔드포인트)

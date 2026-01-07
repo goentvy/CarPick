@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.userinfo.mapper.UserInfoMapper">
+
+    <!-- =========================
+         유저 조회
+    ========================= -->
+    <select id="findById"
+            parameterType="long"
+            resultType="com.carpick.domain.userinfo.entity.UserInfo">
+        SELECT
+            user_id          AS userId,
+            email,
+            password         AS password,
+            provider,
+            name,
+            phone,
+            birth,
+            gender,
+            marketing_agree  AS marketingAgree,
+            membership_grade AS membershipGrade,
+            deleted_at       AS deletedAt
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- =========================
+         개인정보 수정
+    ========================= -->
+    <update id="updateUserInfo">
+    UPDATE users
+    <set>
+        name = #{name},
+        phone = #{phone},
+        birth = #{birth},
+        marketing_agree = #{marketingAgree},
+        updated_at = NOW()
+
+        <if test="password != null and password != ''">
+            , password = #{password}
+        </if>
+    </set>
+    WHERE user_id = #{userId}
+      AND deleted_at IS NULL
+</update>
+
+    <!-- =========================
+         탈퇴 처리
+    ========================= -->
+
+    <!-- LOCAL : 하드 탈퇴 -->
+    <delete id="deleteUser">
+        DELETE FROM users
+        WHERE user_id = #{userId}
+          AND provider = 'LOCAL'
+    </delete>
+
+    <!-- SOCIAL : 소프트 탈퇴 (LOCAL 방어 포함) -->
+    <update id="softDeleteUser">
+        UPDATE users
+        SET deleted_at = NOW()
+        WHERE user_id = #{userId}
+          AND provider != 'LOCAL'
+          AND deleted_at IS NULL
+    </update>
+
+    <!-- =========================
+         관리자 기능
+    ========================= -->
+    <update id="updateMembershipGrade">
+        UPDATE users
+        SET
+            membership_grade = #{membershipGrade},
+            updated_at        = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

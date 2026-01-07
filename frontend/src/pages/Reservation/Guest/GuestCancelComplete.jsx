@@ -31,7 +31,7 @@ const GuestCancelComplete = () => {
             잘못된 접근이거나 예약 정보가 사라졌습니다. 다시 예약을 진행해주세요.
           </p>
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-xl"
+            className="bg-brand text-white px-4 py-2 rounded-xl"
             onClick={() => navigate('/reservation')}
           >
             예약 페이지로 이동
@@ -55,11 +55,11 @@ const GuestCancelComplete = () => {
           <p><strong>이메일:</strong> {reservation.email}</p>
           <p><strong>예약번호:</strong> {reservation.reservationNumber}</p>
           <p><strong>차량:</strong> {reservation.carName}</p>
-          <p><strong>날짜:</strong> {reservation.date}</p>
+          <p><strong>날짜:</strong> {reservation.reservationDate}</p>
         </div>
         <div className="flex justify-center">
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-xl"
+            className="bg-brand text-white px-4 py-2 rounded-xl"
             onClick={() => navigate('/reservation')}
           >
             다시 예약하기

@@ -21,7 +21,7 @@ const InicisPayTest = () => {
   return (
     <button
       onClick={handleInicisPay}
-      className="w-full px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition"
+      className="w-full px-6 py-3 bg-brand text-white font-semibold rounded-lg hover:bg-blue-600 transition"
     >
       KG이니시스 테스트 결제
     </button>

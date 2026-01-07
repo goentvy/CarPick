@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.branchAdmin.mapper.AdminBranchMapper">
+
+    <!-- ==============================
+         ResultMap
+         ============================== -->
+    <resultMap id="AdminBranchResultMap" type="com.carpick.admin.branchAdmin.dto.AdminBranchDto">
+        <id     property="branchId"     column="branch_id"/>
+        <result property="branchCode"   column="branch_code"/>
+        <result property="branchName"   column="branch_name"/>
+
+        <result property="addressBasic"  column="address_basic"/>
+        <result property="addressDetail" column="address_detail"/>
+        <result property="phone"         column="phone"/>
+
+        <result property="openTime"      column="open_time"/>
+        <result property="closeTime"     column="close_time"/>
+        <result property="businessHours" column="business_hours"/>
+
+        <result property="latitude"      column="latitude"/>
+        <result property="longitude"     column="longitude"/>
+        <result property="regionDept1"   column="region_dept1"/>
+
+
+
+        <result property="useYn"         column="use_yn"/>
+        <result property="createdAt"     column="created_at"/>
+        <result property="updatedAt"     column="updated_at"/>
+        <result property="deletedAt"     column="deleted_at"/>
+    </resultMap>
+
+    <!-- ==============================
+         공통 컬럼 (SELECT용)
+         ============================== -->
+    <sql id="branchColumns">
+        branch_id,
+        branch_code, branch_name,
+        address_basic, address_detail, phone,
+        open_time, close_time, business_hours,
+        latitude, longitude, region_dept1,
+
+        use_yn, created_at, updated_at,deleted_at
+    </sql>
+
+    <!-- ==============================
+         INSERT용 컬럼 / VALUES
+         (capability 플래그들은 DB 기본값 사용)
+         ============================== -->
+    <sql id="branchInsertColumns">
+        branch_code, branch_name,
+        address_basic, address_detail, phone,
+        open_time, close_time, business_hours,
+        latitude, longitude, region_dept1,
+
+        use_yn
+    </sql>
+
+    <sql id="branchInsertValues">
+        #{branchCode}, #{branchName},
+        #{addressBasic}, #{addressDetail}, #{phone},
+        #{openTime}, #{closeTime}, #{businessHours},
+        #{latitude}, #{longitude}, #{regionDept1},
+
+        'Y'
+    </sql>
+
+    <!-- ==============================
+         1) 목록 조회 (use_yn = 'Y')
+         ============================== -->
+    <select id="selectList" resultMap="AdminBranchResultMap">
+        SELECT
+        <include refid="branchColumns"/>
+        FROM BRANCH
+        WHERE use_yn = 'Y'
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- ==============================
+         2) 단건 조회
+         ============================== -->
+    <select id="selectById" parameterType="long" resultMap="AdminBranchResultMap">
+        SELECT
+        <include refid="branchColumns"/>
+        FROM BRANCH
+        WHERE branch_id = #{branchId}
+    </select>
+
+    <!-- ==============================
+         3) 신규 등록
+         ============================== -->
+    <insert id="insert"
+            parameterType="com.carpick.admin.branchAdmin.dto.AdminBranchDto"
+            useGeneratedKeys="true"
+            keyProperty="branchId">
+        INSERT INTO BRANCH (
+        <include refid="branchInsertColumns"/>
+        ) VALUES (
+        <include refid="branchInsertValues"/>
+        )
+    </insert>
+
+    <!-- ==============================
+         4) 수정
+         ============================== -->
+    <update id="update"
+            parameterType="com.carpick.admin.branchAdmin.dto.AdminBranchDto">
+        UPDATE BRANCH
+        <set>
+            <if test="branchCode != null">branch_code = #{branchCode},</if>
+            <if test="branchName != null">branch_name = #{branchName},</if>
+            <if test="addressBasic != null">address_basic = #{addressBasic},</if>
+            <if test="addressDetail != null">address_detail = #{addressDetail},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="openTime != null">open_time = #{openTime},</if>
+            <if test="closeTime != null">close_time = #{closeTime},</if>
+            <if test="businessHours != null">business_hours = #{businessHours},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="regionDept1 != null">region_dept1 = #{regionDept1},</if>
+
+            updated_at = NOW()
+        </set>
+        WHERE branch_id = #{branchId}
+          AND use_yn = 'Y'
+    </update>
+
+    <!-- ==============================
+         5) 논리 삭제 (Soft Delete)
+         ============================== -->
+    <update id="softDelete" parameterType="long">
+        UPDATE BRANCH
+        SET use_yn    = 'N',
+            deleted_at = NOW()
+        WHERE branch_id = #{branchId}
+    </update>
+
+    <!-- ==============================
+         6) 삭제된 지점 중 같은 코드 있는지 체크
+            (기존 데이터 복구용)
+         ============================== -->
+    <select id="selectDeletedByCode"
+            parameterType="string"
+            resultMap="AdminBranchResultMap">
+        SELECT
+        <include refid="branchColumns"/>
+        FROM BRANCH
+        WHERE branch_code = #{branchCode}
+        AND use_yn = 'N'
+        LIMIT 1
+    </select>
+
+    <!-- ==============================
+         7) 복구
+         ============================== -->
+    <update id="restore" parameterType="long">
+        UPDATE BRANCH
+        SET use_yn    = 'Y',
+            deleted_at = NULL,
+            updated_at = NOW()
+        WHERE branch_id = #{branchId}
+    </update>
+
+    <!-- ==============================
+         8) 참조 체크
+            (지점을 사용하는 차량 재고가 있는지)
+         ============================== -->
+    <select id="countInventoryByBranchId"
+            parameterType="long"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM VEHICLE_INVENTORY
+        WHERE branch_id = #{branchId}
+          AND use_yn = 'Y'
+    </select>
+
+</mapper>

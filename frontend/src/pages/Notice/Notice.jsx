@@ -1,7 +1,6 @@
-// src/pages/Notice/Notice.jsx (공지사항 목록)
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/services/api";
+import { fetchNotices } from "@/services/noticeApi";
 import "@/styles/notice.css";
 
 export default function Notice() {
@@ -11,30 +10,40 @@ export default function Notice() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [activeKeyword, setActiveKeyword] = useState("");
 
-  useEffect(() => {
-    fetchNotices();
-  }, [page]);
-
-  const fetchNotices = async () => {
+  // 1. 데이터 로딩 함수 (keyword 대신 activeKeyword 사용)
+  const loadNotices = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/notice", {
-        params: { page: page - 1, keyword },
-      });
-      setNotices(res.data);
-      setTotalPages(1);
+      const res = await fetchNotices(page - 1, activeKeyword); // ✅
+      setNotices(res.data.content || []);
+      setTotalPages(res.data.totalPages || 1);
+    } catch (err) {
+      console.error("공지사항 로딩 실패:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadNotices();
+  }, [page, activeKeyword]);
+
+  const handleSearch = () => {
+    setPage(1); // 페이지 리셋
+    setActiveKeyword(keyword); // ✅ 여기서 검색어를 확정 지으면 useEffect가 실행됨
+  };
+
+  const handleClickNotice = (id) => {
+    navigate(`/notice/${id}?page=${page}&keyword=${activeKeyword}`);
+  };
+
   return (
     <div className="notice-container">
-      <div className="notice-list-header">
-        <h2 className="notice-title">공지사항</h2>
-      </div>
+      <h2 className="notice-title">공지사항 📢</h2>
 
+      {/* 검색 */}
       <div className="search-container">
         <div className="search-input-wrapper">
           <input
@@ -42,35 +51,51 @@ export default function Notice() {
             placeholder="검색어를 입력하세요"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <span className="search-icon" onClick={fetchNotices}>🔍</span>
+          <button className="search-icon" onClick={handleSearch}>🔍</button>
         </div>
       </div>
 
+
+      {/* 공지사항 테이블 */}
       <table className={`notice-table ${loading ? "loading" : ""}`}>
+        <colgroup>
+          <col width="100" />
+          <col />
+          <col width="120" />
+        </colgroup>
         <thead>
           <tr>
-            <th>번호</th>
+            <th>No.</th>
             <th>제목</th>
             <th>작성일</th>
           </tr>
         </thead>
         <tbody>
-          {notices.map((n) => (
+          {(notices || []).map((n) => (
             <tr key={n.id}>
-              <td>{n.id}</td>
-              <td
-                className="notice-subject"
-                onClick={() => navigate(`/notice/${n.id}`)}
-              >
-                {n.title}
+              <td className="notice-id-column">
+                <span className="notice-badge">공지</span>
               </td>
+
+              <td>
+                <span
+                  className="notice-subject"
+                  onClick={() => handleClickNotice(n.id)}
+                >
+                  {n.title}
+                </span>
+              </td>
+
               <td>{n.createdAt?.slice(0, 10)}</td>
             </tr>
+
           ))}
         </tbody>
       </table>
 
+      {/* 버튼형 페이징 */}
       <div className="pagination">
         <button
           className="pagination-btn"

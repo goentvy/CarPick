@@ -1,8 +1,4 @@
-import { useLocation } from "react-router-dom";
-
-const ReservationBanner = () => {
-  const location = useLocation();
-  console.log(location.pathname);
+const ReservationBanner = ({ formData }) => {
   return (
     <section className="max-w-[640px] w-full overflow-hidden">
       {/* 상단 차량 예약 현황 */}
@@ -14,16 +10,17 @@ const ReservationBanner = () => {
       {/* 차량 이미지 */}
       <div className="w-full flex justify-center bg-gray-100">
         <img
+          // src={formData.car.imageUrl ?? "/images/common/car1.svg"} 
           src="/images/common/car1.svg"
-          alt="Carnival High-Limousine"
+          alt={formData.car.title ?? ''}
           className="w-[400px] h-auto pt-8 object-cover"
         />
       </div>
 
       {/* 차량 정보 */}
       <div className="xx:p-2 sm:p-4 space-y-1 mb-2">
-        <h2 className="xx:text-xl sm:text-2xl font-bold text-gray-800">Carnival High-Limousine</h2>
-        <p className="text-sm text-gray-600">가족여행에 최적화 된 공간</p>
+        <h2 className="xx:text-xl sm:text-2xl font-bold text-gray-800">{formData.car.title ?? ''}</h2>
+        <p className="text-sm text-gray-600">{formData.car.subtitle ?? ''}</p>
       </div>
 
       {/* 하단 옵션 및 결제 영역 */}
@@ -35,23 +32,11 @@ const ReservationBanner = () => {
             <span className="bg-gray-100 px-3 py-1 rounded-4xl text-gray-400">넓은 트렁크</span>
           </div>
           <hr className="border border-gray-200"/>
-          <div className="flex flex-row justify-between py-2">
-            <div className="flex flex-row xx:gap-2 gap-4">
-                <div className="flex flex-row xx:gap-1 gap-2 items-center">
-                    <img src="./images/common/gas.svg" alt="gas" />
-                    <span className="xx:text-xs text-gray-400">Petrol</span>
-                </div>
-                <div className="flex flex-row xx:gap-1 gap-2 items-center">
-                    <img src="./images/common/user.svg" alt="gas" />
-                    <span className="xx:text-xs text-gray-400">4</span>
-                </div>
-                <div className="flex flex-row xx:gap-1 gap-2 items-center">
-                    <img src="./images/common/carlogo.svg" alt="gas" />
-                    <span className="xx:text-xs text-gray-400">Hatchback</span>
-                </div>
-            </div>
+          <div className="flex flex-row justify-end py-2">
             <p className="text-gray-500">
-                <span className="xx:text-sm sm:text-xl font-semibold text-gray-400">55,000/day</span>
+                <span className="xx:text-sm sm:text-xl font-semibold text-black">
+                  {formData.paymentSummary.carDailyPrice.toLocaleString() ?? "55,000"}/day
+                </span>
             </p>
           </div>
           <hr className="border border-gray-200"/>
@@ -64,14 +49,8 @@ const ReservationBanner = () => {
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-col flex-1 text-sm text-gray-500 mb-2">
               <span>총 이용 금액:</span>
-              <span className="xx:text-2xl text-4xl font-bold text-blue-500">128,000원</span>
+              <span className="xx:text-2xl text-4xl font-bold text-brand">128,000원</span>
             </div>
-            <button
-              type="button"
-              className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200"
-            >
-              선택하기
-            </button>
           </div>
         }
       </div>

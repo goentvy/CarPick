@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/admin-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>예약 상세</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS -->
+    <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+    <!-- amchart css (CDN) -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+    <!-- Others CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <!-- JS -->
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+</head>
+
+<th:block layout:fragment="content">
+    <div class="container-fluid py-4">
+
+        <!-- 페이지 헤더 -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">예약 상세</h4>
+            <button class="btn btn-outline-secondary" onclick="goList()">
+                <i class="fas fa-list"></i> 목록
+            </button>
+        </div>
+
+        <!-- 예약 기본 정보 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">예약 정보</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">예약번호</label>
+                        <p id="reservationNo" class="fw-bold">-</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">예약상태</label>
+                        <p id="reservationStatus">-</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">예약일시</label>
+                        <p id="createdAt">-</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">수정일시</label>
+                        <p id="updatedAt">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 왼쪽 컬럼 -->
+            <div class="col-md-6">
+
+                <!-- 예약자 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">예약자 정보</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">이름</label>
+                                <p id="userName">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">이메일</label>
+                                <p id="userEmail">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 운전자 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">운전자 정보</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">운전자명</label>
+                                <p id="driverName">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">생년월일</label>
+                                <p id="driverBirthdate">-</p>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">연락처</label>
+                                <p id="driverPhone">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">이메일</label>
+                                <p id="driverEmail">-</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label text-muted">면허번호</label>
+                                <p id="driverLicenseNo">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 차량 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">차량 정보</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">차량명</label>
+                                <p id="carName">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">차량번호</label>
+                                <p id="carNo">-</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">브랜드</label>
+                                <p id="brand">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">연료</label>
+                                <p id="fuelType">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 오른쪽 컬럼 -->
+            <div class="col-md-6">
+
+                <!-- 일정 및 장소 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">일정 및 장소</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- 인수 -->
+                        <h6 class="text-primary mb-3">인수</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">인수일시</label>
+                                <p id="startDate">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">인수방식</label>
+                                <p id="pickupType">-</p>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">인수지점</label>
+                                <p id="pickupBranchName">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">인수주소</label>
+                                <p id="pickupAddress">-</p>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- 반납 -->
+                        <h6 class="text-danger mb-3">반납</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">반납예정</label>
+                                <p id="endDate">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">실반납</label>
+                                <p id="actualReturnDate">-</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">반납지점</label>
+                                <p id="returnBranchName">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">반납주소</label>
+                                <p id="returnAddress">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 결제 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">결제 정보 (스냅샷)</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                            <tr>
+                                <td class="text-muted">기본 대여료</td>
+                                <td class="text-end" id="baseRentFee">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">대여료 할인</td>
+                                <td class="text-end text-danger" id="rentDiscount">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">보험료</td>
+                                <td class="text-end" id="insuranceFee">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">보험 할인</td>
+                                <td class="text-end text-danger" id="insuranceDiscount">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">옵션 요금</td>
+                                <td class="text-end" id="optionFee">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">쿠폰 할인</td>
+                                <td class="text-end text-danger" id="couponDiscount">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">이벤트 할인</td>
+                                <td class="text-end text-danger" id="eventDiscount">-</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td class="fw-bold">최종 결제금액</td>
+                                <td class="text-end fw-bold" id="totalAmount">-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">보험</label>
+                                <p id="insuranceLabel">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">쿠폰</label>
+                                <p id="couponName">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 취소 정보 (취소 시에만 표시) -->
+                <div class="card mb-4" id="cancelCard" style="display: none;">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">취소 정보</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">취소일시</label>
+                                <p id="cancelledAt">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">취소사유</label>
+                                <p id="cancelReason">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        // URL에서 reservationId 추출
+        const pathParts = window.location.pathname.split('/');
+        const reservationId = pathParts[pathParts.length - 1];
+
+        // 페이지 로드 시
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReservationDetail();
+        });
+
+        // 상세 정보 조회
+        function loadReservationDetail() {
+            fetch(`/api/admin/reservation/${reservationId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('예약 정보를 찾을 수 없습니다.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderDetail(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message);
+                    goList();
+                });
+        }
+
+        // 상세 정보 렌더링
+        function renderDetail(data) {
+            // 예약 기본 정보
+            setText('reservationNo', data.reservationNo);
+            setHtml('reservationStatus', renderStatusBadge(data.reservationStatus));
+            setText('createdAt', formatDateTime(data.createdAt));
+            setText('updatedAt', formatDateTime(data.updatedAt));
+
+            // 예약자 정보
+            setText('userName', data.name);
+            setText('userEmail', data.email);
+
+            // 운전자 정보
+            setText('driverName', `${data.driverLastName || ''}${data.driverFirstName || ''}`);
+            setText('driverBirthdate', data.driverBirthdate);
+            setText('driverPhone', data.driverPhone);
+            setText('driverEmail', data.driverEmail);
+            setText('driverLicenseNo', data.driverLicenseNo);
+
+            // 차량 정보
+            setText('carName', `${data.displayNameShort || ''} (${data.modelName || ''})`);
+            setText('carNo', data.carNo);
+            setText('brand', data.brand);
+            setText('fuelType', formatFuelType(data.fuelType));
+
+            // 일정 및 장소
+            setText('startDate', formatDateTime(data.startDate));
+            setText('endDate', formatDateTime(data.endDate));
+            setText('actualReturnDate', formatDateTime(data.actualReturnDate) || '미반납');
+            setText('pickupType', formatPickupType(data.pickupType));
+            setText('pickupBranchName', data.pickupBranchName);
+            setText('pickupAddress', data.pickupAddress || '-');
+            setText('returnBranchName', data.returnBranchName);
+            setText('returnAddress', data.returnAddress || '-');
+
+            // 결제 정보
+            setText('baseRentFee', formatCurrency(data.baseRentFeeSnapshot));
+            setText('rentDiscount', '-' + formatCurrency(data.rentDiscountAmountSnapshot));
+            setText('insuranceFee', formatCurrency(data.baseInsuranceFeeSnapshot));
+            setText('insuranceDiscount', '-' + formatCurrency(data.insuranceDiscountAmountSnapshot));
+            setText('optionFee', formatCurrency(data.optionFeeSnapshot));
+            setText('couponDiscount', '-' + formatCurrency(data.couponDiscountSnapshot));
+            setText('eventDiscount', '-' + formatCurrency(data.eventDiscountAmountSnapshot));
+            setText('totalAmount', formatCurrency(data.totalAmountSnapshot));
+            setText('insuranceLabel', data.insuranceLabel || '-');
+            setText('couponName', data.couponName || '-');
+
+            // 취소 정보 (취소 상태일 때만 표시)
+            if (data.reservationStatus === 'CANCELED') {
+                document.getElementById('cancelCard').style.display = 'block';
+                setText('cancelledAt', formatDateTime(data.cancelledAt));
+                setText('cancelReason', data.cancelReason || '-');
+            }
+        }
+
+        // 상태 배지
+        function renderStatusBadge(status) {
+            const statusMap = {
+                'PENDING': { text: '대기', class: 'bg-warning' },
+                'CONFIRMED': { text: '확정', class: 'bg-success' },
+                'ACTIVE': { text: '이용중', class: 'bg-primary' },
+                'COMPLETED': { text: '완료', class: 'bg-secondary' },
+                'CANCELED': { text: '취소', class: 'bg-danger' },
+                'CHANGED': { text: '변경', class: 'bg-info' }
+            };
+            const info = statusMap[status] || { text: status, class: 'bg-secondary' };
+            return `<span class="badge ${info.class}">${info.text}</span>`;
+        }
+
+        // 연료 타입
+        function formatFuelType(type) {
+            const map = {
+                'GASOLINE': '가솔린',
+                'DIESEL': '디젤',
+                'LPG': 'LPG',
+                'ELECTRIC': '전기',
+                'HYBRID': '하이브리드',
+                'HYDROGEN': '수소'
+            };
+            return map[type] || type || '-';
+        }
+
+        // 인수 방식
+        function formatPickupType(type) {
+            const map = {
+                'VISIT': '지점 방문',
+                'DELIVERY': '배달'
+            };
+            return map[type] || type || '-';
+        }
+
+        // 유틸 함수
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value || '-';
+        }
+
+        function setHtml(id, html) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = html;
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return null;
+            return dateStr.replace('T', ' ').substring(0, 16);
+        }
+
+        function formatCurrency(amount) {
+            if (!amount) return '₩0';
+            return '₩' + Number(amount).toLocaleString();
+        }
+
+        function goList() {
+            window.location.href = '/admin/reservation';
+        }
+    </script>
+</th:block>
+
+</html>
+```
+
+---
+
+## 파일 경로
+```
+resources/templates/admin/reservation/
+├── list.html    (목록)
+└── detail.html  (상세)

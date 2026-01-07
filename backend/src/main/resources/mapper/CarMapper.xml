@@ -6,60 +6,187 @@
 <mapper namespace="com.carpick.domain.car.mapper.CarMapper" >
     <!--resultMap은 현제 컬럼명이 같아서 쓸필요 없음-->
     <!--    차량상세조회 컬렴 묶음-->
-    <sql id="carColumns">
-        vi.vehicle_id       AS vehicleId,
-    cs.brand            AS brand,
-    cs.model_name       AS modelName,
-    cs.car_class        AS carClass,
-    cs.fuel_type        AS fuelType,
-    cs.seating_capacity AS seatingCapacity,
---     cs.main_image_url   AS mainImageUrl,
-    p.standard_price    AS standardPrice,
-    b.branch_name       AS branchName,
-    vi.status           AS status,
+<!--    <sql id="carColumns">-->
+<!--        vi.vehicle_id       AS vehicleId,-->
+<!--    cs.brand            AS brand,-->
+<!--    cs.model_name       AS modelName,-->
+<!--    cs.car_class        AS carClass,-->
+<!--    cs.fuel_type        AS fuelType,-->
+<!--    cs.seating_capacity AS seatingCapacity,-->
+<!--&#45;&#45;     cs.main_image_url   AS mainImageUrl,-->
+<!--    p.standard_price    AS standardPrice,-->
+<!--    b.branch_name       AS branchName,-->
+<!--    vi.status           AS status-->
 
 
 
-    </sql>
+<!--    </sql>-->
 
-    <sql id="carDetailExtraColumns">
-        cs.trunk_capacity   AS trunkCapacity,
-    cs.fuel_efficiency  AS fuelEfficiency,
-    vi.model_year       AS modelYear,
-    b.address_basic     AS addressBasic
+<!--    <sql id="carDetailExtraColumns">-->
+<!--        cs.trunk_capacity   AS trunkCapacity,-->
+<!--    cs.fuel_efficiency  AS fuelEfficiency,-->
+<!--    vi.model_year       AS modelYear,-->
+<!--    b.address_basic     AS addressBasic-->
 
-    </sql>
+<!--    </sql>-->
 
-
-    <!--차량 상세 조회-->
-    <select id="selectCarDetail" parameterType="long" resultType="com.carpick.domain.car.dto.CarDetailDto">
-        select
-        <include refid="carColumns"/>
-        <include refid="carDetailExtraColumns"/>
-        from VEHICLE_INVENTORY vi
-        join CAR_SPEC cs
-        on vi.car_spec_id = cs.spec_id
-        join PRICE p
-        ON vi.price_id = p.price_id
-        join BRANCH b
-        ON vi.branch_id = b.branch_id
-        where vi.vehicle_id = #{vehicleId}
-
-
-
+    <!-- AI 추천용: 차종별 카드 목록 -->
+    <select id="selectCarCardByCarClass" resultType="com.carpick.domain.aipick.dto.AiCarCardDto">
+        SELECT
+            vi.vehicle_id        AS vehicleId,
+            cs.spec_id           AS specId,
+            cs.display_name_short AS displayNameShort,
+            cs.brand             AS brand,
+            cs.ai_summary        AS aiSummary,
+            cs.main_image_url    AS mainImageUrl,
+            cs.drive_labels      AS driveLabels,
+            pp.base_price        AS basePrice,
+            pp.discount_rate     AS discountRate,
+            ROUND(pp.base_price * (1 - pp.discount_rate / 100)) AS finalPrice
+        FROM VEHICLE_INVENTORY vi
+                 INNER JOIN CAR_SPEC cs ON cs.spec_id = vi.spec_id
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND pp.is_active = TRUE
+                               AND pp.unit_type = 'DAILY'
+        WHERE vi.operational_status = 'AVAILABLE'
+          AND vi.use_yn = 'Y'
+          AND cs.use_yn = 'Y'
+          AND cs.car_class = #{carClass}
+        ORDER BY pp.base_price ASC
     </select>
 
-
-    <select id="selectCarList" resultType="com.carpick.domain.car.dto.CarListDto">
-        select
-        <include refid="carColumns"/>
+    <!-- AI 추천용: 차종별 차량 목록 -->
+    <select id="selectCarListByCarClass" resultType="com.carpick.domain.car.dto.CarListDto">
+        SELECT
+            vi.vehicle_id       AS vehicleId,
+            cs.display_name_short AS displayNameShort,
+            cs.brand            AS brand,
+            cs.car_class        AS carClass,
+            cs.fuel_type        AS fuelType,
+            cs.main_image_url   AS mainImageUrl,
+            pp.base_price       AS basePrice,
+            pp.discount_rate    AS discountRate
         FROM VEHICLE_INVENTORY vi
-        JOIN CAR_SPEC cs ON vi.car_spec_id = cs.spec_id
-        JOIN PRICE p ON vi.price_id = p.price_id
-        JOIN BRANCH b ON vi.branch_id = b.branch_id
-        WHERE vi.status = 'AVAILABLE'
+                 INNER JOIN CAR_SPEC cs ON cs.spec_id = vi.spec_id
+                 LEFT JOIN PRICE_POLICY pp ON pp.spec_id = cs.spec_id AND pp.is_active = TRUE
+        WHERE vi.operational_status = 'AVAILABLE'
+          AND vi.use_yn = 'Y'
+          AND cs.use_yn = 'Y'
+          AND cs.car_class = #{carClass}
+        ORDER BY pp.base_price ASC
+    </select>
 
+    <!-- 차량 상세 정보 조회 -->
+    <select id="selectCarDetail" parameterType="Long" resultType="com.carpick.domain.car.dto.raw.CarDetailRawDto">
+        SELECT
+            /* CAR_SPEC */
+            cs.spec_id            AS specId,
+            cs.model_name         AS modelName,
+            cs.display_name_short AS displayNameShort,
+            cs.car_class          AS carClass,
+            cs.fuel_type          AS fuelType,
+            cs.seating_capacity   AS seatingCapacity,
+            cs.model_year_base    AS modelYearBase,
+            cs.main_image_url     AS mainImageUrl,
+            cs.min_driver_age     AS minDriverAge,
+            cs.min_license_years  AS minLicenseYears,
+            cs.fuel_efficiency    AS fuelEfficiency,
 
+            /* BRANCH (다이어트: 대표 지점 1개만 붙임 - 가격정책의 branch 기준) */
+            b.branch_id           AS branchId,
+            b.branch_name         AS branchName,
+            b.address_basic       AS addressBasic,
+            b.latitude            AS latitude,
+            b.longitude           AS longitude,
+            b.open_time           AS openTime,
+            b.close_time          AS closeTime,
+
+            /* PRICE_POLICY (DAILY) */
+            pp.base_price         AS dailyPrice,
+            pp.discount_rate      AS discountRate
+
+        FROM CAR_SPEC cs
+                 /* 가격정책이 있어야 branch를 알 수 있으니 PRICE_POLICY를 기준으로 조인 */
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND pp.unit_type = 'DAILY'
+                               AND pp.is_active = TRUE
+                               AND pp.use_yn = 'Y'
+                 LEFT JOIN BRANCH b
+                           ON b.branch_id = pp.branch_id
+
+        WHERE cs.spec_id = #{specId}
+          AND cs.use_yn = 'Y'
+
+        /* branch_id가 있는 정책을 우선 + 최신 valid_from 우선 */
+        ORDER BY (pp.branch_id IS NULL) ASC, pp.valid_from DESC
+            LIMIT 1
+    </select>
+<!--차량 목록 페이지 쿼리 -->
+    <select id="selectCarListItems"
+            resultType="com.carpick.domain.car.dto.carListPage.CarListItemDto">
+
+        SELECT
+            /* 🔑 대표 실차 ID (상세/예약 연결용: 가장 빠른 번호 1개) */
+            MIN(vi.vehicle_id)           AS vehicleId,
+
+            /* 차종(스펙) 정보 */
+            cs.spec_id                   AS specId,
+            cs.display_name_short        AS displayNameShort,
+            cs.main_image_url            AS mainImageUrl,
+            cs.model_year_base           AS modelYear,
+            cs.seating_capacity          AS seatingCapacity,
+            cs.drive_labels              AS driveLabels,
+
+            /* 가격(표시용, optional) */
+            p.daily_price                AS originalPrice,
+
+            /* 🔥 [수정] 정책이 여러 개 겹칠 경우, 가장 높은 할인율 적용 (안전장치) */
+            MAX(pp.discount_rate)        AS discountRate,
+
+            /* 최종가 (백엔드 기준값) */
+            /* MAX(pp.discount_rate)를 반영하여 계산식도 살짝 수정됨 */
+            CASE
+                WHEN p.daily_price IS NULL THEN 0
+                WHEN MAX(pp.discount_rate) IS NULL THEN p.daily_price
+                ELSE FLOOR(p.daily_price * (1 - (MAX(pp.discount_rate) / 100.0)))
+                END                          AS finalPrice
+
+        FROM CAR_SPEC cs
+
+                 /* 🔎 실차는 "존재 여부" 판단용 (재고 없으면 안 나옴) */
+                 JOIN VEHICLE_INVENTORY vi
+                      ON vi.spec_id = cs.spec_id
+                          AND vi.is_active = TRUE
+                          AND vi.use_yn = 'Y'
+                          AND vi.operational_status = 'AVAILABLE'
+
+            /* 원가 */
+                 LEFT JOIN PRICE p
+                           ON p.car_spec_id = cs.spec_id
+                               AND p.use_yn = 'Y'
+                               AND p.deleted_at IS NULL
+
+            /* 할인 정책 */
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND pp.is_active = TRUE
+
+        WHERE cs.use_yn = 'Y'
+
+        /* 🔥 GROUP BY: 집계 함수(MIN, MAX)를 제외한 모든 컬럼 명시 (SQL 표준 준수) */
+        GROUP BY
+            cs.spec_id,
+            cs.display_name_short,
+            cs.main_image_url,
+            cs.model_year_base,
+            cs.seating_capacity,
+            cs.drive_labels,
+            p.daily_price
+        /* pp.discount_rate는 집계함수(MAX) 썼으므로 그룹바이에서 뺌 */
+
+        ORDER BY cs.spec_id DESC
     </select>
 
 </mapper>

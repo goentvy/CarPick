@@ -13,6 +13,7 @@ function MyLicense() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [licenses, setLicenses] = useState([]);
+    const [hasLicense, setHasLicense] = useState(false);
 
     useEffect(() => {
         fetchLicenses();
@@ -22,37 +23,42 @@ function MyLicense() {
         try {
             if (!accessToken) {
                 setLicenses([]);
+                setHasLicense(false);
                 return;
             }
 
             const response = await fetch("/api/licenses/me", {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`,
+                    'X-User-Id': useUserStore.getState().user?.id?.toString()
+                }
             });
 
             if (!response.ok) {
                 setLicenses([]);
+                setHasLicense(false);
                 return;
             }
 
             const data = await response.json();
             if (data?.data && Array.isArray(data.data)) {
-                setLicenses(
-                    data.data.map((item) => ({
-                        id: item.id,
-                        name: item.driverName,
-                        birthday: item.birthday,
-                        licenseNumber: item.licenseNumber,
-                        serialNumber: item.serialNumber,
-                    }))
-                );
+                const licenseList = data.data.map((item) => ({
+                    id: item.id,
+                    name: item.driverName,
+                    birthday: item.birthday,
+                    licenseNumber: item.licenseNumber,
+                    serialNumber: item.serialNumber,
+                }));
+                setLicenses(licenseList);
+                setHasLicense(licenseList.length > 0);
             } else {
                 setLicenses([]);
+                setHasLicense(false);
             }
         } catch (error) {
             console.error("면허 조회 실패:", error);
             setLicenses([]);
+            setHasLicense(false);
         }
     };
 
@@ -131,6 +137,7 @@ function MyLicense() {
                     serialNumber: resultData.data.serialNumber,
                 };
                 setLicenses((prev) => [newLicense, ...prev]);
+                setHasLicense(true);
 
                 setResult(
                     "차량 수령시 입력 정보와 실물/전자 면허증이 일치하지 않을 경우 \n 예약이 취소되거나 이용이 제한될 수 있습니다."
@@ -163,7 +170,11 @@ function MyLicense() {
             });
 
             if (response.ok) {
-                setLicenses((prev) => prev.filter((l) => l.id !== licenseId));
+                setLicenses((prev) => {
+                    const newLicenses = prev.filter((l) => l.id !== licenseId);
+                    setHasLicense(newLicenses.length > 0);
+                    return newLicenses;
+                });
                 alert("면허 정보가 삭제되었습니다.");
             } else {
                 alert("삭제에 실패했습니다.");
@@ -203,7 +214,7 @@ function MyLicense() {
             id="content"
             className="font-pretendard"
             style={{
-                minHeight: "calc(100vh - 80px - 72px)",
+                minHeight: "calc(100vh - 60px)",
                 backgroundColor: "#E7EEFF",
             }}
         >
@@ -214,9 +225,9 @@ function MyLicense() {
                             key={license.id || index}
                             className="bg-white rounded-2xl shadow-sm px-5 py-4 flex flex-col"
                         >
-              <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
-                {license.name}
-              </span>
+                            <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
+                              {license.name}
+                            </span>
                             <div className="text-sm text-[#333333] space-y-1.5 leading-snug">
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">생년월일</span>
@@ -229,8 +240,8 @@ function MyLicense() {
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">일련번호</span>
                                     <span className="tracking-[0.15em] font-medium">
-                    {license.serialNumber}
-                  </span>
+                                      {license.serialNumber}
+                                    </span>
                                 </p>
                             </div>
 
@@ -245,21 +256,27 @@ function MyLicense() {
                         </div>
                     ))
                 ) : (
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-10 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl shadow-sm px-5 py-6 flex items-center justify-center">
                         <p className="text-sm text-[#666666] text-center leading-relaxed">
                             등록된 운전면허 정보가 없습니다.
                             <br />
-                            운전면허 등록 시 보다 신속한 렌트가 가능합니다.
+                            운전면허등록으로 보다 신속한 예약이 가능합니다.
                         </p>
                     </div>
                 )}
 
-                <button
-                    onClick={openModal}
-                    className="w-full h-11 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#215FCC]"
-                >
-                    운전 면허 추가하기
-                </button>
+                {hasLicense ? (
+                    <div>
+
+                    </div>
+                ) : (
+                    <button
+                        onClick={openModal}
+                        className="w-full h-11 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#215FCC]"
+                    >
+                        운전 면허 추가하기
+                    </button>
+                )}
             </div>
 
             {isModalOpen && (

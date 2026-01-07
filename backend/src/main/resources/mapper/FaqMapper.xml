@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.faq.mapper.FaqMapper">
+
+<!--사용자 검색-->
+
+<select id="search"
+    resultType="com.carpick.domain.faq.vo.Faq">
+    SELECT
+        id,
+        category,
+        question,
+        answer
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY created_at DESC
+</select>
+
+
+<!-- 관리자 검색 -->
+<select id="findAdminPage"
+    resultType="com.carpick.domain.faq.dto.AdminFaqListResponse">
+    SELECT
+        id,
+        category,
+        question,
+        created_at AS createdAt
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY created_at DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="countAdminFaqs" resultType="int">
+    SELECT COUNT(*)
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+</select>
+
+<select id="findById"
+    resultType="com.carpick.domain.faq.vo.Faq">
+    SELECT
+        id,
+        category,
+        question,
+        answer
+    FROM faq
+    WHERE id = #{id}
+</select>
+
+<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO faq (category, question, answer)
+    VALUES (#{category}, #{question}, #{answer})
+</insert>
+
+<update id="update">
+    UPDATE faq
+    SET
+        category = #{category},
+        question = #{question},
+        answer = #{answer},
+        updated_at = NOW()
+    WHERE id = #{id}
+</update>
+
+<delete id="delete">
+    DELETE FROM faq WHERE id = #{id}
+</delete>
+
+</mapper>

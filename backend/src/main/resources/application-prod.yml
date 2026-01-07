@@ -1,6 +1,20 @@
 # application-prod.yml
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+# 운영환경에서 swagger 비활성화(API 노출 방지용, 제거 금지)
 springdoc:
   api-docs:
     enabled: false
   swagger-ui:
     enabled: false
+

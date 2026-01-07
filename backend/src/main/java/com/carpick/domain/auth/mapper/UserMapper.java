@@ -1,6 +1,6 @@
 package com.carpick.domain.auth.mapper;
 
-import com.carpick.domain.auth.dto.SignupRequest;
+import com.carpick.domain.auth.dto.signup.SignupRequest;
 import com.carpick.domain.auth.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,11 +17,11 @@ public interface UserMapper {
             @Param("providerId") String providerId
     );
 
-    // PK 조회
-    User findById(@Param("userId") Long userId);
+    // 회원가입 (로컬)
+    void insertLocalUser(SignupRequest request);
 
-    // 회원가입
-    void insertUser(SignupRequest request);
+    // 회원가입 (소셜)
+    void insertSocialUser(User user);
 
     // 이메일 중복 체크
     int existsByEmail(@Param("email") String email);
@@ -32,21 +32,29 @@ public interface UserMapper {
             @Param("providerId") String providerId
     );
 
-    // 회원 기본 정보 수정
-    int updateUserInfo(User user);
-
-    // 비밀번호 변경 (로컬)
-    int updatePassword(
-            @Param("userId") Long userId,
-            @Param("passwordHash") String passwordHash
+    User findDeletedByProvider(
+            @Param("provider") String provider,
+            @Param("providerId") String providerId
     );
 
-    // 멤버십 등급 변경 (관리자)
-    int updateMembershipGrade(
-            @Param("userId") Long userId,
-            @Param("membershipGrade") String membershipGrade
-    );
+    // ✅ userId로 조회
+    User findById(@Param("userId") Long userId);
 
-    // 회원 탈퇴 (소프트 삭제)
-    int deleteUser(@Param("userId") Long userId);
+    // ✅ 로컬 유저 탈퇴 (소프트 삭제)
+    void softDeleteLocalUser(@Param("userId") Long userId);
+
+    // ✅ 소셜 유저 탈퇴 (소프트 삭제)
+    void softDeleteSocialUser(@Param("userId") Long userId);
+
+    // ✅ 소셜 유저 탈퇴 (하드 삭제)
+    void hardDeleteSocialUser(@Param("userId") Long userId);
+
+    // 소셜 소프트 삭제된 계정 복구
+    void reviveSocialUser(@Param("accessToken") String accessToken, @Param("userId") Long userId);
+
+    // ✅ 카카오 액세스 토큰 업데이트 (연동 해제 시 필요)
+    void updateAccessToken(
+            @Param("userId") Long userId,
+            @Param("accessToken") String accessToken
+    );
 }

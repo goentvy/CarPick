@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.member.mapper.ReservationHistoryMapper">
+
+    <select id="selectMyHistory"
+            resultType="com.carpick.domain.member.dto.ReservationHistoryResponse">
+        SELECT
+        rh.id,
+        rh.reservation_id AS reservationId,
+        r.reservation_no AS reservationNo,  <!-- ✅ 추가: 예약번호 -->
+        rh.action_type AS actionType,
+        rh.change_types AS changeTypes,
+
+        <!-- 변경전 -->
+        rh.old_car_name AS oldCarName,
+        DATE_FORMAT(rh.old_start_date, '%Y-%m-%d') AS oldStartDate,
+        DATE_FORMAT(rh.old_end_date, '%Y-%m-%d') AS oldEndDate,
+        rh.old_location AS oldLocation,
+
+        <!-- 변경후 -->
+        rh.new_car_name AS newCarName,
+        DATE_FORMAT(rh.new_start_date, '%Y-%m-%d') AS newStartDate,
+        DATE_FORMAT(rh.new_end_date, '%Y-%m-%d') AS newEndDate,
+        rh.new_location AS newLocation,
+
+        rh.reason,
+        DATE_FORMAT(rh.created_at, '%Y-%m-%d %H:%i') AS createdAt
+
+        FROM reservation_history rh
+        LEFT JOIN RESERVATION r ON rh.reservation_id = r.reservation_id
+        WHERE rh.user_id = #{userId}
+        ORDER BY rh.created_at DESC
+    </select>
+
+</mapper>

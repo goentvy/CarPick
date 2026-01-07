@@ -9,10 +9,6 @@ spring:
   profiles:
     default: dev
 
-  mvc:
-    servlet:
-      throw-exception-if-no-handler-found: true
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -27,7 +23,7 @@ spring:
 
   web:
     resources:
-      add-mappings: false
+      static-locations: classpath:/static/
 
   # 전역에서의 업로드 파일 크기 제한 / 악의적인 요청 방어 용도
   servlet:
@@ -66,14 +62,16 @@ springdoc:
 #openai:
 #  api-key: sk-
 
-#openai:
-#  api-key: dummy
+openai:
+  api-key: dummy
 
 file:
   upload:
     path: C:/upload
 
+
 # JWT 설정 추가
 jwt:
   secret: "mySuperSecretKeyForJWTGeneration1234567890"
   expiration: 3600000
+

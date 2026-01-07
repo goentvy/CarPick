@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.inventoryAdmin.mapper.AdminInventoryMapper">
+
+    <!-- ===================== 공통 resultMap ===================== -->
+    <resultMap id="AdminVehicleInventoryMap"
+               type="com.carpick.admin.inventoryAdmin.dto.AdminVehicleInventoryDto">
+        <id     column="vehicle_id"         property="vehicleId"/>
+        <result column="spec_id"            property="specId"/>
+        <result column="branch_id"          property="branchId"/>
+        <result column="vehicle_no"         property="vehicleNo"/>
+        <result column="vin"                property="vin"/>
+        <result column="model_year"         property="modelYear"/>
+        <result column="operational_status" property="operationalStatus"
+                javaType="com.carpick.domain.car.enums.VehicleStatus"/>
+        <result column="mileage"            property="mileage"/>
+        <result column="last_inspected_at"  property="lastInspectedAt"/>
+        <result column="use_yn"             property="useYn"/>
+        <result column="deleted_at"         property="deletedAt"/>
+        <result column="updated_at"         property="updatedAt"/>
+
+        <!-- 조인용 필드 -->
+        <result column="model_name"     property="modelName"/>
+        <result column="brand"          property="brand"/>
+        <result column="main_image_url" property="mainImageUrl"/>
+        <result column="fuel_type"      property="fuelType"
+                javaType="com.carpick.domain.car.enums.FuelType"/>
+        <result column="branch_name"    property="branchName"/>
+    </resultMap>
+
+    <!-- ===================== 공통 SQL: SELECT용 컬럼 (단건용) ===================== -->
+    <sql id="selectColumns">
+        vehicle_id,
+        spec_id,
+        branch_id,
+        vehicle_no,
+        vin,
+        model_year,
+        operational_status,
+        mileage,
+        last_inspected_at,
+        use_yn,
+        deleted_at,
+        updated_at
+    </sql>
+
+    <!-- ===================== 공통 SQL: INSERT용 컬럼 ===================== -->
+    <sql id="insertColumns">
+        spec_id,
+        branch_id,
+        vehicle_no,
+        vin,
+        model_year,
+        operational_status,
+        mileage,
+        last_inspected_at,
+        use_yn,
+        updated_at
+    </sql>
+
+    <!-- ===================== 공통 SQL: INSERT용 VALUES ===================== -->
+    <sql id="insertValues">
+        #{specId},
+        #{branchId},
+        #{vehicleNo},
+        #{vin},
+        #{modelYear},
+        #{operationalStatus},
+        #{mileage},
+        #{lastInspectedAt},
+        'Y',
+        NOW()
+    </sql>
+
+    <!-- ===================== 1. 전체 조회 (조인 포함) ===================== -->
+    <select id="findAll" resultMap="AdminVehicleInventoryMap">
+        SELECT
+            v.vehicle_id,
+            v.spec_id,
+            v.branch_id,
+            v.vehicle_no,
+            v.vin,
+            v.model_year,
+            v.operational_status,
+            v.mileage,
+            v.last_inspected_at,
+            v.use_yn,
+            v.deleted_at,
+            v.updated_at,
+            s.model_name,
+            s.brand,
+            s.main_image_url,
+            s.fuel_type,
+            b.branch_name
+        FROM vehicle_inventory v
+                 LEFT JOIN car_spec s ON v.spec_id = s.spec_id
+                 LEFT JOIN branch b ON v.branch_id = b.branch_id
+        WHERE v.use_yn = 'Y'
+        ORDER BY v.vehicle_id DESC
+    </select>
+
+    <!-- ===================== 2. 단건 조회 ===================== -->
+    <select id="findById" parameterType="long" resultMap="AdminVehicleInventoryMap">
+        SELECT
+            v.vehicle_id,
+            v.spec_id,
+            v.branch_id,
+            v.vehicle_no,
+            v.vin,
+            v.model_year,
+            v.operational_status,
+            v.mileage,
+            v.last_inspected_at,
+            v.use_yn,
+            v.deleted_at,
+            v.updated_at,
+            s.model_name,
+            s.brand,
+            s.main_image_url,
+            s.fuel_type,
+            b.branch_name
+        FROM vehicle_inventory v
+                 LEFT JOIN car_spec s ON v.spec_id = s.spec_id
+                 LEFT JOIN branch b ON v.branch_id = b.branch_id
+        WHERE v.vehicle_id = #{vehicleId}
+    </select>
+
+    <!-- ===================== 3. 등록 ===================== -->
+    <insert id="insert" parameterType="com.carpick.admin.inventoryAdmin.dto.AdminVehicleInventoryDto"
+            useGeneratedKeys="true" keyProperty="vehicleId">
+        INSERT INTO vehicle_inventory (
+        <include refid="insertColumns"/>
+        ) VALUES (
+        <include refid="insertValues"/>
+        )
+    </insert>
+
+    <!-- ===================== 4. 수정 ===================== -->
+    <update id="update" parameterType="com.carpick.admin.inventoryAdmin.dto.AdminVehicleInventoryDto">
+        UPDATE vehicle_inventory
+        <set>
+            <if test="specId != null">spec_id = #{specId},</if>
+            <if test="branchId != null">branch_id = #{branchId},</if>
+            <if test="vehicleNo != null">vehicle_no = #{vehicleNo},</if>
+            <if test="vin != null">vin = #{vin},</if>
+            <if test="modelYear != null">model_year = #{modelYear},</if>
+            <if test="operationalStatus != null">operational_status = #{operationalStatus},</if>
+            <if test="mileage != null">mileage = #{mileage},</if>
+            <if test="lastInspectedAt != null">last_inspected_at = #{lastInspectedAt},</if>
+            updated_at = NOW()
+        </set>
+        WHERE vehicle_id = #{vehicleId}
+        AND use_yn = 'Y'
+    </update>
+
+    <!-- ===================== 5. 논리 삭제 ===================== -->
+    <update id="softDelete" parameterType="long">
+        UPDATE vehicle_inventory
+        SET use_yn = 'N',
+            deleted_at = NOW(),
+            updated_at = NOW()
+        WHERE vehicle_id = #{vehicleId}
+          AND use_yn = 'Y'
+    </update>
+
+    <!-- ===================== 6. 삭제된 데이터 중 같은 차량번호 체크 ===================== -->
+    <select id="selectDeletedByVehicleNo" parameterType="string" resultMap="AdminVehicleInventoryMap">
+        SELECT
+        <include refid="selectColumns"/>
+        FROM vehicle_inventory
+        WHERE vehicle_no = #{vehicleNo}
+        AND use_yn = 'N'
+        LIMIT 1
+    </select>
+
+    <!-- ===================== 7. 복구 ===================== -->
+    <update id="restore" parameterType="long">
+        UPDATE vehicle_inventory
+        SET use_yn = 'Y',
+            deleted_at = NULL,
+            updated_at = NOW()
+        WHERE vehicle_id = #{vehicleId}
+    </update>
+
+</mapper>
