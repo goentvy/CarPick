@@ -1,6 +1,8 @@
 package com.carpick.domain.reservation.service;
 
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
+import com.carpick.domain.inventory.enums.InventoryOperationalStatus;
+import com.carpick.domain.inventory.mapper.VehicleInventoryMapper;
 import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
 import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
 import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
@@ -13,6 +15,7 @@ import com.carpick.domain.reservation.mapper.ReservationMapper;
 import com.carpick.domain.reservationHistory.entity.ReservationStatusHistory;
 import com.carpick.domain.reservationHistory.mapper.ReservationStatusHistoryMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class ReservationCommandService {
     private final ReservationMapper reservationMapper;
     private final ReservationStatusHistoryMapper historyMapper;
     private final ReservationPriceService pricingService;
+    private  final VehicleInventoryMapper vehicleInventoryMapper;
 
     private static final DateTimeFormatter DATETIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -57,7 +61,33 @@ public class ReservationCommandService {
         // 1️⃣ 날짜 파싱 (이제 에러 안 남)
         LocalDateTime startDate = LocalDateTime.parse(startStr, DATETIME_FORMATTER);
         LocalDateTime endDate = LocalDateTime.parse(endStr, DATETIME_FORMATTER);
+        // ✅ 3️⃣ 차량 조회
+        Long vehicleId = reservationMapper.selectAvailableVehicleIdBySpecId(req.getCarId());
+        if (vehicleId == null) {
+            throw new IllegalStateException("예약 가능한 차량이 없습니다.");
+        }
+// =============================================================
+// 🔒 [비관적 락] 차량 상태 확인 및 변경
+// =============================================================
+        try {
+            // 1. 락 획득 시도 (WAIT 3초)
+            String currentStatus = vehicleInventoryMapper.selectOperationalStatusForUpdate(vehicleId);
 
+            // 2. 상태 검증
+            if (!InventoryOperationalStatus.AVAILABLE.name().equals(currentStatus)) {
+                throw new IllegalStateException("해당 차량은 현재 예약할 수 없는 상태입니다: " + currentStatus);
+            }
+
+            // 예약 INSERT 성공 후에 바꾸는 게 정석입니다.
+//            // 3. 상태 변경
+//            vehicleInventoryMapper.updateOperationalStatus(
+//                    vehicleId,
+//                    InventoryOperationalStatus.RESERVED.name()
+//            );
+
+        } catch (CannotAcquireLockException e) {
+            throw new RuntimeException("현재 예약자가 몰려 처리가 지연되고 있습니다. 잠시 후 다시 시도해주세요.");
+        }
         // 2️⃣ 가격 재계산
         ReservationPriceResponseDto price = pricingService.estimate(
                 req.getCarId(),
@@ -65,6 +95,7 @@ public class ReservationCommandService {
                 startStr, // 보정된 시간 사용
                 endStr
         );
+
 
         // 3️⃣ 예약번호 생성
         String reservationNo = "R-" + System.currentTimeMillis();
@@ -74,14 +105,8 @@ public class ReservationCommandService {
         Reservation r = new Reservation();
         r.setReservationNo(reservationNo);
         r.setUserId(userId);
+        r.setVehicleId(vehicleId);  // ✅ 이거 추가!
 
-        Long vehicleId = reservationMapper.selectAvailableVehicleIdBySpecId(req.getCarId());
-        if (vehicleId == null) {
-            // 🚨 [안전장치 2] 재고가 없으면 에러 대신 1번 차량이라도 강제 배정 (시연용)
-            // throw new IllegalStateException("예약 가능한 차량 재고가 없습니다.");
-            vehicleId = 1L;
-        }
-        r.setVehicleId(vehicleId);
 
         // DRIVER (운전자 정보)
         if (req.getDriverInfo() != null) {
@@ -157,10 +182,19 @@ public class ReservationCommandService {
         r.setReservationStatus(ReservationStatus.PENDING);
         r.setUseYn("Y");
 
-        // 5️⃣ 저장
+        // =============================================================
+        // 7️⃣ 예약 저장
+        // =============================================================
         reservationMapper.insertReservation(r);
 
-        // 6️⃣ 상태 이력
+        // =============================================================
+        // 8️⃣ 차량 상태 변경 (INSERT 성공 후!)
+        // =============================================================
+        vehicleInventoryMapper.updateOperationalStatus(
+                vehicleId,
+                InventoryOperationalStatus.RESERVED.name()
+        );
+        // 6️9️⃣ 상태 이력
         ReservationStatusHistory history = ReservationStatusHistory.builder()
                 .reservationId(r.getReservationId())
                 .statusPrev(null)
@@ -171,7 +205,7 @@ public class ReservationCommandService {
                 .build();
         historyMapper.insertHistory(history);
 
-        // 7️⃣ 응답
+        // 7️🔟 응답
         return new ReservationCreateResponseDto(
                 reservationNo,
                 req.getCarId(),
