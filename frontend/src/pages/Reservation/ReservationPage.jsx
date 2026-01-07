@@ -126,7 +126,7 @@ const ReservationPage = () => {
             <ReservationInsurance options={formData.insuranceOptions} />
             {/* 보험 정보 안내 (보상한도, 자기부담금, 자손/대물/대인 설명 등) */}
             <InsuranceInfoSection />
-            {/* 결제 요금 요약 (차량 요금, 보험 요금, 총 결제금액, 포인트 적립 등) */}
+            {/* 결제 요금 요약 (차량 요금, 보험 요금, 총 결제금액, 포인트 적립 등) */}`
             <PaymentSummarySection />
             {/* 카드결제 폼 */}
             <CardPaymentForm />

@@ -609,8 +609,28 @@
     font-size: 15px;
     line-height: 1.6;
   }
+.contact-container {
+    flex-direction: column; /* 가로에서 세로 정렬로 변경 */
+    text-align: center;
+    padding: 30px 20px;
+    gap: 25px;
+  }
 
-  /* 행 구분 더 명확하게 */
+  .contact-text h3 {
+    font-size: 1.3rem;
+  }
+
+  .contact-text p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .contact-button {
+    width: 100%; /* 버튼이 가로 꽉 차게 변경 */
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 12px;
+  }
   
 }
 
@@ -662,4 +682,78 @@
   min-width: 75px;
   text-align: center;
   margin-right: 20px;
+}
+
+.contact-section {
+  margin-top: 40px;
+  padding-bottom: 20px;
+}
+
+.contact-container {
+  background: linear-gradient(135deg, #0066ff 0%, #0044cc 100%); /* 카픽 메인 컬러 적용 */
+  border-radius: 15px;
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 10px 20px rgba(0, 102, 255, 0.2);
+}
+
+.contact-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.contact-text h3 {
+  margin: 10px 0 5px 0;
+  font-size: 1.4rem;
+}
+
+.contact-text p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.contact-button {
+  background: white;
+  color: #0066ff;
+  padding: 15px 25px;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s ease;
+}
+
+.contact-button:hover {
+  transform: scale(1.05);
+}
+
+/* 공지 뱃지 디자인 */
+.notice-badge {
+  display: inline-block;
+  background-color: #eef4ff; /* 연한 블루 배경 */
+  color: #0066ff;            /* 카픽 메인 블루 */
+  padding: 6px 12px;         /* 패딩 살짝 여유있게 */
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #cce0ff;
+  line-height: 1;
+  min-width: 50px;           /* 텍스트 정렬을 위해 최소 폭 설정 */
+  text-align: center;
+}
+
+/* 테이블의 번호 열 정렬 */
+.notice-id-column {
+  text-align: center;
+  vertical-align: middle;
 }

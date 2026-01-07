@@ -34,7 +34,7 @@ const ReservationBanner = ({ formData }) => {
           <hr className="border border-gray-200"/>
           <div className="flex flex-row justify-end py-2">
             <p className="text-gray-500">
-                <span className="xx:text-sm sm:text-xl font-semibold text-gray-400">
+                <span className="xx:text-sm sm:text-xl font-semibold text-black">
                   {formData.paymentSummary.carDailyPrice.toLocaleString() ?? "55,000"}/day
                 </span>
             </p>
@@ -51,12 +51,6 @@ const ReservationBanner = ({ formData }) => {
               <span>총 이용 금액:</span>
               <span className="xx:text-2xl text-4xl font-bold text-brand">128,000원</span>
             </div>
-            <button
-              type="button"
-              className="px-6 py-3 bg-brand text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200"
-            >
-              선택하기
-            </button>
           </div>
         }
       </div>
