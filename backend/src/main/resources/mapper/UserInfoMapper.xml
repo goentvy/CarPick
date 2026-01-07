@@ -31,17 +31,21 @@
          개인정보 수정
     ========================= -->
     <update id="updateUserInfo">
-        UPDATE users
-        SET
-            name            = #{name},
-            phone           = #{phone},
-            birth           = #{birth},
-            password        = #{password},
-            marketing_agree = #{marketingAgree},
-            updated_at      = NOW()
-        WHERE user_id = #{userId}
-          AND deleted_at IS NULL
-    </update>
+    UPDATE users
+    <set>
+        name = #{name},
+        phone = #{phone},
+        birth = #{birth},
+        marketing_agree = #{marketingAgree},
+        updated_at = NOW()
+
+        <if test="password != null and password != ''">
+            , password = #{password}
+        </if>
+    </set>
+    WHERE user_id = #{userId}
+      AND deleted_at IS NULL
+</update>
 
     <!-- =========================
          탈퇴 처리
