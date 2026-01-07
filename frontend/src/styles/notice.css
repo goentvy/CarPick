@@ -628,7 +628,28 @@
   align-items: center;
   padding: 16px 20px;
   cursor: pointer;
+  transition: all 0.25s ease;
   border-bottom: 1px solid #f8f9fa;
+}
+
+/* [추가] 마우스 호버 시 스타일 강화 */
+.nav-row:hover:not(.disabled) {
+  /* 짙은 하늘색 계열로 배경색 변경 */
+  background-color: #e6f2ff; 
+  /* 전체적인 행에 약간의 입체감 부여 */
+  box-shadow: inset 4px 0 0 #007bff; 
+}
+
+/* [추가] 호버 시 제목(subject) 색상 강조 */
+.nav-row:hover:not(.disabled) .nav-subject {
+  color: #0056b3;
+  font-weight: 600; /* 글자를 조금 더 두껍게 하여 가독성 확보 */
+}
+
+/* [추가] 호버 시 라벨(dir) 디자인 동적 변화 */
+.nav-row:hover:not(.disabled) .nav-dir {
+  background-color: #007bff;
+  color: #ffffff;
 }
 
 .nav-dir {
