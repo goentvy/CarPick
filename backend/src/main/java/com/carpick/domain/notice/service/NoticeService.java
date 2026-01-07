@@ -1,5 +1,6 @@
 package com.carpick.domain.notice.service;
 
+import com.carpick.domain.notice.dto.NoticeDto;
 import com.carpick.domain.notice.ntt.NoticeNtt;
 import com.carpick.domain.notice.repository.NoticeRepository;
 import org.springframework.data.domain.Page;
@@ -20,16 +21,39 @@ public class NoticeService {
     }
 
     /**
-     * ✅ 유저용: 조회수 증가와 상세 조회를 하나의 트랜잭션으로 처리 (버그 수정 핵심)
+     * ✅ 유저용: 조회수 증가와 상세 조회를 하나의 트랜잭션으로 처리
      */
     @Transactional
-    public Optional<NoticeNtt> getNoticeWithUpdateViews(Long id) {
-        // 1. DB에서 직접 조회수 +1 업데이트
+    public Optional<NoticeDto> getNoticeWithUpdateViews(Long id) {
+        // 1. 조회수 증가
         int updatedCount = noticeRepository.incrementViewCount(id);
         
-        // 2. 업데이트 성공 시 데이터를 조회하여 반환
+        // 2. 업데이트 성공 시 데이터를 조회하여 DTO로 변환
         if (updatedCount > 0) {
-            return noticeRepository.findByIdAndDeletedFalse(id);
+            return noticeRepository.findByIdAndDeletedFalse(id).map(notice -> {
+                // Entity -> Dto 변환 (조회수 views 포함)
+                NoticeDto dto = new NoticeDto(
+                    notice.getId(), 
+                    notice.getTitle(), 
+                    notice.getContent(), 
+                    notice.getCreatedAt(), 
+                    notice.getUpdatedAt(),
+                    notice.getViews() // NoticeNtt에 views가 있으므로 추가
+                );
+
+                // 이전글/다음글 정보 세팅
+                var prevEntity = noticeRepository.findTop1ByDeletedFalseAndCreatedAtLessThanOrderByCreatedAtDesc(notice.getCreatedAt());
+                var nextEntity = noticeRepository.findTop1ByDeletedFalseAndCreatedAtGreaterThanOrderByCreatedAtAsc(notice.getCreatedAt());
+
+                if (prevEntity != null) {
+                    dto.setPrev(new NoticeDto.NavInfo(prevEntity.getId(), prevEntity.getTitle()));
+                }
+                if (nextEntity != null) {
+                    dto.setNext(new NoticeDto.NavInfo(nextEntity.getId(), nextEntity.getTitle()));
+                }
+
+                return dto;
+            });
         }
         return Optional.empty();
     }

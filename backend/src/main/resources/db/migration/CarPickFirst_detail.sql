@@ -275,26 +275,7 @@ CREATE TABLE IF NOT EXISTS COUPON (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [7] 지점 내 포인트  수정구간 <경진>*/
-# CREATE TABLE IF NOT EXISTS BRANCH_SERVICE_POINT (
-#                                                     point_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '포인트 ID',
-#                                                     branch_id BIGINT NOT NULL COMMENT '지점 ID (FK)',
-#
-#                                                     point_name VARCHAR(100) NOT NULL COMMENT '장소명(1번출구)',
-#                                                     service_type ENUM('PICKUP','RETURN') NOT NULL COMMENT '타입',
-#
-#                                                     service_start_time TIME NULL,
-#                                                     service_end_time TIME NULL,
-#                                                     service_hours VARCHAR(100) NULL,
-#                                                     location_desc TEXT NULL,
-#                                                     walking_time INT NULL,
-#
-#                                                     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-#                                                     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-#
-#                                                     CONSTRAINT fk_point_branch
-#                                                         FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
-# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 /* [7] 드롭존 포인트 <경진>*/
 CREATE TABLE IF NOT EXISTS DROPZONE_POINT (
