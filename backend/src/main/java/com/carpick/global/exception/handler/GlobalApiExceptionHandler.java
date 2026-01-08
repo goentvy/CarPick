@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.carpick.common.dto.CommonResponse;
+import com.carpick.global.exception.AuthenticationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -31,6 +32,9 @@ import jakarta.persistence.PersistenceException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @Slf4j
 @RestControllerAdvice
@@ -258,6 +262,27 @@ public class GlobalApiExceptionHandler extends AbstractExceptionHandler {
 	            request
 	    );
 	}
+
+    @ExceptionHandler(AuthenticationException.class)
+    protected ResponseEntity<ErrorResponse> handleAuthenticationException(
+            AuthenticationException e,
+            HttpServletRequest request
+    ) {
+        logExpectedSpringException(
+                "Authentication",
+                e.getErrorCode(),
+                request,
+                "message=" + e.getMessage()
+        );
+
+        // ⭐ 핵심: 기존 빌드 메서드 사용
+        return buildResponseEntity(
+                e.getErrorCode(),
+                request,
+                e.getMessage() // 👈 이 메시지를 ErrorResponse에 반영
+        );
+    }
+
 
 	/**
 	 * 🔍 11. 지원하지 않는 미디어 타입 (Unsupported Content-Type)

@@ -93,6 +93,22 @@ public abstract class AbstractExceptionHandler {
                 .body(response);
     }
 
+    protected ResponseEntity<ErrorResponse> buildResponseEntity(
+            ErrorCode errorCode,
+            HttpServletRequest request,
+            String message
+    ) {
+        ErrorResponse response = ErrorResponse.of(
+                errorCode,
+                message,
+                request
+        );
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(response);
+    }
+
     /**
      * 🔹 ResponseEntity 빌더 (ValidationErrorResponse)
      */
