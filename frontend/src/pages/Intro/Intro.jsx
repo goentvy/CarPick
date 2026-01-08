@@ -87,76 +87,76 @@ export default function Intro() {
       console.error(err);
       alert("서버 요청 중 오류가 발생했습니다.");
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 
 
   return (
-    
+
     <div id="wrap">
-        <HideHeaderFooter />
-        {isSubmitting && (
-          <div className={styles.loadingOverlay}>
-            <div className={styles.spinner}></div>
+      <HideHeaderFooter />
+      {isSubmitting && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.spinner}></div>
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className={styles.intro_form}>
+        <div className={styles.intro_container}>
+          <div className={styles.title}>
+            <h2>
+              차에 대해 몰라도 괜찮아요.
+              <br />
+              AI가 추천해드릴게요.
+            </h2>
+            <h4>
+              <img src="./images/common/logo_w.svg" className={styles.logo_icon} alt="logo" />
+              이
+              <br />
+              당신에게 맞는 차량을 추천할 수 있도록
+              <br />
+              취향을 몇 가지 골라주세요.
+            </h4>
+            <p className={styles.green}>최소 3개 이상 선택해주세요.</p>
           </div>
-        )}
-        <form onSubmit={handleSubmit} className={styles.intro_form}>
-            <div className={styles.intro_container}>
-                <div className={styles.title}>
-                <h2>
-                    차에 대해 몰라도 괜찮아요.
-                    <br />
-                    AI가 추천해드릴게요.
-                </h2>
-                <h4>
-                    <img src="./images/common/logo_w.svg" className={styles.logo_icon} alt="logo" />
-                    가
-                    <br />
-                    당신에게 맞는 차량을 추천할 수 있도록
-                    <br />
-                    취향을 몇 가지 골라주세요.
-                </h4>
-                <p className={styles.green}>최소 3개 이상 선택해주세요.</p>
-                </div>
 
-                <div className={styles.checkbox_container}>
-                <ul className={styles.checkbox_list}>
-                    {optionsList.map((opt) => (
-                    <li key={opt.id}>
-                        <input
-                        type="checkbox"
-                        id={opt.id}
-                        checked={selected.includes(opt.value)}
-                        className={styles.opt_chk}
-                        onChange={() => toggleOption(opt.value)}
-                        />
-                        <label htmlFor={opt.id} className={styles.opt_label}>{opt.label}</label>
-                    </li>
-                    ))}
-                </ul>
-                </div>
+          <div className={styles.checkbox_container}>
+            <ul className={styles.checkbox_list}>
+              {optionsList.map((opt) => (
+                <li key={opt.id}>
+                  <input
+                    type="checkbox"
+                    id={opt.id}
+                    checked={selected.includes(opt.value)}
+                    className={styles.opt_chk}
+                    onChange={() => toggleOption(opt.value)}
+                  />
+                  <label htmlFor={opt.id} className={styles.opt_label}>{opt.label}</label>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-                <div className={styles.btn_container}>
-                  <div className={`${styles.info} ${selected.length > 0 ? styles.active : ""}`}>
-                    <p className={styles.selno}>
-                      <span>{selected.length}</span>개 선택됨
-                    </p>
-                    <button type="button" onClick={goHome} className={styles.pass}>
-                      건너뛰기
-                    </button>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className={`${styles.nextBtn} ${selected.length >= 3 ? styles.active : ""}`}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "생각 중..." : <img src="./images/intro/intro_btn.svg" alt="next" />}
-                  </button>
-              </div>
+          <div className={styles.btn_container}>
+            <div className={`${styles.info} ${selected.length > 0 ? styles.active : ""}`}>
+              <p className={styles.selno}>
+                <span>{selected.length}</span>개 선택됨
+              </p>
+              <button type="button" onClick={goHome} className={styles.pass}>
+                건너뛰기
+              </button>
             </div>
-        </form>
+
+            <button
+              type="submit"
+              className={`${styles.nextBtn} ${selected.length >= 3 ? styles.active : ""}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "생각 중..." : <img src="./images/intro/intro_btn.svg" alt="next" />}
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
