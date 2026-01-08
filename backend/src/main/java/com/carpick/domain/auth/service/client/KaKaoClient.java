@@ -28,7 +28,12 @@ public class KaKaoClient {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
+
+
     private final RestTemplate restTemplate;
+
+
+
 
     @PostConstruct
     public void init() {

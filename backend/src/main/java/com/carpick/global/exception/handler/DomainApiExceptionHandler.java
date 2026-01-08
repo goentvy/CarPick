@@ -37,18 +37,19 @@ public class DomainApiExceptionHandler extends AbstractExceptionHandler {
     ) {
         ErrorCode errorCode = e.getErrorCode();
 
-        SecurityLogger.error(
-                log,
-                profileResolver,
-                "[Auth-Fail] code={}, path={}",
-                errorCode,
+        log.error(
+                "[AUTH-FAIL] code=" + errorCode +
+                        ", path=" + request.getRequestURI(),
                 e
         );
 
-        return ResponseEntity
-                .status(errorCode.getHttpStatus())
-                .body(buildErrorResponse(errorCode, request));
+        return buildResponseEntity(
+                errorCode,
+                request,
+                "아이디 또는 비밀번호가 일치하지 않습니다."
+        );
     }
+
 
     /**
      * 🔍 2. BusinessException (비즈니스 로직 예외)
@@ -60,16 +61,18 @@ public class DomainApiExceptionHandler extends AbstractExceptionHandler {
     ) {
         ErrorCode errorCode = e.getErrorCode();
 
-        SecurityLogger.error(
-                log,
-                profileResolver,
-                "[Domain-BusinessException] code={}, path={}",
-                errorCode,
+        log.error(
+                "[BUSINESS] code=" + errorCode +
+                        ", path=" + request.getRequestURI(),
                 e
         );
 
-        return ResponseEntity
-                .status(errorCode.getHttpStatus())
-                .body(buildErrorResponse(e, request));
+        return buildResponseEntity(
+                errorCode,
+                request,
+                e.getMessage()
+        );
     }
+
 }
+
