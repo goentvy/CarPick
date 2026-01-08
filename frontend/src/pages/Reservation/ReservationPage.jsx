@@ -1,6 +1,6 @@
 import DriverInfoSection from "./DriverInfoSection";
 import InsuranceInfoSection from "./InsuranceInfoSection";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import PickupReturnSection from "./PickupReturnSection";
 import PaymentSummarySection from "./PaymentSummarySection";
 import AgreementSection from "./AgreementSection";
@@ -61,6 +61,8 @@ const ReservationPage = () => {
     const [formData, setFormData] = useState(null);
     const { setVehicle, setPickupReturn, setRentalPeriod } = useReservationStore();
     const [searchParams] = useSearchParams();
+    const { id } = useParams();
+    const carId = Number(id);
     const methods = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -94,7 +96,7 @@ const ReservationPage = () => {
             //  알림창 닫으면 홈으로 강제이동
             return;
         }
-        api.get("/reservation/form", { params: { carId: 1 } })
+        api.get("/reservation/form", { params: { carId } })
             .then(res => {
                 setFormData(res.data);
                 setVehicle({

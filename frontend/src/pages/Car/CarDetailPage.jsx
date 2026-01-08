@@ -114,7 +114,8 @@ export default function CarDetailPage() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
-
+  // ✅ 추가: 지점 정보 state
+  const [pickupBranch, setPickupBranch] = useState(null);
   useEffect(() => {
     if (!id) return;
     let mounted = true;
@@ -181,7 +182,10 @@ export default function CarDetailPage() {
 
   const top = car?.topCarDetailDto;
   const cards = car?.carCardSectionDto?.cards ?? [];
-  const pickup = car?.locationDto?.pickup;
+  const searchParams = new URLSearchParams(routerLocation.search);
+  const pickupLocation = searchParams.get('pickupLocation');
+  const dropoffLocation = searchParams.get('dropoffLocation') || pickupLocation;
+  const pickupBranchId = searchParams.get('pickupBranchId');  // ✅ 추가: branchId 파싱
   const uiCards = normalizeCards(cards);
 
   return (
@@ -380,7 +384,7 @@ export default function CarDetailPage() {
 
           {/* 대여 장소 */}
           <SectionTitle>대여 장소</SectionTitle>
-          <CarDetailMap pickup={pickup} label="대여 장소" />
+          <CarDetailMap pickup={pickupBranch} label="대여 장소" />
 
           {/* FAQ */}
           <SectionTitle>자주 묻는 질문</SectionTitle>
