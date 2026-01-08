@@ -15,7 +15,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
 
   if (selectedCar) {
     navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
-  } 
+  }
 
   const formatDate = (date) =>
     date.toLocaleDateString('ko-KR', {
@@ -42,9 +42,9 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       endDate: dateRange.endDate.toISOString(),
     });
 
-    if(type=='short')
+    if (type == 'short')
       navigate(`/day?${params.toString()}`);
-    else if(type == 'long')
+    else if (type == 'long')
       navigate(`/month?${params.toString()}`);
   };
 
@@ -80,7 +80,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
     setRentType(type);
   };
 
-  
+
 
   return (
     <section className="bg-brand text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] relative z-999">
@@ -102,11 +102,10 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
             <button
               key={type}
               onClick={() => handleRentTypeChange(type)}
-              className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm ${
-                rentType === type
+              className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm ${rentType === type
                   ? 'bg-brand text-white shadow-md'
                   : 'text-gray-400 hover:bg-blue-400 hover:text-gray-700'
-              }`}
+                }`}
             >
               {type === 'short' ? '단기 렌트' : '장기 렌트'}
             </button>
@@ -129,7 +128,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
               <p className="text-gray-800">{pickupLocation}</p>
             </div>
           </div>
-          
+
           {/* 픽업 장소 모달 */}
           {showPickupModal && (
             <PickupLocationModal
@@ -142,117 +141,117 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
             />
           )}
         </div>
-        
+
         {/* 이용 일시 
         단기렌트인 경우 팝업
         */}
-        {rentType === 'short' && ( 
-        <div className="pt-2 relative">
-          <div
-            className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm cursor-pointer"
-            onClick={() => setShowDatePicker((prev) => !prev)}
-          >
-            <img
-              src="./images/common/calendar.svg"
-              alt="calendar"
-              className="w-6 h-6 mr-3"
-            />
-            <div className="flex flex-col w-full">
-              <p className="flex justify-between text-xs text-gray-500">
-                <span>이용 일시</span>
-                <span>{getDurationText()}</span>
-              </p>
-              <p className="text-left text-gray-800 tracking-tighter">
-                {formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}
-              </p>
-            </div>
-          </div>
-
-          {/* 달력 모달 */}
-          {showDatePicker && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
-              <RentDateRangePicker
-                onChange={(selection) => {
-                  setDateRange({
-                    startDate: selection.startDate,
-                    endDate: selection.endDate,
-                  });
-                  setShowDatePicker(false); // 달력 모달 닫기
-
-                  const params = new URLSearchParams({
-                    pickupLocation,
-                    startDate: selection.startDate.toISOString(),
-                    endDate: selection.endDate.toISOString(),
-                  });
-                  navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
-                }}
-                onClose={() => setShowDatePicker(false)}
-                type="short"
-                location="main"
-                onTabChange={(tab) => setRentType(tab)}
+        {rentType === 'short' && (
+          <div className="pt-2 relative">
+            <div
+              className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm cursor-pointer"
+              onClick={() => setShowDatePicker((prev) => !prev)}
+            >
+              <img
+                src="./images/common/calendar.svg"
+                alt="calendar"
+                className="w-6 h-6 mr-3"
               />
+              <div className="flex flex-col w-full">
+                <p className="flex justify-between text-xs text-gray-500">
+                  <span>이용 일시</span>
+                  <span>{getDurationText()}</span>
+                </p>
+                <p className="text-left text-gray-800 tracking-tighter">
+                  {formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* 달력 모달 */}
+            {showDatePicker && (
+              <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
+                <RentDateRangePicker
+                  onChange={(selection) => {
+                    setDateRange({
+                      startDate: selection.startDate,
+                      endDate: selection.endDate,
+                    });
+                    setShowDatePicker(false); // 달력 모달 닫기
+
+                    const params = new URLSearchParams({
+                      pickupLocation,
+                      startDate: selection.startDate.toISOString(),
+                      endDate: selection.endDate.toISOString(),
+                    });
+                    navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
+                  }}
+                  onClose={() => setShowDatePicker(false)}
+                  type="short"
+                  location="main"
+                  onTabChange={(tab) => setRentType(tab)}
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {/* 장기렌트일 경우 팝업 */}
-        {rentType === 'long' && ( 
-        <div className="pt-2 relative">
-          <div
-            className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm cursor-pointer"
-            onClick={() => setShowDatePicker((prev) => !prev)}
-          >
-            <img
-              src="./images/common/calendar.svg"
-              alt="calendar"
-              className="w-6 h-6 mr-3"
-            />
-            <div className="flex flex-col w-full">
-              <p className="flex justify-between text-xs text-gray-500">
-                <span>이용 일시</span>
-                <span>{dateRange.months}개월</span>
-              </p>
-              <p className="text-left text-gray-800 tracking-tighter">
-                {formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}
-              </p>
-            </div>
-          </div>
-
-          {/* 달력 모달 */}
-          {showDatePicker && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
-              <RentDateRangePicker
-                onChange={(selection) => {
-                  setDateRange({
-                  startDate: selection.startDate,
-                  endDate: selection.endDate,
-                  months: selection.months,
-                });
-
-                setShowDatePicker(false); // 달력 모달 닫기
-
-                  const params = new URLSearchParams({
-                    pickupLocation,
-                    startDate: selection.startDate.toISOString(),
-                    endDate: selection.endDate.toISOString(),
-                  });
-                  navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
-                }}
-                onClose={() => setShowDatePicker(false)}
-                type="long"
-                location="main"
-                onTabChange={(tab) => setRentType(tab)}
+        {rentType === 'long' && (
+          <div className="pt-2 relative">
+            <div
+              className="flex items-center bg-gray-100 rounded-lg p-3 shadow-sm cursor-pointer"
+              onClick={() => setShowDatePicker((prev) => !prev)}
+            >
+              <img
+                src="./images/common/calendar.svg"
+                alt="calendar"
+                className="w-6 h-6 mr-3"
               />
+              <div className="flex flex-col w-full">
+                <p className="flex justify-between text-xs text-gray-500">
+                  <span>이용 일시</span>
+                  <span>{dateRange.months}개월</span>
+                </p>
+                <p className="text-left text-gray-800 tracking-tighter">
+                  {formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* 달력 모달 */}
+            {showDatePicker && (
+              <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
+                <RentDateRangePicker
+                  onChange={(selection) => {
+                    setDateRange({
+                      startDate: selection.startDate,
+                      endDate: selection.endDate,
+                      months: selection.months,
+                    });
+
+                    setShowDatePicker(false); // 달력 모달 닫기
+
+                    const params = new URLSearchParams({
+                      pickupLocation,
+                      startDate: selection.startDate.toISOString(),
+                      endDate: selection.endDate.toISOString(),
+                    });
+                    navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
+                  }}
+                  onClose={() => setShowDatePicker(false)}
+                  type="long"
+                  location="main"
+                  onTabChange={(tab) => setRentType(tab)}
+                />
+              </div>
+            )}
+          </div>
 
         )}
 
         {/* 차량 찾기 버튼 */}
         <div className="py-3">
-          <button 
+          <button
             className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
             onClick={() => handleSearch(rentType)}>
             차량 찾기
