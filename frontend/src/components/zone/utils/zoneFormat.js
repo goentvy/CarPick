@@ -26,10 +26,12 @@ export function getOpenLabel(open, close) {
 
 /** ✅ 혼잡도 라벨(드롭존)
  *  - FREE / NORMAL / CROWDED */
-export function getCrowdBadge(crowdLevel) {
-  if (crowdLevel === "CROWDED") return { label: "혼잡", cls: "bg-[#FFE9A8] text-black/80" };
-  if (crowdLevel === "NORMAL") return { label: "보통", cls: "bg-black/5 text-black/60" };
-  if (crowdLevel === "FREE") return { label: "여유", cls: "bg-[#E7EEFF] text-[#0A56FF]" };
+export function getCrowdBadge(status) {
+  if (status === "CROWDED") return { label: "혼잡", cls: "bg-[#FFE9A8] text-black/80" };
+  if (status === "NORMAL") return { label: "보통", cls: "bg-black/5 text-black/60" };
+  if (status === "FREE") return { label: "여유", cls: "bg-[#E7EEFF] text-[#0A56FF]" };
+  if (status === "FULL") return { label: "만차", cls: "bg-[#FFDFDF] text-[#B00020]" };
+  if (status === "INACTIVE") return { label: "운영중지", cls: "bg-black/10 text-black/60" };
   return null;
 }
 
