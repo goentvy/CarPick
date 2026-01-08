@@ -91,7 +91,8 @@ keyProperty="id">
 		i.content,
 		i.status,
 		i.admin_reply AS adminReply,
-		i.created_at AS createdAt
+		i.created_at AS createdAt,
+		i.updated_at AS updatedAt
 		FROM inquiry i
 		JOIN users u ON i.user_id = u.user_id
 		WHERE i.id = #{id}
