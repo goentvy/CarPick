@@ -16,6 +16,16 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
   if (selectedCar) {
     navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
   }
+<<<<<<< Updated upstream
+=======
+
+  const formatKST = (date) => {
+    const pad = (n) => String(n).padStart(2, "0");
+    if (!date) return "";
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} `
+      + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  };
+>>>>>>> Stashed changes
 
   const formatDate = (date) =>
     date.toLocaleDateString('ko-KR', {
@@ -37,15 +47,20 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
   const handleSearch = (type) => {
     const params = new URLSearchParams({
       pickupLocation,
-      rentType,
-      startDate: dateRange.startDate.toISOString(),
-      endDate: dateRange.endDate.toISOString(),
+      rentType: type,
+      startDateTime: formatKST(dateRange.startDate),
+      endDateTime: formatKST(dateRange.endDate)
     });
 
+<<<<<<< Updated upstream
     if (type == 'short')
       navigate(`/day?${params.toString()}`);
     else if (type == 'long')
       navigate(`/month?${params.toString()}`);
+=======
+    const path = type === "short" ? "/day" : "/month";
+    navigate(`${path}?${params.toString()}`);
+>>>>>>> Stashed changes
   };
 
   const handleRentTypeChange = (type) => {

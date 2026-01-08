@@ -15,22 +15,22 @@ import java.util.Map;
  * 🎛 추가 옵션 관리 API 컨트롤러
  *
  * - 담당 도메인: CAR_OPTION (카시트, 베이비시트, 네비게이션 등 추가 옵션)
- * - 기본 URL: /admin/api/carOption
+ * - 기본 URL: /api/admin/car-option
  *
  * 기능 요약
- *  - GET    /admin/api/carOption              : 옵션 목록 조회
- *  - GET    /admin/api/carOption/{optionId}   : 옵션 단건 조회
- *  - POST   /admin/api/carOption              : 옵션 등록 (삭제 이력 복구 포함)
- *  - PUT    /admin/api/carOption/{optionId}   : 옵션 수정
- *  - DELETE /admin/api/carOption/{optionId}   : 옵션 삭제 (Soft Delete)
- *  - POST   /admin/api/carOption/{optionId}/restore : 옵션 복구
+ * - GET    /api/admin/car-option              : 옵션 목록 조회
+ * - GET    /api/admin/car-option/{optionId}   : 옵션 단건 조회
+ * - POST   /api/admin/car-option              : 옵션 등록 (삭제 이력 복구 포함)
+ * - PUT    /api/admin/car-option/{optionId}   : 옵션 수정
+ * - DELETE /api/admin/car-option/{optionId}   : 옵션 삭제 (Soft Delete)
+ * - POST   /api/admin/car-option/{optionId}/restore : 옵션 복구
  *
  * 공통 특징
- *  - 예외 발생 시 HTTP 상태코드 + JSON 메시지로 응답
- *  - 프론트에서 AJAX로 사용하기 좋게 설계
+ * - 예외 발생 시 HTTP 상태코드 + JSON 메시지로 응답
+ * - 프론트에서 AJAX로 사용하기 좋게 설계
  */
 @RestController
-@RequestMapping("/admin/api/car-option")
+@RequestMapping("/api/admin/car-option")
 @RequiredArgsConstructor
 public class AdminCarOptionController {
 
@@ -38,7 +38,7 @@ public class AdminCarOptionController {
 
     /**
      * ✅ 옵션 목록 조회
-     * GET /admin/api/carOption
+     * GET /api/admin/car-option
      */
     @GetMapping
     public ResponseEntity<List<AdminCarOptionDto>> getOptionList() {
@@ -48,7 +48,7 @@ public class AdminCarOptionController {
 
     /**
      * ✅ 옵션 단건 조회
-     * GET /admin/api/carOption/{optionId}
+     * GET /api/admin/car-option/{optionId}
      */
     @GetMapping("/{optionId}")
     public ResponseEntity<?> getOption(@PathVariable("optionId") Long optionId) {
@@ -67,7 +67,7 @@ public class AdminCarOptionController {
 
     /**
      * ✅ 옵션 등록
-     * POST /admin/api/carOption
+     * POST /api/admin/car-option
      *
      * - 이미 삭제된 동일 이름 옵션이 있으면 → 복구 + 최신 값으로 업데이트
      * - 그렇지 않으면 → 신규 등록
@@ -82,7 +82,7 @@ public class AdminCarOptionController {
 
     /**
      * ✅ 옵션 수정
-     * PUT /admin/api/carOption/{optionId}
+     * PUT /api/admin/car-option/{optionId}
      */
     @PutMapping("/{optionId}")
     public ResponseEntity<Map<String, Object>> updateOption(
@@ -100,7 +100,7 @@ public class AdminCarOptionController {
 
     /**
      * ✅ 옵션 삭제 (Soft Delete)
-     * DELETE /admin/api/carOption/{optionId}
+     * DELETE /api/admin/car-option/{optionId}
      */
     @DeleteMapping("/{optionId}")
     public ResponseEntity<Map<String, Object>> deleteOption(@PathVariable Long optionId) {
@@ -112,7 +112,7 @@ public class AdminCarOptionController {
 
     /**
      * ✅ 옵션 복구
-     * POST /admin/api/carOption/{optionId}/restore
+     * POST /api/admin/car-option/{optionId}/restore
      *
      * - 논리삭제(use_yn = 'N') 된 옵션을 다시 활성화할 때 사용
      * - 필요 없으면 프론트에서 이 엔드포인트는 호출하지 않아도 됩니다.
@@ -133,22 +133,22 @@ public class AdminCarOptionController {
      * 서비스 로직 실행 후, 성공/실패 여부를 JSON으로 리턴하는 공통 함수
      *
      * - 성공 시:
-     *   {
-     *     "success": true,
-     *     "message": "..."
-     *   }
+     * {
+     * "success": true,
+     * "message": "..."
+     * }
      *
      * - 실패 시:
-     *   {
-     *     "success": false,
-     *     "message": "[입력 오류] ...",
-     *   }
+     * {
+     * "success": false,
+     * "message": "[입력 오류] ...",
+     * }
      *
      * HTTP 상태코드
-     *  - 200 OK          : 정상 처리
-     *  - 400 BAD_REQUEST : 잘못된 요청/파라미터 (IllegalArgumentException)
-     *  - 409 CONFLICT    : 비즈니스 제약으로 인해 처리 불가 (IllegalStateException)
-     *  - 500 ERROR       : 그 외 서버 내부 오류
+     * - 200 OK          : 정상 처리
+     * - 400 BAD_REQUEST : 잘못된 요청/파라미터 (IllegalArgumentException)
+     * - 409 CONFLICT    : 비즈니스 제약으로 인해 처리 불가 (IllegalStateException)
+     * - 500 ERROR       : 그 외 서버 내부 오류
      */
     private ResponseEntity<Map<String, Object>> executeLogic(Runnable action, String successMessage) {
         Map<String, Object> response = new HashMap<>();

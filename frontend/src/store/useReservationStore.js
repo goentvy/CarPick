@@ -34,6 +34,7 @@ const useReservationStore = create(
                 summary: null,
             },
 
+<<<<<<< Updated upstream
             /**
              * 대여/반납 방식 및 지점 정보
              * - method: "visit"(지점 방문) / "delivery"(배송)
@@ -53,6 +54,27 @@ const useReservationStore = create(
                 startDateTime: null,
                 endDateTime: null,
             },
+=======
+      /**
+       * 대여/반납 방식 및 지점 정보
+       * - method: "visit"(지점 방문) / "delivery"(배송)
+       * - pickupBranch: 픽업 지점 정보
+       * - dropoffBranch: 반납 지점 정보
+       */
+      pickupReturn: {
+        method: "visit",
+        pickupBranch: null,
+        dropoffBranch: null,
+      },
+      /**
+       * 대여 기간 (시작/종료)
+       */
+      // ✅ 수정: 대여 기간 저장
+      rentalPeriod: {
+        startDateTime: null,
+        endDateTime: null,
+      },
+>>>>>>> Stashed changes
 
 
             /**
@@ -93,9 +115,26 @@ const useReservationStore = create(
             // ✅ 수정: 예약번호 저장 액션(create 응답 후 사용)
             setReservationNo: (reservationNo) => set({ reservationNo }),
 
+<<<<<<< Updated upstream
             // ✅ 수정: driverInfo는 merge 업데이트 (일부 값만 들어와도 기존 유지)
             setDriverInfo: (info) =>
                 set((state) => ({ driverInfo: { ...state.driverInfo, ...info } })),
+=======
+      // ✅ 수정: driverInfo는 merge 업데이트 (일부 값만 들어와도 기존 유지)
+      setDriverInfo: (info) =>
+        set((state) => ({ driverInfo: { ...state.driverInfo, ...info } })),
+
+      // ✅ 수정: 대여 기간 업데이트 액션
+      setRentalPeriod: (period) =>
+        set((state) => ({ rentalPeriod: { ...state.rentalPeriod, ...period } })),
+      // 보험 관련 업데이트
+      setInsuranceCode: (code) =>
+        set((state) => ({ insurance: { ...state.insurance, code } })),
+      setInsuranceDailyPrice: (price) =>
+        set((state) => ({ insurance: { ...state.insurance, dailyPrice: price } })),
+      setInsuranceSummary: (summary) =>
+        set((state) => ({ insurance: { ...state.insurance, summary } })),
+>>>>>>> Stashed changes
 
             // ✅ 수정: 대여 기간 업데이트 액션
             setRentalPeriod: (period) =>
@@ -116,6 +155,7 @@ const useReservationStore = create(
             // 차량 정보 업데이트
             setVehicle: (vehicle) => set({ vehicle }),
 
+<<<<<<< Updated upstream
             // 카드 결제 정보 업데이트
             setCardPayment: (info) =>
                 set((state) => ({
@@ -127,6 +167,19 @@ const useReservationStore = create(
             // 약관 동의 여부 업데이트
             setAgreement: (agree) =>
                 set((state) => ({ payment: { ...state.payment, agreement: agree } })),
+=======
+      // 카드 결제 정보 업데이트
+      setCardPayment: (info) =>
+        set((state) => ({
+          payment: {
+            ...state.payment,
+            card: { ...state.payment.card, ...info },
+          },
+        })),
+      // 약관 동의 여부 업데이트
+      setAgreement: (agree) =>
+        set((state) => ({ payment: { ...state.payment, agreement: agree } })),
+>>>>>>> Stashed changes
 
             /**
              * 결제 요약 계산
@@ -145,6 +198,7 @@ const useReservationStore = create(
                 return summary;
             },
 
+<<<<<<< Updated upstream
             /**
              * 최종 결제 데이터 모으기
              * - 결제 API 호출 시 필요한 모든 데이터 반환
@@ -164,6 +218,31 @@ const useReservationStore = create(
                     startDateTime: state.rentalPeriod.startDateTime,
                     endDateTime: state.rentalPeriod.endDateTime,
                     method: state.pickupReturn.method,
+=======
+      /**
+       * 최종 결제 데이터 모으기
+       * - 결제 API 호출 시 필요한 모든 데이터 반환
+       */
+      // =================================================
+      // 3. Payload Builders (백엔드 요청용)
+      // =================================================
+
+      /**
+       * ✅ 추가: 예약 생성 요청 바디 (/api/reservation/create)
+       * - 백엔드 ReservationCreateRequestDto에 맞춤
+       */
+      getCreatePayload: () => {
+        const { rentalPeriod, vehicle, pickupReturn, driverInfo, payment } = get();
+        const state = get();
+        if (!rentalPeriod?.startDateTime || !rentalPeriod?.endDateTime) {
+          throw new Error("rentalPeriod missing (startDateTime/endDateTime)");
+        }
+        return {
+          carId: vehicle.id,
+          startDateTime: rentalPeriod.startDateTime,
+          endDateTime: rentalPeriod.endDateTime,
+          method: pickupReturn.method,
+>>>>>>> Stashed changes
 
                     // ✅ 수정: 0 넣지 말고 null로(0은 FK/검증에서 위험)
                     pickUpBranchId: state.pickupReturn.pickupBranch?.branchId ?? null,

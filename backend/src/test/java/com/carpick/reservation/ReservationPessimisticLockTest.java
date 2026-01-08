@@ -45,9 +45,9 @@ public class ReservationPessimisticLockTest {
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        Long userId = 1L;          // 아무 유저
+        Long userId = 4L;          // 아무 유저
         Long carSpecId = 1L;       // 같은 차량 스펙
-        Long vehicleId = 1L;       // 재고 1대라고 가정
+        Long vehicleId = 3L;       // 재고 1대라고 가정
 
         // 테스트 전 상태 초기화
         vehicleInventoryMapper.updateOperationalStatus(
