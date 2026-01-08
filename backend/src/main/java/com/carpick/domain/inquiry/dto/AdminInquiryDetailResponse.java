@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class AdminInquiryDetailResponse {
 	
 	private Long id;
@@ -19,4 +18,5 @@ public class AdminInquiryDetailResponse {
     private InquiryStatus status;
     private String adminReply;
     private LocalDateTime createdAt; 
+    private LocalDateTime updatedAt;
 }

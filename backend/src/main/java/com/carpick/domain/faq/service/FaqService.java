@@ -9,6 +9,7 @@ import com.carpick.domain.faq.dto.AdminFaqDetailResponse;
 import com.carpick.domain.faq.dto.AdminFaqListResponse;
 import com.carpick.domain.faq.dto.AdminFaqPageResponse;
 import com.carpick.domain.faq.dto.AdminFaqRequest;
+import com.carpick.domain.faq.dto.FaqPageResponse;
 import com.carpick.domain.faq.dto.FaqResponse;
 import com.carpick.domain.faq.enums.FaqCategory;
 import com.carpick.domain.faq.mapper.FaqMapper;
@@ -25,6 +26,7 @@ public class FaqService {
 	
 	private final FaqMapper faqMapper;
     private static final int PAGE_SIZE = 10;
+    private static final int USER_PAGE_SIZE = 10;
 
     // ===== 관리자 목록 + 페이징 =====
     public AdminFaqPageResponse getFaqPage(
@@ -107,19 +109,44 @@ public class FaqService {
     }
 
     // ===== 사용자 =====
-    public List<FaqResponse> getFaqResponses(String category, String keyword) {
-        FaqCategory faqCategory = FaqCategory.from(category);
+    public FaqPageResponse getUserFaqPage(
+    	    int page,
+    	    String category,
+    	    String keyword
+    	) {
+    	    FaqCategory faqCategory = FaqCategory.from(category);
 
-        return faqMapper.search(
-                faqCategory != null ? faqCategory.getCode() : null,
-                keyword
-            ).stream()
-            .map(f -> new FaqResponse(
-                f.getId(),
-                f.getCategory(),
-                f.getQuestion(),
-                f.getAnswer()
-            ))
-            .toList();
-    }
+    	    int totalCount = faqMapper.countUserFaqs(
+    	        faqCategory != null ? faqCategory.getCode() : null,
+    	        keyword
+    	    );
+
+    	    int totalPages = totalCount == 0 ? 1 :
+    	        (int) Math.ceil((double) totalCount / USER_PAGE_SIZE);
+
+    	    page = Math.max(0, Math.min(page, totalPages - 1));
+    	    int offset = page * USER_PAGE_SIZE;
+
+    	    List<FaqResponse> content =
+    	        faqMapper.findUserPage(
+    	            offset,
+    	            USER_PAGE_SIZE,
+    	            faqCategory != null ? faqCategory.getCode() : null,
+    	            keyword
+    	        ).stream()
+    	         .map(f -> new FaqResponse(
+    	             f.getId(),
+    	             f.getCategory(),
+    	             f.getQuestion(),
+    	             f.getAnswer()
+    	         ))
+    	         .toList();
+
+    	    return new FaqPageResponse(
+    	        content,
+    	        page,
+    	        totalPages,
+    	        totalCount
+    	    );
+    	}
 }
