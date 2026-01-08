@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/api/branch")
+@RequestMapping("/api/admin/branch")
 @RequiredArgsConstructor
 public class AdminBranchController {
 
@@ -21,7 +21,7 @@ public class AdminBranchController {
 
     /**
      * ✅ 지점 목록 조회
-     * GET /admin/api/branch
+     * GET /api/admin/branch
      */
     @GetMapping
     public ResponseEntity<List<AdminBranchDto>> getBranchList() {
@@ -31,7 +31,7 @@ public class AdminBranchController {
 
     /**
      * ✅ 지점 단건 조회
-     * GET /admin/api/branch/{branchId}
+     * GET /api/admin/branch/{branchId}
      */
     @GetMapping("/{branchId}")
     public ResponseEntity<?> getBranch(@PathVariable Long branchId) {
@@ -49,7 +49,7 @@ public class AdminBranchController {
 
     /**
      * ✅ 지점 등록
-     * POST /admin/api/branch
+     * POST /api/admin/branch
      */
     @PostMapping
     public ResponseEntity<Map<String, Object>> addBranch(@RequestBody AdminBranchDto dto) {
@@ -61,7 +61,7 @@ public class AdminBranchController {
 
     /**
      * ✅ 지점 수정
-     * PUT /admin/api/branch/{branchId}
+     * PUT /api/admin/branch/{branchId}
      */
     @PutMapping("/{branchId}")
     public ResponseEntity<Map<String, Object>> updateBranch(
@@ -77,7 +77,7 @@ public class AdminBranchController {
 
     /**
      * ✅ 지점 삭제 (Soft Delete)
-     * DELETE /admin/api/branch/{branchId}
+     * DELETE /api/admin/branch/{branchId}
      */
     @DeleteMapping("/{branchId}")
     public ResponseEntity<Map<String, Object>> deleteBranch(@PathVariable Long branchId) {
@@ -89,7 +89,7 @@ public class AdminBranchController {
 
     /**
      * ✅ 지점 복구
-     * POST /admin/api/branch/{branchId}/restore
+     * POST/api/admin/branch/{branchId}/restore
      */
     @PostMapping("/{branchId}/restore")
     public ResponseEntity<Map<String, Object>> restoreBranch(@PathVariable Long branchId) {

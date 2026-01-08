@@ -110,7 +110,9 @@ public class SecurityConfigDev {
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:5173",
                 "http://3.236.8.244",
-                "http://3.236.8.244:5173"
+                "http://3.236.8.244:5173",
+                "http://localhost:5174",
+                "http://localhost:5175"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

@@ -115,7 +115,7 @@
 
     // ✅ 가격 목록 로딩
     function loadPriceList() {
-        fetch('/admin/api/price/list')
+        fetch('/api/admin/price/list')
             .then(res => {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 return res.json();
@@ -243,7 +243,7 @@
             return;
         }
 
-        fetch('/admin/api/price/save', {
+        fetch('/api/admin/price/save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

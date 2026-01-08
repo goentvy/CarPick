@@ -186,7 +186,7 @@
 
     function loadBranches() {
         return $.ajax({
-            url: '/admin/api/branch',
+            url: '/api/admin/branch',
             method: 'GET',
             success: function (data) {
                 branchList = data || [];
@@ -363,7 +363,7 @@
         if (payload.branchId) payload.branchId = parseInt(payload.branchId);
 
         const method = id ? 'PUT' : 'POST';
-        const url = id ? '/admin/api/inventory/' + id : '/admin/api/inventory';
+        const url = id ? '/api/admin/inventory/' + id : '/api/admin/inventory';
 
         $.ajax({
             url: url,
@@ -403,7 +403,7 @@
         }
 
         $.ajax({
-            url: '/admin/api/inventory/' + id,
+            url: '/api/admin/inventory/' + id,
             method: 'DELETE',
             success: function (res) {
                 const msg = res && res.message ? res.message : '삭제되었습니다.';

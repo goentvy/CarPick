@@ -5,7 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 const AgreementSection = ({ isLoggedIn }) => {
     const navigate = useNavigate();
-    const { handleSubmit } = useFormContext();
+    // const { handleSubmit } = useFormContext();
+    const { handleSubmit, formState: { isSubmitting } } = useFormContext();
 
     // Zustand 액션
     const setCardPayment = useReservationStore((state) => state.setCardPayment);
@@ -13,6 +14,7 @@ const AgreementSection = ({ isLoggedIn }) => {
     // ✅ 추가: create / pay 전용 payload
     const getCreatePayload = useReservationStore((state) => state.getCreatePayload);
     const getPayPayload = useReservationStore((state) => state.getPayPayload);
+    const rentalPeriod = useReservationStore((state) => state.rentalPeriod);
 
 
     const totalPrice = useReservationStore((state) => state.payment.summary?.totalPrice || 0);
@@ -25,6 +27,14 @@ const AgreementSection = ({ isLoggedIn }) => {
 
     // 결제 버튼 클릭 시 실행
     const onSubmit = async (formData) => {
+        //  0) 기간 먼저 체크 (getCreatePayload 호출 전에!)
+        const startDateTime = rentalPeriod?.startDateTime;
+        const endDateTime = rentalPeriod?.endDateTime;
+        if (!startDateTime || !endDateTime) {
+            alert("예약 기간 정보가 누락되었습니다. 다시 처음부터 진행해주세요.");
+            navigate("/day"); // 또는 /day 로 보내기
+            return;
+        }
         // 1) 운전자 정보 추출 및 저장
         const { birth, email, firstName, lastName, phone } = formData;
         // ✅ 수정 ①: 백엔드 DTO / store 키와 맞추기
@@ -52,24 +62,20 @@ const AgreementSection = ({ isLoggedIn }) => {
             // ============================
             // 1️⃣ 예약 생성 (/create)
             // ============================
-            let createPayload = getCreatePayload();
+            let createPayload = {
+                ...getCreatePayload(),
+                startDateTime,
+                endDateTime,
+            };
             console.log("✅ CREATE payload:", createPayload);
 
 
-            // ✅ (중요) 지금 에러 원인: startDateTime/endDateTime이 null이면 백엔드에서 NPE
-            // 오늘 MVP 응급처치: null이면 임시값 채우기 (원래는 RentDateRangePicker에서 store에 세팅되어야 함)
-            if (!createPayload.startDateTime || !createPayload.endDateTime) {
-                createPayload = {
-                    ...createPayload,
-                    startDateTime: "2026-01-01 10:00:00",
-                    endDateTime: "2026-01-02 10:00:00",
-                };
-                console.warn("⚠️ 날짜가 비어있어 임시값으로 createPayload 보정:", createPayload);
-            }
             const createRes = await api.post(
                 "/reservation/create",
                 createPayload
             );
+
+
 
             const newReservationNo = createRes.data?.reservationNo;
 
@@ -105,6 +111,10 @@ const AgreementSection = ({ isLoggedIn }) => {
                 alert("결제 실패: " + (payRes.data?.message || "승인 실패"));
             }
         } catch (err) {
+            if (String(err?.message).includes("rentalPeriod")) {
+                alert("예약 기간 정보가 누락되었습니다. 다시 처음부터 진행해주세요.");
+                return;
+            }
             alert("서버 오류가 발생했습니다.");
             console.error(err);
         }
@@ -137,18 +147,28 @@ const AgreementSection = ({ isLoggedIn }) => {
                 {isLoggedIn ? (
                     <button
                         type="button"
+                        disabled={isSubmitting}
                         onClick={handleSubmit(onSubmit)}
-                        className="flex-1 px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-blue-600 transition-colors duration-200"
+                        className={`flex-1 px-6 py-3 rounded-lg text-white font-semibold transition-colors duration-200 
+        ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-brand hover:bg-blue-600"}`}
                     >
-                        {totalPrice.toLocaleString()}원 결제하기
+                        {isSubmitting ? "결제 처리 중..." : `${totalPrice.toLocaleString()}원 결제하기`}
+                        {/* {totalPrice.toLocaleString()}원 결제하기 */}
                     </button>
                 ) : (
                     <button
                         type="button"
+                        disabled={isSubmitting}
                         onClick={handleSubmit(onSubmit)}
-                        className="flex-1 px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors duration-200"
+                        className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors duration-200
+        ${isSubmitting
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+
+                    // className="flex-1 px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors duration-200"
                     >
-                        비회원 {totalPrice.toLocaleString()}원 결제하기
+                        {isSubmitting ? "처리 중..." : `비회원 ${totalPrice.toLocaleString()}원 결제하기`}
+                        {/* 비회원 {totalPrice.toLocaleString()}원 결제하기 */}
                     </button>
                 )}
             </div>

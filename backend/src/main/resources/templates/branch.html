@@ -153,7 +153,7 @@
 
     function loadBranches() {
         $.ajax({
-            url: '/admin/api/branch',
+            url: '/api/admin/branch',
             method: 'GET',
             success: function (data) {
                 renderTable(data);
@@ -288,7 +288,7 @@
         };
 
         const method = id ? 'PUT' : 'POST';
-        const url = id ? '/admin/api/branch/' + id : '/admin/api/branch';
+        const url = id ? '/api/admin/branch' + id : '/api/admin/branch';
 
         $.ajax({
             url: url,
@@ -328,7 +328,7 @@
         }
 
         $.ajax({
-            url: '/admin/api/branch/' + id,
+            url: '/api/admin/branch/' + id,
             method: 'DELETE',
             success: function (res) {
                 const msg = res && res.message ? res.message : '삭제되었습니다.';
