@@ -7,15 +7,14 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
   const navigate = useNavigate();
   const [rentType, setRentType] = useState('short');
   const [pickupLocation, setPickupLocation] = useState('서울역 KTX');
+  const [pickupBranchId, setPickupBranchId] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
     endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
   });
 
-  if (selectedCar) {
-    navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
-  }
+
 
   const formatKST = (date) => {
     const pad = (n) => String(n).padStart(2, "0");
@@ -130,7 +129,10 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
             />
             <div className="flex flex-col">
               <p className="text-left text-xs text-gray-500">픽업 장소</p>
-              <p className="text-gray-800">{pickupLocation}</p>
+
+              <p className="text-gray-800 text-left">
+                {pickupLocation?.branchName || pickupLocation}
+              </p>
             </div>
           </div>
 
@@ -138,8 +140,8 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
           {showPickupModal && (
             <PickupLocationModal
               onClose={() => setShowPickupModal(false)}
-              onSelect={(loc) => {
-                setPickupLocation(loc);
+              onSelect={(branchId) => {
+                setPickupBranchId(branchId);
                 setShowPickupModal(false);
                 setShowDatePicker(true); // 장소 선택 후 달력 모달 활성화
               }}
@@ -184,9 +186,10 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     setShowDatePicker(false); // 달력 모달 닫기
 
                     const params = new URLSearchParams({
-                      pickupLocation,
-                      startDate: selection.startDate.toISOString(),
-                      endDate: selection.endDate.toISOString(),
+                      pickupLocation: typeof pickupLocation === 'object' ? pickupLocation.branchName : pickupLocation,
+
+                      startDate: selection.startDate,
+                      endDate: selection.endDate,
                     });
                     navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
                   }}

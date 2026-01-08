@@ -23,15 +23,15 @@ const RentHeader = ({ type, location }) => {
   // dateRange를 URL값으로 초기화
   const initialDateRange = queryStartDate && queryEndDate
     ? {
-        startDate: queryStartDate,
-        endDate: queryEndDate,
-        months: calculateMonths(queryStartDate, queryEndDate), // 자동 계산
-      }
+      startDate: queryStartDate,
+      endDate: queryEndDate,
+      months: calculateMonths(queryStartDate, queryEndDate), // 자동 계산
+    }
     : {
-        startDate: new Date(),
-        endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-        months: 1,
-      };
+      startDate: new Date(),
+      endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+      months: 1,
+    };
 
   const [rentType, setRentType] = useState(initialRentType);
   const [pickupLocation, setPickupLocation] = useState(initialPickupLocation);
@@ -39,7 +39,8 @@ const RentHeader = ({ type, location }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState(initialDateRange);
 
-  const prevType = useRef(initialRentType); 
+  const [pickupBranchId, setPickupBranchId] = useState(query.get('pickupBranchId') || null);
+  const prevType = useRef(initialRentType);
   const prevQueryDates = useRef({
     start: queryStartDate,
     end: queryEndDate
@@ -103,6 +104,7 @@ const RentHeader = ({ type, location }) => {
   const handleSearch = () => {
     const params = new URLSearchParams({
       pickupLocation,
+      pickupBranchId,
       rentType,
       startDate: dateRange.startDate.toISOString(),
       endDate: dateRange.endDate.toISOString(),
@@ -118,21 +120,21 @@ const RentHeader = ({ type, location }) => {
           <div className="rentMBg flex items-center rounded-lg p-1.5 cursor-pointer bg-gray-100">
             <i className="fa-solid fa-magnifying-glass text-[20px] mr-3"></i>
             <div id="rentInfo" className="flex flex-col w-full break-keep relative">
-              <p 
+              <p
                 id="rentLoca"
                 className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold"
                 onClick={() => setShowLocationPicker(prev => !prev)}
               >
                 {pickupLocation}
               </p>
-              <p 
+              <p
                 id="rentTime"
                 className="flex justify-between text-gray-400 text-[16px] text-left"
                 onClick={() => setShowDatePicker(prev => !prev)}
               >
                 <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
                 <span id="pickTime" className="text-[12px] text-gray-500">
-                  {type=='short' ? getDurationText() : getLongTermText()}
+                  {type == 'short' ? getDurationText() : getLongTermText()}
                 </span>
               </p>
             </div>
@@ -141,8 +143,9 @@ const RentHeader = ({ type, location }) => {
           {showLocationPicker && (
             <PickupLocationModal
               onClose={() => setShowLocationPicker(false)}
-              onSelect={(loc) => {
-                setPickupLocation(loc);
+              onSelect={(branch) => {
+                setPickupLocation(branch.branchName);
+                setPickupBranchId(branch.branchId);
                 setShowLocationPicker(false);
                 setShowDatePicker(true);
               }}
@@ -152,39 +155,40 @@ const RentHeader = ({ type, location }) => {
           {showDatePicker && (
             <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-xl shadow-lg w-full">
               <RentDateRangePicker
-              initialRange={dateRange}   
-              onChange={(selection) => {
-                setDateRange({
-                  startDate: selection.startDate,
-                  endDate: selection.endDate,
-                  months: calculateMonths(selection.startDate, selection.endDate),
-                });
-                setShowDatePicker(false);
+                initialRange={dateRange}
+                onChange={(selection) => {
+                  setDateRange({
+                    startDate: selection.startDate,
+                    endDate: selection.endDate,
+                    months: calculateMonths(selection.startDate, selection.endDate),
+                  });
+                  setShowDatePicker(false);
 
-                const params = new URLSearchParams({
-                  pickupLocation,
-                  rentType: selection.activeType,
-                  startDate: selection.startDate.toISOString(),
-                  endDate: selection.endDate.toISOString(),
-                });
+                  const params = new URLSearchParams({
+                    pickupLocation,
+                    pickupBranchId,
+                    rentType: selection.activeType,
+                    startDate: selection.startDate.toISOString(),
+                    endDate: selection.endDate.toISOString(),
+                  });
 
-                navigate(
-                  selection.activeType === 'short'
-                    ? `/day?${params.toString()}`
-                    : `/month?${params.toString()}`
-                );
-              }}
-              onClose={() => setShowDatePicker(false)}
-              type={type}
-              location={location}
-            />
+                  navigate(
+                    selection.activeType === 'short'
+                      ? `/day?${params.toString()}`
+                      : `/month?${params.toString()}`
+                  );
+                }}
+                onClose={() => setShowDatePicker(false)}
+                type={type}
+                location={location}
+              />
             </div>
           )}
         </div>
 
         {/* 차량 찾기 버튼 */}
         <div className="py-3">
-          <button 
+          <button
             className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
             onClick={handleSearch}
           >
