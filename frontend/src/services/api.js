@@ -15,6 +15,7 @@ api.interceptors.request.use((config) => {
     "/branches",
     "/dropzones",
     "/zone/map",
+    "/notice"
   ];
 
   const isPublicGet =
