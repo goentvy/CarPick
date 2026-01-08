@@ -31,6 +31,7 @@ import GuestView from './pages/Reservation/Guest/GuestView.jsx'
 import GuestCancel from './pages/Reservation/Guest/GuestCancel.jsx'
 import GuestCancelComplete from './pages/Reservation/Guest/GuestCancelComplete.jsx'
 import ReservationPage from './pages/Reservation/ReservationPage.jsx'
+import GuestReservationDetail from './pages/Reservation/Guest/GuestReservationDetail.jsx'
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
@@ -104,11 +105,12 @@ createRoot(document.getElementById('root')).render(
           <Route path="signup/joinus" element={<SignupJoinus />} />
           <Route path="signup/complete" element={<SignupComplete />} />
 
-          {/* 비회원 예약 조회/취소 */}
-          <Route path="guest/view" element={<GuestView />} />
-          <Route path="guest/cancel" element={<GuestCancel />} />
-          <Route path="guest/cancel/complete" element={<GuestCancelComplete />} />
-
+            <Route path="guest" element={<Outlet />}>
+                <Route path="view" element={<GuestView />} />
+                <Route path="cancel" element={<GuestCancel />} />
+                <Route path="cancel/complete" element={<GuestCancelComplete />} />
+                <Route path="reservation-detail" element={<GuestReservationDetail />} />
+            </Route>
           {/* 예약 */}
           <Route path="reservation/:id" element={<ReservationPage />} />
 

@@ -70,8 +70,9 @@ public class SecurityConfigDev {
                                 "/api/reservation/**",
                                 "/api/reviews/latest",
                                 "/api/dropzones",
+                                ("/api/guest/**"),
 
-                                // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
+                        // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                                 "/",
                                 "/admin/**",
                                 // 3. 정적 리소스 경로 허용 (CSS, JS, Images 등 - 추가됨)
