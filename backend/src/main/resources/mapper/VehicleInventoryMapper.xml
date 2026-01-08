@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.inventory.mapper.VehicleInventoryMapper">
+
+    <select id="selectOperationalStatusForUpdate" resultType="string">
+        SELECT operational_status
+        FROM vehicle_inventory
+        WHERE vehicle_id = #{vehicleId}
+          AND use_yn = 'Y'
+            FOR UPDATE WAIT 3
+    </select>
+
+    <update id="updateOperationalStatus">
+        UPDATE vehicle_inventory
+        SET operational_status = #{status},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE vehicle_id = #{vehicleId}
+    </update>
+
+</mapper>

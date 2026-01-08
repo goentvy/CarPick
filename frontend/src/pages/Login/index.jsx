@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import ContentTopLogo from '../../components/common/ContentTopLogo';
 import { login } from '../../services/auth';
 import useUserStore from '../../store/useUserStore';
+import { useState } from "react";
+
 
 const schema = yup.object().shape({
   email: yup.string().email("올바른 이메일 주소를 입력해주세요").required("이메일은 필수입니다"),
@@ -14,6 +16,8 @@ const schema = yup.object().shape({
 
 const Login = () => {
   const navigate = useNavigate();
+
+  const [serverMessage, setServerMessage] = useState("");
 
   const {
     register,
@@ -27,6 +31,7 @@ const Login = () => {
       password: '',
     },
   });
+
 
   useEffect(() => {
     if (errors.email) {
@@ -54,8 +59,9 @@ const Login = () => {
         alert(data.message || "로그인 실패");
       }
     } catch (err) {
-      console.error(err);
-      alert("로그인 요청 중 오류가 발생했습니다.");
+      setServerMessage(
+        err.response?.data?.message ?? ""
+      );
     }
   };
 
@@ -72,16 +78,33 @@ const Login = () => {
 
     window.location.href = kakaoAuthUrl;
   };
+  // ✅ 네이버 로그인 핸들러
+  // const handleNaverLogin = () => {
+  //   const CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
+  //   const REDIRECT_URI = `${import.meta.env.VITE_API_BASE_URL}/oauth/naver/callback`;
+  //   const STATE = crypto.randomUUID(); // CSRF 방지용
+  //   sessionStorage.setItem("naver_state", STATE);
 
+  //   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}`;
+  //   window.location.href = naverAuthUrl;
+  // };
   const handleNaverLogin = () => {
     const CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
-    const REDIRECT_URI = `${import.meta.env.VITE_API_BASE_URL}/oauth/naver/callback`;
-    const STATE = crypto.randomUUID(); // CSRF 방지용
+    const REDIRECT_URI = import.meta.env.VITE_NAVER_REDIRECT_URI;
+
+    const STATE = crypto.randomUUID(); // CSRF 방지
     sessionStorage.setItem("naver_state", STATE);
 
-    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${STATE}`;
+    const naverAuthUrl =
+      `https://nid.naver.com/oauth2.0/authorize` +
+      `?response_type=code` +
+      `&client_id=${CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&state=${STATE}`;
+
     window.location.href = naverAuthUrl;
   };
+
 
 
   return (
@@ -113,6 +136,11 @@ const Login = () => {
           <button type="submit" className="w-full bg-brand text-white py-2 rounded-xl hover:bg-blue-600 transition">
             로그인
           </button>
+          {serverMessage && (
+            <p className="text-red-500 text-sm mt-3 text-center">
+              {serverMessage}
+            </p>
+          )}
         </form>
 
         <div className="relative my-6">
@@ -154,6 +182,7 @@ const Login = () => {
           </button>
         </div>
       </div>
+
     </div>
   );
 };

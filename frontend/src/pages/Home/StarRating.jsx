@@ -5,7 +5,7 @@ const StarRating = ({ rating }) => {
     const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
 
     return (
-    <div className="flex gap-[2px]">
+    <div className="flex gap-0.5">
         {[...Array(fullStars)].map((_, i) => (
         <img key={`full-${i}`} src="/images/common/star-full.svg" alt="★" width={18} height={18} />
         ))}
