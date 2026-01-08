@@ -12,10 +12,17 @@ import com.carpick.domain.faq.vo.Faq;
 public interface FaqMapper {
 
 	  // ===== 사용자 =====
-    List<Faq> search(
-        @Param("category") String category,
-        @Param("keyword") String keyword
-    );
+	List<Faq> findUserPage(
+		    @Param("offset") int offset,
+		    @Param("limit") int limit,
+		    @Param("category") String category,
+		    @Param("keyword") String keyword
+		);
+
+		int countUserFaqs(
+		    @Param("category") String category,
+		    @Param("keyword") String keyword
+		);
 	
     // ===== 관리자 =====
 

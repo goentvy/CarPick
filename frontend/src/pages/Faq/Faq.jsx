@@ -2,46 +2,60 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ContentTopLogo from "../../components/common/ContentTopLogo";
 import "../../styles/faq.css";
-import { set } from "react-hook-form";
 
 export default function Faq() {
-
-    //전체 조회 기본값
     const [category, setCategory] = useState("");
     const [keyword, setKeyword] = useState("");
     const [faqs, setFaqs] = useState([]);
     const [openId, setOpenId] = useState(null);
 
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     const fetchFaqs = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/faq`, {
-                params: {
-                    category: category || null,
-                    keyword: keyword || null
-                },
-            });
-            setFaqs(res.data);
-        } catch (err) {
-            console.error("FAQ 조회 실패", err);
+            const res = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/api/faq`,
+                {
+                    params: {
+                        page,
+                        category: category || null,
+                        keyword: keyword || null,
+                    },
+                }
+            );
+
+            setFaqs(res.data.content);
+            setTotalPages(res.data.totalPages);
+        } catch (e) {
+            console.error(e);
             setFaqs([]);
         }
     };
 
-    //category, keyword 변경 시 자동 조회
     useEffect(() => {
-        fetchFaqs();
-        setOpenId(null); // 카테고리 변경 시 열림 초기화
+        setPage(0);
     }, [category, keyword]);
 
+    useEffect(() => {
+        fetchFaqs();
+        setOpenId(null);
+    }, [page, category, keyword]);
+
     const handleToggle = (id) => {
-        setOpenId(openId === id ? null : id);
+        setOpenId((prev) => (prev === id ? null : id));
     };
 
     return (
         <div className="page-wrapper">
             <div className="faq-container">
-                <ContentTopLogo title="자주 묻는 질문"
-                    titleStyle={"text-center mb-6 text-xl font-bold"} />
+
+                <ContentTopLogo
+                    title="자주 묻는 질문"
+                    titleStyle="text-center mb-6 text-xl font-bold"
+                />
+
+                {/* 검색 */}
                 <div className="faq-search-wrapper">
                     <input
                         className="faq-search"
@@ -49,59 +63,28 @@ export default function Faq() {
                         value={keyword}
                         onChange={(e) => setKeyword(e.target.value)}
                     />
-                    <button
-                        type="button"
-                        className="faq-search-btn"
-                        onClick={fetchFaqs}
-                    >
-                        🔍
-                    </button>
+                    <button className="faq-search-btn">🔍</button>
                 </div>
 
-                {/* 카테고리 버튼 */}
+                {/* 카테고리 */}
                 <div className="faq-categories">
-                    <button
-                        className={category === "" ? "active" : ""}
-                        onClick={() => setCategory("")}
-                    >
-                        전체
-                    </button>
-                    <button
-                        className={category === "reservation" ? "active" : ""}
-                        onClick={() => setCategory("reservation")}
-                    >
-                        예약 · 결제
-                    </button>
-                    <button
-                        className={category === "usage" ? "active" : ""}
-                        onClick={() => setCategory("usage")}
-                    >
-                        대여 · 반납 · 이용
-                    </button>
-                    <button
-                        className={category === "insurance" ? "active" : ""}
-                        onClick={() => setCategory("insurance")}
-                    >
-                        보험 · 사고
-                    </button>
-                    <button
-                        className={category === "short" ? "active" : ""}
-                        onClick={() => setCategory("short")}
-                    >
-                        단기렌트
-                    </button>
-                    <button
-                        className={category === "long" ? "active" : ""}
-                        onClick={() => setCategory("long")}
-                    >
-                        장기렌트
-                    </button>
-                    <button
-                        className={category === "etc" ? "active" : ""}
-                        onClick={() => setCategory("etc")}
-                    >
-                        기타 서비스
-                    </button>
+                    {[
+                        ["", "전체"],
+                        ["reservation", "예약 · 결제"],
+                        ["usage", "대여 · 반납 · 이용"],
+                        ["insurance", "보험 · 사고"],
+                        ["short", "단기렌트"],
+                        ["long", "장기렌트"],
+                        ["etc", "기타 서비스"],
+                    ].map(([value, label]) => (
+                        <button
+                            key={value}
+                            className={category === value ? "active" : ""}
+                            onClick={() => setCategory(value)}
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
 
                 {/* FAQ 리스트 */}
@@ -113,7 +96,7 @@ export default function Faq() {
                     {faqs.map((faq) => (
                         <li key={faq.id} className="faq-item">
                             <div
-                                className="faq-question"
+                                className={`faq-question ${openId === faq.id ? "open" : ""}`}
                                 onClick={() => handleToggle(faq.id)}
                             >
                                 Q. {faq.question}
@@ -125,7 +108,36 @@ export default function Faq() {
                         </li>
                     ))}
                 </ul>
+
+                {/* 페이징 (2페이지 이상일 때만) */}
+                {totalPages > 1 && (
+                    <div className="faq-pagination">
+                        <button
+                            disabled={page === 0}
+                            onClick={() => setPage(page - 1)}
+                        >
+                            이전
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                                key={i}
+                                className={page === i ? "active" : ""}
+                                onClick={() => setPage(i)}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+
+                        <button
+                            disabled={page === totalPages - 1}
+                            onClick={() => setPage(page + 1)}
+                        >
+                            다음
+                        </button>
+                    </div>
+                )}
             </div>
-        </div >
+        </div>
     );
 }
