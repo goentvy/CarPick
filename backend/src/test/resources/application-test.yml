@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/carpick
+    username: root
+    password: 1234
+    driver-class-name: org.mariadb.jdbc.Driver
+
+# [스타일 1] 소문자 계층형 (kakao.redirect-uri 대응)
+kakao:
+  client-id: dummy
+  redirect-uri: dummy
+  client-secret: dummy
+
+google:
+  client-id: dummy
+  redirect-uri: dummy
+  client-secret: dummy
+
+# [스타일 2] 대문자 플랫형 (KAKAO_CLIENT_ID 대응) - 이걸 추가해야 함!
+KAKAO_CLIENT_ID: dummy
+KAKAO_REDIRECT_URI: dummy
+KAKAO_CLIENT_SECRET: dummy
+
+GOOGLE_CLIENT_ID: dummy
+GOOGLE_REDIRECT_URI: dummy
+GOOGLE_CLIENT_SECRET: dummy
+
+
+# ==========================================
+# 👇 [추가] 오늘 추가한 네이버도 더미값 필수!
+# ==========================================
+naver:
+  client-id: dummy
+  redirect-uri: dummy
+  client-secret: dummy
+
+NAVER_CLIENT_ID: dummy
+NAVER_REDIRECT_URI: dummy
+NAVER_CLIENT_SECRET: dummy
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.carpick
+  configuration:
+    map-underscore-to-camel-case: true
