@@ -16,7 +16,7 @@ import api from "../../services/api";
 
 // ✅ Yup 스키마 정의
 const schema = yup.object().shape({
-    // 카드 정보
+// 카드 정보
     cardNumber: yup
         .string()
         .matches(/^\d{4}-\d{4}-\d{4}-\d{4}$/, "카드번호 형식이 올바르지 않습니다")
@@ -41,7 +41,7 @@ const schema = yup.object().shape({
     installment: yup.string().required("할부기간을 선택해주세요"),
     agree: yup.boolean().oneOf([true], "개인정보 수집 및 이용에 동의해주세요"),
 
-    // 운전자 정보
+// 운전자 정보
     lastName: yup.string().required("성을 입력해주세요"),
     firstName: yup.string().required("이름을 입력해주세요"),
     birth: yup
@@ -53,27 +53,6 @@ const schema = yup.object().shape({
         .matches(/^01[016789]-\d{3,4}-\d{4}$/, "휴대폰 번호 형식이 올바르지 않습니다")
         .required("휴대폰 번호는 필수입니다"),
     email: yup.string().email("올바른 이메일 주소를 입력해주세요").required("이메일은 필수입니다"),
-
-    // 🔄 모달 입력값 추가 (React Hook Form 통합)
-    "modal-driverName": yup.string().min(2, "성명은 2자 이상 입력하세요").required("성명을 입력해주세요"),
-    "modal-driverBirthday": yup
-        .string()
-        .required("생년월일을 선택하세요")
-        .test("past-date", "생년월일을 다시 확인해주세요", function(value) {
-            if (!value) return true;
-            const today = new Date();
-            const selected = new Date(value);
-            return selected < today;
-        }),
-    "modal-licenseNumber": yup
-        .string()
-        .transform((value) => value?.replace(/-/g, ""))
-        .matches(/^\d{12}$/, "면허번호는 하이픈 제외 12자리 숫자여야 합니다")
-        .required("면허번호를 입력해주세요"),
-    "modal-serialNumber": yup
-        .string()
-        .matches(/^[A-Za-z0-9]{6}$/, "일련번호는 숫자/영문 6자리입니다")
-        .required("일련번호를 입력해주세요"),
 });
 
 
@@ -83,7 +62,7 @@ const ReservationPage = () => {
     const methods = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            // 카드 정보
+// 카드 정보
             cardNumber: "",
             expiry: "",
             cvc: "",
@@ -92,22 +71,16 @@ const ReservationPage = () => {
             installment: "일시불",
             agree: false,
 
-            // 운전자 정보
+// 운전자 정보
             lastName: "",
             firstName: "",
             birth: "",
             phone: "",
             email: "",
-
-            // 모달 필드 초기값
-            "modal-driverName": "",
-            "modal-driverBirthday": "",
-            "modal-licenseNumber": "",
-            "modal-serialNumber": "",
         },
     });
 
-    // 데이터 초기 셋팅
+// 데이터 초기 셋팅
     useEffect(() => {
         api.get("/reservation/form", { params: { carId: 1 } })
             .then(res => {
@@ -118,22 +91,22 @@ const ReservationPage = () => {
                     dailyPrice: res.data.paymentSummary.carDailyPrice,
                 });
 
-                // ▼▼▼ [여기가 핵심!] 이 부분이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
+// ▼▼▼ [여기가 핵심!] 이 부분이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
                 setPickupReturn({
                     method: "visit", // 기본값 (방문)
-                    pickupBranch: res.data.pickupBranch,   // 수정 (기존: 1)
-                    dropoffBranch: res.data.dropoffBranch//  수정 (기존: 1)
+                    pickupBranch: res.data.pickupBranch, // 수정 (기존: 1)
+                    dropoffBranch: res.data.dropoffBranch// 수정 (기존: 1)
                 });
 
-                //  [추가/MVP] 날짜를 store에 주입 (null 방지)
-                // 실제로는 HomeRentHeader/DateRangePicker에서 넘어온 값을 넣는 게 정석
+// [추가/MVP] 날짜를 store에 주입 (null 방지)
+// 실제로는 HomeRentHeader/DateRangePicker에서 넘어온 값을 넣는 게 정석
                 setRentalPeriod({
                     startDateTime: "2026-01-01 10:00:00",
                     endDateTime: "2026-01-02 10:00:00",
                 });
             })
             .catch(err => console.error("예약 폼 데이터 불러오기 실패:", err));
-    }, [setVehicle, setPickupReturn, setRentalPeriod]);
+    }, []);
 
     return (
         <FormProvider {...methods}>

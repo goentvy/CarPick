@@ -1,391 +1,159 @@
 import { useFormContext } from "react-hook-form";
-import { useEffect, useState, useCallback } from "react";
-import useUserStore from "../../store/useUserStore";
+import useReservationStore from "../../store/useReservationStore";
+import api from "../../services/api";
+import { Link, useNavigate } from "react-router-dom";
 
-const DriverInfoSection = () => {
-    const {
-        register,
-        setValue,
-        getValues,
-        formState: { errors },
-        clearErrors,
-        trigger
-    } = useFormContext();
-    const { accessToken } = useUserStore();
+const AgreementSection = ({ isLoggedIn }) => {
+    const navigate = useNavigate();
+    const { handleSubmit } = useFormContext();
 
-    const [licenses, setLicenses] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalStep, setModalStep] = useState("form");
-    const [modalLoading, setModalLoading] = useState(false);
+// Zustand 액션
+    const setCardPayment = useReservationStore((state) => state.setCardPayment);
+    const setDriverInfo = useReservationStore((state) => state.setDriverInfo);
+// ✅ 추가: create / pay 전용 payload
+    const getCreatePayload = useReservationStore((state) => state.getCreatePayload);
+    const getPayPayload = useReservationStore((state) => state.getPayPayload);
 
-    const hasLicense = licenses.length > 0;
 
-    // 면허 목록 불러오기 + 자동 선택
-    useEffect(() => {
-        const fetchLicenses = async () => {
-            if (!accessToken) {
-                setLicenses([]);
-                setLoading(false);
+    const totalPrice = useReservationStore((state) => state.payment.summary?.totalPrice || 0);
+
+
+    const setReservationNo = useReservationStore((state) => state.setReservationNo);
+
+
+
+
+// 결제 버튼 클릭 시 실행
+    const onSubmit = async (formData) => {
+// 1) 운전자 정보 추출 및 저장
+        const { birth, email, firstName, lastName, phone } = formData;
+// ✅ 수정 ①: 백엔드 DTO / store 키와 맞추기
+// (firstName / lastName → firstname / lastname)
+        setDriverInfo({
+            birth,
+            email,
+            phone,
+            firstname: firstName,
+            lastname: lastName,
+        });
+// 2) 카드 결제 정보 추출 및 저장
+        const { cardNumber, expiry, cvc, password2, cardType, installment, agree } = formData;
+        setCardPayment({
+            cardNumber,
+            expiry,
+            cvc,
+            password2,
+            cardType,
+            installment,
+            agree,
+        });
+// 3) API 호출 (create -> pay)
+        try {
+// ============================
+// 1️⃣ 예약 생성 (/create)
+// ============================
+            let createPayload = getCreatePayload();
+            console.log("✅ CREATE payload:", createPayload);
+
+
+// ✅ (중요) 지금 에러 원인: startDateTime/endDateTime이 null이면 백엔드에서 NPE
+// 오늘 MVP 응급처치: null이면 임시값 채우기 (원래는 RentDateRangePicker에서 store에 세팅되어야 함)
+            if (!createPayload.startDateTime || !createPayload.endDateTime) {
+                createPayload = {
+                    ...createPayload,
+                    startDateTime: "2026-01-01 10:00:00",
+                    endDateTime: "2026-01-02 10:00:00",
+                };
+                console.warn("⚠️ 날짜가 비어있어 임시값으로 createPayload 보정:", createPayload);
+            }
+            const createRes = await api.post(
+                "/reservation/create",
+                createPayload
+            );
+
+            const newReservationNo = createRes.data?.reservationNo;
+
+            if (!newReservationNo) {
+                alert("예약번호 생성에 실패했습니다.");
                 return;
             }
 
-            try {
-                const response = await fetch("/api/licenses/me", {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'X-User-Id': useUserStore.getState().user?.id?.toString()
-                    }
-                });
+// ✅ 예약번호 저장 (핵심)
+            setReservationNo(newReservationNo);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const licenseList = data?.data?.map((item) => ({
-                        id: item.id,
-                        name: item.driverName,
-                        birthday: item.birthday,
-                        licenseNumber: item.licenseNumber,
-                        serialNumber: item.serialNumber,
-                    })) || [];
-                    setLicenses(licenseList);
+            console.log("✅ reservationNo 저장:", newReservationNo);
 
-                    // 첫 번째 면허 자동 선택
-                    if (licenseList.length > 0) {
-                        handleLicenseSelect(licenseList[0]);
-                    }
-                }
-            } catch (error) {
-                console.error("면허 조회 실패:", error);
-                setLicenses([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+// ============================
+// 2️⃣ 결제 승인 (/pay)
+// ============================
+            const payPayload = {
+                ...getPayPayload(),
+                reservationNo: newReservationNo,
+            };
+            console.log("✅ PAY payload:", payPayload);
 
-        fetchLicenses();
-    }, [accessToken]);
+            const payRes = await api.post(
+                "/reservation/pay",
+                payPayload
+            );
 
-    // 면허 선택 + 폼 채우기
-    const handleLicenseSelect = useCallback((license) => {
-        const [lastName, ...firstNameParts] = license.name.trim().split(' ');
-        setValue("lastName", lastName || '');
-        setValue("firstName", firstNameParts.join(' ') || '');
-        setValue("birth", license.birthday.replace(/-/g, ''));
-        setValue("phone", "");
-        setValue("email", "");
-        clearErrors(["lastName", "firstName", "birth", "phone", "email"]);
-    }, [setValue, clearErrors]);
-
-    // 모달 제어
-    const openModal = useCallback(() => {
-        setIsModalOpen(true);
-        setModalStep("form");
-        ["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"].forEach(field => {
-            setValue(field, "");
-        });
-        clearErrors(["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"]);
-    }, [setValue, clearErrors]);
-
-    const closeModal = useCallback(() => {
-        setIsModalOpen(false);
-        clearErrors(["modal-driverName", "modal-driverBirthday", "modal-licenseNumber", "modal-serialNumber"]);
-    }, [clearErrors]);
-
-    // 면허 등록 (1개 제한)
-    const registerLicense = useCallback(async () => {
-        const fields = [
-            "modal-driverName",
-            "modal-driverBirthday",
-            "modal-licenseNumber",
-            "modal-serialNumber"
-        ];
-
-        const isValid = await trigger(fields);
-        if (!isValid) return;
-
-        if (!accessToken) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-
-        setModalLoading(true);
-        try {
-            const values = getValues();
-            const response = await fetch("/api/licenses", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                    driverName: values["modal-driverName"],
-                    birthday: values["modal-driverBirthday"],
-                    licenseNumber: values["modal-licenseNumber"],
-                    serialNumber: values["modal-serialNumber"],
-                }),
-            });
-
-            const resultData = await response.json();
-
-            if (response.ok && resultData.success) {
-                const newLicense = {
-                    id: resultData.data.id,
-                    name: resultData.data.driverName,
-                    birthday: resultData.data.birthday,
-                    licenseNumber: resultData.data.licenseNumber,
-                    serialNumber: resultData.data.serialNumber,
-                };
-                setLicenses([newLicense]);
-                handleLicenseSelect(newLicense);
-                setModalStep("done");
+            if (payRes.data?.status === "APPROVED") {
+                alert("결제가 완료되었습니다!");
+                const orderId = payRes.data.orderId || newReservationNo;
+                navigate("/order/complete", { state: { orderId, totalPrice } });
             } else {
-                alert(resultData.message || "등록에 실패했습니다.");
+                alert("결제 실패: " + (payRes.data?.message || "승인 실패"));
             }
-        } catch (error) {
-            console.error("API 오류:", error);
-            alert("네트워크 오류가 발생했습니다.");
-        } finally {
-            setModalLoading(false);
+        } catch (err) {
+            alert("서버 오류가 발생했습니다.");
+            console.error(err);
         }
-    }, [accessToken, trigger, getValues, handleLicenseSelect]);
+    };
 
-    // 면허 삭제
-    const deleteLicense = useCallback(async (licenseId) => {
-        if (!window.confirm("이 면허 정보를 삭제하시겠습니까?\n삭제 후 다시 등록해야 합니다.")) {
-            return;
-        }
-
-        if (!accessToken) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-
-        try {
-            const response = await fetch(`/api/licenses/${licenseId}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-
-            if (response.ok) {
-                setLicenses([]);
-                setValue("lastName", "");
-                setValue("firstName", "");
-                setValue("birth", "");
-                setValue("phone", "");
-                setValue("email", "");
-                alert("면허 정보가 삭제되었습니다.");
-            } else {
-                alert("삭제에 실패했습니다.");
-            }
-        } catch (error) {
-            console.error("삭제 오류:", error);
-            alert("네트워크 오류");
-        }
-    }, [accessToken, setValue]);
 
     return (
-        <section className="w-full max-w-[640px] xx:p-2 sm:p-4">
-            <h2 className="xx:text-base sm:text-lg font-semibold mb-4">면허 선택</h2>
+        <section className="w-full max-w-[640px] xx:p-2 sm:p-4 mb-[60px]">
+            <h2 className="text-lg font-semibold mb-4">약관 및 결제 동의</h2>
 
-            {loading ? (
-                <div className="bg-white rounded-2xl shadow-sm px-5 py-6 flex items-center justify-center h-32">
-                    <p className="text-sm text-[#666666]">면허 정보 불러오는 중...</p>
-                </div>
-            ) : hasLicense ? (
-                // ✅ 면허 있음: 선택 표시 + 삭제 버튼
-                <>
-                    <div className="space-y-3 mb-4">
-                        {licenses.map((license) => (
-                            <div
-                                key={license.id}
-                                className="bg-white rounded-2xl shadow-sm px-5 py-4 flex flex-col border-2 border-[#2C7FFF] bg-gradient-to-r from-white to-[#F0F7FF]"
-                            >
-                                <span className="mb-3 text-base font-semibold text-[#1A1A1A] flex items-center">
-                                    {license.name}
-                                </span>
-                                <div className="text-sm text-[#333333] space-y-1.5 leading-snug mb-4">
-                                    <p className="flex items-center">
-                                        <span className="w-16 text-[#666666]">생년월일</span>
-                                        <span>{license.birthday}</span>
-                                    </p>
-                                    <p className="flex items-center">
-                                        <span className="w-16 text-[#666666]">면허번호</span>
-                                        <span className="truncate">{license.licenseNumber}</span>
-                                    </p>
-                                    <p className="flex items-center">
-                                        <span className="w-16 text-[#666666]">일련번호</span>
-                                        <span className="tracking-[0.15em] font-medium">{license.serialNumber}</span>
-                                    </p>
-                                </div>
-                                <div className="flex justify-end">
-                                    <button
-                                        onClick={() => deleteLicense(license.id)}
-                                        className="px-4 py-2 rounded-full border border-[#FF4B4B] text-[#FF4B4B] text-xs font-medium hover:bg-[#FFF5F5] transition-colors"
-                                    >
-                                        삭제하기
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            ) : (
-                // ❌ 면허 없음: + 버튼만 표시
-                <>
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-8 flex flex-col items-center justify-center mb-6 text-center">
-                        <p className="text-sm text-[#666666] mb-4 leading-relaxed">
-                            등록된 운전면허 정보가 없습니다.
-                        </p>
-                        <button
-                            onClick={openModal}
-                            className="w-20 h-20 rounded-2xl bg-[#2C7FFF] text-white text-3xl font-bold shadow-lg hover:bg-[#215FCC] hover:scale-105 transition-all duration-200 flex items-center justify-center mx-auto mb-3"
-                        >
-                            +
-                        </button>
-                        <p className="text-xs text-[#999999]">운전면허를 추가하세요</p>
-                    </div>
-                </>
-            )}
+            {/* 약관 목록 */}
+            <ul className="space-y-2">
+                <li><Link to="/agree1">서비스 이용약관</Link></li>
+                <li><Link to="/agree2">개인정보 수집 이용 동의</Link></li>
+                <li><Link to="">개인정보 제3자 제공 동의</Link></li>
+                <li><Link to="">이용 안내</Link></li>
+                <li><Link to="">취소 안내</Link></li>
+                <li><Link to="">자동차 대여 표준 약관</Link></li>
+            </ul>
 
-            {/* 면허 추가 모달 */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4" onClick={closeModal}>
-                    <div
-                        className="w-[90%] max-w-md rounded-2xl bg-white px-5 py-6 max-h-[90vh] overflow-y-auto"
-                        onClick={(e) => e.stopPropagation()}
+            {/* 결제 동의 문구 */}
+            <div className="mt-4">
+                <p className="xx:text-sm sm:text-base text-center text-brand font-bold">
+                    위 내용을 모두 확인하였으며, 결제에 동의합니다.
+                </p>
+            </div>
+
+            {/* 결제 버튼 */}
+            <div className="mt-6 flex space-x-4">
+                {isLoggedIn ? (
+                    <button
+                        type="button"
+                        onClick={handleSubmit(onSubmit)}
+                        className="flex-1 px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-blue-600 transition-colors duration-200"
                     >
-                        {modalStep === "form" && (
-                            <>
-                                <h3 className="text-base font-semibold text-[#1A1A1A] mb-2">운전면허 정보 입력</h3>
-                                <p className="text-xs text-[#666666] mb-5">차량 수령 시 실물/전자 운전면허증과 확인합니다.</p>
-
-                                <div className="space-y-3">
-                                    {/* 성명 */}
-                                    <div>
-                                        <input
-                                            {...register("modal-driverName")}
-                                            placeholder="성명 (2자 이상)"
-                                            maxLength={10}
-                                            className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none ${
-                                                errors["modal-driverName"]
-                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
-                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
-                                            }`}
-                                        />
-                                        {errors["modal-driverName"] && (
-                                            <small className="mt-1 block text-xs text-red-500">
-                                                {errors["modal-driverName"].message}
-                                            </small>
-                                        )}
-                                    </div>
-
-                                    {/* 생년월일 */}
-                                    <div>
-                                        <input
-                                            {...register("modal-driverBirthday")}
-                                            type="date"
-                                            max="2010-12-31"
-                                            className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none ${
-                                                errors["modal-driverBirthday"]
-                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
-                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
-                                            }`}
-                                        />
-                                        {errors["modal-driverBirthday"] && (
-                                            <small className="mt-1 block text-xs text-red-500">
-                                                {errors["modal-driverBirthday"].message}
-                                            </small>
-                                        )}
-                                    </div>
-
-                                    {/* 면허번호 */}
-                                    <div>
-                                        <input
-                                            {...register("modal-licenseNumber")}
-                                            placeholder="면허번호 (예: 11-90-123456-00)"
-                                            maxLength={14}
-                                            className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none ${
-                                                errors["modal-licenseNumber"]
-                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
-                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
-                                            }`}
-                                        />
-                                        {errors["modal-licenseNumber"] && (
-                                            <small className="mt-1 block text-xs text-red-500">
-                                                {errors["modal-licenseNumber"].message}
-                                            </small>
-                                        )}
-                                    </div>
-
-                                    {/* 일련번호 */}
-                                    <div>
-                                        <input
-                                            {...register("modal-serialNumber")}
-                                            placeholder="일련번호 (6자리)"
-                                            maxLength={6}
-                                            className={`w-full rounded-lg border px-3 py-2 text-sm text-center tracking-[0.2em] font-semibold transition-colors focus:outline-none ${
-                                                errors["modal-serialNumber"]
-                                                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-200"
-                                                    : "border-[#dddddd] focus:border-[#2C7FFF] focus:ring-1 focus:ring-blue-100"
-                                            }`}
-                                        />
-                                        {errors["modal-serialNumber"] && (
-                                            <small className="mt-1 block text-xs text-red-500">
-                                                {errors["modal-serialNumber"].message}
-                                            </small>
-                                        )}
-                                        <small className="mt-1 block text-[11px] text-[#666666]">면허증 뒷면 작은 사진 오른쪽 아래</small>
-                                    </div>
-                                </div>
-
-                                <div className="mt-6 flex gap-2">
-                                    <button
-                                        onClick={registerLicense}
-                                        disabled={modalLoading}
-                                        className={`flex-1 h-11 rounded-xl text-sm font-medium text-white transition-colors ${
-                                            modalLoading
-                                                ? "bg-gray-400 cursor-not-allowed"
-                                                : "bg-[#2C7FFF] hover:bg-[#215FCC]"
-                                        }`}
-                                    >
-                                        {modalLoading ? "등록 중..." : "등록하기"}
-                                    </button>
-                                    <button
-                                        onClick={closeModal}
-                                        className="flex-1 h-11 rounded-xl bg-gray-100 text-sm font-medium text-[#333] hover:bg-gray-200 transition-colors"
-                                    >
-                                        취소
-                                    </button>
-                                </div>
-                            </>
-                        )}
-
-                        {modalStep === "done" && (
-                            <>
-                                <h3 className="text-base font-semibold text-[#1A1A1A]">운전면허 등록 완료</h3>
-                                <div className="mt-4 rounded-lg border border-[#C8FF48] bg-[#F5FFE0] px-3 py-3 text-xs text-[#2F3B13] leading-relaxed">
-                                    차량 수령시 입력 정보와 실물/전자 면허증이 일치하지 않을 경우 예약이 취소되거나 이용이 제한될 수 있습니다.
-                                </div>
-                                <button
-                                    onClick={closeModal}
-                                    className="mt-6 w-full h-11 rounded-xl bg-[#2C7FFF] text-sm font-medium text-white hover:bg-[#215FCC] transition-colors"
-                                >
-                                    확인
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            <p className="mt-4 xx:text-xs sm:text-xs text-purple-600 leading-relaxed">
-                차량 수령 시,등록된 면허와 확인 절차가 있습니다 . <br />
-                반드시 수령 및 운전할 운전자의 면허를 등록해주세요.
-            </p>
+                        {totalPrice.toLocaleString()}원 결제하기
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={handleSubmit(onSubmit)}
+                        className="flex-1 px-6 py-3 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors duration-200"
+                    >
+                        비회원 {totalPrice.toLocaleString()}원 결제하기
+                    </button>
+                )}
+            </div>
         </section>
     );
 };
 
-export default DriverInfoSection;
+export default AgreementSection;
