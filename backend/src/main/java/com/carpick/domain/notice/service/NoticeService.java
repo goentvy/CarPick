@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,23 +26,19 @@ public class NoticeService {
      */
     @Transactional
     public Optional<NoticeDto> getNoticeWithUpdateViews(Long id) {
-        // 1. 조회수 증가
         int updatedCount = noticeRepository.incrementViewCount(id);
         
-        // 2. 업데이트 성공 시 데이터를 조회하여 DTO로 변환
         if (updatedCount > 0) {
             return noticeRepository.findByIdAndDeletedFalse(id).map(notice -> {
-                // Entity -> Dto 변환 (조회수 views 포함)
                 NoticeDto dto = new NoticeDto(
                     notice.getId(), 
                     notice.getTitle(), 
                     notice.getContent(), 
                     notice.getCreatedAt(), 
                     notice.getUpdatedAt(),
-                    notice.getViews() // NoticeNtt에 views가 있으므로 추가
+                    notice.getViews()
                 );
 
-                // 이전글/다음글 정보 세팅
                 var prevEntity = noticeRepository.findTop1ByDeletedFalseAndCreatedAtLessThanOrderByCreatedAtDesc(notice.getCreatedAt());
                 var nextEntity = noticeRepository.findTop1ByDeletedFalseAndCreatedAtGreaterThanOrderByCreatedAtAsc(notice.getCreatedAt());
 
@@ -76,18 +73,30 @@ public class NoticeService {
         return noticeRepository.findByDeletedFalseOrderByCreatedAtDesc();
     }
 
+    /**
+     * 💾 공지사항 저장/수정 (수동 날짜 기록 버전)
+     */
     @Transactional
     public NoticeNtt save(NoticeNtt notice) {
+        // [1] 신규 등록
         if (notice.getId() == null) {
             notice.setDeleted(false);
             notice.setViews(0L);
+            notice.setCreatedAt(LocalDateTime.now()); // 수동 등록일 설정
+            notice.setUpdatedAt(LocalDateTime.now()); // 등록 시 수정일도 동일하게 설정
             return noticeRepository.save(notice);
         }
+        
+        // [2] 기존 글 수정
         return noticeRepository.findById(notice.getId())
                 .map(origin -> {
                     origin.setTitle(notice.getTitle());
                     origin.setContent(notice.getContent());
                     origin.setCategory(notice.getCategory());
+                    
+                    // ✅ 수정일 수동 업데이트
+                    origin.setUpdatedAt(LocalDateTime.now()); 
+                    
                     return noticeRepository.save(origin);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("공지사항 없음"));
