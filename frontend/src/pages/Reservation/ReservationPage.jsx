@@ -16,7 +16,7 @@ import api from "../../services/api";
 
 // ✅ Yup 스키마 정의
 const schema = yup.object().shape({
-// 카드 정보
+    // 카드 정보
     cardNumber: yup
         .string()
         .matches(/^\d{4}-\d{4}-\d{4}-\d{4}$/, "카드번호 형식이 올바르지 않습니다")
@@ -41,7 +41,7 @@ const schema = yup.object().shape({
     installment: yup.string().required("할부기간을 선택해주세요"),
     agree: yup.boolean().oneOf([true], "개인정보 수집 및 이용에 동의해주세요"),
 
-// 운전자 정보
+    // 운전자 정보
     lastName: yup.string().required("성을 입력해주세요"),
     firstName: yup.string().required("이름을 입력해주세요"),
     birth: yup
@@ -62,7 +62,7 @@ const ReservationPage = () => {
     const methods = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-// 카드 정보
+            // 카드 정보
             cardNumber: "",
             expiry: "",
             cvc: "",
@@ -71,7 +71,7 @@ const ReservationPage = () => {
             installment: "일시불",
             agree: false,
 
-// 운전자 정보
+            // 운전자 정보
             lastName: "",
             firstName: "",
             birth: "",
@@ -80,7 +80,7 @@ const ReservationPage = () => {
         },
     });
 
-// 데이터 초기 셋팅
+    // 데이터 초기 셋팅
     useEffect(() => {
         api.get("/reservation/form", { params: { carId: 1 } })
             .then(res => {
@@ -91,15 +91,15 @@ const ReservationPage = () => {
                     dailyPrice: res.data.paymentSummary.carDailyPrice,
                 });
 
-// ▼▼▼ [여기가 핵심!] 이 부분이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
+                // ▼▼▼ [여기가 핵심!] 이 부분이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
                 setPickupReturn({
                     method: "visit", // 기본값 (방문)
-                    pickupBranch: res.data.pickupBranch, // 수정 (기존: 1)
-                    dropoffBranch: res.data.dropoffBranch// 수정 (기존: 1)
+                    pickupBranch: res.data.pickupBranch,   // 수정 (기존: 1)
+                    dropoffBranch: res.data.dropoffBranch//  수정 (기존: 1)
                 });
 
-// [추가/MVP] 날짜를 store에 주입 (null 방지)
-// 실제로는 HomeRentHeader/DateRangePicker에서 넘어온 값을 넣는 게 정석
+                //  [추가/MVP] 날짜를 store에 주입 (null 방지)
+                // 실제로는 HomeRentHeader/DateRangePicker에서 넘어온 값을 넣는 게 정석
                 setRentalPeriod({
                     startDateTime: "2026-01-01 10:00:00",
                     endDateTime: "2026-01-02 10:00:00",
