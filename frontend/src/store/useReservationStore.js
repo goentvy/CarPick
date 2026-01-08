@@ -34,7 +34,6 @@ const useReservationStore = create(
         summary: null,
       },
 
-<<<<<<< Updated upstream
       /**
        * 대여/반납 방식 및 지점 정보
        * - method: "visit"(지점 방문) / "delivery"(배송)
@@ -54,27 +53,6 @@ const useReservationStore = create(
         startDateTime: null,
         endDateTime: null,
       },
-=======
-      /**
-       * 대여/반납 방식 및 지점 정보
-       * - method: "visit"(지점 방문) / "delivery"(배송)
-       * - pickupBranch: 픽업 지점 정보
-       * - dropoffBranch: 반납 지점 정보
-       */
-      pickupReturn: {
-        method: "visit",
-        pickupBranch: null,
-        dropoffBranch: null,
-      },
-      /**
-       * 대여 기간 (시작/종료)
-       */
-      // ✅ 수정: 대여 기간 저장
-      rentalPeriod: {
-        startDateTime: null,
-        endDateTime: null,
-      },
->>>>>>> Stashed changes
 
 
       /**
@@ -115,11 +93,6 @@ const useReservationStore = create(
       // ✅ 수정: 예약번호 저장 액션(create 응답 후 사용)
       setReservationNo: (reservationNo) => set({ reservationNo }),
 
-<<<<<<< Updated upstream
-      // ✅ 수정: driverInfo는 merge 업데이트 (일부 값만 들어와도 기존 유지)
-      setDriverInfo: (info) =>
-        set((state) => ({ driverInfo: { ...state.driverInfo, ...info } })),
-=======
       // ✅ 수정: driverInfo는 merge 업데이트 (일부 값만 들어와도 기존 유지)
       setDriverInfo: (info) =>
         set((state) => ({ driverInfo: { ...state.driverInfo, ...info } })),
@@ -134,7 +107,6 @@ const useReservationStore = create(
         set((state) => ({ insurance: { ...state.insurance, dailyPrice: price } })),
       setInsuranceSummary: (summary) =>
         set((state) => ({ insurance: { ...state.insurance, summary } })),
->>>>>>> Stashed changes
 
       // ✅ 수정: 대여 기간 업데이트 액션
       setRentalPeriod: (period) =>
@@ -155,7 +127,6 @@ const useReservationStore = create(
       // 차량 정보 업데이트
       setVehicle: (vehicle) => set({ vehicle }),
 
-<<<<<<< Updated upstream
       // 카드 결제 정보 업데이트
       setCardPayment: (info) =>
         set((state) => ({
@@ -167,19 +138,6 @@ const useReservationStore = create(
       // 약관 동의 여부 업데이트
       setAgreement: (agree) =>
         set((state) => ({ payment: { ...state.payment, agreement: agree } })),
-=======
-      // 카드 결제 정보 업데이트
-      setCardPayment: (info) =>
-        set((state) => ({
-          payment: {
-            ...state.payment,
-            card: { ...state.payment.card, ...info },
-          },
-        })),
-      // 약관 동의 여부 업데이트
-      setAgreement: (agree) =>
-        set((state) => ({ payment: { ...state.payment, agreement: agree } })),
->>>>>>> Stashed changes
 
       /**
        * 결제 요약 계산

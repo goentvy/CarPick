@@ -49,15 +49,8 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       endDateTime: formatKST(dateRange.endDate)
     });
 
-<<<<<<< Updated upstream
-    if (type == 'short')
-      navigate(`/day?${params.toString()}`);
-    else if (type == 'long')
-      navigate(`/month?${params.toString()}`);
-=======
     const path = type === "short" ? "/day" : "/month";
     navigate(`${path}?${params.toString()}`);
->>>>>>> Stashed changes
   };
 
   const handleRentTypeChange = (type) => {
