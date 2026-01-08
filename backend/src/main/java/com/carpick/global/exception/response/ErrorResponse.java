@@ -26,4 +26,18 @@ public record ErrorResponse(
                 LocalDateTime.now()
         );
     }
+
+    // ✅ ⭐ 인증/비즈니스 예외용 (사용자 메시지 직접 전달)
+    public static ErrorResponse of(
+            ErrorCode errorCode,
+            String message,
+            HttpServletRequest request
+    ) {
+        return new ErrorResponse(
+                errorCode.getCode(),
+                message,
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+    }
 }

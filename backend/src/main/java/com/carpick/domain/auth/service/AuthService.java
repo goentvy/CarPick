@@ -34,7 +34,7 @@ public class AuthService {
         //일반 로그인 메서드
         User user = userMapper.findByEmail(request.getEmail());
         // ✅ 여기 (검증 직전)
-
+        log.info("login attempt email={}", request.getEmail());
         log.info("login raw password = {}", request.getPassword());
         log.info("db encoded password = {}", user != null ? user.getPassword() : null);
 
@@ -46,7 +46,10 @@ public class AuthService {
                 )
         ) {
             // ✅ 예외 기반 처리
-            throw new AuthenticationException(ErrorCode.UNAUTHORIZED);
+            throw new AuthenticationException(
+                    ErrorCode.UNAUTHORIZED,
+                    "아이디 혹은 비밀번호가 틀렸습니다."
+            );
 
         }
 
