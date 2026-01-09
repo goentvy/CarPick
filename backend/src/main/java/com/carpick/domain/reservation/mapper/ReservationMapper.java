@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.Map;
 @Mapper
 public interface ReservationMapper {
 //    보험(나중에 보험 mapper 로 이동바람)
@@ -69,5 +69,10 @@ public interface ReservationMapper {
                                      @Param("endDate") LocalDateTime endDate,
                                      @Param("excludeReservationId") Long excludeReservationId);
 
-
+    // (비회원 조회)
+    int updateReservationStatusForNonMember(@Param("params") Map<String, Object> params);
+    Reservation findByDriverEmailAndReservationNo(
+            @Param("email") String email,
+            @Param("reservationNumber") String reservationNumber
+    );
 }

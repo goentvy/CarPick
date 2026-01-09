@@ -137,7 +137,7 @@
 }
 
 /* 열렸을 때 화살표 */
-.faq-item .faq-answer + .faq-question::after {
+.faq-question.open::after {
   transform: translateY(-50%) rotate(45deg);
 }
 
@@ -159,4 +159,42 @@
   text-align: center;
   font-size: 14px;
   color: var(--gray-400);
+}
+/* =========================
+   FAQ PAGINATION
+========================= */
+
+.faq-pagination {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.faq-pagination button {
+  min-width: 32px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-300);
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--gray-500);
+}
+
+.faq-pagination button:hover:not(:disabled) {
+  border-color: var(--main-blue);
+  color: var(--main-blue);
+}
+
+.faq-pagination button.active {
+  background: var(--main-blue);
+  border-color: var(--main-blue);
+  color: #fff;
+  font-weight: 500;
+}
+
+.faq-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

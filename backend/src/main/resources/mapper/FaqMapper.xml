@@ -5,7 +5,46 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <mapper namespace="com.carpick.domain.faq.mapper.FaqMapper">
 
+
 <!--사용자 검색-->
+<select id="findUserPage"
+    resultType="com.carpick.domain.faq.vo.Faq">
+    SELECT
+        id,
+        category,
+        question,
+        answer
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY created_at DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="countUserFaqs" resultType="int">
+    SELECT COUNT(*)
+    FROM faq
+    <where>
+        <if test="category != null and category != ''">
+            category = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                question LIKE CONCAT('%', #{keyword}, '%')
+                OR answer LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+</select>
 
 <select id="search"
     resultType="com.carpick.domain.faq.vo.Faq">

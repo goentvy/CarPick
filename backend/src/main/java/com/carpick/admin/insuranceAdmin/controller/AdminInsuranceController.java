@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/api/insurance")
+@RequestMapping("/api/admin/insurance")
 public class AdminInsuranceController {
     private final AdminInsuranceService adminInsuranceService;
 

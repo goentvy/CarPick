@@ -100,12 +100,10 @@
 											  수정
 											</button>
 
-											<button th:if="${faq != null}"
-											        th:formaction="@{/admin/faq/{id}/delete(id=${faq.id})}"
-											        class="btn btn-outline-danger btn-sm"
-											        onclick="return confirm('정말 삭제하시겠습니까?');">
-											  삭제
-											</button>
+											<a th:href="@{/admin/faq}"
+											   class="btn btn-outline-secondary ml-2">
+											  취소
+											</a>
 										</div>
 									</div>
 								</div>

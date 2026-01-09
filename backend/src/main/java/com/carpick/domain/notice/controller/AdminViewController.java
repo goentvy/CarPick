@@ -27,8 +27,8 @@ public class AdminViewController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             Model model) {
 
-        Page<NoticeNtt> noticePage =
-                noticeService.searchNotices(keyword, PageRequest.of(page, 8));
+    	Page<NoticeNtt> noticePage = 
+                noticeService.searchNotices(keyword, PageRequest.of(page, 8, org.springframework.data.domain.Sort.by("createdAt").descending()));
 
         model.addAttribute("notices", noticePage.getContent());
         model.addAttribute("currentPage", page);

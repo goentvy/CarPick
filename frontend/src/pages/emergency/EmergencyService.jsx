@@ -62,7 +62,7 @@ const EmergencyService = () => {
             </div>
             {/* href="tel:"을 사용하면 모바일에서 클릭 시 바로 전화가 걸립니다. */}
             <a href="tel:1588-1234" className="contact-button">
-              <i className="fa fa-phone-alt"></i> 1588-1234
+              <i className="fa fa-phone-alt"></i> 1588 - 1234
             </a>
           </div>
         </section>
