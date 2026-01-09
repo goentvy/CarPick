@@ -221,6 +221,12 @@ export default function CarPickZonePage() {
     moveCamera(myPos);
   }, [myPos, moveCamera, requestMyLocation]);
 
+  const GAP = 16;
+  const BASE_BOTTOM = 120;
+
+  const sheetPx = Number.parseInt(sheetH || "0", 10) || 0;
+  const bottom = Math.max(BASE_BOTTOM, sheetPx + GAP);
+
   /** -----------------------
    *  8) 렌더 
    * ---------------------- */
@@ -322,7 +328,7 @@ export default function CarPickZonePage() {
           {/* 내 위치 버튼 */}
           <div
             className="fixed left-1/2 -translate-x-1/2 z-[999] w-full max-w-[640px] px-4 pointer-events-none"
-            style={{ bottom: `calc(${sheetH} + 5.5rem)` }}  // ✅ sheetH가 "420px" 같은 값이면 정확히 올라감
+            style={{ bottom: `calc(${bottom}px + env(safe-area-inset-bottom))` }}
           >
             <div className="flex justify-end pointer-events-auto">
               <button
