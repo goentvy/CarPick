@@ -81,7 +81,7 @@ function Header() {
           <div className="member_info">
             <h3>
               {isLoggedIn ?
-                <span>{user?.name ?? ""}님 환영합니다.</span>
+                <Link to="/mypage/profile" className="gnb-link userName" onClick={closeMenu}>{user?.name ?? ""}님 환영합니다.</Link>
                 :
                 <Link to="/login" className="gnb-link userName" onClick={closeMenu}>로그인을 해주세요.</Link>
               }
@@ -96,8 +96,15 @@ function Header() {
           <nav className="gnb">
             <ul className="gnb-list">
 
-              <li className={`gnb-item ${location.pathname.includes("aipick") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/aipick" className="gnb-link">AI PICK</Link>
+              <li className={`gnb-item ${location.pathname.includes("about") ? "active" : ""}`} onClick={closeMenu}>
+                {/* <Link to="/aipick" className="gnb-link">AI PICK</Link> */}
+                <Link
+                  to="/about"
+                  className={`submenu-link ${location.pathname === "/about" ? "active" : ""}`}
+                  onClick={closeMenu}
+                >
+                  회사소개
+                </Link>
               </li>
 
               <li className={`gnb-item ${location.pathname.includes("day") ? "active" : ""}`} onClick={closeMenu}>
@@ -109,7 +116,7 @@ function Header() {
               </li>
 
               {/* 카픽존 */}
-              <li className={`gnb-item  ${location.pathname.includes("zone") ? "active": "" }`} onClick={closeMenu}>
+              <li className={`gnb-item  ${location.pathname.includes("zone") ? "active" : ""}`} onClick={closeMenu}>
                 <div className="submenu">
                   <Link to="/zone" className="gnb-link submenu-trigger" >카픽존</Link>
                 </div>
@@ -125,24 +132,24 @@ function Header() {
 
               {/* 고객센터 */}
               <li className={`gnb-item has-submenu ${location.pathname.includes("/cs/") || activeMenu === "고객센터"
-                  ? "active"
-                  : ""
+                ? "active"
+                : ""
                 }`}>
                 <div className="submenu">
-                    <button
-                        className={`gnb-link submenu-trigger ${location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() => handleToggleMenu("고객센터")}
-                    >
-                        
-                        {!(location.pathname.includes("/cs/") || activeMenu === "고객센터") ?
-                            <img src="/images/common/arrow_up.svg" alt="" /> :  // 클릭 전: 위 화살표
-                            <img src="/images/common/arrow_down.svg" alt="" />   // 클릭 후: 아래 화살표
-                        }
-                        고객센터
-                    </button>
+                  <button
+                    className={`gnb-link submenu-trigger ${location.pathname.includes("/cs/") || setActiveMenu === "고객센터"
+                      ? "active"
+                      : ""
+                      }`}
+                    onClick={() => handleToggleMenu("고객센터")}
+                  >
+
+                    {!(location.pathname.includes("/cs/") || activeMenu === "고객센터") ?
+                      <img src="/images/common/arrow_up.svg" alt="" /> :  // 클릭 전: 위 화살표
+                      <img src="/images/common/arrow_down.svg" alt="" />   // 클릭 후: 아래 화살표
+                    }
+                    고객센터
+                  </button>
 
                   <ul className="submenu-list">
 
@@ -173,16 +180,6 @@ function Header() {
                         onClick={closeMenu}
                       >
                         공지사항
-                      </Link>
-                    </li>
-
-                    <li className="submenu-item">
-                      <Link
-                        to="/about"
-                        className={`submenu-link ${location.pathname === "/about" ? "active" : ""}`}
-                        onClick={closeMenu}
-                      >
-                        회사소개
                       </Link>
                     </li>
 
