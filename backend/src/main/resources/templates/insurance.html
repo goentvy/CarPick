@@ -257,7 +257,7 @@
             return;
         }
 
-        fetch('/admin/api/insurance/' + id, {
+        fetch('/api/admin/insurance/' + id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)

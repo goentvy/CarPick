@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/api/price")
+@RequestMapping("/api/admin/price")
 @Slf4j
 public class AdminPriceRestController {
 

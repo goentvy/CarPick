@@ -186,7 +186,7 @@
 
     function loadOptions() {
         $.ajax({
-            url: '/admin/api/car-option',
+            url: '/api/admin/car-option',
             method: 'GET',
             success: function (data) {
                 renderTable(data);
@@ -310,7 +310,7 @@
         };
 
         const method = id ? 'PUT' : 'POST';
-        const url = id ? '/admin/api/car-option/' + id : '/admin/api/car-option';
+        const url = id ? '/api/admin/car-option' + id : '/api/admin/car-option';
 
         $.ajax({
             url: url,

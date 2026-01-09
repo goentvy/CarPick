@@ -14,6 +14,7 @@ const PickupLocationModal = ({ onClose, onSelect }) => {
         if (!alive) return;
 
         const next = (res.data ?? []).map((b) => ({
+          branchId: b.branchId,  // 추가
           name: b.branchName, // "김포공항점" 등
           details: `${b.addressBasic ?? ""}\n운영시간:  ${b.businessHours ?? ""}`, // 주소 + 운영시간
         }));
@@ -55,7 +56,7 @@ const PickupLocationModal = ({ onClose, onSelect }) => {
               <li
                 key={loc.name}
                 onClick={() => {
-                  onSelect(loc.name);
+                  onSelect(loc.branchId);
                   onClose();
                 }}
                 className="w-full bg-blue-50 px-2 border border-gray-300 rounded-md py-3 mb-3 cursor-pointer"

@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/api/reservation")
+@RequestMapping("/api/admin/reservation")
 @RequiredArgsConstructor
 public class AdminReservationRestController {
     private final ReservationAdminService reservationService;

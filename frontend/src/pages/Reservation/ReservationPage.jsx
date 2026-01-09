@@ -1,5 +1,6 @@
 import DriverInfoSection from "./DriverInfoSection";
 import InsuranceInfoSection from "./InsuranceInfoSection";
+import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import PickupReturnSection from "./PickupReturnSection";
 import PaymentSummarySection from "./PaymentSummarySection";
 import AgreementSection from "./AgreementSection";
@@ -59,6 +60,9 @@ const schema = yup.object().shape({
 const ReservationPage = () => {
     const [formData, setFormData] = useState(null);
     const { setVehicle, setPickupReturn, setRentalPeriod } = useReservationStore();
+    const [searchParams] = useSearchParams();
+    const { id } = useParams();
+    const carId = Number(id);
     const methods = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -82,7 +86,17 @@ const ReservationPage = () => {
 
     // 데이터 초기 셋팅
     useEffect(() => {
-        api.get("/reservation/form", { params: { carId: 1 } })
+        const startDateTime = searchParams.get("startDateTime");
+        const endDateTime = searchParams.get("endDateTime");
+
+        // ✅ 날짜가 없으면 예약 페이지 진입 자체가 잘못된 상태
+        if (!startDateTime || !endDateTime) {
+            alert("예약 기간 정보가 없습니다. 다시 검색해주세요.");
+            navigate("/");
+            //  알림창 닫으면 홈으로 강제이동
+            return;
+        }
+        api.get("/reservation/form", { params: { carId } })
             .then(res => {
                 setFormData(res.data);
                 setVehicle({
@@ -91,22 +105,21 @@ const ReservationPage = () => {
                     dailyPrice: res.data.paymentSummary.carDailyPrice,
                 });
 
-                // ▼▼▼ [여기가 핵심!] 이 부분이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
+
                 setPickupReturn({
                     method: "visit", // 기본값 (방문)
                     pickupBranch: res.data.pickupBranch,   // 수정 (기존: 1)
                     dropoffBranch: res.data.dropoffBranch//  수정 (기존: 1)
                 });
 
-                //  [추가/MVP] 날짜를 store에 주입 (null 방지)
-                // 실제로는 HomeRentHeader/DateRangePicker에서 넘어온 값을 넣는 게 정석
+
                 setRentalPeriod({
-                    startDateTime: "2026-01-01 10:00:00",
-                    endDateTime: "2026-01-02 10:00:00",
+                    startDateTime,
+                    endDateTime,
                 });
             })
             .catch(err => console.error("예약 폼 데이터 불러오기 실패:", err));
-    }, []);
+    }, [searchParams, setVehicle, setPickupReturn, setRentalPeriod]);
 
     return (
         <FormProvider {...methods}>

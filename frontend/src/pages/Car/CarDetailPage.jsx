@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
@@ -103,6 +103,7 @@ function normalizeCards(cards) {
 export default function CarDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const routerLocation = useLocation();
 
   const spinRef = useRef(null);
 
@@ -113,42 +114,43 @@ export default function CarDetailPage() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
-
+  // ✅ 추가: 지점 정보 state
+  const [pickupBranch, setPickupBranch] = useState(null);
   useEffect(() => {
-  if (!id) return;
-  let mounted = true;
+    if (!id) return;
+    let mounted = true;
 
-  (async () => {
-    try {
-      setLoading(true);
-      setErrorText("");
+    (async () => {
+      try {
+        setLoading(true);
+        setErrorText("");
 
-      const res = await getCarDetail(id);
-      console.log("getCarDetail raw:", res);
-      console.log("res.data:", res?.data);
+        const res = await getCarDetail(id);
+        console.log("getCarDetail raw:", res);
+        console.log("res.data:", res?.data);
 
-      if (!mounted) return;
-      setCar(res.data);
-      setReviews(res.data?.reviews ?? []);
-    } catch (e) {
-      console.error("API error:", e);
-      console.error("status:", e?.response?.status);
-      console.error("data:", e?.response?.data);
+        if (!mounted) return;
+        setCar(res.data);
+        setReviews(res.data?.reviews ?? []);
+      } catch (e) {
+        console.error("API error:", e);
+        console.error("status:", e?.response?.status);
+        console.error("data:", e?.response?.data);
 
-      if (!mounted) return;
-      setCar(null);
-      setReviews([]);
-      setErrorText("차량 정보를 불러오지 못했어요.");
-    } finally {
-      if (!mounted) return;
-      setLoading(false);
-    }
-  })();
+        if (!mounted) return;
+        setCar(null);
+        setReviews([]);
+        setErrorText("차량 정보를 불러오지 못했어요.");
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    })();
 
-  return () => {
-    mounted = false;
-  };
-}, [id]);
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -180,7 +182,10 @@ export default function CarDetailPage() {
 
   const top = car?.topCarDetailDto;
   const cards = car?.carCardSectionDto?.cards ?? [];
-  const pickup = car?.locationDto?.pickup;
+  const searchParams = new URLSearchParams(routerLocation.search);
+  const pickupLocation = searchParams.get('pickupLocation');
+  const dropoffLocation = searchParams.get('dropoffLocation') || pickupLocation;
+  const pickupBranchId = searchParams.get('pickupBranchId');  // ✅ 추가: branchId 파싱
   const uiCards = normalizeCards(cards);
 
   return (
@@ -307,47 +312,47 @@ export default function CarDetailPage() {
           </div>
 
           {/* 후기 (임시 유지) */}
-            <SectionTitle>
-                {top?.title ?? "이 차량을"}
-                <br />탄 사람들 이야기
-            </SectionTitle>
+          <SectionTitle>
+            {top?.title ?? "이 차량을"}
+            <br />탄 사람들 이야기
+          </SectionTitle>
 
-            {reviews.length > 0 ? (
-                <div className="space-y-3">
-                    {reviews.slice(0, 3).map((review) => (
-                        <div
-                            key={review.id}
-                            className="bg-white rounded-2xl shadow-sm px-4 py-4 border border-black/5"
-                        >
-                            <div className="flex items-start justify-between mb-3">
-                                <div>
-                                    <div className="text-sm font-semibold text-[#1A1A1A]">
-                                        {review.carName}
-                                    </div>
-                                    <div className="text-xs text-[#888888] mt-1">
-                                        {review.period}
-                                    </div>
-                                </div>
-                                {/*  StarRating 사용 */}
-                                <div className="flex items-center">
-                                    <StarRating rating={Number(review.rating)} />
-                                    <span className="ml-2 text-sm font-medium text-[#1A1A1A]">
+          {reviews.length > 0 ? (
+            <div className="space-y-3">
+              {reviews.slice(0, 3).map((review) => (
+                <div
+                  key={review.id}
+                  className="bg-white rounded-2xl shadow-sm px-4 py-4 border border-black/5"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <div className="text-sm font-semibold text-[#1A1A1A]">
+                        {review.carName}
+                      </div>
+                      <div className="text-xs text-[#888888] mt-1">
+                        {review.period}
+                      </div>
+                    </div>
+                    {/*  StarRating 사용 */}
+                    <div className="flex items-center">
+                      <StarRating rating={Number(review.rating)} />
+                      <span className="ml-2 text-sm font-medium text-[#1A1A1A]">
                         {Number(review.rating).toFixed(1)}
                       </span>
-                                </div>
-                            </div>
+                    </div>
+                  </div>
 
-                            <p className="text-sm text-[#666666] leading-relaxed">
-                                {review.content}
-                            </p>
-                        </div>
-                    ))}
+                  <p className="text-sm text-[#666666] leading-relaxed">
+                    {review.content}
+                  </p>
                 </div>
-            ) : (
-                <div className="rounded-2xl bg-[#F6F7FA] p-4 text-center text-sm text-[#999] mt-5">
-                    아직 리뷰가 없어요. 첫 번째 리뷰를 남겨주세요!
-                </div>
-            )}
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-[#F6F7FA] p-4 text-center text-sm text-[#999] mt-5">
+              아직 리뷰가 없어요. 첫 번째 리뷰를 남겨주세요!
+            </div>
+          )}
 
           {/* 세차 이미지 */}
           <SectionTitle>99.9% 살균 세차</SectionTitle>
@@ -379,7 +384,7 @@ export default function CarDetailPage() {
 
           {/* 대여 장소 */}
           <SectionTitle>대여 장소</SectionTitle>
-          <CarDetailMap pickup={pickup} label="대여 장소" />
+          <CarDetailMap pickup={pickupBranch} label="대여 장소" />
 
           {/* FAQ */}
           <SectionTitle>자주 묻는 질문</SectionTitle>
@@ -420,7 +425,16 @@ export default function CarDetailPage() {
       {/* Bottom Sticky CTA */}
       <footer className="fixed bottom-0 left-0 right-0 z-40">
         <div className="mx-auto max-w-[640px] bg-white border-t border-black/5 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-          <button className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition" onClick={() => navigate(`/reservation/${id}`) }>
+          <button className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition" onClick={() => {
+            if (!routerLocation.search) {
+              alert("예약 기간 정보가 없습니다. 다시 검색해주세요.");
+              navigate(-1); // 또는 navigate("/")
+              return;
+            }
+
+            navigate(`/reservation/${id}${routerLocation.search}`);
+          }} >
+
             예약하기
           </button>
         </div>
