@@ -19,32 +19,28 @@ const Footer = () => {
         <div id="footer">
             <div className="inner">
                 <div className="btns">
-                    <Link to ="/aipick"
-                        className={`btn btn_ai ${
-                            location.pathname.includes("aipick") ? "active" : ""
-                        }`}
+                    <Link to="/about"
+                        className={`btn btn_ai ${location.pathname.includes("about") ? "active" : ""
+                            }`}
                     >
-                        <span>AI PICK</span>
+                        <span>회사소개</span>
                     </Link>
-                    <Link to ="/day"
-                        className={`btn btn_car ${
-                            location.pathname.includes("day") ? "active" : ""
-                        }`}
+                    <Link to="/day"
+                        className={`btn btn_car ${location.pathname.includes("day") ? "active" : ""
+                            }`}
                     >
                         <span>단기렌트</span>
                     </Link>
-                    <Link to ="/month"
-                        className={`btn btn_cal ${
-                            location.pathname.includes("month") ? "active" : ""
-                        }`}
+                    <Link to="/month"
+                        className={`btn btn_cal ${location.pathname.includes("month") ? "active" : ""
+                            }`}
                         onClick={handleMyPageClick}
                     >
                         <span>장기렌트</span>
                     </Link>
                     <button
-                        className={`btn btn_my ${
-                            location.pathname.includes("my") ? "active" : ""
-                        }`}
+                        className={`btn btn_my ${location.pathname.includes("my") ? "active" : ""
+                            }`}
                         onClick={handleMyPageClick}
                     >
                         <span>마이페이지</span>
