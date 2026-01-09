@@ -15,10 +15,21 @@ export function formatNowKR() {
   return `${mm}/${dd} ${hh}:${mi}`;
 }
 
-/** ✅ 영업중 표기(간단 MVP)
- *  - open/close가 있으면 "영업중 · ~close" 형태
- *  - 없으면 "영업 정보" */
-export function getOpenLabel(open, close) {
+/** ✅ 영업중 표기(간단 MVP)*/
+export function getOpenLabel({
+  openStatus,
+  openLabel,
+  open,
+  close,
+} = {}) {
+  // ✅ 서버 계산 라벨 우선
+  if (openLabel) return openLabel;
+
+  // ✅ 서버 상태값이 있으면 그걸로 결정
+  if (openStatus === "OPEN") return "영업중";
+  if (openStatus === "CLOSED") return "영업종료";
+
+  // ✅ fallback (시간 기반 MVP)
   if (close) return `영업중 · ~${close}`;
   if (open) return `영업중 · ${open}`;
   return "영업 정보";

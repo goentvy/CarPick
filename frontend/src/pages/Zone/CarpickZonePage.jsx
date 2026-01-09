@@ -6,6 +6,7 @@ import myLocationIcon from "@/assets/icons/icon_myLocation.png";
 import ZoneBottomSheetBranch from "../../components/zone/sheet/ZoneBottomSheetBranch.jsx";
 import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop.jsx";
 import { useZoneMap } from "@/hooks/useZoneMap";
+import { getBranchDetail } from "@/services/zoneApi.js";
 // import zonesMock from "../../mocks/zones.json";
 
 function useMyLocation() {
@@ -97,7 +98,8 @@ export default function CarPickZonePage() {
    * ---------------------- */
   const [viewMode, setViewMode] = useState("ALL"); // "ALL" | "BRANCH" | "DROP"
   const [filterOpen, setFilterOpen] = useState(false);
-
+  const [branchDetail, setBranchDetail] = useState(null);
+  const [branchDetailLoading, setBranchDetailLoading] = useState(false);
 
   /** -----------------------
    *  2) 검색 상태
@@ -175,6 +177,43 @@ export default function CarPickZonePage() {
     if (!visibleItems.length) return null;
     return visibleItems.find((it) => it.id === selectedId) ?? visibleItems[0];
   }, [visibleItems, selectedId]);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      // BRANCH가 아니면 상세 제거
+      if (!selected || selected.kind !== "BRANCH") {
+        setBranchDetail(null);
+        setBranchDetailLoading(false);
+        return;
+      }
+
+      const branchId = selected.branchId; // ✅ useZoneMap에서 넣어둔 값
+      if (!branchId) {
+        setBranchDetail(null);
+        setBranchDetailLoading(false);
+        return;
+      }
+
+      try {
+        setBranchDetailLoading(true);
+        const res = await getBranchDetail(branchId);
+        if (!alive) return;
+        setBranchDetail(res.data); // ✅ openLabel/openStatus/openTime/closeTime 포함
+      } catch (e) {
+        if (!alive) return;
+        console.error("getBranchDetail fail", e);
+        setBranchDetail(null);
+      } finally {
+        if (alive) setBranchDetailLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [selected?.id, selected?.kind]);
 
   // ✅ DROP이면 연결된 BRANCH 찾기
   const parentZone = useMemo(() => {
@@ -349,8 +388,21 @@ export default function CarPickZonePage() {
           <ZoneBottomSheetBranch
             open={sheetOpen && selected?.kind === "BRANCH"}
             onClose={closeOverlays}
-            zone={selected?.kind === "BRANCH" ? selected : null}
+            zone={
+              selected?.kind === "BRANCH"
+                ? {
+                  ...selected,
+                  open: branchDetail?.openTime,
+                  close: branchDetail?.closeTime,
+                  openStatus: branchDetail?.openStatus,
+                  openLabel: branchDetail?.openLabel,
+                  address: branchDetail?.addressBasic ?? selected.address,
+                  phone: branchDetail?.phone,
+                }
+                : null
+            }
             onHeightChange={sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined}
+
           />
 
           <ZoneBottomSheetDrop

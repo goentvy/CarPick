@@ -25,4 +25,7 @@ public class BranchZoneDetailDto {
     private String openTime;
     private String closeTime;
     private Boolean isActive;
+
+    private String openStatus; // "OPEN" | "CLOSED"
+    private String openLabel;  // "영업중" | "영업종료"
 }

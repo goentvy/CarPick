@@ -22,6 +22,7 @@ export function useZoneMap() {
         const nextZones = [
           ...branches.map((b) => ({
             id: `B-${b.branchId}`,
+            branchId: b.branchId,
             kind: "BRANCH",
             name: b.branchName,
             address: b.addressBasic,
@@ -29,6 +30,8 @@ export function useZoneMap() {
             lng: Number(b.longitude),
             open: b.open,
             close: b.close,
+            openStatus: b.openStatus,
+            openLabel: b.openLabel,
             images: b.images ?? [],
           })),
 
@@ -48,6 +51,8 @@ export function useZoneMap() {
             measuredAt: d.measuredAt ?? null,
           })),
         ];
+
+        console.log("[useZoneMap] nextZones(branch sample):", nextZones[0]);
 
         setZones(nextZones);
       } catch (e) {

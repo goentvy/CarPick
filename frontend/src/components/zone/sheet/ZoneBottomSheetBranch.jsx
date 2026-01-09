@@ -77,10 +77,15 @@ export default function ZoneBottomSheetBranch({
           <ZoneSheetHeader
             kind="BRANCH"
             name={zone?.name}
-            subLabel={zone?.subLabel ?? "카픽 센터"} // 없으면 제거 가능
+            subLabel={zone?.subLabel ?? "카픽 센터"}
             address={zone?.address}
+
             open={zone?.open}
             close={zone?.close}
+
+            openStatus={zone?.openStatus}
+            openLabel={zone?.openLabel}
+
             images={zone?.images}
             availabilityBadge={zone?.availabilityBadge}
           />
