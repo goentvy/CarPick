@@ -55,7 +55,7 @@ const About = () => {
     }, [API_BASE_URL]);
 
     return (
-        <div className="snap-container w-full h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth font-sans text-gray-900 bg-white">
+        <div className="snap-container w-full h-screen overflow-y-auto snap-y snap-proximity scroll-smooth font-sans text-gray-900 bg-white">
 
             {/* 01. Hero Section */}
             <section className="relative h-screen flex items-center justify-center bg-slate-900 text-white overflow-hidden snap-start">
@@ -144,77 +144,99 @@ const About = () => {
                 </div>
             </section>
 
-            {/* 04. What We Offer - 이미지 사이즈 축소 적용 */}
-            <section className="relative py-32 px-6 bg-white snap-start">
-                <div className="max-w-6xl mx-auto w-full">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-center mb-32"
-                    >
-                        <h2 className="text-3xl sm:text-4xl font-black mb-4 text-slate-900 tracking-tight">
-                            What We Offer
-                        </h2>
-                        <div className="w-16 h-1.5 bg-blue-600 mx-auto rounded-full shadow-[0_0_15px_rgba(37,99,235,0.6)]"></div>
-                    </motion.div>
-
-                    <div className="flex flex-col gap-40">
-                        {[
-                            {
-                                title: "AI 기반 차량 추천",
-                                desc: "사용자의 이용 패턴, 선호 스타일, 목적지까지의 경로 등 수십 가지 데이터를 실시간으로 분석합니다. 당신에게 가장 최적화된 맞춤형 차량을 AI가 즉시 제안하여 선택의 고민을 덜어드립니다.",
-                                imageSrc: "/public/images/sub/about/인트로.gif",
-                            },
-                            {
-                                title: "CarP!ck Zone",
-                                desc: "공항, KTX역 등 주요 거점에 위치한 전용 픽업 존에서 별도의 대기나 대면 절차 없이 스마트폰 하나로 바로 차량을 이용하세요. 당신의 소중한 시간을 1분 1초라도 아껴드립니다.",
-                                imageSrc: "/public/images/sub/about/카픽존.gif",
-                            },
-                            {
-                                title: "투명한 프로세스",
-                                desc: "복잡한 서류 작업과 숨겨진 비용은 이제 없습니다. 예약부터 보험 가입, 차량 상태 확인, 그리고 반납까지 모든 과정을 투명하게 디지털화했습니다.",
-                                imageSrc: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=1200",
-                            },
-                        ].map((offer, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 60 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: false, margin: "-100px" }}
-                                transition={{ duration: 0.9, ease: "easeOut" }}
-                                className={`flex flex-col ${i % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"} items-center justify-between gap-12 md:gap-20`}
+            {/* 04. What We Offer - 쏘카 스타일 마스킹 업 애니메이션 버전 */}
+            <section className="relative bg-white">
+                {/* 섹션 타이틀: 쏘카(Next Move) 스타일 적용 */}
+                <div className="h-screen flex flex-col items-center justify-center snap-start">
+                    <div className="text-center">
+                        {/* 글자가 잘린 상태에서 올라오게 하기 위한 overflow-hidden 컨테이너 */}
+                        <div className="overflow-hidden mb-6">
+                            <motion.h2
+                                initial={{ y: "100%" }} // 완전히 아래에 숨겨진 상태
+                                whileInView={{ y: 0 }}   // 제자리로 올라옴
+                                viewport={{ once: false }}
+                                transition={{
+                                    duration: 0.8,
+                                    ease: [0.33, 1, 0.68, 1], // 쏘카 특유의 매끄러운 가속도(Cubic Bezier)
+                                }}
+                                className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-none"
                             >
-                                {/* 텍스트 영역: 더 넓게 설정 */}
-                                <div className="flex-[1.2] space-y-6 text-left">
-                                    <span className="text-blue-600 font-bold tracking-widest uppercase text-sm">Step 0{i + 1}</span>
-                                    <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 break-keep leading-[1.3]">
-                                        {offer.title}
-                                    </h3>
-                                    <p className="text-base text-gray-600 font-medium leading-relaxed break-keep max-w-lg">
-                                        {offer.desc}
-                                    </p>
-                                </div>
+                                What We Offer
+                            </motion.h2>
+                        </div>
 
-                                {/* 이미지 영역: max-width를 md(448px)로 제한하여 사이즈 축소 */}
-                                <div className="flex-1 w-full max-w-md">
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        transition={{ duration: 0.5 }}
-                                        className="relative w-full aspect-square rounded-[2.5rem] overflow-hidden shadow-xl bg-slate-50 flex items-center justify-center border border-slate-100"
-                                    >
-                                        <img
-                                            src={offer.imageSrc}
-                                            alt={offer.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-                                    </motion.div>
-                                </div>
-                            </motion.div>
-                        ))}
+                        {/* 하단 파란색 바: 텍스트가 올라온 후 나타나도록 약간의 딜레이 추가 */}
+                        <motion.div
+                            initial={{ scaleX: 0, opacity: 0 }}
+                            whileInView={{ scaleX: 1, opacity: 1 }}
+                            viewport={{ once: false }}
+                            transition={{ duration: 0.6, delay: 0.4 }}
+                            className="w-24 h-3 bg-blue-600 mx-auto rounded-full origin-center"
+                        ></motion.div>
                     </div>
                 </div>
+
+                {/* 스텝 반복 렌더링 (기존 유지하되 타이밍 최적화) */}
+                {[
+                    {
+                        title: "AI 기반 차량 추천",
+                        desc: "단순한 필터링을 넘어 사용자의 이용 패턴, 선호 스타일, 목적지까지의 경로 등 수십 가지 데이터를 실시간으로 분석합니다. 당신에게 가장 최적화된 맞춤형 차량을 AI가 즉시 제안하여 선택의 고민을 덜어드립니다.",
+                        imageSrc: "https://devocean.sk.com/editorImg/2024/12/3/b50b577b0ff1f8200ae9a395593a1308336f48a14eb6413a1103ebf4fa2527aa",
+                    },
+                    {
+                        title: "CarP!ck Zone",
+                        desc: "여행의 시작과 끝이 더 자유로워집니다. 공항, KTX역 등 주요 거점에 위치한 전용 픽업 존에서 별도의 대기나 대면 절차 없이 스마트폰 하나로 바로 차량을 이용하세요. 당신의 소중한 시간을 1분 1초라도 아껴드립니다.",
+                        imageSrc: "/images/sub/about/주차장2.png",
+                    },
+                    {
+                        title: "투명한 프로세스",
+                        desc: "복잡한 서류 작업과 숨겨진 비용은 이제 없습니다. 예약부터 보험 가입, 차량 상태 확인, 그리고 반납까지 모든 과정을 투명하게 디지털화했습니다. 오직 드라이빙의 즐거움에만 집중할 수 있는 혁신적인 렌터카 경험을 제공합니다.",
+                        imageSrc: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=1200",
+                    },
+                ].map((offer, i) => (
+                    <div
+                        key={i}
+                        className={`h-screen flex flex-col ${i % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"} 
+            items-center justify-center gap-12 md:gap-20 px-6 md:px-12 max-w-[1400px] mx-auto snap-start`}
+                    >
+                        {/* 텍스트 영역 */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: false, amount: 0.3 }}
+                            transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
+                            className={`flex-1 space-y-6 ${i % 2 === 1 ? "md:pl-16" : "md:pr-12"}`}
+                        >
+                            <span className="text-blue-600 font-bold tracking-[0.2em] uppercase text-sm block">Step 0{i + 1}</span>
+                            <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 break-keep leading-[1.2]">
+                                {offer.title}
+                            </h3>
+                            <p className="text-lg text-gray-600 font-medium leading-relaxed break-keep max-w-lg">
+                                {offer.desc}
+                            </p>
+                        </motion.div>
+
+                        {/* 이미지 영역 */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 60 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: false, amount: 0.3 }}
+                            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+                            className="flex-1 w-full max-w-[500px] md:max-w-[600px]"
+                        >
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                className="relative w-full aspect-[16/10] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-2xl bg-slate-50 border border-slate-100"
+                            >
+                                <img
+                                    src={offer.imageSrc}
+                                    alt={offer.title}
+                                    className="w-full h-full object-cover"
+                                />
+                            </motion.div>
+                        </motion.div>
+                    </div>
+                ))}
             </section>
 
             {/* 05. Call to Action */}
