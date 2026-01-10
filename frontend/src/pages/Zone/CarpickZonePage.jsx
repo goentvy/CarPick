@@ -7,8 +7,11 @@ import ZoneBottomSheetBranch from "../../components/zone/sheet/ZoneBottomSheetBr
 import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop.jsx";
 import { useZoneMap } from "@/hooks/useZoneMap";
 import { getBranchDetail } from "@/services/zoneApi.js";
-// import zonesMock from "../../mocks/zones.json";
 
+/** --------------------------------
+ * 내 위치 훅 (페이지와 독립)
+ * - 선언/사용 순서 이슈와 무관하게 상단에 둠
+ * -------------------------------- */
 function useMyLocation() {
   const [myPos, setMyPos] = useState(null);
   const [locModalOpen, setLocModalOpen] = useState(false);
@@ -25,15 +28,11 @@ function useMyLocation() {
         }
 
         const res = await navigator.permissions.query({ name: "geolocation" });
-
         if (!mounted) return;
 
         if (res.state === "granted") {
           setLocModalOpen(false);
           setTrackingOn(true);
-        } else if (res.state === "prompt") {
-          setLocModalOpen(true);
-          setTrackingOn(false);
         } else {
           setLocModalOpen(true);
           setTrackingOn(false);
@@ -44,7 +43,6 @@ function useMyLocation() {
     }
 
     checkPermission();
-
     return () => {
       mounted = false;
     };
@@ -79,11 +77,7 @@ function useMyLocation() {
         setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       (err) => console.log("위치 오류:", err),
-      {
-        enableHighAccuracy: false,
-        maximumAge: 10000,
-        timeout: 8000,
-      }
+      { enableHighAccuracy: false, maximumAge: 10000, timeout: 8000 }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
@@ -94,25 +88,37 @@ function useMyLocation() {
 
 export default function CarPickZonePage() {
   /** -----------------------
-   *  1) 원본 데이터/뷰 상태
+   *  1) View / UI State
    * ---------------------- */
   const [viewMode, setViewMode] = useState("ALL"); // "ALL" | "BRANCH" | "DROP"
   const [filterOpen, setFilterOpen] = useState(false);
-  const [branchDetail, setBranchDetail] = useState(null);
-  const [branchDetailLoading, setBranchDetailLoading] = useState(false);
 
   /** -----------------------
-   *  2) 검색 상태
+   *  2) Search State
    * ---------------------- */
   const [q, setQ] = useState("");
 
   /** -----------------------
-   *  3) 내 위치
+   *  3) BottomSheet / Selection State  ✅ (먼저 선언!)
    * ---------------------- */
-  const { myPos, locModalOpen, requestMyLocation } = useMyLocation();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [sheetH, setSheetH] = useState("0px");
 
   /** -----------------------
-   *  4) 지도 카메라 (center)
+   *  4) Branch Detail State
+   * ---------------------- */
+  const [branchDetail, setBranchDetail] = useState(null);
+  const [branchDetailLoading, setBranchDetailLoading] = useState(false);
+
+  /** -----------------------
+   *  5) My Location
+   * ---------------------- */
+  const { myPos, locModalOpen, setLocModalOpen, requestMyLocation } =
+    useMyLocation();
+
+  /** -----------------------
+   *  6) Map Camera State
    * ---------------------- */
   const [camera, setCamera] = useState({
     lat: 37.5665,
@@ -120,6 +126,14 @@ export default function CarPickZonePage() {
     nonce: 0,
   });
 
+  /** -----------------------
+   *  7) Data from hook
+   * ---------------------- */
+  const { zones, branchItems, loading, firstBranch } = useZoneMap();
+
+  /** -----------------------
+   *  8) Callbacks
+   * ---------------------- */
   const moveCamera = useCallback((next) => {
     if (!next?.lat || !next?.lng) return;
 
@@ -129,21 +143,13 @@ export default function CarPickZonePage() {
       nonce: Date.now(),
     }));
   }, []);
-  const { zones, branchItems, loading, firstBranch } = useZoneMap();
 
-  useEffect(() => {
-    if (!firstBranch) return;
-    setSelectedId((prev) => prev ?? firstBranch.id);
-    moveCamera({ lat: firstBranch.lat, lng: firstBranch.lng });
-  }, [firstBranch, moveCamera]);
+  const closeOverlays = useCallback(() => {
+    setFilterOpen(false);
+    setSheetOpen(false);
+    setSheetH("0px"); // ✅ 시트 닫힘 기준
+  }, []);
 
-
-  /** -----------------------
-   *  5) 바텀시트/선택 상태
-   * ---------------------- */
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [sheetH, setSheetH] = useState("0px");
   const selectZone = useCallback(
     (id) => {
       setSelectedId(id);
@@ -156,64 +162,51 @@ export default function CarPickZonePage() {
     [zones, moveCamera]
   );
 
+  const onPickZone = useCallback(
+    (zoneId) => {
+      if (viewMode === "DROP") setViewMode("BRANCH");
+      selectZone(zoneId);
+      setQ("");
+      setFilterOpen(false);
+    },
+    [selectZone, viewMode]
+  );
+
+  const onAllowLocation = useCallback(
+    () => requestMyLocation(),
+    [requestMyLocation]
+  );
+
+  const onGoMyLocation = useCallback(() => {
+    if (!myPos) {
+      requestMyLocation();
+      return;
+    }
+    moveCamera(myPos);
+  }, [myPos, moveCamera, requestMyLocation]);
+
   /** -----------------------
-   *  6) 파생 데이터
+   *  9) Derived Data
    * ---------------------- */
   const visibleItems = useMemo(() => {
     if (viewMode === "ALL") return zones;
     return zones.filter((it) => it.kind === viewMode);
   }, [viewMode, zones]);
 
-  // ✅ 최초 진입/필터 변경 시 selectedId 보정
+  // ✅ selectedId 보정
   useEffect(() => {
     if (!visibleItems.length) return;
 
-    const exists = selectedId != null && visibleItems.some((it) => it.id === selectedId);
+    const exists =
+      selectedId != null && visibleItems.some((it) => it.id === selectedId);
+
     if (!exists) setSelectedId(visibleItems[0].id);
   }, [visibleItems, selectedId]);
 
-  // ✅ 선택된 아이템
   const selected = useMemo(() => {
     if (!visibleItems.length) return null;
     return visibleItems.find((it) => it.id === selectedId) ?? visibleItems[0];
   }, [visibleItems, selectedId]);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      // BRANCH가 아니면 상세 제거
-      if (!selected || selected.kind !== "BRANCH") {
-        setBranchDetail(null);
-        setBranchDetailLoading(false);
-        return;
-      }
-
-      const branchId = selected.branchId; // ✅ useZoneMap에서 넣어둔 값
-      if (!branchId) {
-        setBranchDetail(null);
-        setBranchDetailLoading(false);
-        return;
-      }
-
-      try {
-        setBranchDetailLoading(true);
-        const res = await getBranchDetail(branchId);
-        if (!alive) return;
-        setBranchDetail(res.data); // ✅ openLabel/openStatus/openTime/closeTime 포함
-      } catch (e) {
-        if (!alive) return;
-        console.error("getBranchDetail fail", e);
-        setBranchDetail(null);
-      } finally {
-        if (alive) setBranchDetailLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [selected?.id, selected?.kind]);
 
   // ✅ DROP이면 연결된 BRANCH 찾기
   const parentZone = useMemo(() => {
@@ -231,35 +224,57 @@ export default function CarPickZonePage() {
   }, [q, branchItems]);
 
   /** -----------------------
-   *  7) 핸들러들
+   *  10) Effects
    * ---------------------- */
 
-  const closeOverlays = useCallback(() => {
-    setFilterOpen(false);
-    setSheetOpen(false);
-    setSheetH("0px"); // ✅ 핵심: 시트 닫힘 기준
-  }, []);
+  // ✅ 첫 지점 자동 선택 + 카메라 이동
+  useEffect(() => {
+    if (!firstBranch) return;
 
-  const onPickZone = useCallback(
-    (zoneId) => {
-      if (viewMode === "DROP") setViewMode("BRANCH");
-      selectZone(zoneId);
-      setQ("");
-      setFilterOpen(false);
-    },
-    [selectZone, viewMode]
-  );
+    setSelectedId((prev) => prev ?? firstBranch.id);
+    moveCamera({ lat: firstBranch.lat, lng: firstBranch.lng });
+  }, [firstBranch, moveCamera]);
 
-  const onAllowLocation = useCallback(() => requestMyLocation(), [requestMyLocation]);
+  // ✅ BRANCH 상세 불러오기
+  useEffect(() => {
+    let alive = true;
 
-  const onGoMyLocation = useCallback(() => {
-    if (!myPos) {
-      requestMyLocation();
-      return;
-    }
-    moveCamera(myPos);
-  }, [myPos, moveCamera, requestMyLocation]);
+    (async () => {
+      if (!selected || selected.kind !== "BRANCH") {
+        setBranchDetail(null);
+        setBranchDetailLoading(false);
+        return;
+      }
 
+      const branchId = selected.branchId;
+      if (!branchId) {
+        setBranchDetail(null);
+        setBranchDetailLoading(false);
+        return;
+      }
+
+      try {
+        setBranchDetailLoading(true);
+        const res = await getBranchDetail(branchId);
+        if (!alive) return;
+        setBranchDetail(res.data);
+      } catch (e) {
+        if (!alive) return;
+        console.error("getBranchDetail fail", e);
+        setBranchDetail(null);
+      } finally {
+        if (alive) setBranchDetailLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [selected?.kind, selected?.branchId]);
+
+  /** -----------------------
+   *  11) Layout Calc
+   * ---------------------- */
   const GAP = 16;
   const BASE_BOTTOM = 120;
 
@@ -267,7 +282,7 @@ export default function CarPickZonePage() {
   const bottom = Math.max(BASE_BOTTOM, sheetPx + GAP);
 
   /** -----------------------
-   *  8) 렌더 
+   *  12) Render
    * ---------------------- */
   return (
     <div className="min-h-screen bg-white">
@@ -341,7 +356,6 @@ export default function CarPickZonePage() {
                 )}
               </div>
 
-              {/* ✅ [MOD] 로딩 표시(선택) */}
               {loading && (
                 <div className="text-xs text-black/50 bg-white/90 border border-black/10 rounded-full px-3 h-8 flex items-center">
                   지점 불러오는 중...
@@ -354,9 +368,7 @@ export default function CarPickZonePage() {
           {!sheetOpen && (
             <div className="fixed left-1/2 -translate-x-1/2 bottom-6 z-80 w-full max-w-[640px] px-4 pointer-events-none">
               <div className="h-20 rounded-2xl bg-[#E6F2F0] px-4 flex flex-col justify-center shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
-                <div className="text-xs text-black/60">
-                  도착하자마자 바로 픽업
-                </div>
+                <div className="text-xs text-black/60">도착하자마자 바로 픽업</div>
                 <div className="mt-0.5 text-sm font-semibold text-[#111]">
                   센터 픽업은 딜리버리보다 최대 OO% 저렴해요
                 </div>
@@ -384,7 +396,7 @@ export default function CarPickZonePage() {
             </div>
           </div>
 
-          {/* ✅ 바텀시트: 2종 분리 */}
+          {/* 바텀시트: 2종 분리 */}
           <ZoneBottomSheetBranch
             open={sheetOpen && selected?.kind === "BRANCH"}
             onClose={closeOverlays}
@@ -401,8 +413,9 @@ export default function CarPickZonePage() {
                 }
                 : null
             }
-            onHeightChange={sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined}
-
+            onHeightChange={
+              sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined
+            }
           />
 
           <ZoneBottomSheetDrop
@@ -410,7 +423,9 @@ export default function CarPickZonePage() {
             onClose={closeOverlays}
             dropZone={selected?.kind === "DROP" ? selected : null}
             parentZone={parentZone}
-            onHeightChange={sheetOpen && selected?.kind === "DROP" ? setSheetH : undefined}
+            onHeightChange={
+              sheetOpen && selected?.kind === "DROP" ? setSheetH : undefined
+            }
           />
 
           {/* 첫 진입 위치 모달 */}
