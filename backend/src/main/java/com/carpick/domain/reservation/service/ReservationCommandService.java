@@ -133,7 +133,7 @@ public class ReservationCommandService {
         // =============================================================
         // 🚨 [안전장치 3] 지점 ID가 없으면 무조건 1번(김포공항점)으로 설정
         // =============================================================
-        Long pickupBranchId = (req.getPickUpBranchId() != null) ? req.getPickUpBranchId() : 1L;
+        Long pickupBranchId = (req.getPickupBranchId() != null) ? req.getPickupBranchId() : 1L;
         Long returnBranchId = (req.getReturnBranchId() != null) ? req.getReturnBranchId() : 1L;
 
         // WHERE

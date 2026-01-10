@@ -12,7 +12,7 @@ public class ReservationCreateRequestDto {
     // 대여/반납 방식 (UI: 업체 방문 / 배송 서비스)
     private String method;  // visit / delivery
 
-    private Long pickUpBranchId;
+    private Long pickupBranchId;
     private Long returnBranchId;
 
     private  String insuranceCode; // NONE / NORMAL / FULL

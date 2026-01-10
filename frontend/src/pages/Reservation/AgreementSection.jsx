@@ -68,7 +68,8 @@ const AgreementSection = ({ isLoggedIn }) => {
                 endDateTime,
             };
             console.log("✅ CREATE payload:", createPayload);
-
+            console.log("branchId?", createPayload.pickupBranchId, createPayload.branchId, createPayload.pickupBranch_id);
+            console.log("dates?", createPayload.startDateTime, createPayload.endDateTime);
 
             const createRes = await api.post(
                 "/reservation/create",

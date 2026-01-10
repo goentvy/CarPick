@@ -6,7 +6,7 @@ import PickupLocationModal from '../../components/common/PickupLocationModal';
 const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) => {
   const navigate = useNavigate();
   const [rentType, setRentType] = useState('short');
-  const [pickupLocation, setPickupLocation] = useState('서울역 KTX');
+  const [pickupLocation, setPickupLocation] = useState(null);
   const [pickupBranchId, setPickupBranchId] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -186,12 +186,15 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     setShowDatePicker(false); // 달력 모달 닫기
 
                     const params = new URLSearchParams({
-                      pickupLocation: typeof pickupLocation === 'object' ? pickupLocation.branchName : pickupLocation,
-
-                      startDate: selection.startDate,
-                      endDate: selection.endDate,
+                      pickupBranchId: String(pickupBranchId),  // 핵심
+                      // pickupLocationName: pickupLocationName, // 표시용이면 선택
+                      startDateTime: formatKST(selection.startDate),
+                      endDateTime: formatKST(selection.endDate),
+                      rentType,
                     });
-                    navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
+
+                    navigate(`/cars/detail/${selectedCarId}?${params.toString()}`);
+
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="short"
