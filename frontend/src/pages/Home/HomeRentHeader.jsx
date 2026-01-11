@@ -6,8 +6,9 @@ import PickupLocationModal from '../../components/common/PickupLocationModal';
 const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) => {
   const navigate = useNavigate();
   const [rentType, setRentType] = useState('short');
-  const [pickupLocation, setPickupLocation] = useState(null);
+  //  / 수정: pickupLocation(객체/문자 혼재) 대신, ID/이름을 분리해서 primitive로만 관리
   const [pickupBranchId, setPickupBranchId] = useState(null);
+  const [pickupBranchName, setPickupBranchName] = useState(""); // 표시용
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -41,11 +42,22 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
   };
 
   const handleSearch = (type) => {
+    if (!pickupBranchId) {
+      alert("픽업 장소를 선택해주세요.");
+      return;
+    }
+    const returnBranchId = pickupBranchId; // ✅ MVP 기본값: 반납=픽업
+
     const params = new URLSearchParams({
-      pickupLocation,
+      pickupBranchId: String(pickupBranchId), // 수정: 의미 정확
+      returnBranchId: String(returnBranchId), // ✅ 추가
       rentType: type,
       startDateTime: formatKST(dateRange.startDate),
-      endDateTime: formatKST(dateRange.endDate)
+      endDateTime: formatKST(dateRange.endDate),
+      // 수정(선택): 표시용으로 지점명도 같이 넘기고 싶으면 아래 주석 해제
+      pickupBranchName: pickupBranchName || "",
+      // (선택) 반납 지점명도 표시용으로 넣고 싶으면:
+      returnBranchName: pickupBranchName || "",
     });
 
     const path = type === "short" ? "/day" : "/month";
@@ -84,7 +96,11 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
     setRentType(type);
   };
 
-
+  // 수정 (단순화)
+  const handleSelectBranch = (branchId, branchName) => {
+    setPickupBranchId(Number(branchId));
+    setPickupBranchName(branchName || "");
+  };
 
   return (
     <section className="bg-brand text-center xx:pb-[22px] xs:pb-7 sm:pb-[37px] xx:px-6 sm:px-[41px] xx:rounded-b-[40px] xs:rounded-b-[50px] sm:rounded-b-[60px] relative z-999">
@@ -131,7 +147,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
               <p className="text-left text-xs text-gray-500">픽업 장소</p>
 
               <p className="text-gray-800 text-left">
-                {pickupLocation?.branchName || pickupLocation}
+                {pickupBranchName || "픽업 장소를 선택해주세요"}
               </p>
             </div>
           </div>
@@ -140,10 +156,10 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
           {showPickupModal && (
             <PickupLocationModal
               onClose={() => setShowPickupModal(false)}
-              onSelect={(branchId) => {
-                setPickupBranchId(branchId);
+              onSelect={(branchId, branchName) => {  // ✅ 두 개를 받기
+                handleSelectBranch(branchId, branchName); // ✅ 여기서 둘 다 처리됨
                 setShowPickupModal(false);
-                setShowDatePicker(true); // 장소 선택 후 달력 모달 활성화
+                setShowDatePicker(true);
               }}
             />
           )}
@@ -182,18 +198,11 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     setDateRange({
                       startDate: selection.startDate,
                       endDate: selection.endDate,
+                      type: "short",  // 다른 곳에서 쓰면 유지
                     });
                     setShowDatePicker(false); // 달력 모달 닫기
 
-                    const params = new URLSearchParams({
-                      pickupBranchId: String(pickupBranchId),  // 핵심
-                      // pickupLocationName: pickupLocationName, // 표시용이면 선택
-                      startDateTime: formatKST(selection.startDate),
-                      endDateTime: formatKST(selection.endDate),
-                      rentType,
-                    });
 
-                    navigate(`/cars/detail/${selectedCarId}?${params.toString()}`);
 
                   }}
                   onClose={() => setShowDatePicker(false)}
@@ -237,17 +246,11 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     setDateRange({
                       startDate: selection.startDate,
                       endDate: selection.endDate,
-                      months: selection.months,
+                      months: selection.months ?? 1,
+                      type: "long",
                     });
 
                     setShowDatePicker(false); // 달력 모달 닫기
-
-                    const params = new URLSearchParams({
-                      pickupLocation,
-                      startDate: selection.startDate.toISOString(),
-                      endDate: selection.endDate.toISOString(),
-                    });
-                    navigate(`/cars/detail/${selectedCar.id}?${params.toString()}`);
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="long"
