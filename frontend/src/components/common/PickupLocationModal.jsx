@@ -54,9 +54,9 @@ const PickupLocationModal = ({ onClose, onSelect }) => {
           <ul>
             {domestic.map((loc) => (
               <li
-                key={loc.name}
+                key={loc.branchId}
                 onClick={() => {
-                  onSelect(loc.branchId);
+                  onSelect(loc.branchId, loc.name);
                   onClose();
                 }}
                 className="w-full bg-blue-50 px-2 border border-gray-300 rounded-md py-3 mb-3 cursor-pointer"

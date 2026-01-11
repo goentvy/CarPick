@@ -61,11 +61,14 @@ public class ReservationCommandService {
         // 1️⃣ 날짜 파싱 (이제 에러 안 남)
         LocalDateTime startDate = LocalDateTime.parse(startStr, DATETIME_FORMATTER);
         LocalDateTime endDate = LocalDateTime.parse(endStr, DATETIME_FORMATTER);
-        // ✅ 3️⃣ 차량 조회
-        Long vehicleId = reservationMapper.selectAvailableVehicleIdBySpecId(req.getCarId());
+        // 3️⃣ 차량 조회
+        // ✅ [수정] 프론트 carId를 실차 vehicleId로 확정
+        Long vehicleId = req.getCarId();
         if (vehicleId == null) {
-            throw new IllegalStateException("예약 가능한 차량이 없습니다.");
+            throw new IllegalArgumentException("vehicleId(carId)가 누락되었습니다.");
         }
+
+
 // =============================================================
 // 🔒 [비관적 락] 차량 상태 확인 및 변경
 // =============================================================
