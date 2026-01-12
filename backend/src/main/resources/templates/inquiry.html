@@ -113,8 +113,15 @@
 													  </a>
 													</td>
 													<td>
-														<span th:if="${inquiry.status.name() == 'PENDING'}">답변전</span>
-														<span th:if="${inquiry.status.name() == 'ANSWERED'}">답변완료</span>
+													  <span th:if="${inquiry.status.name() == 'PENDING'}"
+													        class="text-primary">
+													    답변전
+													  </span>
+
+													  <span th:if="${inquiry.status.name() == 'ANSWERED'}"
+													        class="text-secondary">
+													    답변완료
+													  </span>
 													</td>
 													<td>
 														<a th:if="${inquiry.status.name() == 'PENDING'}"

@@ -76,7 +76,9 @@ public class FaqService {
             faq.getId(),
             faq.getCategory(),
             faq.getQuestion(),
-            faq.getAnswer()
+            faq.getAnswer(),
+            faq.getCreatedAt(),
+            faq.getUpdatedAt()
         );
     }
 
