@@ -44,3 +44,16 @@ export async function loginTest(email, password) {
   });
   return res.data;
 }
+
+/**
+ * 이메일 중복 확인 (GET 방식)
+ * @param {string} email
+ * @returns {Promise<boolean>} 중복이면 true, 아니면 false
+ */
+export async function checkEmail(email) {
+  // 백엔드 컨트롤러: @GetMapping("/check-email") -> { isDuplicate: true/false } 반환
+  const res = await axios.get(`${API_BASE}/check-email`, {
+    params: { email },
+  });
+  return res.data.isDuplicate;
+}

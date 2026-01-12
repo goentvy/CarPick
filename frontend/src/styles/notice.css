@@ -27,9 +27,9 @@
 }
 
 .notice-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 12px;
+  font-size: 24px;
+  font-weight: 800;
+  margin: 10px 0 20px;
   text-align: center;
 }
 
@@ -164,11 +164,11 @@
 }
 
 .notice-subject {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.4;
   text-align: left;
   cursor: pointer;
-  color: #007bff;
+  color: #333;
   font-weight: 600;
   display: inline-block;   /* ❗ block → inline-block */
   width: 100%;
@@ -756,4 +756,65 @@
 .notice-id-column {
   text-align: center;
   vertical-align: middle;
+}
+
+/* [추가] 최신 공지사항 행 배경 (선택 사항: 아주 미세한 강조) */
+.recent-notice-row {
+  background-color: #fcfdfe !important;
+}
+
+/* [추가] 최신 공지사항 제목 두껍게 및 색상 강조 */
+.notice-subject.bold-text {
+  font-weight: 800; /* 기존 600보다 더 두껍게 */
+  color: #1D6BF3;   /* 더 진한 검은색 */
+}
+
+/* [추가] N 아이콘 뱃지 디자인 (첫 번째 이미지 스타일) */
+.new-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: #ff4d4f; /* 선명한 레드 */
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1;
+  flex-shrink: 0; /* ❗ 아이콘 크기가 줄어들지 않도록 고정 */
+  /* 살짝 떠 있는 느낌 */
+  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.3);
+  /* 텍스트 'N'이 정중앙에 오도록 보정 */
+  padding-bottom: 1px; 
+  position: relative;
+  top: -1px; /* 텍스트와 중심선 맞춤 */
+}
+
+/* [추가] 최신 공지사항의 날짜도 약간 더 선명하게 */
+.bold-date {
+  font-weight: 600;
+  color: #333;
+}
+
+/* 최근 공지사항 행(Row) 호버 스타일 */
+.notice-table tbody tr.recent-notice-row:hover {
+  background-color: #f0f9ff !important; /* 기존보다 조금 더 화사한 하늘색 */
+  cursor: pointer;
+}
+
+/* 최근 공지사항 제목 호버 스타일 */
+.recent-notice-row:hover .notice-subject.bold-text {
+  color: #364f89; /* 기존 호버 색상과 통일 */
+  text-decoration: underline;
+  /* 호버 시 제목이 더 선명해 보이도록 설정 */
+}
+
+/* N 아이콘 호버 시 효과 (선택 사항) */
+.recent-notice-row:hover .new-icon-badge {
+  transform: scale(1.1); /* 마우스를 올리면 아이콘이 살짝 커짐 */
+  transition: transform 0.2s ease;
+  background-color: #ff1f1f; /* 더 진한 레드로 변경 */
 }

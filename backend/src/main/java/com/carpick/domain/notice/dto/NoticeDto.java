@@ -8,9 +8,11 @@ public class NoticeDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long views; // 조회수 필드 추가
+    private Long views;
+    
+    // ✅ 1. 이 필드가 누락되어 오류가 발생했습니다.
+    private boolean isNew; 
 
-    // ✅ 추가: 이전/다음글 정보를 위한 필드
     private NavInfo prev;
     private NavInfo next;
 
@@ -25,16 +27,28 @@ public class NoticeDto {
         this.views = views;
     }
 
-    // ✅ 추가: 이전/다음글 정보를 담는 내부 클래스
     public static class NavInfo {
         private Long id;
         private String title;
-        public NavInfo(Long id, String title) { this.id = id; this.title = title; }
+        private boolean isNew; 
+        
+        public NavInfo(Long id, String title, boolean isNew) { 
+            this.id = id; 
+            this.title = title; 
+            this.isNew = isNew;
+        }
+        
         public Long getId() { return id; }
         public String getTitle() { return title; }
+        public boolean isIsNew() { return isNew; } 
     }
 
-    // Getter / Setter
+    // --- Getter / Setter ---
+    
+    // ✅ 2. setNew 메서드를 추가하여 서비스의 오류를 해결합니다.
+    public boolean isNew() { return isNew; }
+    public void setNew(boolean isNew) { this.isNew = isNew; }
+
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getContent() { return content; }

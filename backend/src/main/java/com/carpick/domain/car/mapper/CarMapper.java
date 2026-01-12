@@ -20,7 +20,7 @@ public interface CarMapper {
     /**
      * 차량 목록 조회 (메인 → 목록 페이지)
      */
-    List<CarListItemDto> selectCarListItems();
+    List<CarListItemDto> selectCarListItems(@Param("pickupBranchId") Long pickupBranchId);
 
 
     // 목록 조회 (XML id="selectCarList"와 이름 일치)

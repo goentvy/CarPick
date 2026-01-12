@@ -158,26 +158,6 @@ function Favorites() {
         );
     }
 
-    // ⚠️ 에러 발생
-    if (error) {
-        return (
-            <div id="content" className="font-pretendard min-h-screen bg-[#E7EEFF] flex flex-col">
-                <div className="px-4 py-6">
-                    <div className="bg-white rounded-2xl shadow-sm px-5 py-10 flex flex-col items-center justify-center text-center">
-                        <h2 className="text-base font-semibold text-red-500 mb-2">오류 발생</h2>
-                        <p className="text-sm text-[#666666] mb-6">{error}</p>
-                        <button
-                            onClick={fetchFavorites}
-                            className="h-11 px-6 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#1E5BBF]"
-                        >
-                            다시 시도
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     // ✅ 메인 UI
     return (
         <div id="content" className="font-pretendard min-h-screen bg-[#E7EEFF] flex flex-col">

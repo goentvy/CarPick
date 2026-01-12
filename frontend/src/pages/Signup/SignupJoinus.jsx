@@ -1,11 +1,13 @@
+import React, { useState } from 'react'; // 👈 useState 꼭 필요함!
 import { useNavigate } from 'react-router-dom';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
+import { signup, checkEmail } from '../../services/auth';
 import StepProgress from '../../components/common/StepProgress';
 import ContentTopLogo from '../../components/common/ContentTopLogo';
-import { signup } from '../../services/auth';
+
 
 // Yup 스키마 정의
 const schema = yup.object().shape({
@@ -15,7 +17,7 @@ const schema = yup.object().shape({
         .string()
         .oneOf([yup.ref("password"), null], "비밀번호가 일치하지 않습니다")
         .required("비밀번호 확인은 필수입니다."),
-    name: yup.string().required("이름은 필수입니다"),
+    name: yup.string().max(6, "이름은 최대 6자까지 입력 가능합니다").required("이름은 필수입니다"),
     phone: yup
         .string()
         .matches(/^01[0-9]-\d{3,4}-\d{4}$/, "휴대폰 번호 형식이 올바르지 않습니다")
@@ -36,11 +38,16 @@ const schema = yup.object().shape({
 const SignupJoinus = () => {
     const navigate = useNavigate();
 
+    // 🔥 [추가] 이메일 중복 확인 상태 관리
+    const [emailMsg, setEmailMsg] = useState("");
+    const [isEmailCheck, setIsEmailCheck] = useState(false); // true: 사용가능(초록), false: 불가(빨강)
+
     const {
         register,
         handleSubmit,
         setValue,
         control,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
@@ -58,21 +65,28 @@ const SignupJoinus = () => {
     });
 
     // 🔥 휴대폰 실시간 값 감지
-    const phoneValue = useWatch({ control, name: "phone" });
-    const gender = useWatch({ control, name: "gender" });
+    const phoneValue = watch("phone") || '';
+    const gender = watch("gender") || '';
+    const nameValue = watch("name") || '';
+
 
     // 🔥 휴대폰 번호 포맷팅
     const formatPhoneNumber = (value) => {
         if (!value) return '';
         const numbers = value.replace(/[^0-9]/g, '');
         if (numbers.length < 4) return numbers;
-        if (numbers.length < 8) return `${numbers.slice(0,3)}-${numbers.slice(3)}`;
-        return `${numbers.slice(0,3)}-${numbers.slice(3,7)}-${numbers.slice(7,11)}`;
+        if (numbers.length < 8) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
     };
 
     const handlePhoneChange = (e) => {
         const formatted = formatPhoneNumber(e.target.value);
         setValue('phone', formatted, { shouldValidate: true });
+    };
+    // 이름 입력 6자 제한
+    const handleNameChange = (e) => {
+        const value = e.target.value.slice(0, 6);
+        setValue('name', value, { shouldValidate: true });
     };
 
     const onSubmit = async (formData) => {
@@ -85,13 +99,50 @@ const SignupJoinus = () => {
 
             if (data.success) {
                 alert("가입 정보가 제출되었습니다.");
-                navigate("/signup/complete", { state: formData.name});
+                navigate("/signup/complete", { state: formData.name });
             } else {
                 alert(data.message);
             }
         } catch (err) {
             console.error(err);
             alert("회원가입 요청 중 오류가 발생했습니다.");
+        }
+    };
+
+    // 🔥 [추가] 실시간 이메일 값 감지
+    const emailValue = useWatch({ control, name: "email" });
+
+    // 🔥 [추가] 중복 확인 핸들러 함수
+    const handleCheckEmail = async () => {
+        if (!emailValue) {
+            setEmailMsg("이메일을 입력해주세요.");
+            setIsEmailCheck(false);
+            return;
+        }
+
+        // 이메일 형식 검사 (간단하게)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailValue)) {
+            setEmailMsg("올바른 이메일 형식이 아닙니다.");
+            setIsEmailCheck(false);
+            return;
+        }
+
+        try {
+            // auth.js에 만든 함수 호출!
+            const isDuplicate = await checkEmail(emailValue);
+
+            if (isDuplicate) {
+                setEmailMsg("이미 사용 중인 이메일입니다.");
+                setIsEmailCheck(false); // 빨간불 🔴
+            } else {
+                setEmailMsg("사용 가능한 이메일입니다.");
+                setIsEmailCheck(true);  // 초록불 🟢
+            }
+        } catch (error) {
+            console.error(error);
+            setEmailMsg("중복 확인 중 오류가 발생했습니다.");
+            setIsEmailCheck(false);
         }
     };
 
@@ -107,7 +158,7 @@ const SignupJoinus = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {/* 이메일 */}
-                    <div>
+                    {/* <div>
                         <label className="block font-semibold mb-1">이메일 주소 <span className="text-brand">*</span></label>
                         <input
                             type="email"
@@ -115,6 +166,44 @@ const SignupJoinus = () => {
                             className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="이메일 주소"
                         />
+                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                    </div> */}
+                    <div>
+                        <label className="block font-semibold mb-1">이메일 주소 <span className="text-brand">*</span></label>
+
+                        {/* 인풋창 + 버튼을 옆으로 나란히 (Flex) */}
+                        <div className="flex gap-2">
+                            <input
+                                type="email"
+                                {...register("email")}
+                                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="이메일 주소"
+                                // 사용자가 이메일을 고치면 메시지 초기화 (다시 확인받게 유도)
+                                onChange={(e) => {
+                                    register("email").onChange(e); // react-hook-form 연결 유지 필수!
+                                    setEmailMsg("");
+                                    setIsEmailCheck(false);
+                                }}
+                            />
+
+                            {/* 중복 확인 버튼 */}
+                            <button
+                                type="button" // 🚨 type="button" 필수! (없으면 폼 제출됨)
+                                onClick={handleCheckEmail}
+                                className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 whitespace-nowrap text-sm font-semibold"
+                            >
+                                중복 확인
+                            </button>
+                        </div>
+
+                        {/* 🔥 인라인 결과 메시지 (핵심!) */}
+                        {emailMsg && (
+                            <p className={`text-sm mt-1 font-medium ${isEmailCheck ? "text-green-600" : "text-red-500"}`}>
+                                {isEmailCheck ? "✅ " : "⛔ "} {emailMsg}
+                            </p>
+                        )}
+
+                        {/* 기존 유효성 검사 에러 */}
                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 
@@ -142,12 +231,14 @@ const SignupJoinus = () => {
                         {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
                     </div>
 
-                    {/* 이름 */}
+                    {/* 이름 -  6자 제한 */}
                     <div>
                         <label className="block font-semibold mb-1">이름 <span className="text-brand">*</span></label>
                         <input
                             type="text"
-                            {...register("name")}
+                            value={nameValue}
+                            onChange={handleNameChange}
+                            maxLength="6"
                             className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="홍길동"
                         />
@@ -188,22 +279,20 @@ const SignupJoinus = () => {
                             <button
                                 type="button"
                                 onClick={() => setValue("gender", "M", { shouldValidate: true })}
-                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                                    gender === "M"
-                                        ? "bg-blue-100 text-brand border-blue-500"
-                                        : "bg-white text-brand border-gray-300 hover:bg-blue-100"
-                                }`}
+                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${gender === "M"
+                                    ? "bg-blue-100 text-brand border-blue-500"
+                                    : "bg-white text-brand border-gray-300 hover:bg-blue-100"
+                                    }`}
                             >
                                 남성
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setValue("gender", "F", { shouldValidate: true })}
-                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                                    gender === "F"
-                                        ? "bg-blue-100 text-brand border-blue-500"
-                                        : "bg-white text-brand border-gray-300 hover:bg-blue-100"
-                                }`}
+                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${gender === "F"
+                                    ? "bg-blue-100 text-brand border-blue-500"
+                                    : "bg-white text-brand border-gray-300 hover:bg-blue-100"
+                                    }`}
                             >
                                 여성
                             </button>
@@ -231,7 +320,7 @@ const SignupJoinus = () => {
                     <div className="flex justify-center space-x-4 mt-6">
                         <button
                             type="button"
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("/home")}
                             className="px-8 sm:px-12 py-2 border-2 border-blue-500 text-brand rounded-lg hover:bg-brand hover:text-white"
                         >
                             취소
