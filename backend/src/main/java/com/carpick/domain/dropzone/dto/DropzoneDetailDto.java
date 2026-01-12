@@ -1,4 +1,4 @@
-package com.carpick.domain.branch.dto;
+package com.carpick.domain.dropzone.dto;
 
 import lombok.Getter;
 import lombok.Setter;

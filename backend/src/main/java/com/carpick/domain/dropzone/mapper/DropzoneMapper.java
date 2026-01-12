@@ -1,7 +1,8 @@
-package com.carpick.domain.branch.mapper;
+package com.carpick.domain.dropzone.mapper;
 
-import com.carpick.domain.branch.dto.DropzoneDetailDto;
-import com.carpick.domain.branch.dto.DropzoneMapDto;
+
+import com.carpick.domain.dropzone.dto.DropzoneDetailDto;
+import com.carpick.domain.dropzone.dto.DropzoneMapDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -76,3 +77,4 @@ public interface DropzoneMapper {
     List<DropzoneMapDto> findForMap();
 
 }
+

@@ -1,7 +1,7 @@
-package com.carpick.domain.branch.controller;
+package com.carpick.domain.zone.controller;
 
-import com.carpick.domain.branch.dto.ZoneMapDto;
-import com.carpick.domain.branch.service.ZoneMapService;
+import com.carpick.domain.zone.dto.ZoneMapService;
+import com.carpick.domain.zone.service.ZoneMapDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,3 +25,4 @@ public class ZoneController {
         return zoneMapService.getZoneMap();
     }
 }
+
