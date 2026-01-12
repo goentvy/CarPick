@@ -36,15 +36,57 @@ const CarList = () => {
         setYearRange([2010, new Date().getFullYear()]);
         setPriceRange([10000, 1000000]);
     };
-
+    console.log("CarList search =", routerLocation.search);
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`)
+        // ✅ 수정: search가 바뀌면 재호출 (지점/날짜 변경 시 반영)
+        // ✅ 수정: URL 뒤에 문자열로 붙이지 말고 params로 전달(가장 안전)
+        const params = Object.fromEntries(new URLSearchParams(routerLocation.search));
+
+        // ✅ 수정: pickupBranchId가 없고 branchId만 있으면 보정 (MVP 임시)
+        if (!params.pickupBranchId && params.branchId) {
+            params.pickupBranchId = params.branchId;
+        }
+
+        // ✅ 수정: returnBranchId가 없으면 pickupBranchId로 보정(왕복 동일 지점 기본)
+        if (!params.returnBranchId && params.pickupBranchId) {
+            params.returnBranchId = params.pickupBranchId;
+        }
+
+        // ✅ 수정: rentType 소문자 -> 대문자 (SHORT/LONG)
+        if (params.rentType) {
+            params.rentType = String(params.rentType).toUpperCase();
+        } else {
+            params.rentType = "SHORT";
+        }
+        // ✅ 수정: pickupBranchId가 없으면 백엔드에서 400 나므로 호출 중단
+        if (!params.pickupBranchId) {
+            console.error("[CarList] pickupBranchId가 없어 /api/cars 호출을 중단합니다.", params);
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+
+        // ✅ 수정: 요청 URL/파라미터 로깅 (Network 보기 전에 여기서도 확인 가능)
+        console.log("[CarList] GET /api/cars params =", params);
+
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`, { params })
             .then((res) => {
                 setCars(res.data);
             })
-            .catch((err) => console.error("차량 리스트 불러오기 실패:", err))
+            .catch((err) => {
+                // ✅ 수정: 왜 실패인지 바로 보이게
+                console.error("차량 리스트 불러오기 실패:", {
+                    message: err.message,
+                    status: err.response?.status,
+                    data: err.response?.data,
+                    params
+                });
+            })
             .finally(() => setLoading(false));
-    }, []);
+    }, [routerLocation.search]); // ✅ 수정: [] -> [routerLocation.search]
+
+
 
     const handleClickCar = (id) => {
 
@@ -103,7 +145,7 @@ const CarList = () => {
 
             {/* 차량수 */}
             <div className="max-w-[90%] w-full flex justify-between items-center mx-auto mt-[30px]">
-                <h4 className="font-bold">총 <span>13</span>대</h4>
+                <h4 className="font-bold">총 <span>{cars.length}</span>대</h4>
                 <select className="bg-blue-50 px-2 py-1 rounded-[50px] font-bold">
                     <option>AI추천순</option>
                     <option>낮은가격순</option>

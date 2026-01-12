@@ -207,6 +207,10 @@
     padding-left: 37px;
 }
 
+.metismenu li.active ul{
+	display: block; 
+}
+
 .metismenu >li:hover>a,
 .metismenu >li.active>a {
     color: var(--logo-yellow);

@@ -37,24 +37,52 @@ public interface BranchMapper {
      * ✅ 카픽존 상세보기용 1건 조회
      */
     @Select("""
-        SELECT
-            branch_id      AS branchId,
-            branch_code    AS branchCode,
-            branch_name    AS branchName,
-            address_basic  AS addressBasic,
-            address_detail AS addressDetail,
-            phone          AS phone,
-            CAST(latitude  AS DOUBLE) AS latitude,
-            CAST(longitude AS DOUBLE) AS longitude,
-            business_hours AS businessHours,
-            open_time      AS openTime,
-            close_time     AS closeTime,
-            (CASE WHEN use_yn = 'Y' THEN 1 ELSE 0 END) AS isActive
-        FROM BRANCH
-        WHERE branch_id = #{branchId}
-        LIMIT 1
-    """)
+    SELECT
+        branch_id      AS branchId,
+        branch_code    AS branchCode,
+        branch_name    AS branchName,
+        address_basic  AS addressBasic,
+        address_detail AS addressDetail,
+        phone          AS phone,
+        CAST(latitude  AS DOUBLE) AS latitude,
+        CAST(longitude AS DOUBLE) AS longitude,
+        business_hours AS businessHours,
+        DATE_FORMAT(open_time, '%H:%i')  AS openTime,
+        DATE_FORMAT(close_time, '%H:%i') AS closeTime,
+        (CASE WHEN use_yn = 'Y' THEN 1 ELSE 0 END) AS isActive,
+
+        CASE
+            WHEN use_yn = 'Y'
+             AND open_time IS NOT NULL
+             AND close_time IS NOT NULL
+             AND (
+                (open_time <= close_time AND TIME(NOW()) BETWEEN open_time AND close_time)
+                OR
+                (open_time > close_time AND (TIME(NOW()) >= open_time OR TIME(NOW()) <= close_time))
+             )
+            THEN 'OPEN'
+            ELSE 'CLOSED'
+        END AS openStatus,
+
+        CASE
+            WHEN use_yn = 'Y'
+             AND open_time IS NOT NULL
+             AND close_time IS NOT NULL
+             AND (
+                (open_time <= close_time AND TIME(NOW()) BETWEEN open_time AND close_time)
+                OR
+                (open_time > close_time AND (TIME(NOW()) >= open_time OR TIME(NOW()) <= close_time))
+             )
+            THEN '영업중'
+            ELSE '영업종료'
+        END AS openLabel
+
+    FROM BRANCH
+    WHERE branch_id = #{branchId}
+    LIMIT 1
+""")
     BranchZoneDetailDto findForZoneDetail(@Param("branchId") long branchId);
+
 
     /**
      * ✅ 지도/검색/마커용: 지점 포인트 전체

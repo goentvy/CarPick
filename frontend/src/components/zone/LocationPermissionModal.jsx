@@ -6,7 +6,7 @@ export default function LocationPermissionModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div className="fixed inset-0 z-100">
       <div className="absolute inset-0 bg-black/35" onClick={onSkip} />
       <div className="absolute left-1/2 top-1/2 w-[92%] max-w-[420px] -translate-x-1/2 -translate-y-1/2">
         <div className="rounded-3xl bg-white shadow-[0_30px_90px_rgba(0,0,0,0.25)] border border-black/5 p-5">
