@@ -15,7 +15,7 @@ const schema = yup.object().shape({
         .string()
         .oneOf([yup.ref("password"), null], "비밀번호가 일치하지 않습니다")
         .required("비밀번호 확인은 필수입니다."),
-    name: yup.string().required("이름은 필수입니다"),
+    name: yup.string().max(6, "이름은 최대 6자까지 입력 가능합니다").required("이름은 필수입니다"),
     phone: yup
         .string()
         .matches(/^01[0-9]-\d{3,4}-\d{4}$/, "휴대폰 번호 형식이 올바르지 않습니다")
@@ -41,6 +41,7 @@ const SignupJoinus = () => {
         handleSubmit,
         setValue,
         control,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
@@ -58,8 +59,10 @@ const SignupJoinus = () => {
     });
 
     // 🔥 휴대폰 실시간 값 감지
-    const phoneValue = useWatch({ control, name: "phone" });
-    const gender = useWatch({ control, name: "gender" });
+    const phoneValue = watch("phone") || '';
+    const gender = watch("gender") || '';
+    const nameValue = watch("name") || '';
+
 
     // 🔥 휴대폰 번호 포맷팅
     const formatPhoneNumber = (value) => {
@@ -73,6 +76,11 @@ const SignupJoinus = () => {
     const handlePhoneChange = (e) => {
         const formatted = formatPhoneNumber(e.target.value);
         setValue('phone', formatted, { shouldValidate: true });
+    };
+    // 이름 입력 6자 제한
+    const handleNameChange = (e) => {
+        const value = e.target.value.slice(0, 6);
+        setValue('name', value, { shouldValidate: true });
     };
 
     const onSubmit = async (formData) => {
@@ -142,12 +150,14 @@ const SignupJoinus = () => {
                         {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
                     </div>
 
-                    {/* 이름 */}
+                    {/* 이름 -  6자 제한 */}
                     <div>
                         <label className="block font-semibold mb-1">이름 <span className="text-brand">*</span></label>
                         <input
                             type="text"
-                            {...register("name")}
+                            value={nameValue}
+                            onChange={handleNameChange}
+                            maxLength="6"
                             className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="홍길동"
                         />
