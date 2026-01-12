@@ -37,6 +37,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MyPageHome from "./pages/Mypage/MyPageHome.jsx";
 import ProfilePage from './pages/Mypage/ProfilePage.jsx';
 import ChangeHistoryPage from './pages/Mypage/ChangeHistoryPage.jsx';
+import ReservationChangeDetail from "./pages/Mypage/ReservationChangeDetail";
 import ReviewHistory from "./pages/Mypage/ReviewHistory.jsx";
 import QnAlist from "./pages/Mypage/QnAlist.jsx";
 import Favorites from "./pages/Mypage/Favorites.jsx";
@@ -132,6 +133,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="changeHistory" element={<ChangeHistoryPage />} />
               {/* ✅ 예약 내역 */}
               <Route path="reservations" element={<ReservationsList />} />
+              <Route path="reservations/:reservationId/change" element={<ReservationChangeDetail />} />
               <Route path="reservations/:reservationId" element={<ReservationDetail />} />
           </Route>
           {/* 약관 */}
