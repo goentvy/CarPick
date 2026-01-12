@@ -73,25 +73,38 @@ export default function Notice() {
           </tr>
         </thead>
         <tbody>
-          {(notices || []).map((n) => (
-            <tr key={n.id}>
-              <td className="notice-id-column">
-                <span className="notice-badge">공지</span>
-              </td>
+          {(notices || []).map((n, index) => {
+            // 1페이지이면서 상위 3개 항목인지 확인
+            const isNew = page === 1 && index < 3;
 
-              <td>
-                <span
-                  className="notice-subject"
-                  onClick={() => handleClickNotice(n.id)}
-                >
-                  {n.title}
-                </span>
-              </td>
+            return (
+              <tr key={n.id} className={isNew ? "recent-notice-row" : ""}>
+                <td className="notice-id-column">
+                  <span className="notice-badge">공지</span>
+                </td>
 
-              <td>{n.createdAt?.slice(0, 10)}</td>
-            </tr>
+                <td>
+                  <span
+                    className={`notice-subject ${isNew ? "bold-text" : ""}`}
+                    onClick={() => handleClickNotice(n.id)}
+                  >
+                    {n.title}
+                    {/* 아이콘이 항상 제목 끝에 붙어 있도록 함 */}
+                    {isNew && (
+                      <span style={{ whiteSpace: 'nowrap' }}>
+                        &nbsp;{/* 공백 한 칸 추가 */}
+                        <span className="new-icon-badge">N</span>
+                      </span>
+                    )}
+                  </span>
+                </td>
 
-          ))}
+                <td className={isNew ? "bold-text" : ""}>
+                  {n.createdAt?.slice(0, 10)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
