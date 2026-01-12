@@ -1,142 +1,47 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import ZoneMapKakao from "../../components/zone/ZoneMapKakao.jsx";
 import ZoneSearchBar from "../../components/zone/ZoneSearchBar.jsx";
 import LocationPermissionModal from "../../components/zone/LocationPermissionModal.jsx";
 import myLocationIcon from "@/assets/icons/icon_myLocation.png";
 import ZoneBottomSheetBranch from "../../components/zone/sheet/ZoneBottomSheetBranch.jsx";
 import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop.jsx";
+
 import { useZoneMap } from "@/hooks/useZoneMap";
-import { getBranchDetail } from "@/services/zoneApi.js";
+import { useMyLocation } from "@/hooks/useMyLocation";
+import { useZoneSelection } from "@/hooks/useZoneSelection";
+import { useBranchDetail } from "@/hooks/useBranchDetail";
 
-/** --------------------------------
- * 내 위치 훅 (페이지와 독립)
- * - 선언/사용 순서 이슈와 무관하게 상단에 둠
- * -------------------------------- */
-function useMyLocation() {
-  const [myPos, setMyPos] = useState(null);
-  const [locModalOpen, setLocModalOpen] = useState(false);
-  const [trackingOn, setTrackingOn] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function checkPermission() {
-      try {
-        if (!navigator.permissions) {
-          if (mounted) setLocModalOpen(true);
-          return;
-        }
-
-        const res = await navigator.permissions.query({ name: "geolocation" });
-        if (!mounted) return;
-
-        if (res.state === "granted") {
-          setLocModalOpen(false);
-          setTrackingOn(true);
-        } else {
-          setLocModalOpen(true);
-          setTrackingOn(false);
-        }
-      } catch {
-        if (mounted) setLocModalOpen(true);
-      }
-    }
-
-    checkPermission();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const requestMyLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setLocModalOpen(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocModalOpen(false);
-        setTrackingOn(true);
-      },
-      () => {
-        setLocModalOpen(false);
-        setTrackingOn(false);
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }, []);
-
-  useEffect(() => {
-    if (!trackingOn) return;
-    if (!navigator.geolocation) return;
-
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      },
-      (err) => console.log("위치 오류:", err),
-      { enableHighAccuracy: false, maximumAge: 10000, timeout: 8000 }
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, [trackingOn]);
-
-  return { myPos, locModalOpen, setLocModalOpen, requestMyLocation };
-}
 
 export default function CarPickZonePage() {
-  /** -----------------------
-   *  1) View / UI State
-   * ---------------------- */
+  /** 1) View / UI */
   const [viewMode, setViewMode] = useState("ALL"); // "ALL" | "BRANCH" | "DROP"
   const [filterOpen, setFilterOpen] = useState(false);
 
-  /** -----------------------
-   *  2) Search State
-   * ---------------------- */
+  /** 2) Search */
   const [q, setQ] = useState("");
 
-  /** -----------------------
-   *  3) BottomSheet / Selection State  ✅ (먼저 선언!)
-   * ---------------------- */
+  /** 3) BottomSheet */
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
   const [sheetH, setSheetH] = useState("0px");
 
-  /** -----------------------
-   *  4) Branch Detail State
-   * ---------------------- */
-  const [branchDetail, setBranchDetail] = useState(null);
-  const [branchDetailLoading, setBranchDetailLoading] = useState(false);
-
-  /** -----------------------
-   *  5) My Location
-   * ---------------------- */
-  const { myPos, locModalOpen, setLocModalOpen, requestMyLocation } =
-    useMyLocation();
-
-  /** -----------------------
-   *  6) Map Camera State
-   * ---------------------- */
+  /** 4) Camera */
   const [camera, setCamera] = useState({
     lat: 37.5665,
     lng: 126.978,
     nonce: 0,
   });
 
-  /** -----------------------
-   *  7) Data from hook
-   * ---------------------- */
+  /** 5) Data */
   const { zones, branchItems, loading, firstBranch } = useZoneMap();
 
-  /** -----------------------
-   *  8) Callbacks
-   * ---------------------- */
+  /** 6) Location */
+  const { myPos, locModalOpen, setLocModalOpen, requestMyLocation } =
+    useMyLocation();
+
+  /** 7) Camera helpers */
   const moveCamera = useCallback((next) => {
     if (!next?.lat || !next?.lng) return;
-
     setCamera(() => ({
       lat: Number(next.lat),
       lng: Number(next.lng),
@@ -144,12 +49,31 @@ export default function CarPickZonePage() {
     }));
   }, []);
 
+  /** 8) Close overlays */
   const closeOverlays = useCallback(() => {
     setFilterOpen(false);
     setSheetOpen(false);
-    setSheetH("0px"); // ✅ 시트 닫힘 기준
+    setSheetH("0px");
   }, []);
 
+  /** 9) Selection / Derived */
+  const {
+    selectedId,
+    setSelectedId,
+    visibleItems,
+    selected,
+    parentZone,
+    results,
+  } = useZoneSelection({
+    zones,
+    branchItems,
+    viewMode,
+    q,
+    firstBranch,
+    onFirstPick: (fb) => moveCamera({ lat: fb.lat, lng: fb.lng }),
+  });
+
+  /** 10) Select handlers */
   const selectZone = useCallback(
     (id) => {
       setSelectedId(id);
@@ -159,7 +83,7 @@ export default function CarPickZonePage() {
       const target = zones.find((z) => z.id === id);
       if (target) moveCamera({ lat: target.lat, lng: target.lng });
     },
-    [zones, moveCamera]
+    [zones, moveCamera, setSelectedId]
   );
 
   const onPickZone = useCallback(
@@ -178,112 +102,29 @@ export default function CarPickZonePage() {
   );
 
   const onGoMyLocation = useCallback(() => {
-    if (!myPos) {
-      requestMyLocation();
-      return;
-    }
+    if (!myPos) return requestMyLocation();
     moveCamera(myPos);
   }, [myPos, moveCamera, requestMyLocation]);
 
-  /** -----------------------
-   *  9) Derived Data
-   * ---------------------- */
-  const visibleItems = useMemo(() => {
-    if (viewMode === "ALL") return zones;
-    return zones.filter((it) => it.kind === viewMode);
-  }, [viewMode, zones]);
+  /** 11) Branch detail */
+  const { branchDetail, branchDetailLoading } = useBranchDetail(selected);
 
-  // ✅ selectedId 보정
-  useEffect(() => {
-    if (!visibleItems.length) return;
-
-    const exists =
-      selectedId != null && visibleItems.some((it) => it.id === selectedId);
-
-    if (!exists) setSelectedId(visibleItems[0].id);
-  }, [visibleItems, selectedId]);
-
-  const selected = useMemo(() => {
-    if (!visibleItems.length) return null;
-    return visibleItems.find((it) => it.id === selectedId) ?? visibleItems[0];
-  }, [visibleItems, selectedId]);
-
-  // ✅ DROP이면 연결된 BRANCH 찾기
-  const parentZone = useMemo(() => {
-    if (!selected || selected.kind !== "DROP") return null;
-    return branchItems.find((b) => b.id === selected.parentZoneId) ?? null;
-  }, [selected, branchItems]);
-
-  // ✅ 검색 결과는 BRANCH만
-  const results = useMemo(() => {
-    const kw = q.trim().toLowerCase();
-    if (!kw) return [];
-    return branchItems
-      .filter((z) => (z.name + " " + z.address).toLowerCase().includes(kw))
-      .slice(0, 8);
-  }, [q, branchItems]);
-
-  /** -----------------------
-   *  10) Effects
-   * ---------------------- */
-
-  // ✅ 첫 지점 자동 선택 + 카메라 이동
-  useEffect(() => {
-    if (!firstBranch) return;
-
-    setSelectedId((prev) => prev ?? firstBranch.id);
-    moveCamera({ lat: firstBranch.lat, lng: firstBranch.lng });
-  }, [firstBranch, moveCamera]);
-
-  // ✅ BRANCH 상세 불러오기
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      if (!selected || selected.kind !== "BRANCH") {
-        setBranchDetail(null);
-        setBranchDetailLoading(false);
-        return;
-      }
-
-      const branchId = selected.branchId;
-      if (!branchId) {
-        setBranchDetail(null);
-        setBranchDetailLoading(false);
-        return;
-      }
-
-      try {
-        setBranchDetailLoading(true);
-        const res = await getBranchDetail(branchId);
-        if (!alive) return;
-        setBranchDetail(res.data);
-      } catch (e) {
-        if (!alive) return;
-        console.error("getBranchDetail fail", e);
-        setBranchDetail(null);
-      } finally {
-        if (alive) setBranchDetailLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
+  /** 12) Render-time 가공 제거: useMemo로 “시트용 zone” 만들기 */
+  const branchZoneForSheet = useMemo(() => {
+    if (selected?.kind !== "BRANCH") return null;
+    return {
+      ...selected,
+      address: branchDetail?.addressBasic ?? selected.address,
     };
-  }, [selected?.kind, selected?.branchId]);
+  }, [selected, branchDetail]);
 
-  /** -----------------------
-   *  11) Layout Calc
-   * ---------------------- */
+  /** 13) Layout calc */
   const GAP = 16;
   const BASE_BOTTOM = 120;
-
   const sheetPx = Number.parseInt(sheetH || "0", 10) || 0;
   const bottom = Math.max(BASE_BOTTOM, sheetPx + GAP);
 
-  /** -----------------------
-   *  12) Render
-   * ---------------------- */
+  /** 14) Rendering */
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-[640px]">
@@ -404,12 +245,8 @@ export default function CarPickZonePage() {
               selected?.kind === "BRANCH"
                 ? {
                   ...selected,
-                  open: branchDetail?.openTime,
-                  close: branchDetail?.closeTime,
-                  openStatus: branchDetail?.openStatus,
-                  openLabel: branchDetail?.openLabel,
                   address: branchDetail?.addressBasic ?? selected.address,
-                  phone: branchDetail?.phone,
+                  images: [`https://carpicka.mycafe24.com/branches/${selected.branchCode}.png`,]
                 }
                 : null
             }

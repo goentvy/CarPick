@@ -23,6 +23,7 @@ export function useZoneMap() {
           ...branches.map((b) => ({
             id: `B-${b.branchId}`,
             branchId: b.branchId,
+            branchCode: b.branchCode,
             kind: "BRANCH",
             name: b.branchName,
             address: b.addressBasic,
@@ -45,6 +46,7 @@ export function useZoneMap() {
             walkingTimeMin: d.walkingTimeMin,
             locationDesc: d.locationDesc,
             isActive: d.isActive === true || d.isActive === 1,
+
           })),
         ];
 
@@ -68,11 +70,7 @@ export function useZoneMap() {
     };
   }, []);
 
-  const branchItems = useMemo(
-    () => zones.filter((z) => z.kind === "BRANCH"),
-    [zones]
-  );
-
+  const branchItems = useMemo(() => zones.filter((z) => z.kind === "BRANCH"), [zones]);
   const firstBranch = useMemo(() => branchItems[0] ?? null, [branchItems]);
 
   return { zones, branchItems, firstBranch, loading, error };
