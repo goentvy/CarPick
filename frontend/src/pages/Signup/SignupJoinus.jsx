@@ -1,11 +1,13 @@
+import React, { useState } from 'react'; // 👈 useState 꼭 필요함!
 import { useNavigate } from 'react-router-dom';
 import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
+import { signup, checkEmail } from '../../services/auth';
 import StepProgress from '../../components/common/StepProgress';
 import ContentTopLogo from '../../components/common/ContentTopLogo';
-import { signup } from '../../services/auth';
+
 
 // Yup 스키마 정의
 const schema = yup.object().shape({
@@ -35,6 +37,10 @@ const schema = yup.object().shape({
 
 const SignupJoinus = () => {
     const navigate = useNavigate();
+
+    // 🔥 [추가] 이메일 중복 확인 상태 관리
+    const [emailMsg, setEmailMsg] = useState("");
+    const [isEmailCheck, setIsEmailCheck] = useState(false); // true: 사용가능(초록), false: 불가(빨강)
 
     const {
         register,
@@ -95,6 +101,43 @@ const SignupJoinus = () => {
         }
     };
 
+    // 🔥 [추가] 실시간 이메일 값 감지
+    const emailValue = useWatch({ control, name: "email" });
+
+    // 🔥 [추가] 중복 확인 핸들러 함수
+    const handleCheckEmail = async () => {
+        if (!emailValue) {
+            setEmailMsg("이메일을 입력해주세요.");
+            setIsEmailCheck(false);
+            return;
+        }
+
+        // 이메일 형식 검사 (간단하게)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailValue)) {
+            setEmailMsg("올바른 이메일 형식이 아닙니다.");
+            setIsEmailCheck(false);
+            return;
+        }
+
+        try {
+            // auth.js에 만든 함수 호출!
+            const isDuplicate = await checkEmail(emailValue);
+
+            if (isDuplicate) {
+                setEmailMsg("이미 사용 중인 이메일입니다.");
+                setIsEmailCheck(false); // 빨간불 🔴
+            } else {
+                setEmailMsg("사용 가능한 이메일입니다.");
+                setIsEmailCheck(true);  // 초록불 🟢
+            }
+        } catch (error) {
+            console.error(error);
+            setEmailMsg("중복 확인 중 오류가 발생했습니다.");
+            setIsEmailCheck(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex justify-center mt-[67px] mb-20">
             <div className="w-full max-w-2xl bg-white p-8">
@@ -107,7 +150,7 @@ const SignupJoinus = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {/* 이메일 */}
-                    <div>
+                    {/* <div>
                         <label className="block font-semibold mb-1">이메일 주소 <span className="text-brand">*</span></label>
                         <input
                             type="email"
@@ -115,6 +158,44 @@ const SignupJoinus = () => {
                             className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="이메일 주소"
                         />
+                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                    </div> */}
+                    <div>
+                        <label className="block font-semibold mb-1">이메일 주소 <span className="text-brand">*</span></label>
+
+                        {/* 인풋창 + 버튼을 옆으로 나란히 (Flex) */}
+                        <div className="flex gap-2">
+                            <input
+                                type="email"
+                                {...register("email")}
+                                className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="이메일 주소"
+                                // 사용자가 이메일을 고치면 메시지 초기화 (다시 확인받게 유도)
+                                onChange={(e) => {
+                                    register("email").onChange(e); // react-hook-form 연결 유지 필수!
+                                    setEmailMsg("");
+                                    setIsEmailCheck(false);
+                                }}
+                            />
+
+                            {/* 중복 확인 버튼 */}
+                            <button
+                                type="button" // 🚨 type="button" 필수! (없으면 폼 제출됨)
+                                onClick={handleCheckEmail}
+                                className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 whitespace-nowrap text-sm font-semibold"
+                            >
+                                중복 확인
+                            </button>
+                        </div>
+
+                        {/* 🔥 인라인 결과 메시지 (핵심!) */}
+                        {emailMsg && (
+                            <p className={`text-sm mt-1 font-medium ${isEmailCheck ? "text-green-600" : "text-red-500"}`}>
+                                {isEmailCheck ? "✅ " : "⛔ "} {emailMsg}
+                            </p>
+                        )}
+
+                        {/* 기존 유효성 검사 에러 */}
                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 

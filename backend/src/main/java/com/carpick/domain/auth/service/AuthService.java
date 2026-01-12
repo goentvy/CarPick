@@ -112,5 +112,12 @@ public class AuthService {
         return new SignupResponse(true, "회원가입 성공", null, request.getEmail());
     }
 
+    // ▼▼▼ [추가할 코드] 이메일 중복 확인 전용 메서드 ▼▼▼
+    @Transactional // 읽기 전용이라 성능에 유리
+    public boolean checkEmailDuplicate(String email) {
+        // count가 0보다 크면(1 이상이면) 이미 존재하는 것 -> true 반환
+        return userMapper.existsByEmail(email) > 0;
+    }
+
 
 }
