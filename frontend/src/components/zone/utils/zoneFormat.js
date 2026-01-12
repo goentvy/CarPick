@@ -19,8 +19,8 @@ export function formatNowKR() {
 export function getOpenLabel({
   openStatus,
   openLabel,
-  open,
-  close,
+  openTime,
+  closeTime,
 } = {}) {
   // ✅ 서버 계산 라벨 우선
   if (openLabel) return openLabel;
@@ -30,8 +30,8 @@ export function getOpenLabel({
   if (openStatus === "CLOSED") return "영업종료";
 
   // ✅ fallback (시간 기반 MVP)
-  if (close) return `영업중 · ~${close}`;
-  if (open) return `영업중 · ${open}`;
+  if (closeTime) return `영업중 · ~${closeTime}`;
+  if (openTime) return `영업중 · ${openTime}`;
   return "영업 정보";
 }
 

@@ -28,27 +28,23 @@ export function useZoneMap() {
             address: b.addressBasic,
             lat: Number(b.latitude),
             lng: Number(b.longitude),
-            open: b.open,
-            close: b.close,
-            openStatus: b.openStatus,
-            openLabel: b.openLabel,
-            images: b.images ?? [],
           })),
 
           ...dropzones.map((d) => ({
             id: `D-${d.dropzoneId}`,
             kind: "DROP",
+            dropzoneId: d.dropzoneId,  // ✅ API 호출용 numeric id
+            branchId: d.branchId,
             parentZoneId: `B-${d.branchId}`,
+
             name: d.dropzoneName,
             address: d.addressText,
             lat: Number(d.latitude),
             lng: Number(d.longitude),
+
             walkingTimeMin: d.walkingTimeMin,
             locationDesc: d.locationDesc,
             isActive: d.isActive === true || d.isActive === 1,
-            crowdStatus: d.status ?? d.crowdLevel ?? null,
-            crowdLabel: d.label ?? null,
-            measuredAt: d.measuredAt ?? null,
           })),
         ];
 
