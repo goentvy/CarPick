@@ -186,7 +186,7 @@ const About = () => {
                     {
                         title: "CarP!ck Zone",
                         desc: "여행의 시작과 끝이 더 자유로워집니다. 공항, KTX역 등 주요 거점에 위치한 전용 픽업 존에서 별도의 대기나 대면 절차 없이 스마트폰 하나로 바로 차량을 이용하세요. 당신의 소중한 시간을 1분 1초라도 아껴드립니다.",
-                        imageSrc: "/images/sub/about/주차장2.png",
+                        imageSrc: "/images/sub/about/주차장.png",
                     },
                     {
                         title: "투명한 프로세스",
