@@ -221,7 +221,7 @@ function ChangeHistoryPage() {
                                             {/* 상단: 예약번호 | 날짜 | 액션 라벨 */}
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <div className="text-sm font-semibold text-[#1A1A1A]">
-                                                    {formatReservationId(item.reservationId)}
+                                                    {item.reservationNo}
                                                 </div>
                                                 <div className="text-xs text-gray-500">
                                                     {item.createdAt}

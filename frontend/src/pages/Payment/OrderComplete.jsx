@@ -1,9 +1,17 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import useReservationStore from "../../store/useReservationStore";
 
 const OrderComplete = () => {
     const location = useLocation();
-    const { orderId, totalPrice, pickupBranch, dropoffBranch, startDate, endDate } = location.state || {};
+    const reservation = useReservationStore();  // Zustand
+
+    // ✅ location.state (orderId, totalPrice) + Zustand (지점/날짜)
+    const { orderId, totalPrice } = location.state || {};
+    const pickupBranch = reservation.pickupBranchName || '김포공항';
+    const startDate = reservation.startDate || '날짜 없음';
+    const endDate = reservation.endDate || '날짜 없음';
+
     const [copyHover, setCopyHover] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
 
@@ -39,13 +47,13 @@ const OrderComplete = () => {
                         <p className="text-lg text-gray-600 leading-relaxed">
                             차량 대여가 성공적으로 예약되었습니다.
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 space-y-1 text-center">
                             <p>마이페이지에서 예약 내역을 확인하세요.</p>
                             <p>비회원의 경우 예약번호로 조회할 수 있습니다.</p>
-                        </p>
+                        </div>
                     </div>
 
-                    {/* 예약 카드 - 컴팩트 */}
+                    {/* 예약 카드 */}
                     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 space-y-6">
                         <h2 className="text-base font-semibold text-gray-900 text-center">예약 정보</h2>
 
@@ -80,11 +88,11 @@ const OrderComplete = () => {
                             </div>
                         </div>
 
-                        {/* 픽업/반납/기간 */}
+                        {/* 픽업/대여기간 - Zustand에서 읽음 */}
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-500">픽업</span>
-                                <span className="font-medium text-gray-900">{pickupBranch || '지점'}</span>
+                                <span className="font-medium text-gray-900">{pickupBranch}</span>
                             </div>
                             <div className="flex justify-between pt-1">
                                 <span className="text-gray-500">대여기간</span>
@@ -101,7 +109,7 @@ const OrderComplete = () => {
                         </div>
                     </div>
 
-                    {/* 버튼들 - 컴팩트 */}
+                    {/* 버튼들 */}
                     <div className="flex flex-col sm:flex-row gap-3 max-w-sm mx-auto">
                         <button
                             onClick={() => window.location.href = "/mypage/reservations"}
@@ -116,7 +124,6 @@ const OrderComplete = () => {
                             홈으로
                         </button>
                     </div>
-
                 </div>
             </main>
         </div>
