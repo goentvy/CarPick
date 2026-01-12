@@ -89,11 +89,9 @@ const ReservationPage = () => {
         const startDateTime = searchParams.get("startDateTime");
         const endDateTime = searchParams.get("endDateTime");
 
-        // ✅ 날짜가 없으면 예약 페이지 진입 자체가 잘못된 상태
         if (!startDateTime || !endDateTime) {
             alert("예약 기간 정보가 없습니다. 다시 검색해주세요.");
             navigate("/");
-            //  알림창 닫으면 홈으로 강제이동
             return;
         }
         api.get("/reservation/form", { params: { carId } })
@@ -104,6 +102,12 @@ const ReservationPage = () => {
                     title: res.data.car.title,
                     dailyPrice: res.data.paymentSummary.carDailyPrice,
                 });
+
+                //예약 완료 페이지
+                const store = useReservationStore.getState();
+                store.setPickupBranchName(decodeURIComponent(searchParams.get("pickupBranchName") || ""));
+                store.setStartDate(startDateTime.split(' ')[0] || "");
+                store.setEndDate(endDateTime.split(' ')[0] || "");
 
 
                 setPickupReturn({
