@@ -1,10 +1,9 @@
-// src/pages/Mypage/ReservationChangeDetail.jsx (가용차량 하드코딩 추가)
+// src/pages/Mypage/ReservationChangeDetail.jsx
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 import api from "../../services/api";
 
-// ✅ 가용 차량 하드코딩 (임시)
 const HARD_CODED_CARS = [
     { id: 1, brand: "현대", displayNameShort: "아반떼", dailyRate: 50000 },
     { id: 2, brand: "기아", displayNameShort: "K3", dailyRate: 45000 },
@@ -48,9 +47,9 @@ function ReservationChangeDetail() {
     const [selectedCarId, setSelectedCarId] = useState(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [cars, setCars] = useState(HARD_CODED_CARS); // ✅ 하드코딩
+    const [cars, setCars] = useState(HARD_CODED_CARS);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [pickupLocation, setPickupLocation] = useState("김포공항"); // ✅ 하드코딩
+    const [pickupLocation, setPickupLocation] = useState("김포공항");
 
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
@@ -78,10 +77,10 @@ function ReservationChangeDetail() {
                 setStartDate(formatDateForAPI(currentReservation.startDate));
                 setEndDate(formatDateForAPI(currentReservation.endDate));
 
-                console.log("✅ 현재 예약 정보:", currentReservation);
+                console.log("현재 예약 정보:", currentReservation);
 
             } catch (err) {
-                console.error("❌ 현재 예약 조회 실패:", err);
+                console.error("현재 예약 조회 실패:", err);
                 setError("예약 정보를 불러올 수 없습니다.");
             } finally {
                 setLoading(false);
@@ -105,13 +104,18 @@ function ReservationChangeDetail() {
     const newPrice = calculateNewPrice();
     const oldPrice = reservation?.totalAmountSnapshot || 0;
     const priceDifference = newPrice - oldPrice;
-    const isValidSelection = selectedCarId && startDate && endDate && new Date(endDate) > new Date(startDate);
+    const isValidSelection = startDate && endDate && new Date(endDate) > new Date(startDate);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!isValidSelection) {
-            alert("차종과 유효한 기간을 선택해주세요.");
+            alert("유효한 기간을 선택해주세요.");
+            return;
+        }
+
+        if (!selectedCarId) {
+            alert("차종을 선택해주세요.");
             return;
         }
 
@@ -173,9 +177,8 @@ function ReservationChangeDetail() {
                 </button>
             </div>
 
-            <h2 className="text-xl font-bold mb-6">예약 변경</h2>
+            <h2 className="text-xl font-bold mb-2 ml-2 py-3">예약 변경</h2>
 
-            {/* 현재 예약 정보 */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
                 <h3 className="text-lg font-semibold mb-4">현재 예약 정보</h3>
                 <div className="space-y-3 text-sm">
@@ -211,7 +214,6 @@ function ReservationChangeDetail() {
                 </div>
             </div>
 
-            {/* 변경할 차종 */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
                 <h3 className="text-lg font-semibold mb-4">변경할 차종</h3>
                 <label className="block text-sm font-medium text-gray-700 mb-2">차종 선택</label>
@@ -229,7 +231,6 @@ function ReservationChangeDetail() {
                 </select>
             </div>
 
-            {/* 기간 변경 */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
                 <h3 className="text-lg font-semibold mb-4">변경할 기간</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -257,7 +258,6 @@ function ReservationChangeDetail() {
                 </div>
             </div>
 
-            {/* 금액 계산 */}
             <div className={`mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 ${isValidSelection ? '' : 'opacity-70'}`}>
                 <h4 className="font-semibold text-gray-900 mb-3">금액 계산</h4>
                 <div className="space-y-2 text-sm">
@@ -280,12 +280,11 @@ function ReservationChangeDetail() {
                         </span>
                     </div>
                     <div className="text-xs text-red-500">
-                        <p>*픽업 위치,운전자 변경은 취소 후 다시 예약해주세요</p>
+                        <p>*픽업 위치, 운전자 변경은 취소 후 다시 예약해주세요</p>
                     </div>
                 </div>
             </div>
 
-            {/* 버튼 */}
             <div className="flex gap-3 pt-4">
                 <button
                     type="button"
