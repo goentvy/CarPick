@@ -30,8 +30,8 @@ const SignupAgree = () => {
   return (
     <div className="min-h-screen flex justify-center mt-20 px-4">
       <div className="w-full max-w-2xl bg-white p-6 sm:p-8">
-        <ContentTopLogo 
-          title="회원가입" 
+        <ContentTopLogo
+          title="회원가입"
           logoStyle={"xx:h-6 xs:h-10 sm:h-12"}
           titleStyle={"text-2xl text-center font-semibold my-6"}
         />
@@ -76,15 +76,22 @@ const SignupAgree = () => {
 
         {/* 버튼 */}
         <div className="flex justify-between gap-4 mt-6">
-          <button className="w-1/2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+          {/* <button className="w-1/2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
             취소
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="w-1/2 px-4 py-2 bg-brand text-white rounded hover:bg-blue-600"
-          >
-            본인인증
-          </button>
+          </button> */}
+          <div className="flex justify-between gap-4 mt-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-1/2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+              취소
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="flex-1 px-4 py-2 bg-brand text-white rounded hover:bg-blue-600 whitespace-nowrap flex justify-center items-center"
+            >
+              다음 단계로
+            </button>
+          </div>
         </div>
       </div>
     </div>
