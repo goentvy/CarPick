@@ -15,6 +15,9 @@ public interface NoticeRepository extends JpaRepository<NoticeNtt, Long> {
 
     // 전체 공지 목록
     List<NoticeNtt> findByDeletedFalseOrderByCreatedAtDesc();
+    
+ // 최근 작성된 순서로 3개만 조회
+    List<NoticeNtt> findTop3ByDeletedFalseOrderByCreatedAtDesc();
 
     Page<NoticeNtt> findByDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 
