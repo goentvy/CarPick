@@ -161,7 +161,8 @@
                           AND vi.is_active = TRUE
                           AND vi.use_yn = 'Y'
                           AND vi.operational_status = 'AVAILABLE'
-
+/* 🔥 [추가] 프런트 URL에서 넘어온 지점 ID로 필터링 */
+                          AND vi.branch_id = #{pickupBranchId}
             /* 원가 */
                  LEFT JOIN PRICE p
                            ON p.car_spec_id = cs.spec_id
