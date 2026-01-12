@@ -40,7 +40,6 @@ function ReservationsList() {
     const [editingRating, setEditingRating] = useState(0);
     const [reviewedReservations, setReviewedReservations] = useState(new Set());
 
-    // 공통 모달 상태
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState(null);
     const [modalData, setModalData] = useState(null);
@@ -76,7 +75,6 @@ function ReservationsList() {
 
     const handleModalConfirm = async () => {
         setIsProcessing(true);
-
         try {
             if (modalType === 'cancel') {
                 await api.post(`/reservation/${modalData.reservationId}/cancel`, {
@@ -87,18 +85,10 @@ function ReservationsList() {
                     reason: '사용자 취소 요청'
                 });
 
-                // 상태 즉시 업데이트
-                setReservations(prev =>
-                    prev.map(r => r.reservationId === modalData.reservationId
-                        ? { ...r, reservationStatus: 'CANCELED' }
-                        : r
-                    )
-                );
+                setReservations(prev => prev.filter(r => r.reservationId !== modalData.reservationId));
 
-                // 성공 모달로 전환
                 setModalType('success');
                 setModalData({
-                    ...modalData,
                     message: '예약이 취소되었습니다.',
                     carInfo: `${modalData.brand} ${modalData.displayNameShort}`
                 });
@@ -118,19 +108,19 @@ function ReservationsList() {
     };
 
     const closeModal = () => {
-        if (modalType === 'success' || modalType === 'error') {
-            // 성공/에러 모달은 2초 후 자동 닫기
-            setTimeout(() => {
-                setShowModal(false);
-                setModalType(null);
-                setModalData(null);
-            }, 2000);
-        } else {
-            setShowModal(false);
-            setModalType(null);
-            setModalData(null);
-        }
+        setShowModal(false);
+        setModalType(null);
+        setModalData(null);
     };
+
+    useEffect(() => {
+        if (showModal && (modalType === 'success' || modalType === 'error')) {
+            const timer = setTimeout(() => {
+                closeModal();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [showModal, modalType]);
 
     const handleReviewClick = (e, reservation) => {
         e.stopPropagation();
@@ -160,7 +150,6 @@ function ReservationsList() {
             if (response.ok) {
                 setReviewedReservations(prev => new Set([...prev, editingReview.reservationId]));
                 handleCloseReview();
-                // 리뷰 성공 모달
                 setModalType('success');
                 setModalData({ message: '리뷰가 작성되었습니다!' });
                 setShowModal(true);
@@ -202,18 +191,20 @@ function ReservationsList() {
         );
     }
 
+    const activeReservations = reservations.filter(item => item.reservationStatus !== 'CANCELED');
+
     return (
         <>
             <div className="max-w-[640px] mx-auto p-4">
                 <h2 className="text-xl font-bold mb-4">예약 내역</h2>
 
-                {reservations.length === 0 ? (
+                {activeReservations.length === 0 ? (
                     <div className="text-center py-10 text-gray-500">
                         예약 내역이 없습니다.
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {reservations.map((item) => {
+                        {activeReservations.map((item) => {
                             const status = STATUS_MAP[item.reservationStatus] || {
                                 label: item.reservationStatus,
                                 color: "text-gray-600",
@@ -314,7 +305,6 @@ function ReservationsList() {
                 )}
             </div>
 
-            {/* 리뷰 작성 모달 */}
             {editingReview && (
                 <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-[1000] p-4 animate-in fade-in zoom-in duration-200"
                      style={{ backdropFilter: 'blur(4px)' }}>
@@ -382,13 +372,12 @@ function ReservationsList() {
                 </div>
             )}
 
-            {/* 공통 모달 (확인/성공/에러) */}
             {showModal && modalData && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-in fade-in zoom-in duration-200">
                     <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200 text-center">
                         {modalType === 'success' && (
                             <>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{modalData.message}</h3>
+                                <h3 className="text-lg font-semibold text-green-600 mb-2">{modalData.message}</h3>
                                 {modalData.carInfo && (
                                     <p className="text-sm text-gray-600">{modalData.carInfo}</p>
                                 )}
@@ -397,7 +386,7 @@ function ReservationsList() {
 
                         {modalType === 'error' && (
                             <>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{modalData.message}</h3>
+                                <h3 className="text-lg font-semibold text-red-600 mb-2">{modalData.message}</h3>
                                 {modalData.carInfo && (
                                     <p className="text-sm text-gray-600">{modalData.carInfo}</p>
                                 )}
