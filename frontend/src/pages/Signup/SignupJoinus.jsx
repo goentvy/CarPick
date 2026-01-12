@@ -66,8 +66,8 @@ const SignupJoinus = () => {
         if (!value) return '';
         const numbers = value.replace(/[^0-9]/g, '');
         if (numbers.length < 4) return numbers;
-        if (numbers.length < 8) return `${numbers.slice(0,3)}-${numbers.slice(3)}`;
-        return `${numbers.slice(0,3)}-${numbers.slice(3,7)}-${numbers.slice(7,11)}`;
+        if (numbers.length < 8) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
     };
 
     const handlePhoneChange = (e) => {
@@ -85,7 +85,7 @@ const SignupJoinus = () => {
 
             if (data.success) {
                 alert("가입 정보가 제출되었습니다.");
-                navigate("/signup/complete", { state: formData.name});
+                navigate("/signup/complete", { state: formData.name });
             } else {
                 alert(data.message);
             }
@@ -188,22 +188,20 @@ const SignupJoinus = () => {
                             <button
                                 type="button"
                                 onClick={() => setValue("gender", "M", { shouldValidate: true })}
-                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                                    gender === "M"
-                                        ? "bg-blue-100 text-brand border-blue-500"
-                                        : "bg-white text-brand border-gray-300 hover:bg-blue-100"
-                                }`}
+                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${gender === "M"
+                                    ? "bg-blue-100 text-brand border-blue-500"
+                                    : "bg-white text-brand border-gray-300 hover:bg-blue-100"
+                                    }`}
                             >
                                 남성
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setValue("gender", "F", { shouldValidate: true })}
-                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${
-                                    gender === "F"
-                                        ? "bg-blue-100 text-brand border-blue-500"
-                                        : "bg-white text-brand border-gray-300 hover:bg-blue-100"
-                                }`}
+                                className={`px-6 py-2 rounded-lg border-2 font-medium transition-colors duration-200 ${gender === "F"
+                                    ? "bg-blue-100 text-brand border-blue-500"
+                                    : "bg-white text-brand border-gray-300 hover:bg-blue-100"
+                                    }`}
                             >
                                 여성
                             </button>
@@ -231,7 +229,7 @@ const SignupJoinus = () => {
                     <div className="flex justify-center space-x-4 mt-6">
                         <button
                             type="button"
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("/home")}
                             className="px-8 sm:px-12 py-2 border-2 border-blue-500 text-brand rounded-lg hover:bg-brand hover:text-white"
                         >
                             취소
