@@ -1,11 +1,11 @@
-package com.carpick.domain.car.dto.cardetailpage;
+package com.carpick.domain.car.dto.Legacycardetailpage;
 
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CarInfoCardDto {
+public class LegacyCarInfoCardDto {
 
 	@NotBlank
     private String type; // FUEL, YEAR, SEATS, CAREER, AGE, FUEL_EFF

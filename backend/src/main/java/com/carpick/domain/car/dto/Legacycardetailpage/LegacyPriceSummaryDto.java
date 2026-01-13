@@ -1,11 +1,11 @@
-package com.carpick.domain.car.dto.cardetailpage;
+package com.carpick.domain.car.dto.Legacycardetailpage;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-public class PriceSummaryDto {
+public class LegacyPriceSummaryDto {
     private BigDecimal originalPrice;      // ✅ 원가 추가
     private BigDecimal dailyPrice; // 할인 적용가
     private Integer discountRate;          // ✅ 할인율 추가

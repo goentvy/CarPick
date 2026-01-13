@@ -22,7 +22,8 @@ public class CarDetailRawDto {
     private Integer minDriverAge;     // 최소 운전자 나이 (예: 21)
     private Integer minLicenseYears;  // 최소 운전 경력 년수 (예: 1)
     private String fuelEfficiency;    // 연비 (예: "15.2km/L")
-
+    private String aiSummary;         // AI 추천 문구 (cs.ai_summary)
+    private String carOptions;        // 차량 옵션 문자열 (cs.car_options)
     // ==================== VEHICLE_INVENTORY (차량 재고 테이블) ====================
 
     private Long vehicleId;           // 개별 차량 고유 ID (PK) - 실제 렌트 대상
