@@ -1,4 +1,4 @@
-package com.carpick.domain.car.dto.cardetailpage;
+package com.carpick.domain.car.dto.Legacycardetailpage;
 
 import com.carpick.domain.car.dto.common.BranchLocationDto;
 
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class LocationDto {
+public class LegacyLocationDto {
 	
 	@NotNull
 	@Valid

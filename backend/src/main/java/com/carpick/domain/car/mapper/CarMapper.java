@@ -34,7 +34,9 @@ public interface CarMapper {
 
     // CarMapper.java에 추가
     List<AiCarCardDto> selectCarCardByCarClass(@Param("carClass") CarClass carClass);
-
+// 수정안 v2 기준
+    CarDetailRawDto selectCarDetailV2(@Param("specId") Long specId,
+                                      @Param("pickupBranchId") Long pickupBranchId);
 
 
 }
