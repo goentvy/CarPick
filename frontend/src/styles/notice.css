@@ -29,7 +29,7 @@
 .notice-title {
   font-size: 24px;
   font-weight: 800;
-  margin: 10px 0 20px;
+  margin: 5px 0 15px;
   text-align: center;
 }
 
@@ -40,7 +40,7 @@
   gap: 12px;
   margin-bottom: 16px;
   padding: 16px;
-  background-color: #f8f9fa;
+  background-color: #fdfdfd;
   border-radius: 8px;
   flex-direction: column;
 }
