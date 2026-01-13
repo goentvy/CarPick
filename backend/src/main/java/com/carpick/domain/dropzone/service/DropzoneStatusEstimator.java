@@ -1,6 +1,6 @@
-package com.carpick.domain.branch.service;
+package com.carpick.domain.dropzone.service;
 
-import com.carpick.domain.branch.dto.DropzoneStatusDto;
+import com.carpick.domain.dropzone.dto.DropzoneStatusDto;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -75,4 +75,3 @@ public class DropzoneStatusEstimator {
         };
     }
 }
-

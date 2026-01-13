@@ -1,5 +1,7 @@
-package com.carpick.domain.branch.dto;
+package com.carpick.domain.zone.dto;
 
+import com.carpick.domain.branch.dto.BranchMapDto;
+import com.carpick.domain.dropzone.dto.DropzoneMapDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

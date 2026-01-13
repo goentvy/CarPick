@@ -121,6 +121,8 @@ CREATE TABLE IF NOT EXISTS BRANCH (
     address_detail VARCHAR(255) NULL COMMENT '상세주소',
     phone VARCHAR(20) NOT NULL COMMENT '전화번호',
 
+    image_url VARCHAR(255) NULL COMMENT '지점 대표 이미지 URL',
+
     open_time TIME NULL COMMENT '오픈 시간',
     close_time TIME NULL COMMENT '마감 시간',
     business_hours VARCHAR(255) NULL COMMENT '영업시간 텍스트',
@@ -727,3 +729,4 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 
 SET FOREIGN_KEY_CHECKS = 1;
+

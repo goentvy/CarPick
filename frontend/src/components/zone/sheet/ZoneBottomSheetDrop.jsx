@@ -22,13 +22,8 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
 
     (async () => {
       try {
+        const dropzoneId = Number(dropZone.dropzoneId);
         setStatusLoading(true);
-
-        // ✅ dropZone은 /zone/map에서 온 데이터 → dropzoneId가 필요
-        // 지금 useZoneMap에서 id를 "D-1"로 만들었으니 파싱해주자.
-        const rawId = String(dropZone.id || "");
-        const dropzoneId = rawId.startsWith("D-") ? Number(rawId.slice(2)) : Number(dropZone.dropzoneId);
-
         const res = await getDropzoneStatus(dropzoneId);
         if (!alive) return;
 
@@ -43,7 +38,7 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
     return () => {
       alive = false;
     };
-  }, [show, dropZone?.id]);
+  }, [show, dropZone?.dropzoneId]);
 
   // ✅ 헤더에 넘길 crowdBadge 만들기
   const crowdBadge = useMemo(() => {
@@ -98,9 +93,11 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
           <ZoneSheetHeader
             kind="DROP"
             name={dropZone?.name}
+            subLabel={dropZone?.subLabel ?? "공용 주차장"}
             address={dropZone?.address}
             images={dropZone?.images}
             crowdBadge={crowdBadge}
+            metaLabel="24시간 반납 가능"
           // ✅ (선택) 혼잡도 로딩 중 표시를 하고 싶으면 header에 prop 하나 더
           // crowdLoading={statusLoading}
           />

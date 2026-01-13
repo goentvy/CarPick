@@ -1,8 +1,9 @@
-package com.carpick.domain.branch.controller;
+package com.carpick.domain.dropzone.controller;
 
-import com.carpick.domain.branch.dto.DropzoneDetailDto;
-import com.carpick.domain.branch.dto.DropzoneStatusDto;
-import com.carpick.domain.branch.service.DropzoneService;
+
+import com.carpick.domain.dropzone.dto.DropzoneDetailDto;
+import com.carpick.domain.dropzone.dto.DropzoneStatusDto;
+import com.carpick.domain.dropzone.service.DropzoneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

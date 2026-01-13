@@ -2,13 +2,19 @@ package com.carpick.domain.branch.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+import java.util.List;
 
 /**
  * 카픽존 페이지에서 '카픽존 상세보기' 눌렀을 때 필요한 지점 DTO
  * - 주소/좌표/전화 등 맵/상세 패널에 필요한 정보 포함
  */
 @Getter
-@Builder
+@Setter
+@NoArgsConstructor
 public class BranchZoneDetailDto {
     private Long branchId;
     private String branchCode;
@@ -28,4 +34,6 @@ public class BranchZoneDetailDto {
 
     private String openStatus; // "OPEN" | "CLOSED"
     private String openLabel;  // "영업중" | "영업종료"
+
+    private String imageUrl; // 지점 이미지
 }

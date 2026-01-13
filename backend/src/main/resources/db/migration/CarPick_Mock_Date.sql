@@ -41,6 +41,7 @@ INSERT INTO BRANCH (
     address_basic, address_detail, phone,
     latitude, longitude, region_dept1,
     open_time, close_time, business_hours,
+    image_url,
     can_manage_inventory_yn, can_manage_vehicle_status_yn, can_pickup_return_yn,
     use_yn
 ) VALUES (
@@ -48,6 +49,7 @@ INSERT INTO BRANCH (
              '서울 강서구 하늘길 112', '국제선 청사 1층 렌터카 데스크', '02-1234-5678',
              37.558643, 126.801242, 'SEOUL',
              '08:00:00', '22:00:00', '매일 08:00 ~ 22:00',
+             'https://carpicka.mycafe24.com/branches/GIMPO_AIRPORT.png',
              'Y', 'Y', 'Y',
              'Y'
          ),
@@ -57,6 +59,7 @@ INSERT INTO BRANCH (
             '032-123-4567',
             37.460190, 126.440696, 'INCHEON',
             '07:00:00', '23:00:00', '매일 07:00 ~ 23:00',
+            'https://carpicka.mycafe24.com/branches/INCHEON_T1.png',
             'Y', 'Y', 'Y',
             'Y'
          ),
@@ -66,6 +69,7 @@ INSERT INTO BRANCH (
              '064-123-4567',
              33.507077, 126.492770, 'JEJU',
              '08:00:00', '22:00:00', '매일 08:00 ~ 22:00',
+             'https://carpicka.mycafe24.com/branches/JEJU_AIRPORT.png',
              'Y', 'Y', 'Y',
              'Y'
          ),
@@ -75,6 +79,7 @@ INSERT INTO BRANCH (
              '051-123-4567',
              35.179554, 128.938213, 'BUSAN',
              '07:00:00', '22:00:00', '매일 07:00 ~ 22:00',
+             'https://carpicka.mycafe24.com/branches/GIMHAE_AIRPORT.png',
              'Y', 'Y', 'Y',
              'Y'
          ),
@@ -83,6 +88,7 @@ INSERT INTO BRANCH (
           '053-123-4567',
           35.896384, 128.655334, 'DAEGU',
           '08:00:00', '21:00:00', '매일 08:00 ~ 21:00',
+          'https://carpicka.mycafe24.com/branches/DAEGU_AIRPORT.png',
           'Y', 'Y', 'Y',
           'Y'
          );

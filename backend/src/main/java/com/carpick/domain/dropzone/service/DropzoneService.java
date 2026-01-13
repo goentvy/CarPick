@@ -1,8 +1,8 @@
-package com.carpick.domain.branch.service;
+package com.carpick.domain.dropzone.service;
 
-import com.carpick.domain.branch.dto.DropzoneDetailDto;
-import com.carpick.domain.branch.dto.DropzoneStatusDto;
-import com.carpick.domain.branch.mapper.DropzoneMapper;
+import com.carpick.domain.dropzone.dto.DropzoneDetailDto;
+import com.carpick.domain.dropzone.dto.DropzoneStatusDto;
+import com.carpick.domain.dropzone.mapper.DropzoneMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

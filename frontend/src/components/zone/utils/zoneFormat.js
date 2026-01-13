@@ -19,8 +19,8 @@ export function formatNowKR() {
 export function getOpenLabel({
   openStatus,
   openLabel,
-  open,
-  close,
+  openTime,
+  closeTime,
 } = {}) {
   // ✅ 서버 계산 라벨 우선
   if (openLabel) return openLabel;
@@ -30,19 +30,24 @@ export function getOpenLabel({
   if (openStatus === "CLOSED") return "영업종료";
 
   // ✅ fallback (시간 기반 MVP)
-  if (close) return `영업중 · ~${close}`;
-  if (open) return `영업중 · ${open}`;
+  if (closeTime) return `영업중 · ~${closeTime}`;
+  if (openTime) return `영업중 · ${openTime}`;
   return "영업 정보";
 }
 
 /** ✅ 혼잡도 라벨(드롭존)
  *  - FREE / NORMAL / CROWDED */
 export function getCrowdBadge(status) {
-  if (status === "CROWDED") return { label: "혼잡", cls: "bg-[#FFE9A8] text-black/80" };
-  if (status === "NORMAL") return { label: "보통", cls: "bg-black/5 text-black/60" };
-  if (status === "FREE") return { label: "여유", cls: "bg-[#E7EEFF] text-[#0A56FF]" };
-  if (status === "FULL") return { label: "만차", cls: "bg-[#FFDFDF] text-[#B00020]" };
-  if (status === "INACTIVE") return { label: "운영중지", cls: "bg-black/10 text-black/60" };
+  if (status === "FREE")
+    return { label: "여유", cls: "bg-[#0A56FF] text-white" }; // ✅ primary 강하게
+  if (status === "NORMAL")
+    return { label: "보통", cls: "bg-black/70 text-white" }; // ✅ 회색 → 짙은 회색
+  if (status === "CROWDED")
+    return { label: "혼잡", cls: "bg-[#FFB703] text-black" }; // ✅ 노랑 대비 업
+  if (status === "FULL")
+    return { label: "만차", cls: "bg-[#D62828] text-white" }; // ✅ 빨강
+  if (status === "INACTIVE")
+    return { label: "운영중지", cls: "bg-black/20 text-black/80" };
   return null;
 }
 

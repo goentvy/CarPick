@@ -63,7 +63,7 @@ export default function ZoneBottomSheetBranch({
           "relative z-90 rounded-t-3xl bg-white border border-black/5",
           "shadow-[0_-10px_40px_rgba(0,0,0,0.18)]",
           "transition-[height,transform] duration-300 ease-out",
-          "h-[30dvh]", // ✅ 30% 고정
+          "h-[clamp(320px,37dvh,420px)]",
           show ? "translate-y-0" : "translate-y-[105%]",
         ].join(" ")}
       >
@@ -80,13 +80,13 @@ export default function ZoneBottomSheetBranch({
             subLabel={zone?.subLabel ?? "카픽 센터"}
             address={zone?.address}
 
-            open={zone?.open}
-            close={zone?.close}
+            openTime={zone?.openTime}
+            closeTime={zone?.closeTime}
 
             openStatus={zone?.openStatus}
             openLabel={zone?.openLabel}
 
-            images={zone?.images}
+            imageUrl={zone?.imageUrl}
             availabilityBadge={zone?.availabilityBadge}
           />
         </div>
