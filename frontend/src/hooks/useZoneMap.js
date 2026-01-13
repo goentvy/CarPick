@@ -22,8 +22,8 @@ export function useZoneMap() {
         const nextZones = [
           ...branches.map((b) => ({
             id: `B-${b.branchId}`,
-            branchCode: b.branchCode,
             kind: "BRANCH",
+            branchId: b.branchId,
             name: b.branchName,
             address: b.addressBasic,
             lat: Number(b.latitude),

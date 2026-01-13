@@ -35,5 +35,5 @@ public class BranchZoneDetailDto {
     private String openStatus; // "OPEN" | "CLOSED"
     private String openLabel;  // "영업중" | "영업종료"
 
-    private List<String> images;
+    private String imageUrl; // 지점 이미지
 }

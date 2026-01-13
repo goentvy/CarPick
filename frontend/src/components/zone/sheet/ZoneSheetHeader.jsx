@@ -14,7 +14,7 @@ export default function ZoneSheetHeader({
   closeTime,
   openStatus,
   openLabel, // "영업중" | "영업종료"
-  images = [],
+  imageUrl,
 
   crowdBadge = null, // 드롭존 혼잡도 배지
   metaLabel = "", // ✅ DROP용: "24시간 반납 가능"
@@ -35,11 +35,16 @@ export default function ZoneSheetHeader({
   const kindPillCls =
     kind === "BRANCH" ? "bg-[#0A56FF] text-white" : "bg-[#111] text-white";
 
-  // 이미지 1장만(30% 기준)
-  const coverImg = images || null;
+  // 단일 URL 우선, 없으면 image[0]
+  const coverImg =
+    (typeof imageUrl === "string" && imageUrl.trim() ? imageUrl : null);
+
+  console.log("[ZoneSheetHeader] imageUrl:", imageUrl);
+
+  console.log("[ZoneSheetHeader] coverImg:", coverImg);
 
   return (
-    <div className="px-5 pt-2 ">
+    <div className="px-5 pt-1 ">
       {/* 상단: 좌(정보) / 우(배지) */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -91,19 +96,21 @@ export default function ZoneSheetHeader({
 
       {/* 대표 이미지 */}
 
-      <div className="mt-3">
+      <div className="mt-2 mb-3">
         <div className="rounded-2xl overflow-hidden border border-black/5 bg-black/10">
           {coverImg ? (
             <img
               src={coverImg}
               alt=""
-              className="w-full h-[180px] object-cover"
+              className="w-full h-[270px] object-cover"
               onError={() => console.log("[IMG ERROR]", coverImg)}
             />
           ) : (
             // 이미지 없을 때도 영역 유지
-            <div className="w-full h-[180px]" />
+            <div className="w-full h-[270px]" />
+
           )}
+
         </div>
       </div>
 

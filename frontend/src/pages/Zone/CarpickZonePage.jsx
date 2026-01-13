@@ -125,7 +125,26 @@ export default function CarPickZonePage() {
   const sheetPx = Number.parseInt(sheetH || "0", 10) || 0;
   const bottom = Math.max(BASE_BOTTOM, sheetPx + GAP);
 
-  /** 14) Rendering */
+  /** 14) 단일 지점 정보 병합: branchZone, dropzone */
+  const branchZone =
+    selected?.kind === "BRANCH"
+      ? {
+        ...selected,
+
+        // 상세 정보 우선
+        address: branchDetail?.addressBasic ?? selected.address,
+        openTime: branchDetail?.openTime,
+        closeTime: branchDetail?.closeTime,
+        openStatus: branchDetail?.openStatus,
+        openLabel: branchDetail?.openLabel,
+
+        // 대표 이미지
+        imageUrl: branchDetail?.imageUrl,
+      }
+      : null;
+
+
+  /** 15) Rendering */
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-[640px]">
@@ -242,18 +261,10 @@ export default function CarPickZonePage() {
           <ZoneBottomSheetBranch
             open={sheetOpen && selected?.kind === "BRANCH"}
             onClose={closeOverlays}
-            zone={
-              selected?.kind === "BRANCH"
-                ? {
-                  ...selected,
-                  address: branchDetail?.addressBasic ?? selected.address,
-                }
-                : null
-            }
-            onHeightChange={
-              sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined
-            }
+            zone={branchZone}
+            onHeightChange={sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined}
           />
+
 
           <ZoneBottomSheetDrop
             open={sheetOpen && selected?.kind === "DROP"}
