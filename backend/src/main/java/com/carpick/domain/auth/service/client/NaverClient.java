@@ -34,11 +34,9 @@ public class NaverClient {
 
     @PostConstruct
     public void init() {
-        log.info("=== 네이버 OAuth 설정 ===");
-        log.info("Client ID: {}", clientId);
-        log.info("Client Secret: {}", clientSecret != null ? "****" : "null");
-        log.info("Redirect URI: {}", redirectUri);
-        log.info("==========================");
+        log.info("=== nav oauth ===");
+
+
     }
 
     /**
