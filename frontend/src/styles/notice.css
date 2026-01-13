@@ -3,7 +3,8 @@
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
-  padding: 80px 16px 80px; /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
+  padding: 80px 16px 80px;
+  /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
   font-family: "Noto Sans KR", sans-serif;
 }
 
@@ -54,8 +55,8 @@
 
 .search-input {
   width: 100%;
-  padding: 10px 40px 10px 15px;
-  padding-right: 44px;
+  /* 왼쪽(15px -> 40px)에 아이콘 자리를 만들고, 오른쪽(44px -> 15px) 여백을 줄입니다 */
+  padding: 10px 15px 10px 40px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
@@ -70,7 +71,8 @@
 
 .search-icon {
   position: absolute;
-  right: 12px;
+  /* right 대신 left를 사용합니다 */
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -81,6 +83,7 @@
   padding: 4px;
   border-radius: 4px;
   transition: all 0.2s ease;
+  z-index: 1;  /* 입력창보다 위에 보이도록 설정 */
 }
 
 .search-icon:hover {
@@ -95,8 +98,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .notice-table.loading {
@@ -148,9 +156,10 @@
   text-align: center;
   font-size: 14px;
   word-break: break-word;
-  border: none; /* ❗ 기존 border 제거 */
+  border: none;
+  /* ❗ 기존 border 제거 */
   vertical-align: middle;
-  border-bottom:1px solid #eee;
+  border-bottom: 1px solid #eee;
 }
 
 .notice-table tbody tr {
@@ -170,9 +179,11 @@
   cursor: pointer;
   color: #333;
   font-weight: 600;
-  display: inline-block;   /* ❗ block → inline-block */
+  display: inline-block;
+  /* ❗ block → inline-block */
   width: 100%;
-  padding: 4px 0;          /* ❗ 여백 최소화 */
+  padding: 4px 0;
+  /* ❗ 여백 최소화 */
   transition: color 0.2s ease;
 }
 
@@ -349,13 +360,16 @@
 .notice-detail-title {
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 0; /* 아래 info 박스와 붙이기 위해 0 */
+  margin-bottom: 0;
+  /* 아래 info 박스와 붙이기 위해 0 */
   color: #1a1a1a;
   line-height: 1.4;
   background: white;
   padding: 24px 24px 16px;
-  border-radius: 12px 12px 0 0; /* 위쪽만 둥글게 */
-  border-top: 3px solid #007bff; /* 포인트 컬러 강조 */
+  border-radius: 12px 12px 0 0;
+  /* 위쪽만 둥글게 */
+  border-top: 3px solid #007bff;
+  /* 포인트 컬러 강조 */
   border-left: 1px solid #eee;
   border-right: 1px solid #eee;
 }
@@ -366,10 +380,12 @@
   padding: 0 24px 20px;
   margin-bottom: 20px;
   display: flex;
-  flex-direction: row !important; /* 가로 배열 유지 */
+  flex-direction: row !important;
+  /* 가로 배열 유지 */
   justify-content: flex-start;
   gap: 20px;
-  border-radius: 0 0 12px 12px; /* 아래쪽만 둥글게 */
+  border-radius: 0 0 12px 12px;
+  /* 아래쪽만 둥글게 */
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
   border-right: 1px solid #eee;
@@ -433,7 +449,7 @@
   border-radius: 12px;
   min-height: 160px;
   border: 1px solid #eee;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .notice-detail-content p {
@@ -594,7 +610,7 @@
     color: #6c757d;
   }
 
-  
+
 
   /* 작성일 작게 */
   .notice-table th:nth-child(3),
@@ -609,8 +625,10 @@
     font-size: 15px;
     line-height: 1.6;
   }
-.contact-container {
-    flex-direction: column; /* 가로에서 세로 정렬로 변경 */
+
+  .contact-container {
+    flex-direction: column;
+    /* 가로에서 세로 정렬로 변경 */
     text-align: center;
     padding: 30px 20px;
     gap: 25px;
@@ -626,12 +644,13 @@
   }
 
   .contact-button {
-    width: 100%; /* 버튼이 가로 꽉 차게 변경 */
+    width: 100%;
+    /* 버튼이 가로 꽉 차게 변경 */
     justify-content: center;
     font-size: 1.2rem;
     padding: 12px;
   }
-  
+
 }
 
 /* 이전/다음 공지사항 네비게이션    */
@@ -655,15 +674,16 @@
 /* [추가] 마우스 호버 시 스타일 강화 */
 .nav-row:hover:not(.disabled) {
   /* 짙은 하늘색 계열로 배경색 변경 */
-  background-color: #e6f2ff; 
+  background-color: #e6f2ff;
   /* 전체적인 행에 약간의 입체감 부여 */
-  box-shadow: inset 4px 0 0 #007bff; 
+  box-shadow: inset 4px 0 0 #007bff;
 }
 
 /* [추가] 호버 시 제목(subject) 색상 강조 */
 .nav-row:hover:not(.disabled) .nav-subject {
   color: #0056b3;
-  font-weight: 600; /* 글자를 조금 더 두껍게 하여 가독성 확보 */
+  font-weight: 600;
+  /* 글자를 조금 더 두껍게 하여 가독성 확보 */
 }
 
 /* [추가] 호버 시 라벨(dir) 디자인 동적 변화 */
@@ -676,7 +696,8 @@
   font-size: 12px;
   font-weight: 800;
   color: #007bff;
-  background-color: #eef6ff; /* 라벨 배경 추가 */
+  background-color: #eef6ff;
+  /* 라벨 배경 추가 */
   padding: 5px 12px;
   border-radius: 6px;
   min-width: 75px;
@@ -690,7 +711,8 @@
 }
 
 .contact-container {
-  background: linear-gradient(135deg, #0066ff 0%, #0044cc 100%); /* 카픽 메인 컬러 적용 */
+  background: linear-gradient(135deg, #0066ff 0%, #0044cc 100%);
+  /* 카픽 메인 컬러 적용 */
   border-radius: 15px;
   padding: 30px;
   display: flex;
@@ -740,15 +762,19 @@
 /* 공지 뱃지 디자인 */
 .notice-badge {
   display: inline-block;
-  background-color: #eef4ff; /* 연한 블루 배경 */
-  color: #0066ff;            /* 카픽 메인 블루 */
-  padding: 6px 12px;         /* 패딩 살짝 여유있게 */
+  background-color: #eef4ff;
+  /* 연한 블루 배경 */
+  color: #0066ff;
+  /* 카픽 메인 블루 */
+  padding: 6px 12px;
+  /* 패딩 살짝 여유있게 */
   border-radius: 20px;
   font-size: 12px;
   font-weight: 700;
   border: 1px solid #cce0ff;
   line-height: 1;
-  min-width: 50px;           /* 텍스트 정렬을 위해 최소 폭 설정 */
+  min-width: 50px;
+  /* 텍스트 정렬을 위해 최소 폭 설정 */
   text-align: center;
 }
 
@@ -765,8 +791,10 @@
 
 /* [추가] 최신 공지사항 제목 두껍게 및 색상 강조 */
 .notice-subject.bold-text {
-  font-weight: 800; /* 기존 600보다 더 두껍게 */
-  color: #1D6BF3;   /* 더 진한 검은색 */
+  font-weight: 800;
+  /* 기존 600보다 더 두껍게 */
+  color: #1D6BF3;
+  /* 더 진한 검은색 */
 }
 
 /* [추가] N 아이콘 뱃지 디자인 (첫 번째 이미지 스타일) */
@@ -776,7 +804,8 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  background-color: #ff4d4f; /* 선명한 레드 */
+  background-color: #ff4d4f;
+  /* 선명한 레드 */
   color: white;
   font-size: 10px;
   font-weight: 900;
@@ -784,13 +813,15 @@
   margin-left: 6px;
   vertical-align: middle;
   line-height: 1;
-  flex-shrink: 0; /* ❗ 아이콘 크기가 줄어들지 않도록 고정 */
+  flex-shrink: 0;
+  /* ❗ 아이콘 크기가 줄어들지 않도록 고정 */
   /* 살짝 떠 있는 느낌 */
   box-shadow: 0 2px 4px rgba(255, 77, 79, 0.3);
   /* 텍스트 'N'이 정중앙에 오도록 보정 */
-  padding-bottom: 1px; 
+  padding-bottom: 1px;
   position: relative;
-  top: -1px; /* 텍스트와 중심선 맞춤 */
+  top: -1px;
+  /* 텍스트와 중심선 맞춤 */
 }
 
 /* [추가] 최신 공지사항의 날짜도 약간 더 선명하게 */
@@ -801,20 +832,24 @@
 
 /* 최근 공지사항 행(Row) 호버 스타일 */
 .notice-table tbody tr.recent-notice-row:hover {
-  background-color: #f0f9ff !important; /* 기존보다 조금 더 화사한 하늘색 */
+  background-color: #f0f9ff !important;
+  /* 기존보다 조금 더 화사한 하늘색 */
   cursor: pointer;
 }
 
 /* 최근 공지사항 제목 호버 스타일 */
 .recent-notice-row:hover .notice-subject.bold-text {
-  color: #364f89; /* 기존 호버 색상과 통일 */
+  color: #364f89;
+  /* 기존 호버 색상과 통일 */
   text-decoration: underline;
   /* 호버 시 제목이 더 선명해 보이도록 설정 */
 }
 
 /* N 아이콘 호버 시 효과 (선택 사항) */
 .recent-notice-row:hover .new-icon-badge {
-  transform: scale(1.1); /* 마우스를 올리면 아이콘이 살짝 커짐 */
+  transform: scale(1.1);
+  /* 마우스를 올리면 아이콘이 살짝 커짐 */
   transition: transform 0.2s ease;
-  background-color: #ff1f1f; /* 더 진한 레드로 변경 */
+  background-color: #ff1f1f;
+  /* 더 진한 레드로 변경 */
 }

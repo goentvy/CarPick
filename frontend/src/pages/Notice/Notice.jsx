@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchNotices } from "@/services/noticeApi";
 import "@/styles/notice.css";
 
 export default function Notice() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialKeyword = searchParams.get("keyword") || "";
+
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [activeKeyword, setActiveKeyword] = useState("");
+  const [keyword, setKeyword] = useState(initialKeyword);
+  const [activeKeyword, setActiveKeyword] = useState(initialKeyword);
 
   // 1. 데이터 로딩 함수 (keyword 대신 activeKeyword 사용)
   const loadNotices = async () => {
     setLoading(true);
     try {
-      const res = await fetchNotices(page - 1, activeKeyword); // ✅
+      const res = await fetchNotices(page - 1, activeKeyword);
       setNotices(res.data.content || []);
       setTotalPages(res.data.totalPages || 1);
     } catch (err) {
@@ -27,17 +32,19 @@ export default function Notice() {
   };
 
   useEffect(() => {
+    setSearchParams({ page, keyword: activeKeyword });
     loadNotices();
   }, [page, activeKeyword]);
 
   const handleSearch = () => {
-    setPage(1); // 페이지 리셋
-    setActiveKeyword(keyword); // ✅ 여기서 검색어를 확정 지으면 useEffect가 실행됨
+    setPage(1);
+    setActiveKeyword(keyword);
   };
 
   const handleClickNotice = (id) => {
+    // 상세 페이지로 이동 시 현재 정보를 쿼리 스트링으로 전달
     navigate(`/notice/${id}?page=${page}&keyword=${activeKeyword}`);
-  };
+  };  
 
   return (
     <div className="notice-container">
@@ -46,6 +53,9 @@ export default function Notice() {
       {/* 검색 */}
       <div className="search-container">
         <div className="search-input-wrapper">
+          <button className="search-icon" onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
           <input
             className="search-input"
             placeholder="검색어를 입력하세요"
@@ -53,7 +63,9 @@ export default function Notice() {
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button className="search-icon" onClick={handleSearch}>🔍</button>
+          <button className="search-icon" onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
       </div>
 
