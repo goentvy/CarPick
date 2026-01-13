@@ -2,7 +2,7 @@ package com.carpick.domain.car.controller;
 
 
 import com.carpick.domain.car.dto.carListPage.CarListItemDto;
-import com.carpick.domain.car.dto.cardetailpage.CarDetailResponseDto;
+import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
 import com.carpick.domain.car.service.CarListService;
 import com.carpick.domain.car.service.CarService;
 import com.carpick.domain.reservation.enums.RentType;
@@ -24,8 +24,8 @@ public class CarController {
 
     //차량상세 (DB 연동)
     @GetMapping("/{carId}")
-    public ResponseEntity<CarDetailResponseDto> getCarDetail(@PathVariable("carId") Long carId) {
-    CarDetailResponseDto carDetail = carService.getCarDetail(carId);  // ✅ 변수명 수정
+    public ResponseEntity<LegacyCarDetailResponseDto> getCarDetail(@PathVariable("carId") Long carId) {
+    LegacyCarDetailResponseDto carDetail = carService.getCarDetail(carId);  // ✅ 변수명 수정
 
     //  리뷰 조회
     List<ReviewResponse> reviews = reviewService.getReviewsBySpecId(carId, 10);

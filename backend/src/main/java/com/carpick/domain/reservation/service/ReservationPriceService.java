@@ -1,6 +1,6 @@
 package com.carpick.domain.reservation.service;
 
-import com.carpick.domain.car.dto.cardetailpage.CarDetailResponseDto;
+import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
 import com.carpick.domain.car.service.CarService;
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
 import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
@@ -33,7 +33,7 @@ public class ReservationPriceService {
         LocalDateTime start = parseDateTimeOrNull(startDateTime);
         LocalDateTime end = parseDateTimeOrNull(endDateTime);
 
-        CarDetailResponseDto detail = carService.getCarDetail(carId);
+        LegacyCarDetailResponseDto detail = carService.getCarDetail(carId);
         int carDailyPrice = detail.getPriceSummary().getDailyPrice().intValue();
 
         String code = (insuranceCode == null || insuranceCode.isBlank()) ? "NONE" : insuranceCode;
