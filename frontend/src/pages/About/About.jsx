@@ -258,7 +258,7 @@ const About = () => {
             <section className="relative h-screen flex flex-col items-center justify-center bg-slate-900 text-white text-center px-6 overflow-hidden snap-start">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/20 blur-[120px] rounded-full"></div>
                 <motion.div {...sectionMotion} className="relative z-10 max-w-5xl mx-auto px-4">
-                    <h2 className="text-5xl sm:text-8xl font-black mb-10 italic tracking-tight bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent whitespace-nowrap pr-8">
+                    <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-10 italic tracking-tight bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent break-keep leading-tight px-6 w-full inline-block">
                         Why CarP!ck?
                     </h2>
                     <p className="text-[24px] font-light mb-10 leading-relaxed text-gray-300 break-keep">

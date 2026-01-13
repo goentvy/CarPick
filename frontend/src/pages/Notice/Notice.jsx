@@ -46,6 +46,9 @@ export default function Notice() {
       {/* 검색 */}
       <div className="search-container">
         <div className="search-input-wrapper">
+          <button className="search-icon" onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
           <input
             className="search-input"
             placeholder="검색어를 입력하세요"
@@ -53,7 +56,9 @@ export default function Notice() {
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button className="search-icon" onClick={handleSearch}>🔍</button>
+          <button className="search-icon" onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
       </div>
 
