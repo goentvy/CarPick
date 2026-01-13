@@ -36,7 +36,7 @@ export default function ZoneSheetHeader({
     kind === "BRANCH" ? "bg-[#0A56FF] text-white" : "bg-[#111] text-white";
 
   // 이미지 1장만(30% 기준)
-  const coverImg = Array.isArray(images) ? images[0] : null;
+  const coverImg = images || null;
 
   return (
     <div className="px-5 pt-2 ">
@@ -98,6 +98,7 @@ export default function ZoneSheetHeader({
               src={coverImg}
               alt=""
               className="w-full h-[180px] object-cover"
+              onError={() => console.log("[IMG ERROR]", coverImg)}
             />
           ) : (
             // 이미지 없을 때도 영역 유지

@@ -80,13 +80,13 @@ export default function ZoneBottomSheetBranch({
             subLabel={zone?.subLabel ?? "카픽 센터"}
             address={zone?.address}
 
-            open={zone?.open}
-            close={zone?.close}
+            openTime={zone?.openTime}
+            closeTime={zone?.closeTime}
 
             openStatus={zone?.openStatus}
             openLabel={zone?.openLabel}
 
-            images={zone?.images}
+            image={zone?.image}
             availabilityBadge={zone?.availabilityBadge}
           />
         </div>

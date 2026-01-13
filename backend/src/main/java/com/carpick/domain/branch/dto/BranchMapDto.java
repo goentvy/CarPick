@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter @Setter
 public class BranchMapDto {
     private Long branchId;
+    private String branchCode;
     private String branchName;
     private String addressBasic;
     private Double latitude;

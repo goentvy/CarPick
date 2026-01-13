@@ -1,4 +1,4 @@
-package com.carpick.domain.zone.service;
+package com.carpick.domain.zone.dto;
 
 import com.carpick.domain.branch.dto.BranchMapDto;
 import com.carpick.domain.dropzone.dto.DropzoneMapDto;

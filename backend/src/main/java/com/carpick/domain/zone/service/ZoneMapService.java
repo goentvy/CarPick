@@ -1,10 +1,10 @@
-package com.carpick.domain.zone.dto;
+package com.carpick.domain.zone.service;
 
 import com.carpick.domain.branch.dto.BranchMapDto;
 import com.carpick.domain.branch.mapper.BranchMapper;
 import com.carpick.domain.dropzone.dto.DropzoneMapDto;
 import com.carpick.domain.dropzone.mapper.DropzoneMapper;
-import com.carpick.domain.zone.service.ZoneMapDto;
+import com.carpick.domain.zone.dto.ZoneMapDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

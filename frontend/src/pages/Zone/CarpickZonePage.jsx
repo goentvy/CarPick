@@ -7,9 +7,10 @@ import ZoneBottomSheetBranch from "../../components/zone/sheet/ZoneBottomSheetBr
 import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop.jsx";
 
 import { useZoneMap } from "@/hooks/useZoneMap";
-import { useMyLocation } from "@/hooks/useMyLocation";
-import { useZoneSelection } from "@/hooks/useZoneSelection";
+import { useMyLocation } from "@/hooks/useMyLocation.js";
+import { useZoneSelection } from "@/hooks/useZoneSelection.js";
 import { useBranchDetail } from "@/hooks/useBranchDetail";
+import { Images } from "lucide-react";
 
 
 
@@ -246,7 +247,6 @@ export default function CarPickZonePage() {
                 ? {
                   ...selected,
                   address: branchDetail?.addressBasic ?? selected.address,
-                  images: [`https://carpicka.mycafe24.com/branches/${selected.branchCode}.png`,]
                 }
                 : null
             }
