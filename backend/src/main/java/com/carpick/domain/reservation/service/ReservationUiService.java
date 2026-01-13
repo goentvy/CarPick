@@ -1,6 +1,6 @@
 package com.carpick.domain.reservation.service;
 
-import com.carpick.domain.car.dto.cardetailpage.CarDetailResponseDto;
+import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
 import com.carpick.domain.car.service.CarService;
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
 import com.carpick.domain.insurance.enums.InsuranceCode;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +28,7 @@ public class ReservationUiService {
      */
     public ReservationFormResponseDto getForm(Long carId) {
         // 1. 차량 상세 조회 (기존 로직 유지)
-        CarDetailResponseDto detail = carService.getCarDetail(carId);
+        LegacyCarDetailResponseDto detail = carService.getCarDetail(carId);
 
         int dailyPrice = detail.getPriceSummary()
                 .getDailyPrice()
@@ -39,17 +38,17 @@ public class ReservationUiService {
         // ===== 차량 정보 =====
         ReservationFormResponseDto.CarSummaryDto car = new ReservationFormResponseDto.CarSummaryDto();
         car.setCarId(detail.getCarId());
-        car.setTitle(detail.getTopCarDetailDto().getTitle());
-        car.setSubtitle(detail.getTopCarDetailDto().getSubtitle());
-        car.setImageUrl(detail.getTopCarDetailDto().getImageUrls().get(0));
+        car.setTitle(detail.getLegacyTopCarDetailDto().getTitle());
+        car.setSubtitle(detail.getLegacyTopCarDetailDto().getSubtitle());
+        car.setImageUrl(detail.getLegacyTopCarDetailDto().getImageUrls().get(0));
         car.setDailyPrice(dailyPrice);
         car.setCurrency("KRW");
         res.setCar(car);
 
         // ===== 지점 정보 (pickup / dropoff기준) =====
-        var pickupSrc = detail.getLocationDto().getPickup();
-        var dropoffSrc = (detail.getLocationDto().getDropoff() != null)
-                ? detail.getLocationDto().getDropoff()
+        var pickupSrc = detail.getLegacyLocationDto().getPickup();
+        var dropoffSrc = (detail.getLegacyLocationDto().getDropoff() != null)
+                ? detail.getLegacyLocationDto().getDropoff()
                 : pickupSrc;
         //    pickup
         ReservationFormResponseDto.BranchSummaryDto pickup = new ReservationFormResponseDto.BranchSummaryDto();
@@ -105,7 +104,7 @@ public class ReservationUiService {
      * 보험 선택 시 가격 재계산 (백엔드에서 합산)
      */
     public ReservationPriceResponseDto calcPrice(Long carId, ReservationPriceRequestDto req){
-    CarDetailResponseDto detail =carService.getCarDetail(carId);
+    LegacyCarDetailResponseDto detail =carService.getCarDetail(carId);
         // ✅ 동일 스타일로 가격 추출
         int carDailyPrice = detail.getPriceSummary()
                 .getDailyPrice()

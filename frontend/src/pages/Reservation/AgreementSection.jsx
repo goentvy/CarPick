@@ -1,25 +1,24 @@
 import { useFormContext } from "react-hook-form";
 import useReservationStore from "../../store/useReservationStore";
 import api from "../../services/api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const AgreementSection = ({ isLoggedIn }) => {
+    console.log("Agreement URL search =", window.location.search);
+
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     // const { handleSubmit } = useFormContext();
     const { handleSubmit, formState: { isSubmitting } } = useFormContext();
 
-    // Zustand 액션
+    // Zustand actions/selectors
     const setCardPayment = useReservationStore((state) => state.setCardPayment);
     const setDriverInfo = useReservationStore((state) => state.setDriverInfo);
-    // ✅ 추가: create / pay 전용 payload
     const getCreatePayload = useReservationStore((state) => state.getCreatePayload);
     const getPayPayload = useReservationStore((state) => state.getPayPayload);
+
     const rentalPeriod = useReservationStore((state) => state.rentalPeriod);
-
-
     const totalPrice = useReservationStore((state) => state.payment.summary?.totalPrice || 0);
-
-
     const setReservationNo = useReservationStore((state) => state.setReservationNo);
 
 
@@ -57,51 +56,103 @@ const AgreementSection = ({ isLoggedIn }) => {
             installment,
             agree,
         });
-        // 3) API 호출 (create -> pay)
+        // ✅ AgreementSection.jsx (핵심 부분만)
+
         try {
-            // ============================
-            // 1️⃣ 예약 생성 (/create)
-            // ============================
-            let createPayload = {
-                ...getCreatePayload(),
-                startDateTime,
-                endDateTime,
+            // ✅ store payload는 1번만
+            const storeCreatePayload = getCreatePayload();
+
+            // ✅ URL에서 값 추출
+            const urlPickupIdRaw = searchParams.get("pickupBranchId");
+            const urlReturnIdRaw = searchParams.get("returnBranchId");
+            const urlStart = searchParams.get("startDateTime");
+            const urlEnd = searchParams.get("endDateTime");
+            const urlRentTypeRaw = searchParams.get("rentType");
+
+            // ✅ final 값 먼저 선언(중요)
+            const finalStart = urlStart || rentalPeriod?.startDateTime;
+            const finalEnd = urlEnd || rentalPeriod?.endDateTime;
+
+            const finalPickupId = Number(urlPickupIdRaw || storeCreatePayload?.pickupBranchId);
+            const finalReturnId = Number(urlReturnIdRaw || storeCreatePayload?.returnBranchId || finalPickupId);
+
+            const finalRentType = String(urlRentTypeRaw || storeCreatePayload?.rentType || "SHORT").toUpperCase();
+            const finalCarId = Number(storeCreatePayload?.carId);
+
+            // ✅ 이제 로그 찍기 (선언 후!)
+            console.log("[Agreement] FINAL", {
+                finalCarId,
+                finalPickupId,
+                finalReturnId,
+                finalStart,
+                finalEnd,
+                finalRentType,
+            });
+
+            // ✅ 필수값 검증
+            if (!finalCarId || Number.isNaN(finalCarId)) {
+                alert("차량 정보(carId)가 누락되었습니다. 차량을 다시 선택해주세요.");
+                navigate("/day");
+                return;
+            }
+            if (!finalStart || !finalEnd) {
+                alert("예약 기간 정보가 누락되었습니다. 다시 검색해주세요.");
+                navigate("/day");
+                return;
+            }
+            if (!finalPickupId || Number.isNaN(finalPickupId)) {
+                alert("인수 지점(pickupBranchId) 정보가 누락되었습니다. 다시 검색해주세요.");
+                navigate("/day");
+                return;
+            }
+
+            // ✅ driverInfo는 formData 기준으로 만들어서 보내는 게 안전합니다.
+            const driverInfo = {
+                birth,
+                email,
+                phone,
+                firstname: firstName,
+                lastname: lastName,
             };
-            console.log("✅ CREATE payload:", createPayload);
 
+            // ✅ 최종 create payload
+            const createPayload = {
+                carId: finalCarId,
+                pickupBranchId: finalPickupId,
+                returnBranchId: finalReturnId,
+                startDateTime: finalStart,
+                endDateTime: finalEnd,
+                rentType: finalRentType,
 
-            const createRes = await api.post(
-                "/reservation/create",
-                createPayload
-            );
+                insuranceCode: storeCreatePayload?.insuranceCode || "STANDARD",
+                agreement: true,
+                driverInfo,
+                method: storeCreatePayload?.method || "visit",
+            };
 
+            console.log("✅ FINAL CREATE payload:", createPayload);
 
+            const createRes = await api.post("/reservation/create", createPayload);
 
             const newReservationNo = createRes.data?.reservationNo;
-
             if (!newReservationNo) {
                 alert("예약번호 생성에 실패했습니다.");
                 return;
             }
 
-            // ✅ 예약번호 저장 (핵심)
             setReservationNo(newReservationNo);
-
             console.log("✅ reservationNo 저장:", newReservationNo);
+            const createdTotalPrice = createRes.data?.totalPrice ?? 0;
 
-            // ============================
-            // 2️⃣ 결제 승인 (/pay)
-            // ============================
-            const payPayload = {
-                ...getPayPayload(),
-                reservationNo: newReservationNo,
-            };
+            // store에 넣어서 화면 표시/다음 페이지 전달값을 확정
+            useReservationStore.getState().setPaymentSummary?.({
+                totalPrice: createdTotalPrice,
+            });
+            // 결제 승인
+            const payPayload = { ...getPayPayload(), reservationNo: newReservationNo };
             console.log("✅ PAY payload:", payPayload);
 
-            const payRes = await api.post(
-                "/reservation/pay",
-                payPayload
-            );
+            const payRes = await api.post("/reservation/pay", payPayload);
 
             if (payRes.data?.status === "APPROVED") {
                 alert("결제가 완료되었습니다!");
@@ -111,13 +162,18 @@ const AgreementSection = ({ isLoggedIn }) => {
                 alert("결제 실패: " + (payRes.data?.message || "승인 실패"));
             }
         } catch (err) {
-            if (String(err?.message).includes("rentalPeriod")) {
-                alert("예약 기간 정보가 누락되었습니다. 다시 처음부터 진행해주세요.");
-                return;
-            }
-            alert("서버 오류가 발생했습니다.");
-            console.error(err);
+            console.error("❌ 최종 결제 중 에러:", {
+                message: err.message,
+                status: err.response?.status,
+                data: err.response?.data,
+            });
+
+            const serverMsg = err.response?.data?.message || "서버 오류가 발생했습니다.";
+            alert(`예약 실패: ${serverMsg}`);
         }
+
+
+
     };
 
 

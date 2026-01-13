@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchNotices } from "@/services/noticeApi";
 import "@/styles/notice.css";
 
 export default function Notice() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialKeyword = searchParams.get("keyword") || "";
+
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [activeKeyword, setActiveKeyword] = useState("");
+  const [keyword, setKeyword] = useState(initialKeyword);
+  const [activeKeyword, setActiveKeyword] = useState(initialKeyword);
 
   // 1. 데이터 로딩 함수 (keyword 대신 activeKeyword 사용)
   const loadNotices = async () => {
     setLoading(true);
     try {
-      const res = await fetchNotices(page - 1, activeKeyword); // ✅
+      const res = await fetchNotices(page - 1, activeKeyword);
       setNotices(res.data.content || []);
       setTotalPages(res.data.totalPages || 1);
     } catch (err) {
@@ -27,17 +32,19 @@ export default function Notice() {
   };
 
   useEffect(() => {
+    setSearchParams({ page, keyword: activeKeyword });
     loadNotices();
   }, [page, activeKeyword]);
 
   const handleSearch = () => {
-    setPage(1); // 페이지 리셋
-    setActiveKeyword(keyword); // ✅ 여기서 검색어를 확정 지으면 useEffect가 실행됨
+    setPage(1);
+    setActiveKeyword(keyword);
   };
 
   const handleClickNotice = (id) => {
+    // 상세 페이지로 이동 시 현재 정보를 쿼리 스트링으로 전달
     navigate(`/notice/${id}?page=${page}&keyword=${activeKeyword}`);
-  };
+  };  
 
   return (
     <div className="notice-container">
@@ -46,6 +53,9 @@ export default function Notice() {
       {/* 검색 */}
       <div className="search-container">
         <div className="search-input-wrapper">
+          <button className="search-icon" onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
           <input
             className="search-input"
             placeholder="검색어를 입력하세요"
@@ -53,7 +63,9 @@ export default function Notice() {
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button className="search-icon" onClick={handleSearch}>🔍</button>
+          <button className="search-icon" onClick={handleSearch}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
       </div>
 
@@ -73,25 +85,38 @@ export default function Notice() {
           </tr>
         </thead>
         <tbody>
-          {(notices || []).map((n) => (
-            <tr key={n.id}>
-              <td className="notice-id-column">
-                <span className="notice-badge">공지</span>
-              </td>
+          {(notices || []).map((n, index) => {
+            // 1페이지이면서 상위 3개 항목인지 확인
+            const isNew = page === 1 && index < 3;
 
-              <td>
-                <span
-                  className="notice-subject"
-                  onClick={() => handleClickNotice(n.id)}
-                >
-                  {n.title}
-                </span>
-              </td>
+            return (
+              <tr key={n.id} className={isNew ? "recent-notice-row" : ""}>
+                <td className="notice-id-column">
+                  <span className="notice-badge">공지</span>
+                </td>
 
-              <td>{n.createdAt?.slice(0, 10)}</td>
-            </tr>
+                <td>
+                  <span
+                    className={`notice-subject ${isNew ? "bold-text" : ""}`}
+                    onClick={() => handleClickNotice(n.id)}
+                  >
+                    {n.title}
+                    {/* 아이콘이 항상 제목 끝에 붙어 있도록 함 */}
+                    {isNew && (
+                      <span style={{ whiteSpace: 'nowrap' }}>
+                        &nbsp;{/* 공백 한 칸 추가 */}
+                        <span className="new-icon-badge">N</span>
+                      </span>
+                    )}
+                  </span>
+                </td>
 
-          ))}
+                <td className={isNew ? "bold-text" : ""}>
+                  {n.createdAt?.slice(0, 10)}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

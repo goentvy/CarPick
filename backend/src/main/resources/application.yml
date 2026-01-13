@@ -75,3 +75,15 @@ jwt:
   secret: "mySuperSecretKeyForJWTGeneration1234567890"
   expiration: 3600000
 
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: "carpick001@gmail.com"  # 👈 공용 아이디는 그냥 적어도 됩니다.
+  password: ${MAIL_PASSWORD}        # 👈 여기에 앱 비밀번호(16자리)가 들어갑니다.
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true

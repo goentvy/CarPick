@@ -29,6 +29,10 @@ public class NoticeService {
         int updatedCount = noticeRepository.incrementViewCount(id);
         
         if (updatedCount > 0) {
+            // [1] 최신 공지사항 3개의 ID 리스트를 미리 가져옴
+            List<Long> latestIds = noticeRepository.findTop3ByDeletedFalseOrderByCreatedAtDesc()
+                    .stream().map(NoticeNtt::getId).toList();
+
             return noticeRepository.findByIdAndDeletedFalse(id).map(notice -> {
                 NoticeDto dto = new NoticeDto(
                     notice.getId(), 
@@ -39,14 +43,27 @@ public class NoticeService {
                     notice.getViews()
                 );
 
+                // [2] 본문 글의 isNew 설정
+                dto.setNew(latestIds.contains(notice.getId()));
+
                 var prevEntity = noticeRepository.findTop1ByDeletedFalseAndCreatedAtLessThanOrderByCreatedAtDesc(notice.getCreatedAt());
                 var nextEntity = noticeRepository.findTop1ByDeletedFalseAndCreatedAtGreaterThanOrderByCreatedAtAsc(notice.getCreatedAt());
 
+                // [3] ✅ 수정: 이전글/다음글도 latestIds 포함 여부를 확인하여 전달
                 if (prevEntity != null) {
-                    dto.setPrev(new NoticeDto.NavInfo(prevEntity.getId(), prevEntity.getTitle()));
+                    dto.setPrev(new NoticeDto.NavInfo(
+                        prevEntity.getId(), 
+                        prevEntity.getTitle(), 
+                        latestIds.contains(prevEntity.getId()) // false 대신 포함 여부 체크
+                    ));
                 }
+
                 if (nextEntity != null) {
-                    dto.setNext(new NoticeDto.NavInfo(nextEntity.getId(), nextEntity.getTitle()));
+                    dto.setNext(new NoticeDto.NavInfo(
+                        nextEntity.getId(), 
+                        nextEntity.getTitle(), 
+                        latestIds.contains(nextEntity.getId()) // false 대신 포함 여부 체크
+                    ));
                 }
 
                 return dto;

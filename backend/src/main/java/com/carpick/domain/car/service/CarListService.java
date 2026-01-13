@@ -3,6 +3,7 @@ package com.carpick.domain.car.service;
 
 import com.carpick.domain.car.dto.carListPage.CarListItemDto;
 import com.carpick.domain.car.mapper.CarMapper;
+import com.carpick.domain.reservation.enums.RentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +22,14 @@ public class CarListService {
      * - 할인/원가는 표시용(optional)
      * - 최종 결제 기준 금액은 finalPrice
      */
-    public List<CarListItemDto> getCarListItems() {
+    public List<CarListItemDto> getCarListItems(
+            Long pickupBranchId,
+            String startDateTime,
+            String endDateTime,
+            RentType rentType
+    ) {
 
-        List<CarListItemDto> items = carMapper.selectCarListItems();
+        List<CarListItemDto> items = carMapper.selectCarListItems(pickupBranchId);
 
         // 👉 Service 레벨에서 "의미 보정"만 수행
         // (비즈니스 판단 ❌, 계산 중복 ❌)

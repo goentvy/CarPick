@@ -87,7 +87,8 @@ function Guide() {
             </button>
           </div>
 
-          <div className="guide-footer-info">
+          {/* 푸터 정보 */}
+          {/* <div className="guide-footer-info">
             <div className="footer-links">
               <span onClick={() => openModal("이용약관📄", agree1)}>이용약관</span>
               <span className="divider">|</span>
@@ -98,12 +99,12 @@ function Guide() {
               <span onClick={() => openModal("고객센터📞", csInfo)}>고객센터</span>
             </div>
             <p className="copyright">© 2026 CarP!ck. All rights reserved.</p>
-          </div>
+          </div> */}
         </section>
       </div>
 
-      {/* 모달 영역 */}
-      {isModalOpen && (
+      {/* 푸터 모달 영역 */}
+      {/* {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
@@ -117,7 +118,7 @@ function Guide() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
