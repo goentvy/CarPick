@@ -1,20 +1,26 @@
 package com.carpick.domain.car.dto.carDetailPage.response;
 
 
+import com.carpick.domain.car.dto.review.ReviewSection;
+import com.carpick.domain.car.enums.CarClass;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
 @Builder
+@Setter
 public class CarDetailResponseDtoV2 {
     private Long specId;
+    private String aiSummary;
+    private String carOptions;
     private TopCarDetail topCarDetailDto;
     private CarCardSection carCardSectionDto;
     private Location locationDto;
-
+    private ReviewSection reviewSection;
 
     // === Inner Classes ===
 
@@ -23,7 +29,7 @@ public class CarDetailResponseDtoV2 {
         private String title;
         private String subtitle;
         private List<String> imageUrls;
-        private String carType;
+        private CarClass carType;
     }
 
     @Data @Builder
