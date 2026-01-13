@@ -85,7 +85,11 @@ export default function NoticeDetail() {
         </div>
 
         <button
-          onClick={() => navigate(`/notice?page=${page}&keyword=${keyword}`)}
+          onClick={() => {
+            // 현재 들고 있는 page와 keyword를 그대로 쿼리 스트링에 담아 이동
+            const queryString = `?page=${page}&keyword=${encodeURIComponent(keyword)}`;
+            navigate(`/notice${queryString}`);
+          }}
           className="btn-list"
         >
           목록으로
