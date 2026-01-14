@@ -1,40 +1,32 @@
 package com.carpick.domain.reservation.dtoV2.response;
 
-
-import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
-import lombok.AllArgsConstructor;
+import com.carpick.domain.payment.enums.PayStatus;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-@AllArgsConstructor
 public class ReservationPayResponseDtoV2 {
-    private CarSummaryDtoV2 car;
-    private List<InsuranceOptionDtoV2> insuranceOptions;
+    /*
+     * 1. 결제 처리 상태 (핵심)
+     * 역할: 프론트엔드가 성공/실패 분기를 태우는 기준값
+     * 예시 값: "APPROVED" (성공), "DECLINED" (거절), "ERROR" (오류)
+     */
+    private PayStatus status;
 
-    @Data
-    public static class CarSummaryDtoV2{
-        private Long carId;
-        private String title;
-        private String subtitle;
-        private String imageUrl;
-        // ✅ 어제 mock의 estimatedTotalPrice(128000)를 1일 가격으로 사용
-        private int dailyPrice;
-        private String currency; // KRW
+    /*
+     * 2. 사용자 안내 메시지
+     * 역할: 사용자에게 보여줄 팝업이나 토스트 메시지 내용
+     * 예시 값: "결제가 정상적으로 완료되었습니다." / "잔액이 부족합니다."
+     */
+//   PayStatus 에 값을 사용
+//     예시 프런트 toast(payResponse.status.detail);
 
+    /*
+     * 3. 최종 예약 번호
+     * 역할: 결제 성공 후 '마이페이지'나 '예약 상세 내역'으로 이동할 때 사용하는 키값
+     * 예시 값: "20251231-001" (문자열) 또는 "152" (DB PK)
+     * (실패 시에는 null이 될 수도 있음)
+     */
+    private String reservationNo;
 
-
-    }
-    // ===== 보험 옵션 =====
-    @Data
-    public static class InsuranceOptionDtoV2{
-        private String code;  // NONE / NORMAL / FULL
-        private String label;  // 선택안함 / 일반자차 / 완전자차
-        private String summaryLabel; // 결제정보 표기용: 선택안함/일반면책/완전자차
-        private int extraDailyPrice; // 보험 추가금 (1일)
-        private String desc; // 사고 시 고객부담금 전액/30만원/면제
-        private boolean isDefault; // 초기 선택값 (예: NONE=true)
-    }
 
 }
