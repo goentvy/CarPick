@@ -6,7 +6,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class InquiryCreateResponse {
-
-	private boolean success;
-	private Long inquiryId;
+    private Long inquiryId;
 }

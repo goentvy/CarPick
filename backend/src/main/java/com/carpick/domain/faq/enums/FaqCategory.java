@@ -2,6 +2,9 @@ package com.carpick.domain.faq.enums;
 
 import java.util.Arrays;
 
+import com.carpick.global.exception.BusinessException;
+import com.carpick.global.exception.enums.ErrorCode;
+
 public enum FaqCategory {
 
     RESERVATION("reservation", "예약 · 결제"),
@@ -37,6 +40,6 @@ public enum FaqCategory {
                 .filter(c -> c.code.equals(code))
                 .findFirst()
                 .orElseThrow(() ->
-                        new IllegalArgumentException("존재하지 않는 FAQ 카테고리: " + code));
+                new BusinessException(ErrorCode.INVALID_INPUT_VALUE));
     }
 }

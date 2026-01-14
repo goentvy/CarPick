@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.carpick.domain.inquiry.dto.AdminInquiryDetailResponse;
 import com.carpick.domain.inquiry.dto.AdminInquiryPageResponse;
 import com.carpick.domain.inquiry.service.InquiryService;
+import com.carpick.global.exception.BusinessException;
+import com.carpick.global.exception.enums.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -47,13 +49,8 @@ public class AdminInquiryController {
 	// 상세 페이지
 	@GetMapping("/{id}")
 	public String detail(@PathVariable Long id, Model model) {
-
 	    AdminInquiryDetailResponse inquiry =
 	        inquiryService.getAdminInquiry(id);
-
-	    if (inquiry == null) {
-	        return "redirect:/admin/inquiry";
-	    }
 
 	    model.addAttribute("inquiry", inquiry);
 	    return "inquiryWrite";
@@ -61,14 +58,18 @@ public class AdminInquiryController {
 	
 	
 	// 답변 등록 / 수정
-	 @PostMapping("/{id}/answer")
-	 public String answer(
-	     @PathVariable Long id,
-	     @RequestParam String reply
-	 ) {
-	     inquiryService.answerInquiry(id, reply);
-	     return "redirect:/admin/inquiry";
-	 }
+	@PostMapping("/{id}/answer")
+	public String answer(
+	    @PathVariable Long id,
+	    @RequestParam String reply
+	) {
+	    if (reply == null || reply.trim().isEmpty()) {
+	        throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+	    }
+
+	    inquiryService.answerInquiry(id, reply.trim());
+	    return "redirect:/admin/inquiry";
+	}
 	 
 	 // 문의 삭제
 	 @PostMapping("/{id}/delete")

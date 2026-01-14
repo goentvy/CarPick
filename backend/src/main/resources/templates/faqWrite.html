@@ -24,7 +24,6 @@
 	<link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
-	ㄹ
 	<!-- JS -->
 	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 
@@ -59,7 +58,9 @@
 					<div class="col-sm-6 clearfix"></div>
 				</div>
 			</div>
-			<form th:action="${faq == null} ? @{/admin/faq} : @{/admin/faq/{id}(id=${faq.id})}" method="post">
+			<form th:action="${faq == null} ? @{/admin/faq} : @{/admin/faq/{id}(id=${faq.id})}"
+			      th:object="${req}"
+			      method="post">
 
 				<div class="main-content-inner">
 					<div class="row">
@@ -91,25 +92,46 @@
 											</div>
 
 											<div class="form-group">
-												<div class="form-group">
-													<label for="Select">카테고리</label>
-													<select name="category" class="form-control">
-														<option th:each="c : ${categories}" th:value="${c.code}"
-															th:text="${c.label}"
-															th:selected="${faq != null and faq.category == c.code}">
-														</option>
-													</select>
+											    <label>카테고리</label>
+												<select th:field="*{category}"
+												        class="form-control"
+												        th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''">
+											        <option value="">선택하세요</option>
+											        <option th:each="c : ${categories}"
+											                th:value="${c.code}"
+											                th:text="${c.label}">
+											        </option>
+											    </select>
+												<div class="invalid-feedback"
+												     th:if="${#fields.hasErrors('category')}"
+												     th:errors="*{category}">
+												</div>
+											</div>
+										
+											<div class="form-group">
+											    <label>질문</label>
+												<input type="text"
+												       th:field="*{question}"
+												       class="form-control"
+												       th:classappend="${#fields.hasErrors('question')} ? 'is-invalid' : ''">
+
+												<div class="invalid-feedback"
+												     th:if="${#fields.hasErrors('question')}"
+												     th:errors="*{question}">
 												</div>
 											</div>
 											<div class="form-group">
-												<label>질문</label>
-												<input type="text" name="question" class="form-control"
-													th:value="${faq?.question}">
-											</div>
-											<div class="form-group">
-												<label>답변</label>
-												<textarea rows="5" name="answer" class="form-control"
-													th:text="${faq?.answer}"></textarea>
+											    <label>답변</label>
+												<textarea rows="5"
+												          th:field="*{answer}"
+												          class="form-control"
+												          th:classappend="${#fields.hasErrors('answer')} ? 'is-invalid' : ''">
+												</textarea>
+
+												<div class="invalid-feedback"
+												     th:if="${#fields.hasErrors('answer')}"
+												     th:errors="*{answer}">
+												</div>
 											</div>
 											<button type="submit" class="btn btn-primary"
 											        th:text="${faq == null ? '등록' : '수정'}">
