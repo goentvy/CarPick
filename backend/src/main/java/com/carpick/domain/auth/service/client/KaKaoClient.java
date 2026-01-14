@@ -29,19 +29,14 @@ public class KaKaoClient {
     private String redirectUri;
 
 
-
     private final RestTemplate restTemplate;
-
-
 
 
     @PostConstruct
     public void init() {
-        log.info("=== 카카오 OAuth 설정 ===");
-        log.info("Client ID: {}", clientId);
-        log.info("Client Secret: {}", clientSecret != null ? "****" : "null");
-        log.info("Redirect URI: {}", redirectUri);
-        log.info("==========================");
+        log.info("=== ka oauth ===");
+
+
     }
 
     /**

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.branch.mapper.BranchMapper">
+
+    <!-- ======================================================
+         ResultMaps
+         ====================================================== -->
+
+    <!-- 홈 / 검색 리스트 -->
+    <resultMap id="BranchHomeMap"
+               type="com.carpick.domain.branch.dto.BranchHomeDto">
+        <id     property="branchId"      column="branch_id"/>
+        <result property="branchName"    column="branch_name"/>
+        <result property="addressBasic"  column="address_basic"/>
+        <result property="businessHours" column="business_hours"/>
+        <result property="imageUrl"      column="image_url"/>
+        <result property="isActive"      column="is_active"/>
+    </resultMap>
+
+    <!-- 카픽존 상세 -->
+    <resultMap id="BranchZoneDetailMap"
+               type="com.carpick.domain.branch.dto.BranchZoneDetailDto">
+        <id     property="branchId"       column="branch_id"/>
+        <result property="branchCode"     column="branch_code"/>
+        <result property="branchName"     column="branch_name"/>
+        <result property="addressBasic"   column="address_basic"/>
+        <result property="addressDetail"  column="address_detail"/>
+        <result property="phone"          column="phone"/>
+        <result property="latitude"       column="latitude"/>
+        <result property="longitude"      column="longitude"/>
+        <result property="businessHours"  column="business_hours"/>
+        <result property="openTime"       column="open_time"/>
+        <result property="closeTime"      column="close_time"/>
+        <result property="imageUrl"       column="image_url"/>
+        <result property="isActive"       column="is_active"/>
+        <result property="openStatus"     column="openStatus"/>
+        <result property="openLabel"      column="openLabel"/>
+    </resultMap>
+
+    <!-- 지도/마커 -->
+    <resultMap id="BranchMapResult"
+               type="com.carpick.domain.branch.dto.BranchMapDto">
+        <id     property="branchId"     column="branch_id"/>
+        <result property="branchCode"   column="branch_code"/>
+        <result property="branchName"   column="branch_name"/>
+        <result property="addressBasic" column="address_basic"/>
+        <result property="latitude"     column="latitude"/>
+        <result property="longitude"    column="longitude"/>
+    </resultMap>
+
+    <!-- ======================================================
+         Queries
+         ====================================================== -->
+
+    <!-- 홈 / 검색 지점 리스트 -->
+    <select id="findForHome"
+            resultMap="BranchHomeMap">
+        SELECT
+            branch_id,
+            branch_name,
+            address_basic,
+            business_hours,
+            (CASE WHEN use_yn = 'Y' THEN 1 ELSE 0 END) AS is_active
+        FROM BRANCH
+        WHERE use_yn = 'Y'
+        ORDER BY branch_id ASC
+    </select>
+
+    <!-- 카픽존 상세 1건 -->
+    <select id="findForZoneDetail"
+            parameterType="long"
+            resultMap="BranchZoneDetailMap">
+<![CDATA[
+        SELECT
+            branch_id,
+            branch_code,
+            branch_name,
+            address_basic,
+            address_detail,
+            phone,
+            CAST(latitude  AS DOUBLE) AS latitude,
+            CAST(longitude AS DOUBLE) AS longitude,
+            business_hours,
+            DATE_FORMAT(open_time, '%H:%i')  AS open_time,
+            DATE_FORMAT(close_time, '%H:%i') AS close_time,
+            image_url,
+            (CASE WHEN use_yn = 'Y' THEN 1 ELSE 0 END) AS is_active,
+
+            CASE
+                WHEN use_yn = 'Y'
+                         AND open_time IS NOT NULL
+                         AND close_time IS NOT NULL
+                         AND (
+                         (open_time <= close_time AND TIME(NOW()) BETWEEN open_time AND close_time)
+                    OR
+                     (open_time > close_time AND (TIME(NOW()) >= open_time OR TIME(NOW()) <= close_time))
+            )
+            THEN 'OPEN'
+            ELSE 'CLOSED'
+        END AS openStatus,
+
+        CASE
+            WHEN use_yn = 'Y'
+             AND open_time IS NOT NULL
+             AND close_time IS NOT NULL
+             AND (
+                (open_time <= close_time AND TIME(NOW()) BETWEEN open_time AND close_time)
+                OR
+                (open_time > close_time AND (TIME(NOW()) >= open_time OR TIME(NOW()) <= close_time))
+             )
+            THEN '영업중'
+            ELSE '영업종료'
+        END AS openLabel
+    FROM BRANCH
+    WHERE branch_id = #{branchId}
+        AND use_yn = 'Y'
+        LIMIT 1
+        ]]>
+</select>
+
+
+    <!-- 지도 / 마커용 지점 리스트 -->
+    <select id="findForMap"
+            resultMap="BranchMapResult">
+        SELECT
+            branch_id,
+            branch_name,
+            address_basic,
+            CAST(latitude  AS DOUBLE) AS latitude,
+            CAST(longitude AS DOUBLE) AS longitude
+        FROM BRANCH
+        WHERE deleted_at IS NULL
+        ORDER BY branch_id ASC
+    </select>
+
+</mapper>

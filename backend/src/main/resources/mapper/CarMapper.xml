@@ -123,7 +123,45 @@
         ORDER BY (pp.branch_id IS NULL) ASC, pp.valid_from DESC
             LIMIT 1
     </select>
-<!--차량 목록 페이지 쿼리 -->
+
+    <!-- 차량 상세 정보 조회 V2 (스펙 중심 + 선택 지점 컨텍스트) -->
+    <select id="selectCarDetailV2"
+            parameterType="map"
+            resultType="com.carpick.domain.car.dto.raw.CarDetailRawDto">
+
+        SELECT
+            /* CAR_SPEC */
+            cs.spec_id            AS specId,
+            cs.model_name         AS modelName,
+            cs.car_class          AS carClass,
+            cs.fuel_type          AS fuelType,
+            cs.seating_capacity   AS seatingCapacity,
+            cs.model_year_base    AS modelYearBase,
+            cs.main_image_url     AS mainImageUrl,
+            cs.min_driver_age     AS minDriverAge,
+            cs.min_license_years  AS minLicenseYears,
+            cs.fuel_efficiency    AS fuelEfficiency,
+            cs.ai_summary         AS aiSummary,
+            cs.car_options        AS carOptions,
+            /* BRANCH (사용자 선택 pickupBranchId) */
+            b.branch_id           AS branchId,
+            b.branch_name         AS branchName,
+            b.address_basic       AS addressBasic,
+            b.latitude            AS latitude,
+            b.longitude           AS longitude,
+            b.open_time           AS openTime,
+            b.close_time          AS closeTime
+
+        FROM CAR_SPEC cs
+                 JOIN BRANCH b
+                      ON b.branch_id = #{pickupBranchId}
+                          AND b.use_yn = 'Y'
+
+        WHERE cs.spec_id = #{specId}
+          AND cs.use_yn = 'Y'
+    </select>
+
+    <!--차량 목록 페이지 쿼리 -->
     <select id="selectCarListItems"
             resultType="com.carpick.domain.car.dto.carListPage.CarListItemDto">
 

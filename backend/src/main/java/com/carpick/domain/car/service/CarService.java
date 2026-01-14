@@ -1,6 +1,6 @@
 package com.carpick.domain.car.service;
 
-import com.carpick.domain.car.dto.cardetailpage.*;
+import com.carpick.domain.car.dto.Legacycardetailpage.*;
 import com.carpick.domain.car.dto.common.BranchLocationDto;
 
 import com.carpick.domain.car.dto.raw.CarDetailRawDto;
@@ -21,7 +21,7 @@ public class CarService {
 
 
     //차량 상세정보 조회(DB연동)
-    public CarDetailResponseDto getCarDetail(Long carId) {
+    public LegacyCarDetailResponseDto getCarDetail(Long carId) {
         // 1. DB에서 Raw 데이터 조회
         CarDetailRawDto raw =carMapper.selectCarDetail(carId);
         if(raw == null){
@@ -31,7 +31,7 @@ public class CarService {
         }
 
 //        1.top영역
-        TopCarDetailDto top = new TopCarDetailDto();
+        LegacyTopCarDetailDto top = new LegacyTopCarDetailDto();
         top.setTitle(raw.getModelName());
         top.setSubtitle(
                 raw.getModelYearBase() + "년형 - "
@@ -43,53 +43,53 @@ public class CarService {
                 raw.getMainImageUrl() == null ? List.of() : List.of(raw.getMainImageUrl())
         );
 //        top.setImageUrls(List.of(raw.getMainImageUrl()));
-        top.setCarType(raw.getCarClass());
+//        top.setCarType(raw.getCarClass());
 //2. 카드 영역
         // 카드 1 - 연료
-        CarInfoCardDto fuel = new CarInfoCardDto();
+        LegacyCarInfoCardDto fuel = new LegacyCarInfoCardDto();
         fuel.setType("FUEL");
         fuel.setTitle("연료");
-        fuel.setValue(raw.getFuelType());
+//        fuel.setValue(raw.getFuelType());
         fuel.setUnit(null);
         fuel.setIcon("fuel");
         //  카드 2 - 연식
-        CarInfoCardDto year = new CarInfoCardDto();
+        LegacyCarInfoCardDto year = new LegacyCarInfoCardDto();
         year.setType("YEAR");
         year.setTitle("연식");
         year.setValue(String.valueOf(raw.getModelYearBase()));
         year.setUnit("년");
         year.setIcon("year");
 //  카드 3 - 좌석
-        CarInfoCardDto seat = new CarInfoCardDto();
+        LegacyCarInfoCardDto seat = new LegacyCarInfoCardDto();
         seat.setType("SEATS");
         seat.setTitle("승차 인원");
         seat.setValue(String.valueOf(raw.getSeatingCapacity()));
         seat.setUnit("명");
         seat.setIcon("seats");
         //  카드 4 - 경력
-        CarInfoCardDto career = new CarInfoCardDto();
+        LegacyCarInfoCardDto career = new LegacyCarInfoCardDto();
         career.setType("CAREER");
         career.setTitle("운전 경력");
         career.setValue(String.valueOf(raw.getMinLicenseYears()));
         career.setUnit("년 이상");
         career.setIcon("career");
 //  카드 5 - 나이
-        CarInfoCardDto age = new CarInfoCardDto();
+        LegacyCarInfoCardDto age = new LegacyCarInfoCardDto();
         age.setType("AGE");
         age.setTitle("이용 가능 연령");
         age.setValue(String.valueOf(raw.getMinDriverAge()));
         age.setUnit("세 이상");
         age.setIcon("age");
         //  카드 6 - 연비
-        CarInfoCardDto fuelEff = new CarInfoCardDto();
+        LegacyCarInfoCardDto fuelEff = new LegacyCarInfoCardDto();
         fuelEff.setType("FUEL_EFF");
         fuelEff.setTitle("연비");
         fuelEff.setValue(String.valueOf(raw.getFuelEfficiency()));
         fuelEff.setUnit("km/L");
         fuelEff.setIcon("fuel_eff");
 // 4) carCardSectionDto로 묶기
-        CarCardSectionDto carCardSectionDto = new CarCardSectionDto();
-        carCardSectionDto.setCards(List.of(fuel, year, seat, career, age, fuelEff));
+        LegacyCarCardSectionDto legacyCarCardSectionDto = new LegacyCarCardSectionDto();
+        legacyCarCardSectionDto.setCards(List.of(fuel, year, seat, career, age, fuelEff));
 
         // 10. 위치
         BranchLocationDto pickup = new BranchLocationDto();
@@ -105,7 +105,7 @@ public class CarService {
 
         BranchLocationDto dropoff = pickup; // 동일 지점
 
-        LocationDto location = new LocationDto();
+        LegacyLocationDto location = new LegacyLocationDto();
         location.setPickup(pickup);
         location.setDropoff(dropoff);
 //11.가격
@@ -117,7 +117,7 @@ public class CarService {
         BigDecimal discountMultiplier = BigDecimal.valueOf(100 - discountRate).divide(BigDecimal.valueOf(100));
         BigDecimal finalPrice = dailyPrice.multiply(discountMultiplier);
 
-        PriceSummaryDto price = new PriceSummaryDto();
+        LegacyPriceSummaryDto price = new LegacyPriceSummaryDto();
 
         // ★ [핵심] 여기에 값을 넣어줘야 JSON에 나옵니다! ★
         price.setOriginalPrice(dailyPrice);       // 17000 (원가)
@@ -127,11 +127,11 @@ public class CarService {
 
 
 //        최종응답
-        CarDetailResponseDto response = new CarDetailResponseDto();
+        LegacyCarDetailResponseDto response = new LegacyCarDetailResponseDto();
         response.setCarId(carId);
-        response.setTopCarDetailDto(top);
-        response.setCarCardSectionDto(carCardSectionDto);
-        response.setLocationDto(location);
+        response.setLegacyTopCarDetailDto(top);
+        response.setLegacyCarCardSectionDto(legacyCarCardSectionDto);
+        response.setLegacyLocationDto(location);
         response.setPriceSummary(price);
         return response;
 

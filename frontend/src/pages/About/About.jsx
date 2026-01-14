@@ -115,29 +115,44 @@ const About = () => {
                                 whileInView={{
                                     opacity: 1,
                                     y: 0,
-                                    transition: { delay: idx * 0.1, duration: 0.5, type: "spring" }
+                                    // transition을 여기 직접 쓰지 않고 아래 개별 transition으로 관리하거나
+                                    // 등장 시에만 적용되도록 transition 속성을 분리합니다.
                                 }}
                                 viewport={{ once: false }}
+
+                                // 1. 호버 상태 정의
                                 whileHover={{
-                                    y: -15,
+                                    y: -12,
+                                    scale: 1.02,
                                     borderColor: "rgba(59, 130, 246, 0.5)",
                                     backgroundColor: "rgba(255, 255, 255, 0.08)",
-                                    transition: { duration: 0.2 }
                                 }}
-                                className="group relative bg-white/[0.03] backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 text-center shadow-2xl cursor-pointer transition-all duration-300"
+
+                                // 2. [핵심] 모든 상태 변화(올라가고 내려가는 것 포함)에 대한 공통 규칙
+                                // 여기서 delay: 0을 주어야 내려올 때 순서대로 느리게 내려오는 현상이 사라집니다.
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 400,
+                                    damping: 25,
+                                    // whileInView의 딜레이가 호버/복귀에 영향을 주지 않도록 0으로 설정
+                                    delay: 0
+                                }}
+
+                                // 3. 등장할 때만 딜레이를 주고 싶다면 whileInView 내부에만 transition을 개별 부여
+                                onViewportEnter={() => { }} // 필요한 경우 사용
+
+                                whileTap={{ scale: 0.97 }}
+                                className="group relative bg-white/[0.03] backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/10 text-center shadow-2xl cursor-pointer"
                             >
+                                {/* 내부 구조는 동일 */}
                                 <div className="relative mb-8 flex justify-center">
-                                    <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
-                                    <div className="relative text-blue-500 transform group-hover:scale-110 transition-transform duration-300">
+                                    <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-200 ease-out"></div>
+                                    <div className="relative text-blue-500 transform group-hover:scale-110 transition-transform duration-200 ease-out">
                                         {iconMap[item.iconName] || <Smile size={40} />}
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold mb-4 text-white group-hover:text-blue-400 transition-colors duration-300">
-                                    {item.title}
-                                </h3>
-                                <p className="text-gray-400 text-base leading-relaxed break-keep font-medium group-hover:text-gray-200 transition-colors duration-300">
-                                    {item.description}
-                                </p>
+                                <h3 className="text-xl font-bold mb-4 text-white group-hover:text-blue-400 transition-colors duration-200">{item.title}</h3>
+                                <p className="text-gray-400 text-base leading-relaxed break-keep font-medium group-hover:text-gray-200 transition-colors duration-200">{item.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -181,17 +196,17 @@ const About = () => {
                     {
                         title: "AI 기반 차량 추천",
                         desc: "단순한 필터링을 넘어 사용자의 이용 패턴, 선호 스타일, 목적지까지의 경로 등 수십 가지 데이터를 실시간으로 분석합니다. 당신에게 가장 최적화된 맞춤형 차량을 AI가 즉시 제안하여 선택의 고민을 덜어드립니다.",
-                        imageSrc: "https://devocean.sk.com/editorImg/2024/12/3/b50b577b0ff1f8200ae9a395593a1308336f48a14eb6413a1103ebf4fa2527aa",
+                        imageSrc: "/images/sub/about/공항자동차.png",
                     },
                     {
                         title: "CarP!ck Zone",
                         desc: "여행의 시작과 끝이 더 자유로워집니다. 공항, KTX역 등 주요 거점에 위치한 전용 픽업 존에서 별도의 대기나 대면 절차 없이 스마트폰 하나로 바로 차량을 이용하세요. 당신의 소중한 시간을 1분 1초라도 아껴드립니다.",
-                        imageSrc: "/images/sub/about/주차장.png",
+                        imageSrc: "/images/sub/about/주차장보완.png",
                     },
                     {
                         title: "투명한 프로세스",
                         desc: "복잡한 서류 작업과 숨겨진 비용은 이제 없습니다. 예약부터 보험 가입, 차량 상태 확인, 그리고 반납까지 모든 과정을 투명하게 디지털화했습니다. 오직 드라이빙의 즐거움에만 집중할 수 있는 혁신적인 렌터카 경험을 제공합니다.",
-                        imageSrc: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=1200",
+                        imageSrc: "/images/sub/about/자동차360블루_01.png",
                     },
                 ].map((offer, i) => (
                     <div
@@ -243,7 +258,7 @@ const About = () => {
             <section className="relative h-screen flex flex-col items-center justify-center bg-slate-900 text-white text-center px-6 overflow-hidden snap-start">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/20 blur-[120px] rounded-full"></div>
                 <motion.div {...sectionMotion} className="relative z-10 max-w-5xl mx-auto px-4">
-                    <h2 className="text-5xl sm:text-8xl font-black mb-10 italic tracking-tight bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent whitespace-nowrap pr-8">
+                    <h2 className="text-4xl min-[526px]:text-6xl md:text-7xl lg:text-8xl font-black mb-10 italic tracking-tight bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent break-keep leading-tight px-6 w-full inline-block">
                         Why CarP!ck?
                     </h2>
                     <p className="text-[24px] font-light mb-10 leading-relaxed text-gray-300 break-keep">

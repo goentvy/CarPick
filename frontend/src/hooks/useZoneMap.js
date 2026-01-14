@@ -22,33 +22,30 @@ export function useZoneMap() {
         const nextZones = [
           ...branches.map((b) => ({
             id: `B-${b.branchId}`,
-            branchId: b.branchId,
             kind: "BRANCH",
+            branchId: b.branchId,
             name: b.branchName,
             address: b.addressBasic,
             lat: Number(b.latitude),
             lng: Number(b.longitude),
-            open: b.open,
-            close: b.close,
-            openStatus: b.openStatus,
-            openLabel: b.openLabel,
-            images: b.images ?? [],
           })),
 
           ...dropzones.map((d) => ({
             id: `D-${d.dropzoneId}`,
             kind: "DROP",
+            dropzoneId: d.dropzoneId,  // ✅ API 호출용 numeric id
+            branchId: d.branchId,
             parentZoneId: `B-${d.branchId}`,
+
             name: d.dropzoneName,
             address: d.addressText,
             lat: Number(d.latitude),
             lng: Number(d.longitude),
+
             walkingTimeMin: d.walkingTimeMin,
             locationDesc: d.locationDesc,
             isActive: d.isActive === true || d.isActive === 1,
-            crowdStatus: d.status ?? d.crowdLevel ?? null,
-            crowdLabel: d.label ?? null,
-            measuredAt: d.measuredAt ?? null,
+
           })),
         ];
 
@@ -72,11 +69,7 @@ export function useZoneMap() {
     };
   }, []);
 
-  const branchItems = useMemo(
-    () => zones.filter((z) => z.kind === "BRANCH"),
-    [zones]
-  );
-
+  const branchItems = useMemo(() => zones.filter((z) => z.kind === "BRANCH"), [zones]);
   const firstBranch = useMemo(() => branchItems[0] ?? null, [branchItems]);
 
   return { zones, branchItems, firstBranch, loading, error };

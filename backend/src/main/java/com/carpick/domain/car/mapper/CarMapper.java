@@ -29,12 +29,14 @@ public interface CarMapper {
 //    CarDetailDto selectCarDetail(@Param("vehicleId") Long vehicleId);
     // ★ [추가] 상세 페이지용 단건 조회
     // 파라미터는 차량 ID (vehicleId) 하나만 받으면 됩니다.
-CarDetailRawDto selectCarDetail(@Param("specId") Long vehicleId);
+    CarDetailRawDto selectCarDetail(@Param("specId") Long vehicleId);
 
 
     // CarMapper.java에 추가
     List<AiCarCardDto> selectCarCardByCarClass(@Param("carClass") CarClass carClass);
-
+// 수정안 v2 기준
+    CarDetailRawDto selectCarDetailV2(@Param("specId") Long specId,
+                                      @Param("pickupBranchId") Long pickupBranchId);
 
 
 }
