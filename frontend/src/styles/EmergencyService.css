@@ -1,18 +1,20 @@
 /* 전체 배경 설정 */
 body {
-  background-color: #fcfdfe; /* 아주 연한 청색 빛이 도는 흰색 */
+  background-color: #fcfdfe;
+  /* 아주 연한 청색 빛이 도는 흰색 */
 }
 
 .emergency-container {
   max-width: 680px;
-  margin: 110px auto 80px; /* 네비바 높이 충분히 확보 */
+  margin: 110px auto 80px;
+  /* 네비바 높이 충분히 확보 */
   padding: 0 20px;
   font-family: 'Pretendard', sans-serif;
 }
 
 /* 헤더: CarP!ck 스타일의 깔끔한 라인 */
 .emergency-header {
-  padding-bottom: 15px; 
+  padding-bottom: 15px;
   border-bottom: 2px solid #3b82f6;
   margin-bottom: 40px;
   text-align: left;
@@ -37,16 +39,19 @@ body {
   position: relative;
   padding: 28px 24px;
   background: #ffffff;
-  border-radius: 20px; /* 더 둥글게 수정 */
+  border-radius: 20px;
+  /* 더 둥글게 수정 */
   border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 아주 부드러운 그림자 */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  /* 아주 부드러운 그림자 */
   transition: all 0.3s ease;
   overflow: hidden;
 }
 
 .service-card-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.08); /* 호버 시 블루 톤 그림자 */
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.08);
+  /* 호버 시 블루 톤 그림자 */
   border-color: #3b82f6;
 }
 
@@ -125,12 +130,18 @@ body {
   font-size: 1.2rem;
 }
 
+.contact-text h3 {
+  font-weight: 800 !important; /* 모바일/데스크탑 모두 적용 */
+  color: white;
+  letter-spacing: -0.02em;
+}
+
 /* 📱 모바일 최적화 */
 @media (max-width: 640px) {
   .emergency-container {
     margin-top: 90px;
   }
-  
+
   .emergency-main-title {
     font-size: 1.4rem;
   }
@@ -139,11 +150,88 @@ body {
     padding: 20px;
   }
 
-  
+
 }
 
 .status-message {
   padding-top: 150px;
   text-align: center;
   color: #94a3b8;
+}
+
+
+
+@media (min-width: 641px) {
+
+  /* 1. 하단 푸터 섹션: 배경색 통일 및 마진 조정 */
+  .contact-section {
+    background-color: #1D6BF3 !important;
+    /* 전체 배경색 통일 */
+    padding: 25px 40px 25px !important;
+    /* 내부 여백 최적화 */
+    border-radius: 20px;
+    margin: 20px auto 0 !important;
+    /* 상단 마진 20px로 고정 */
+    max-width: 680px;
+    /* 상단 카드들과 너비 통일 */
+    color: white;
+    box-shadow: none;
+    /* 이중 박스 느낌 제거 */
+  }
+
+  /* 2. 컨테이너: 양끝 정렬 유지 */
+  .contact-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    background: none !important;
+    /* 내부 박스 배경이 있다면 제거 */
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* 3. 텍스트 영역 */
+  .contact-text h3 {
+    font-size: 24px;     
+    font-weight: 800;       /* 더 두껍게 설정하여 시선 고정 */
+    margin-top: 0;
+    margin-bottom: 8px;    /* 설명 문구와의 간격을 벌려 위치 상향 효과 */
+    color: white;
+    letter-spacing: -0.02em; /* 가독성을 위한 자간 조절 */
+    line-height: 1.1;
+  }
+
+  .contact-text p {
+    font-size: 14px;
+    opacity: 0.95;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+
+  /* 4. 전화번호: 버튼 형태 완전 제거 및 텍스트화 */
+  .contact-button {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: white !important;
+    font-size: 1.5rem;
+    opacity: 0.95;          /* 더 선명하게 표시 */
+    line-height: 1.6;
+    word-break: keep-all;
+    /* 가독성 좋은 크기로 조정 */
+    font-weight: 800;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    /* 클릭 기능 비활성화 */
+    white-space: nowrap;
+  }
+
+  .contact-button i {
+    font-size: 1.2rem;
+    gap: 15px;
+  }
 }

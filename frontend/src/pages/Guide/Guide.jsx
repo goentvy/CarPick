@@ -45,7 +45,7 @@ function Guide() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="guide-loading">이용가이드를 불러오는 중입니다...</p>;
+  if (loading) return <p className="guide-loading"></p>;
   if (error) return <p className="guide-error">이용가이드를 불러올 수 없습니다.</p>;
 
   return (
