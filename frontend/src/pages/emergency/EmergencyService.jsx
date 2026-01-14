@@ -55,12 +55,11 @@ const EmergencyService = () => {
         <section className="contact-section">
           <div className="contact-container">
             <div className="contact-text">
-              <span className="contact-badge">EMERGENCY CALL</span>
-              <h3>
-                도움이 필요하신가요?</h3>
+              {/* 배지는 삭제하여 시각적 복잡도를 줄였습니다 */}
+              <h3>도움이 필요하신가요?</h3>
               <p>365일 24시간 연중무휴 사고 접수 및 긴급출동 서비스를 이용하실 수 있습니다.</p>
             </div>
-            {/* href="tel:"을 사용하면 모바일에서 클릭 시 바로 전화가 걸립니다. */}
+
             <a href="tel:1588-1234" className="contact-button">
               <i className="fa fa-phone-alt"></i> 1588 - 1234
             </a>

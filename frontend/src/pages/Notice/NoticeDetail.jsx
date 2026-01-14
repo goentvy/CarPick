@@ -35,7 +35,7 @@ export default function NoticeDetail() {
     loadData();
   }, [id]);
 
-  if (!notice) return <div className="loading">로딩 중...</div>;
+  if (!notice) return <div className="loading"></div>;
 
   return (
     <div className="notice-container-detail">
