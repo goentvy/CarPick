@@ -29,14 +29,12 @@ public interface InquiryMapper {
 	AdminInquiryDetailResponse findDetailForAdmin(@Param("id") Long id);
 
 	// 관리자 - 답변 등록 / 수정
-	void updateAnswer(
-		@Param("id") Long id,
-		@Param("adminReply") String adminReply,
-		@Param("status") InquiryStatus status
+	int updateAnswer(
+		    @Param("id") Long id,
+		    @Param("adminReply") String adminReply,
+		    @Param("status") InquiryStatus status
 		);
 	
 	// 관리자 - 문의 삭제
-	void deleteById(
-		@Param("id") Long id	
-		);
+	int deleteById(@Param("id") Long id);
 }

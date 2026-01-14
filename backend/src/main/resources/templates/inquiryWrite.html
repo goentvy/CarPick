@@ -143,13 +143,13 @@
 											    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
 											            class="btn btn-primary"
 											            th:if="${inquiry.status.name() == 'PENDING'}">
-											        답변등록
+											        등록
 											    </button>
 
 											    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
 											            class="btn btn-secondary"
 											            th:if="${inquiry.status.name() == 'ANSWERED'}">
-											        답변수정
+											        수정
 											    </button>
 
 												<a th:href="@{/admin/inquiry}"

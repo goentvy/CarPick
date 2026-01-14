@@ -26,7 +26,6 @@ public class FaqService {
 	
 	private final FaqMapper faqMapper;
     private static final int PAGE_SIZE = 10;
-    private static final int USER_PAGE_SIZE = 10;
 
     // ===== 관리자 목록 + 페이징 =====
     public AdminFaqPageResponse getFaqPage(
@@ -76,7 +75,9 @@ public class FaqService {
             faq.getId(),
             faq.getCategory(),
             faq.getQuestion(),
-            faq.getAnswer()
+            faq.getAnswer(),
+            faq.getCreatedAt(),
+            faq.getUpdatedAt()
         );
     }
 
@@ -105,6 +106,12 @@ public class FaqService {
 
     @Transactional
     public void deleteFaq(Long id) {
+        Faq faq = faqMapper.findById(id);
+
+        if (faq == null) {
+            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
+        }
+
         faqMapper.delete(id);
     }
 
@@ -122,15 +129,15 @@ public class FaqService {
     	    );
 
     	    int totalPages = totalCount == 0 ? 1 :
-    	        (int) Math.ceil((double) totalCount / USER_PAGE_SIZE);
+    	        (int) Math.ceil((double) totalCount / PAGE_SIZE);
 
     	    page = Math.max(0, Math.min(page, totalPages - 1));
-    	    int offset = page * USER_PAGE_SIZE;
+    	    int offset = page * PAGE_SIZE;
 
     	    List<FaqResponse> content =
     	        faqMapper.findUserPage(
     	            offset,
-    	            USER_PAGE_SIZE,
+    	            PAGE_SIZE,
     	            faqCategory != null ? faqCategory.getCode() : null,
     	            keyword
     	        ).stream()

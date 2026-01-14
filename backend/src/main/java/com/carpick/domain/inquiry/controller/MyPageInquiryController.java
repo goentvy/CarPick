@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.carpick.domain.inquiry.dto.MyPageInquiryResponse;
 import com.carpick.domain.inquiry.service.InquiryService;
+import com.carpick.global.exception.AuthenticationException;
+import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.details.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
@@ -20,10 +22,14 @@ public class MyPageInquiryController {
 
   	private final InquiryService inquiryService;
 
-    @GetMapping("/inquiries")
-    public List<MyPageInquiryResponse> myInquiries(
-         @AuthenticationPrincipal CustomUserDetails user
-         ){
-    	return inquiryService.getMyInquiryResponses(user.getUserId());
-    }
+  	@GetMapping("/inquiries")
+  	public List<MyPageInquiryResponse> myInquiries(
+  	     @AuthenticationPrincipal CustomUserDetails user
+  	){
+  	    if (user == null) {
+  	        throw new AuthenticationException(ErrorCode.AUTH_TOKEN_MISSING);
+  	    }
+
+  	    return inquiryService.getMyInquiryResponses(user.getUserId());
+  	}
 }

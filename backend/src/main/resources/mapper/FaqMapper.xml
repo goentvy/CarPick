@@ -46,29 +46,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </where>
 </select>
 
-<select id="search"
-    resultType="com.carpick.domain.faq.vo.Faq">
-    SELECT
-        id,
-        category,
-        question,
-        answer
-    FROM faq
-    <where>
-        <if test="category != null and category != ''">
-            category = #{category}
-        </if>
-        <if test="keyword != null and keyword != ''">
-            AND (
-                question LIKE CONCAT('%', #{keyword}, '%')
-                OR answer LIKE CONCAT('%', #{keyword}, '%')
-            )
-        </if>
-    </where>
-    ORDER BY created_at DESC
-</select>
-
-
 <!-- 관리자 검색 -->
 <select id="findAdminPage"
     resultType="com.carpick.domain.faq.dto.AdminFaqListResponse">
@@ -76,7 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         id,
         category,
         question,
-        created_at AS createdAt
+        updated_at AS updatedAt
     FROM faq
     <where>
         <if test="category != null and category != ''">
@@ -89,7 +66,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             )
         </if>
     </where>
-    ORDER BY created_at DESC
+     ORDER BY updated_at DESC
     LIMIT #{limit} OFFSET #{offset}
 </select>
 
@@ -115,7 +92,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         id,
         category,
         question,
-        answer
+        answer,
+        created_at AS createdAt,
+        updated_at AS updatedAt
     FROM faq
     WHERE id = #{id}
 </select>

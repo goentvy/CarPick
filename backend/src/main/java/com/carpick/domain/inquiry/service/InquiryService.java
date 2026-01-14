@@ -37,7 +37,7 @@ public class InquiryService {
 
 		inquiryMapper.insertInquiry(inquiry);
 
-		return new InquiryCreateResponse(true, inquiry.getId());
+		return new InquiryCreateResponse(inquiry.getId());
 	}
 
 	// 사용자 - 마이페이지 문의내역
@@ -72,31 +72,42 @@ public class InquiryService {
 		}
 
 	// 관리자 - 문의 상세
-	    public AdminInquiryDetailResponse getAdminInquiry(Long id) {
-	        return inquiryMapper.findDetailForAdmin(id);
+	public AdminInquiryDetailResponse getAdminInquiry(Long id) {
+	    AdminInquiryDetailResponse inquiry =
+	        inquiryMapper.findDetailForAdmin(id);
+
+	    if (inquiry == null) {
+	        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
 	    }
+
+	    return inquiry;
+	}
 
 	// 관리자 - 답변 등록 / 수정
+	@Transactional
+	public void answerInquiry(Long id, String reply) {
+
+	    if (reply == null || reply.trim().isEmpty()) {
+	        throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+	    }
+
+	    int updated = inquiryMapper.updateAnswer(
+	        id,
+	        reply.trim(),
+	        InquiryStatus.ANSWERED
+	    );
+
+	    if (updated == 0) {
+	        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
+	    }
+	}
+	// 관리자 - 문의 삭제
 	    @Transactional
-	    public void answerInquiry(Long id, String reply) {
+	    public void deleteInquiry(Long id) {
+	        int deleted = inquiryMapper.deleteById(id);
 
-	        AdminInquiryDetailResponse inquiry =
-	            inquiryMapper.findDetailForAdmin(id);
-
-	        if (inquiry == null) {
+	        if (deleted == 0) {
 	            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND);
 	        }
-
-	        // ✅ 상태는 서버가 결정
-	        inquiryMapper.updateAnswer(
-	            id,
-	            reply,
-	            InquiryStatus.ANSWERED
-	        );
-	    }
-	    
-	// 관리자 - 문의 삭제
-	    public void deleteInquiry(Long id) {
-	    	inquiryMapper.deleteById(id);
 	    }
 }

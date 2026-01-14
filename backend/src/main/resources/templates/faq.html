@@ -49,7 +49,7 @@
 				<div class="row align-items-center">
 					<div class="col-sm-6">
 						<div class="breadcrumbs-area clearfix">
-							<h4 class="page-title pull-left">FAQ문의 관리</h4>
+							<h4 class="page-title pull-left">자주묻는 질문 관리</h4>
 							<ul class="breadcrumbs pull-left">
 								<li><a href="/admin">홈</a></li>
 								<li><span>FAQ문의 관리</span></li>
@@ -57,6 +57,11 @@
 						</div>
 					</div>
 					<div class="col-sm-6 clearfix">
+					  <button type="button"
+					          class="user-profile pull-right user_writeBtn"
+					          onclick="location.href='/admin/faq/new'">
+					    FAQ 등록
+					  </button>
 					</div>
 				</div>
 			</div>
@@ -88,12 +93,6 @@
 									<i class="ti-search"></i>
 								</button>
 							</div>
-							<!-- FAQ 등록 버튼 -->
-							<div class="col-md-2 text-right">
-								<a href="/admin/faq/new" class="btn btn-primary w-100">
-									FAQ 등록
-								</a>
-							</div>
 						</div>
 					</div>
 				</form>
@@ -109,7 +108,8 @@
 											<thead class="text-uppercase">
 												<tr>
 													<th scope="col">NO</th>
-													<th scope="col">문의유형</th>
+													<th scope="col">카테고리</th>
+													<th scope="col">등록/수정일</th>
 													<th scope="col">질문</th>
 													<th scope="col">관리</th>
 												</tr>
@@ -129,7 +129,7 @@
 													    <span th:case="*" th:text="${faq.category}"></span>
 													  </span>
 													</td>
-
+													<td th:text="${#temporals.format(faq.updatedAt, 'yyyy-MM-dd HH:mm')}"></td>
 													<td th:text="${faq.question}"
 														th:onclick="|location.href='/admin/faq/' + ${faq.id}|"
 														style="cursor:pointer"></td>
