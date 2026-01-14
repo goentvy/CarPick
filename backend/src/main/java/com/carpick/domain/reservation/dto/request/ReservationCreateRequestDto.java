@@ -19,6 +19,7 @@ public class ReservationCreateRequestDto {
     private Long returnBranchId;
 
     private  String insuranceCode; // NONE / NORMAL / FULL
+
     private DriverInfoDto driverInfo;
     private boolean agreement;
     @Data
