@@ -182,9 +182,17 @@
   color: var(--gray-500);
 }
 
-.faq-pagination button:hover:not(:disabled) {
+/* active 아닌 버튼만 hover */
+.faq-pagination button:hover:not(:disabled):not(.active) {
   border-color: var(--main-blue);
   color: var(--main-blue);
+}
+
+/* active 버튼은 hover돼도 그대로 유지 */
+.faq-pagination button.active:hover {
+  background: var(--main-blue);
+  border-color: var(--main-blue);
+  color: #fff;
 }
 
 .faq-pagination button.active {

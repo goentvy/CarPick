@@ -43,13 +43,13 @@ public class CarService {
                 raw.getMainImageUrl() == null ? List.of() : List.of(raw.getMainImageUrl())
         );
 //        top.setImageUrls(List.of(raw.getMainImageUrl()));
-        top.setCarType(raw.getCarClass());
+//        top.setCarType(raw.getCarClass());
 //2. 카드 영역
         // 카드 1 - 연료
         LegacyCarInfoCardDto fuel = new LegacyCarInfoCardDto();
         fuel.setType("FUEL");
         fuel.setTitle("연료");
-        fuel.setValue(raw.getFuelType());
+//        fuel.setValue(raw.getFuelType());
         fuel.setUnit(null);
         fuel.setIcon("fuel");
         //  카드 2 - 연식

@@ -24,7 +24,6 @@
 	<link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
-	ㄹ
 	<!-- JS -->
 	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 
@@ -49,22 +48,19 @@
 				<div class="row align-items-center">
 					<div class="col-sm-6">
 						<div class="breadcrumbs-area clearfix">
-							<h4 class="page-title pull-left">자주묻는 질문 관리</h4>
+							<h4 class="page-title pull-left">자주묻는질문 관리</h4>
 							<ul class="breadcrumbs pull-left">
 								<li><a href="/admin">홈</a></li>
-								<li><span>자주묻는 질문 관리</span></li>
+								<li><span>FAQ문의 관리</span></li>
 							</ul>
 						</div>
 					</div>
-					<div class="col-sm-6 clearfix">
-						<button type="button" class="user-profile pull-right user_writeBtn"
-							onclick="location.href='/admin/faq/new'">
-							자주묻는 질문 등록
-						</button>
-					</div>
+					<div class="col-sm-6 clearfix"></div>
 				</div>
 			</div>
-			<form th:action="${faq == null} ? @{/admin/faq} : @{/admin/faq/{id}(id=${faq.id})}" method="post">
+			<form th:action="${faq == null} ? @{/admin/faq} : @{/admin/faq/{id}(id=${faq.id})}"
+			      th:object="${req}"
+			      method="post">
 
 				<div class="main-content-inner">
 					<div class="row">
@@ -74,30 +70,71 @@
 								<div class="col-12 mt-5">
 									<div class="card">
 										<div class="card-body">
-											<h4 class="header-title">자주묻는 질문 입력 / 수정</h4>
-											<div class="form-group">
+											<h4 class="header-title">FAQ문의 관리</h4>
+											<div th:if="${faq != null}" class="mb-4">
+											    <div class="form-group">
+											        <label>등록일</label>
+											        <input type="text"
+											               class="form-control w-100"
+											               th:value="${#temporals.format(faq.createdAt, 'yyyy-MM-dd HH:mm')}"
+											               readonly>
+											    </div>
+
 												<div class="form-group">
-													<label for="Select">카테고리</label>
-													<select name="category" class="form-control">
-														<option th:each="c : ${categories}" th:value="${c.code}"
-															th:text="${c.label}"
-															th:selected="${faq != null and faq.category == c.code}">
-														</option>
-													</select>
+												    <label>최종 수정일</label>
+												    <input type="text"
+												           class="form-control w-100"
+												           th:value="${faq.updatedAt != faq.createdAt 
+												               ? #temporals.format(faq.updatedAt, 'yyyy-MM-dd HH:mm') 
+												               : '-'}"
+												           readonly>
+												</div>
+											</div>
+
+											<div class="form-group">
+											    <label>카테고리</label>
+												<select th:field="*{category}"
+												        class="form-control"
+												        th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''">
+											        <option value="">선택하세요</option>
+											        <option th:each="c : ${categories}"
+											                th:value="${c.code}"
+											                th:text="${c.label}">
+											        </option>
+											    </select>
+												<div class="invalid-feedback"
+												     th:if="${#fields.hasErrors('category')}"
+												     th:errors="*{category}">
+												</div>
+											</div>
+										
+											<div class="form-group">
+											    <label>질문</label>
+												<input type="text"
+												       th:field="*{question}"
+												       class="form-control"
+												       th:classappend="${#fields.hasErrors('question')} ? 'is-invalid' : ''">
+
+												<div class="invalid-feedback"
+												     th:if="${#fields.hasErrors('question')}"
+												     th:errors="*{question}">
 												</div>
 											</div>
 											<div class="form-group">
-												<label>질문</label>
-												<input type="text" name="question" class="form-control"
-													th:value="${faq?.question}">
+											    <label>답변</label>
+												<textarea rows="5"
+												          th:field="*{answer}"
+												          class="form-control"
+												          th:classappend="${#fields.hasErrors('answer')} ? 'is-invalid' : ''">
+												</textarea>
+
+												<div class="invalid-feedback"
+												     th:if="${#fields.hasErrors('answer')}"
+												     th:errors="*{answer}">
+												</div>
 											</div>
-											<div class="form-group">
-												<label>답변</label>
-												<textarea rows="5" name="answer" class="form-control"
-													th:text="${faq?.answer}"></textarea>
-											</div>
-											<button type="submit" class="btn btn-primary">
-											  수정
+											<button type="submit" class="btn btn-primary"
+											        th:text="${faq == null ? '등록' : '수정'}">
 											</button>
 
 											<a th:href="@{/admin/faq}"

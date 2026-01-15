@@ -63,6 +63,35 @@
         WHERE user_id = #{id}
         AND deleted_at IS NULL
     </select>
+    
+    <select id="countWeeklyJoinedUsers" resultType="int">
+	    SELECT COUNT(*)
+	    FROM users
+	    WHERE deleted_at IS NULL
+	      AND YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)
+	</select>
+	
+	<select id="countMonthlyJoinedUsers" resultType="int">
+	    SELECT COUNT(*)
+	    FROM users
+	    WHERE deleted_at IS NULL
+	      AND DATE_FORMAT(created_at, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+	</select>
+	
+	<select id="selectRecentJoinedUsers" resultMap="UserAdminResponseMap">
+	    SELECT
+	        user_id,
+	        email,
+	        name,
+	        phone,
+	        membership_grade,
+	        marketing_agree,
+	        created_at
+	    FROM users
+	    WHERE deleted_at IS NULL
+	    ORDER BY created_at DESC
+	    LIMIT #{limit}
+	</select>
 
     <insert id="insertUser" parameterType="com.carpick.admin.useradmin.dto.UserAdminRequest">
         INSERT INTO users

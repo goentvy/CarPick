@@ -1,6 +1,8 @@
 package com.carpick.domain.car.dto.raw;
 
 
+import com.carpick.domain.car.enums.CarClass;
+import com.carpick.domain.car.enums.FuelType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,8 +16,8 @@ public class CarDetailRawDto {
     private Long specId;              // 스펙 고유 ID (PK)
     private String modelName;         // 모델명 (예: "쏘렌토")
     private String displayNameShort;  // 화면 표시용 짧은 이름 (예: "더 뉴 쏘렌토 4세대")
-    private String carClass;          // 차량 등급 (예: "SUV", "SEDAN", "COMPACT")
-    private String fuelType;          // 연료 타입 (예: "GASOLINE", "DIESEL", "HYBRID", "ELECTRIC")
+    private CarClass carClass;          // 차량 등급 (예: "SUV", "SEDAN", "COMPACT")
+    private FuelType fuelType;          // 연료 타입 (예: "GASOLINE", "DIESEL", "HYBRID", "ELECTRIC")
     private Integer seatingCapacity;  // 탑승 인원 (예: 5)
     private Integer modelYearBase;    // 연식 (예: 2024)
     private String mainImageUrl;      // 차량 대표 이미지 URL

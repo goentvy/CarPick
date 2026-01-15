@@ -31,6 +31,8 @@ public class BranchDto {
     )
     private String phone;
 
+    private String imageUrl;
+
     // 운영 시간 (형식만 검증)
     @Pattern(
         regexp = "^([01]\\d|2[0-3]):[0-5]\\d$",

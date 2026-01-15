@@ -121,6 +121,8 @@ CREATE TABLE IF NOT EXISTS BRANCH (
     address_detail VARCHAR(255) NULL COMMENT '상세주소',
     phone VARCHAR(20) NOT NULL COMMENT '전화번호',
 
+    image_url VARCHAR(255) NULL COMMENT '지점 대표 이미지 URL',
+
     open_time TIME NULL COMMENT '오픈 시간',
     close_time TIME NULL COMMENT '마감 시간',
     business_hours VARCHAR(255) NULL COMMENT '영업시간 텍스트',
@@ -395,7 +397,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            reservation_no VARCHAR(50) NOT NULL COMMENT '예약번호(Unique)',
 
     /* WHO */
-                                           user_id BIGINT NOT NULL COMMENT '회원 ID(FK)',
+                                           user_id BIGINT  NULL COMMENT '회원 ID(FK)',
                                            vehicle_id BIGINT NOT NULL COMMENT '차량 ID (FK)',
 
     /* DRIVER */
@@ -408,7 +410,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 #                                            driver_license_expiry DATE NULL COMMENT '면허만료일',
 #                                            driver_verified_yn CHAR(1) NOT NULL DEFAULT 'N',
 
-    /* WHEN */
+    /* WHEN */                             nonMember_password VARCHAR(20) NULL COMMENT '비회원 예약 확인용 비밀번호',
                                            start_date DATETIME NOT NULL COMMENT '대여시작',
                                            end_date DATETIME NOT NULL COMMENT '반납예정',
                                            actual_return_date DATETIME NULL COMMENT '실반납일시',
@@ -682,6 +684,29 @@ CREATE TABLE IF NOT EXISTS reviews (
 ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='차량 이용 후기';
 
 
+/* [확장] 성수기/비수기 기간 관리 (지점 단위 포함) */
+CREATE TABLE IF NOT EXISTS SEASON_PERIOD (
+                                             season_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '시즌 기간 ID',
+
+                                             season_type ENUM('OFF','PEAK','SHOULDER') NOT NULL COMMENT '시즌 타입(비수기/성수기/준성수기)',
+                                             name VARCHAR(100) NOT NULL COMMENT '시즌명(예: 2026 여름 성수기)',
+
+                                             start_at DATE NOT NULL COMMENT '시작일',
+                                             end_at DATE NOT NULL COMMENT '종료일',
+
+                                             branch_id BIGINT NULL COMMENT '적용 지점(NULL=전체 적용)',
+                                             min_rental_days INT NOT NULL DEFAULT 1 COMMENT '최소 대여일(예약 제약)',
+
+                                             is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+                                             INDEX idx_season_period (is_active, start_at, end_at),
+                                             INDEX idx_season_branch (branch_id, is_active),
+
+                                             CONSTRAINT fk_season_branch
+                                                 FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 /* ==================================================
@@ -727,3 +752,4 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 
 SET FOREIGN_KEY_CHECKS = 1;
+

@@ -28,7 +28,11 @@ export default function Faq() {
             setFaqs(res.data.content);
             setTotalPages(res.data.totalPages);
         } catch (e) {
-            console.error(e);
+            if (e.response?.data?.message) {
+                alert(e.response.data.message);
+            } else {
+                alert("서버 오류가 발생했습니다.");
+            }
             setFaqs([]);
         }
     };

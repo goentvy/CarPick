@@ -41,6 +41,7 @@ INSERT INTO BRANCH (
     address_basic, address_detail, phone,
     latitude, longitude, region_dept1,
     open_time, close_time, business_hours,
+    image_url,
     can_manage_inventory_yn, can_manage_vehicle_status_yn, can_pickup_return_yn,
     use_yn
 ) VALUES (
@@ -48,6 +49,7 @@ INSERT INTO BRANCH (
              '서울 강서구 하늘길 112', '국제선 청사 1층 렌터카 데스크', '02-1234-5678',
              37.558643, 126.801242, 'SEOUL',
              '08:00:00', '22:00:00', '매일 08:00 ~ 22:00',
+             'https://carpicka.mycafe24.com/branches/GIMPO_AIRPORT.png',
              'Y', 'Y', 'Y',
              'Y'
          ),
@@ -57,6 +59,7 @@ INSERT INTO BRANCH (
             '032-123-4567',
             37.460190, 126.440696, 'INCHEON',
             '07:00:00', '23:00:00', '매일 07:00 ~ 23:00',
+            'https://carpicka.mycafe24.com/branches/INCHEON_T1.png',
             'Y', 'Y', 'Y',
             'Y'
          ),
@@ -66,6 +69,7 @@ INSERT INTO BRANCH (
              '064-123-4567',
              33.507077, 126.492770, 'JEJU',
              '08:00:00', '22:00:00', '매일 08:00 ~ 22:00',
+             'https://carpicka.mycafe24.com/branches/JEJU_AIRPORT.png',
              'Y', 'Y', 'Y',
              'Y'
          ),
@@ -75,6 +79,7 @@ INSERT INTO BRANCH (
              '051-123-4567',
              35.179554, 128.938213, 'BUSAN',
              '07:00:00', '22:00:00', '매일 07:00 ~ 22:00',
+             'https://carpicka.mycafe24.com/branches/GIMHAE_AIRPORT.png',
              'Y', 'Y', 'Y',
              'Y'
          ),
@@ -83,6 +88,7 @@ INSERT INTO BRANCH (
           '053-123-4567',
           35.896384, 128.655334, 'DAEGU',
           '08:00:00', '21:00:00', '매일 08:00 ~ 21:00',
+          'https://carpicka.mycafe24.com/branches/DAEGU_AIRPORT.png',
           'Y', 'Y', 'Y',
           'Y'
          );
@@ -160,99 +166,179 @@ INSERT INTO DROPZONE_POINT (
       );
 
 -- ==========================================
--- 4. 차량 모델 (CAR_SPEC) - 12종
+-- 4. 차량 모델 (CAR_SPEC) - 10종
 -- ==========================================
+/* =========================
+   CAR_SPEC 가데이터 (최종 차량 목록 10종)
+   - 경형: 레이, 미니
+   - 준중형: 아반떼, K3
+   - 중형: 쏘나타, K5
+   - SUV: 셀토스, 스포티지
+   - 전기: 아이오닉5, 테슬라(모델3로 가정)
+========================= */
+
 INSERT INTO CAR_SPEC (
-    spec_id, brand, model_name, display_name_short, car_class, model_year_base,
-    ai_summary, fuel_type, transmission_type, is_four_wheel_drive,
-    car_options, min_driver_age, min_license_years,
+    brand, model_name, car_color, display_name_short,
+    car_class, model_year_base,
+    ai_summary,
+    fuel_type, transmission_type, is_four_wheel_drive,
+    car_options,
+    min_driver_age, min_license_years,
     seating_capacity, trunk_capacity, fuel_efficiency,
-    main_image_url, img_url, ai_keywords, drive_labels
+    main_image_url, img_url, ai_keywords,
+    drive_labels,
+    use_yn, deleted_at
 ) VALUES
-/* 1. 경형 (KIA 모닝) */
-      (1, 'KIA', '모닝 3세대', '모닝', 'LIGHT', 2020,
-       '도심 주행에 최적화된 경제적인 경차', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방센서,블루투스,열선시트', 26, 1, 5, '캐리어 1개', '15.7',
-       '/images/cars/morning_2020.png', '/images/cars/morning_detail.png',
-       '#경차,#출퇴근,#가성비,#주차편리', '가솔린,경차,경제적'),
 
-/* 2. 준중형 (KIA K3) */
-      (2, 'KIA', 'K3 2세대', 'K3', 'COMPACT', 2020,
-       '기본기가 탄탄한 준중형 세단', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,스마트키,열선시트,차선이탈방지', 26, 1, 5, '캐리어 3개', '15.2',
-       '/images/cars/k3_2020.png', '/images/cars/k3_detail.png',
-       '#준중형,#데이트,#드라이브,#가성비', '가솔린,5인승,인기모델'),
+/* 1) 레이 (경형) */
+      (
+          'KIA', 'Kia Ray 1.0', 'WHITE', '레이',
+          'LIGHT', 2023,
+          '도심 주행에 최적화된 경형 박스카로, 좁은 골목과 주차에 강합니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,블루투스,열선시트',
+          21, 1,
+          5, '소형 트렁크/적재 유연', '복합 12~14km/L',
+          'https://example.com/images/ray_main.png', 'https://example.com/images/ray_1.png,https://example.com/images/ray_2.png',
+          '경차,도심,주차,박스카,가성비',
+          '가솔린,경차,도심주행,주차편함',
+          'Y', NULL
+      ),
 
-/* 3. 경형 (KIA 모닝 F/L) */
-      (3, 'KIA', '모닝 3세대 F/L', '모닝', 'LIGHT', 2021,
-       '페이스리프트로 더욱 세련된 모닝', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,통풍시트(운전석),블루투스', 21, 1, 5, '캐리어 1개', '15.7',
-       '/images/cars/morning_2021.png', '/images/cars/morning_fl_detail.png',
-       '#경차,#사회초년생,#마트장보기,#단기렌트', '가솔린,경차,옵션풍부'),
+/* 2) 미니 (경형으로 분류 요청 반영: 실제로는 소형/수입이지만, 요구사항대로 LIGHT로 둠) */
+      (
+          'MINI', 'MINI Cooper 3 Door', 'BLUE', '미니',
+          'LIGHT', 2022,
+          '개성 있는 디자인과 경쾌한 주행감이 장점인 컴팩트 수입차입니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,블루투스,크루즈컨트롤',
+          21, 1,
+          4, '트렁크 소형', '복합 12~14km/L',
+          'https://example.com/images/mini_main.png', 'https://example.com/images/mini_1.png,https://example.com/images/mini_2.png',
+          '수입차,컴팩트,디자인,도심,주행감',
+          '가솔린,수입,컴팩트,도심주행',
+          'Y', NULL
+      ),
 
-/* 4. 준중형 (KIA K3 F/L) */
-      (4, 'KIA', 'K3 2세대 F/L', 'K3', 'COMPACT', 2022,
-       '스타일리시한 디자인의 준중형', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,스마트키,통풍시트,전자식파킹', 26, 1, 5, '캐리어 3개', '14.1',
-       '/images/cars/k3_2022.png', '/images/cars/k3_fl_detail.png',
-       '#디자인,#여행,#2030추천,#쾌적함', '가솔린,준중형,스타일'),
+/* 3) 아반떼 (준중형) */
+      (
+          'HYUNDAI', 'Hyundai Avante (Elantra) 1.6', 'BLACK', '아반떼',
+          'COMPACT', 2024,
+          '연비와 실용성을 모두 잡은 준중형 대표 모델입니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,차선보조,블루투스,열선시트',
+          21, 1,
+          5, '준중형 트렁크', '복합 14~16km/L',
+          'https://example.com/images/avante_main.png', 'https://example.com/images/avante_1.png,https://example.com/images/avante_2.png',
+          '준중형,출퇴근,연비,실용,안전보조',
+          '가솔린,준중형,출퇴근,연비',
+          'Y', NULL
+      ),
 
-/* 5. 경형 (KIA 모닝 F/L2) */
-      (5, 'KIA', '모닝 3세대 F/L2', '모닝', 'LIGHT', 2025,
-       '최신 안전 사양이 탑재된 신형 모닝', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,어라운드뷰,스마트크루즈컨트롤,통풍시트', 26, 1, 5, '캐리어 1개', '15.1',
-       '/images/cars/morning_2025.png', '/images/cars/morning_fl2_detail.png',
-       '#신차,#풀옵션,#안전제일,#시내주행', '가솔린,신차,최신옵션'),
+/* 4) K3 (준중형) */
+      (
+          'KIA', 'Kia K3 1.6', 'WHITE', 'K3',
+          'COMPACT', 2023,
+          '균형 잡힌 승차감과 유지비가 강점인 준중형 세단입니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,크루즈컨트롤,블루투스',
+          21, 1,
+          5, '준중형 트렁크', '복합 13~15km/L',
+          'https://example.com/images/k3_main.png', 'https://example.com/images/k3_1.png,https://example.com/images/k3_2.png',
+          '준중형,세단,가성비,출퇴근',
+          '가솔린,준중형,가성비,도심주행',
+          'Y', NULL
+      ),
 
-/* 6. 중형 (KIA K5 LPG) */
-      (6, 'KIA', 'K5 3세대', 'K5', 'MID', 2020,
-       'LPG로 경제성을 잡은 스타일리시 세단', 'LPG', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,스마트키,전동시트', 26, 2, 5, '캐리어 3개', '10.2',
-       '/images/cars/k5_lpg.png', '/images/cars/k5_lpg_detail.png',
-       '#LPG,#연비절약,#장거리,#편안함', 'LPG,중형,경제성'),
+/* 5) 쏘나타 (중형) */
+      (
+          'HYUNDAI', 'Hyundai Sonata 2.0', 'BLACK', '쏘나타',
+          'MID', 2023,
+          '넓은 실내와 안정적인 주행으로 장거리 이동에 적합합니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,차선보조,통풍시트,블루투스',
+          21, 1,
+          5, '중형 트렁크 넓음', '복합 11~13km/L',
+          'https://example.com/images/sonata_main.png', 'https://example.com/images/sonata_1.png,https://example.com/images/sonata_2.png',
+          '중형,장거리,패밀리,편의사양',
+          '가솔린,중형,장거리,패밀리',
+          'Y', NULL
+      ),
 
-/* 7. 준중형 (HYUNDAI 아반떼) */
-      (7, 'HYUNDAI', '아반떼 CN7 F/L', '아반떼', 'COMPACT', 2024,
-       '국민 준중형, 압도적인 상품성', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,애플카플레이,안드로이드오토,차선유지보조', 26, 1, 5, '캐리어 3개', '14.9',
-       '/images/cars/avante_cn7.png', '/images/cars/avante_detail.png',
-       '#국민차,#베스트셀러,#승차감,#넓은실내', '가솔린,준중형,베스트셀러'),
+/* 6) K5 (중형) */
+      (
+          'KIA', 'Kia K5 2.0', 'RED', 'K5',
+          'MID', 2024,
+          '스포티한 디자인과 주행감으로 인기 높은 중형 세단입니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,크루즈컨트롤,블루투스,열선시트',
+          21, 1,
+          5, '중형 트렁크', '복합 11~13km/L',
+          'https://example.com/images/k5_main.png', 'https://example.com/images/k5_1.png,https://example.com/images/k5_2.png',
+          '중형,세단,디자인,주행감',
+          '가솔린,중형,도심주행,장거리',
+          'Y', NULL
+      ),
 
-/* 8. 중형 (HYUNDAI 쏘나타) */
-      (8, 'HYUNDAI', '쏘나타 DN8', '쏘나타', 'MID', 2022,
-       '편안한 승차감의 중형 세단 정석', 'LPG', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,스마트키,통풍시트,열선시트', 21, 2, 5, '캐리어 3개', '10.2',
-       '/images/cars/sonata_dn8.png', '/images/cars/sonata_detail.png',
-       '#패밀리카,#정숙성,#LPG,#부모님효도', 'LPG,중형,승차감'),
+/* 7) 셀토스 (SUV) */
+      (
+          'KIA', 'Kia Seltos 1.6', 'WHITE', '셀토스',
+          'SUV', 2023,
+          '도심형 SUV로 적재성과 시야가 좋아 여행에 적합합니다.',
+          'GASOLINE', 'AUTO', FALSE,
+          '네비게이션,후방카메라,루프랙,블루투스,크루즈컨트롤',
+          21, 1,
+          5, 'SUV 적재 공간 여유', '복합 11~13km/L',
+          'https://example.com/images/seltos_main.png', 'https://example.com/images/seltos_1.png,https://example.com/images/seltos_2.png',
+          'SUV,여행,적재,도심형',
+          '가솔린,SUV,여행,적재공간',
+          'Y', NULL
+      ),
 
-/* 9. 경형 (KIA 레이) */
-      (9, 'KIA', '레이 1세대 F/L2', '레이', 'LIGHT', 2024,
-       '경차 그 이상의 공간 활용성', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,열선시트,폴딩시트', 26, 1, 5, '캐리어 1개', '12.7',
-       '/images/cars/ray_2024.png', '/images/cars/ray_detail.png',
-       '#박스카,#넓은공간,#차박,#짐싣기좋음', '가솔린,공간활용,인기'),
+/* 8) 스포티지 (SUV) */
+      (
+          'KIA', 'Kia Sportage 2.0', 'BLUE', '스포티지',
+          'SUV', 2024,
+          '패밀리 SUV로 공간성과 주행 안정성이 강점입니다.',
+          'GASOLINE', 'AUTO', TRUE,
+          '네비게이션,후방카메라,차선보조,통풍시트,블루투스',
+          23, 1,
+          5, 'SUV 적재 공간 넓음', '복합 10~12km/L',
+          'https://example.com/images/sportage_main.png', 'https://example.com/images/sportage_1.png,https://example.com/images/sportage_2.png',
+          'SUV,패밀리,장거리,공간',
+          '가솔린,SUV,패밀리,장거리',
+          'Y', NULL
+      ),
 
-/* 10. 중형 (KIA K5 F/L) */
-      (10, 'KIA', 'K5 3세대 F/L', 'K5', 'MID', 2024,
-       '페이스리프트로 완성된 디자인', 'LPG', 'AUTO', FALSE,
-       '네비게이션,블랙박스,어라운드뷰,헤드업디스플레이(HUD),스마트키', 21, 2, 5, '캐리어 3개', '9.8',
-       '/images/cars/k5_fl_2024.png', '/images/cars/k5_fl_detail.png',
-       '#디자인깡패,#젊은감성,#데이트카,#신형', 'LPG,중형,디자인'),
+/* 9) 아이오닉5 (전기) */
+      (
+          'HYUNDAI', 'Hyundai IONIQ 5', 'WHITE', '아이오닉5',
+          'RV', 2024,
+          '전기차 특유의 정숙성과 넓은 실내, 빠른 충전이 장점입니다.',
+          'ELECTRIC', 'AUTO', FALSE,
+          '네비게이션,후방카메라,차선보조,스마트크루즈,블루투스',
+          23, 1,
+          5, 'EV 적재 공간 여유', '전비 4~5km/kWh',
+          'https://example.com/images/ioniq5_main.png', 'https://example.com/images/ioniq5_1.png,https://example.com/images/ioniq5_2.png',
+          '전기차,EV,정숙,충전,미래지향',
+          '전기,EV,정숙,장거리',
+          'Y', NULL
+      ),
 
-/* 11. SUV (SSANGYONG 티볼리) */
-      (11, 'KG_MOBILITY', '티볼리 아머', '티볼리', 'SUV', 2021,
-       '소형 SUV의 트렌드 세터', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,후방카메라,크루즈컨트롤,루프랙', 26, 1, 5, '캐리어 2개', '11.5',
-       '/images/cars/tivoli.png', '/images/cars/tivoli_detail.png',
-       '#SUV,#초보운전,#시야확보,#튼튼함', '가솔린,SUV,소형SUV'),
-
-/* 12. SUV (KIA 스포티지) */
-      (12, 'KIA', '스포티지 5세대', '스포티지', 'SUV', 2024,
-       '넓은 공간과 하이테크 인테리어', 'GASOLINE', 'AUTO', FALSE,
-       '네비게이션,블랙박스,파노라마썬루프,통풍시트,전동트렁크,차선이탈방지', 26, 1, 5, '캐리어 4개', '12.0',
-       '/images/cars/sportage.png', '/images/cars/sportage_detail.png',
-       '#패밀리SUV,#캠핑,#넉넉한공간,#여행', '가솔린,SUV,패밀리카');
-
+/* 10) 테슬라 (전기) - 모델3로 가정 */
+      (
+          'TESLA', 'Tesla Model 3', 'BLACK', '테슬라',
+          'IMPORT', 2023,
+          '전기차 주행감과 소프트웨어 경험이 강점인 수입 EV 세단입니다.',
+          'ELECTRIC', 'AUTO', FALSE,
+          '오토파일럿,네비게이션,후방카메라,블루투스,OTA업데이트',
+          25, 2,
+          5, '세단 트렁크/프렁크', '전비 5~6km/kWh',
+          'https://example.com/images/tesla3_main.png', 'https://example.com/images/tesla3_1.png,https://example.com/images/tesla3_2.png',
+          '테슬라,전기차,수입,오토파일럿,EV',
+          '전기,EV,수입,장거리',
+          'Y', NULL
+      );
 
 -- ==========================================
 -- 5. 메인 가격표 (PRICE)
@@ -268,44 +354,68 @@ INSERT INTO PRICE (car_spec_id, daily_price, monthly_price, use_yn, created_at, 
                                                                                                 (7,  70000, 0,   'Y', NOW(), NOW()), -- 아반떼
                                                                                                 (8,  90000, 0,   'Y', NOW(), NOW()), -- 쏘나타
                                                                                                 (9,  60000, 0,   'Y', NOW(), NOW()), -- 레이
-                                                                                                (10, 95000, 0,   'Y', NOW(), NOW()),
-                                                                                                (11, 100000, 0,   'Y', NOW(), NOW()), -- 티볼리
-                                                                                                (12, 120000, 0,   'Y', NOW(), NOW()); -- 스포티지
+                                                                                                (10, 95000, 0,   'Y', NOW(), NOW());
 
 
--- ==========================================
--- 6. 가격 정책 (PRICE_POLICY) - MVP 미사용이지만 더미 생성
--- spec_id 12번 (스포티지) 기준 정책 생성
--- ==========================================
-INSERT INTO PRICE_POLICY (
+
+
+/* =========================================
+   VEHICLE_INVENTORY 가데이터 (지점 1개 가정)
+   - branch_id = 1 고정
+   - spec_id = 1~10 각각 2대씩 (총 20대)
+========================================= */
+
+INSERT INTO VEHICLE_INVENTORY (
     spec_id, branch_id,
-    base_price, discount_rate, unit_type,
-    is_active, valid_from, valid_to
-) VALUES (
-             12, 1,  -- 스포티지(12), 김포공항점(1)
-             120000, 30, 'DAILY',
-             1, NOW(), '2099-12-31 23:59:59'
-         );
-
-
--- ==========================================
--- 7. 차량 실재고 (VEHICLE_INVENTORY)
--- ==========================================
--- (1) 스포티지 (ID 12) 재고 2대
-INSERT INTO VEHICLE_INVENTORY (
-    spec_id, branch_id, vehicle_no, vin, model_year,
-    operational_status, mileage, last_inspected_at, is_active, use_yn
+    vehicle_no, vin,
+    model_year,
+    operational_status,
+    mileage, last_inspected_at,
+    mileage_km, lifecycle_limit_km,
+    is_active,
+    use_yn, deleted_at
 ) VALUES
-      (12, 1, '105하1554', 'KNA_SPORTAGE_001', 2024, 'AVAILABLE', 5200, NOW(), 1, 'Y'),
-      (12, 1, '333호3333', 'KNA_SPORTAGE_002', 2024, 'AVAILABLE', 12500, NOW(), 1, 'Y');
 
--- (2) 모닝 (ID 1) 재고 2대 (테스트용 추가)
-INSERT INTO VEHICLE_INVENTORY (
-    spec_id, branch_id, vehicle_no, vin, model_year,
-    operational_status, mileage, last_inspected_at, is_active, use_yn
-) VALUES
-      (1, 1, '11가1111', 'KNA_MORNING_001', 2020, 'AVAILABLE', 35000, NOW(), 1, 'Y'),
-      (1, 1, '22나2222', 'KNA_MORNING_002', 2020, 'AVAILABLE', 42000, NOW(), 1, 'Y');
+/* spec_id=1 (레이) 2대 */
+      (1, 1, '12가3456', 'VIN-RAY-0001', 2023, 'AVAILABLE', NULL, '2026-01-05 10:00:00', 15230, 350000, TRUE, 'Y', NULL),
+      (1, 1, '12가3457', 'VIN-RAY-0002', 2023, 'AVAILABLE', NULL, '2026-01-07 10:00:00', 28410, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=2 (미니) 2대 */
+      (2, 1, '13나4567', 'VIN-MINI-0001', 2022, 'AVAILABLE', NULL, '2026-01-03 10:00:00', 33120, 350000, TRUE, 'Y', NULL),
+      (2, 1, '13나4568', 'VIN-MINI-0002', 2022, 'AVAILABLE', NULL, '2026-01-09 10:00:00', 41980, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=3 (아반떼) 2대 */
+      (3, 1, '14다5678', 'VIN-AVANTE-0001', 2024, 'AVAILABLE', NULL, '2026-01-06 10:00:00', 9820, 350000, TRUE, 'Y', NULL),
+      (3, 1, '14다5679', 'VIN-AVANTE-0002', 2024, 'AVAILABLE', NULL, '2026-01-08 10:00:00', 17650, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=4 (K3) 2대 */
+      (4, 1, '15라6789', 'VIN-K3-0001', 2023, 'AVAILABLE', NULL, '2026-01-04 10:00:00', 21440, 350000, TRUE, 'Y', NULL),
+      (4, 1, '15라6790', 'VIN-K3-0002', 2023, 'AVAILABLE', NULL, '2026-01-10 10:00:00', 30510, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=5 (쏘나타) 2대 */
+      (5, 1, '16마7890', 'VIN-SONATA-0001', 2023, 'AVAILABLE', NULL, '2026-01-02 10:00:00', 26870, 350000, TRUE, 'Y', NULL),
+      (5, 1, '16마7891', 'VIN-SONATA-0002', 2023, 'AVAILABLE', NULL, '2026-01-11 10:00:00', 39200, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=6 (K5) 2대 */
+      (6, 1, '17바8901', 'VIN-K5-0001', 2024, 'AVAILABLE', NULL, '2026-01-06 10:00:00', 11350, 350000, TRUE, 'Y', NULL),
+      (6, 1, '17바8902', 'VIN-K5-0002', 2024, 'AVAILABLE', NULL, '2026-01-12 10:00:00', 20990, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=7 (셀토스) 2대 */
+      (7, 1, '18사9012', 'VIN-SELTOS-0001', 2023, 'AVAILABLE', NULL, '2026-01-07 10:00:00', 18760, 350000, TRUE, 'Y', NULL),
+      (7, 1, '18사9013', 'VIN-SELTOS-0002', 2023, 'AVAILABLE', NULL, '2026-01-13 10:00:00', 29540, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=8 (스포티지) 2대 */
+      (8, 1, '19아0123', 'VIN-SPORTAGE-0001', 2024, 'AVAILABLE', NULL, '2026-01-05 10:00:00', 14210, 350000, TRUE, 'Y', NULL),
+      (8, 1, '19아0124', 'VIN-SPORTAGE-0002', 2024, 'AVAILABLE', NULL, '2026-01-14 10:00:00', 22180, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=9 (아이오닉5) 2대 */
+      (9, 1, '20자1234', 'VIN-IONIQ5-0001', 2024, 'AVAILABLE', NULL, '2026-01-08 10:00:00', 16700, 350000, TRUE, 'Y', NULL),
+      (9, 1, '20자1235', 'VIN-IONIQ5-0002', 2024, 'AVAILABLE', NULL, '2026-01-09 10:00:00', 24890, 350000, TRUE, 'Y', NULL),
+
+/* spec_id=10 (테슬라 모델3) 2대 */
+      (10, 1, '21차2345', 'VIN-TESLA3-0001', 2023, 'AVAILABLE', NULL, '2026-01-10 10:00:00', 19840, 350000, TRUE, 'Y', NULL),
+      (10, 1, '21차2346', 'VIN-TESLA3-0002', 2023, 'AVAILABLE', NULL, '2026-01-12 10:00:00', 27630, 350000, TRUE, 'Y', NULL);
+
 
 
 COMMIT;

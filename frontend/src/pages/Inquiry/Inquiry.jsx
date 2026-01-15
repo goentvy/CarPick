@@ -6,10 +6,6 @@ import "../../styles/inquiry.css";
 import useUserStore from "../../store/useUserStore";
 import axios from "axios";
 
-// ⭐ 임시 mock (QnAlist에서 사용 중)
-export const mockInquiries = [];
-
-
 export default function InquiryPage() {
     const navigate = useNavigate();
 
@@ -76,7 +72,7 @@ export default function InquiryPage() {
         try {
             const result = await submitInquiry();
 
-            if (result.success) {
+            if (result.inquiryId) {
                 navigate("/cs/inquiry/success");
             } else {
                 alert("문의 등록에 실패했습니다.");

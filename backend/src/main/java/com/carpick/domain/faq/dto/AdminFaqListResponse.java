@@ -12,5 +12,5 @@ public class AdminFaqListResponse {
 	private Long id;
 	private String category;
 	private String question;
-	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 }

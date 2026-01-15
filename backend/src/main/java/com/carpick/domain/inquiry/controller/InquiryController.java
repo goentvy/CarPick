@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.carpick.domain.inquiry.dto.InquiryCreateRequest;
 import com.carpick.domain.inquiry.dto.InquiryCreateResponse;
 import com.carpick.domain.inquiry.service.InquiryService;
+import com.carpick.global.exception.AuthenticationException;
+import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.details.CustomUserDetails;
 
 import jakarta.validation.Valid;
@@ -26,7 +28,10 @@ public class InquiryController {
 	    @Valid @RequestBody InquiryCreateRequest req,
 	    @AuthenticationPrincipal CustomUserDetails user
 	) {
+		if (user == null) {
+		    throw new AuthenticationException(ErrorCode.AUTH_TOKEN_MISSING);
+		}
+
 	    return inquiryService.createInquiry(req, user.getUserId());
 	}
-
 }

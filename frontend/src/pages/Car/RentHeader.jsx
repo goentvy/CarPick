@@ -70,6 +70,18 @@ const RentHeader = ({ type, location }) => {
     }
   }, [type]);
 
+  useEffect(() => {
+    if (showLocationPicker || showDatePicker) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showLocationPicker, showDatePicker]);
+
   const formatDate = (date) =>
     date.toLocaleDateString('ko-KR', {
       month: '2-digit',

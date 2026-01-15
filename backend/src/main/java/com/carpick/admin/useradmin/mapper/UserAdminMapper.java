@@ -25,4 +25,13 @@ public interface UserAdminMapper {
     int updateUser(UserAdminRequest request);
 
     int deleteUser(@Param("id") Long id);
+    
+    // ✅ 이번 주 가입자 수
+    int countWeeklyJoinedUsers();
+
+    // ✅ 이번 달 가입자 수
+    int countMonthlyJoinedUsers();
+
+    // ✅ 최근 가입 회원 목록
+    List<UserAdminResponse> selectRecentJoinedUsers(@Param("limit") int limit);
 }
