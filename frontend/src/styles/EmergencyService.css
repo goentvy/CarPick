@@ -1,15 +1,11 @@
-/* 전체 배경 설정 */
-body {
-  background-color: #fcfdfe;
-  /* 아주 연한 청색 빛이 도는 흰색 */
-}
-
 .emergency-container {
-  max-width: 680px;
-  margin: 110px auto 80px;
-  /* 네비바 높이 충분히 확보 */
-  padding: 0 20px;
+  max-width: 640px; 
+  margin: 0 auto 80px;
+  margin-bottom: 30px !important;
+  /* 상단 내비바(CarP!ck 바) 높이에 맞춰 패딩 조정 (가려짐 방지) */
+  padding: 100px 20px 0; 
   font-family: 'Pretendard', sans-serif;
+  background-color: #f8f9fa;
 }
 
 /* 헤더: CarP!ck 스타일의 깔끔한 라인 */
@@ -21,10 +17,13 @@ body {
 }
 
 .emergency-main-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: -0.04em;
+  font-size: 24px; 
+  font-weight: 700;
+  color: #1a1e27;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* 그리드 레이아웃 */
