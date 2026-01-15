@@ -27,6 +27,21 @@ public class UserAdminService {
     public UserAdminResponse getUser(Long id) {
         return userAdminMapper.selectUserById(id);
     }
+    
+    // =========================
+    // 회원 통계 (Dashboard)
+    // =========================
+    public int getWeeklyJoinedUserCount() {
+        return userAdminMapper.countWeeklyJoinedUsers();
+    }
+
+    public int getMonthlyJoinedUserCount() {
+        return userAdminMapper.countMonthlyJoinedUsers();
+    }
+
+    public List<UserAdminResponse> getRecentJoinedUsers(int limit) {
+        return userAdminMapper.selectRecentJoinedUsers(limit);
+    }
 
     @Transactional
     public void createUser(UserAdminRequest request) {

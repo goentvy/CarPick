@@ -98,13 +98,7 @@ function Header() {
 
               <li className={`gnb-item ${location.pathname.includes("about") ? "active" : ""}`} onClick={closeMenu}>
                 {/* <Link to="/aipick" className="gnb-link">AI PICK</Link> */}
-                <Link
-                  to="/about"
-                  className={`submenu-link ${location.pathname === "/about" ? "active" : ""}`}
-                  onClick={closeMenu}
-                >
-                  회사소개
-                </Link>
+                <Link to="/about" className="gnb-link">회사소개</Link>
               </li>
 
               <li className={`gnb-item ${location.pathname.includes("day") ? "active" : ""}`} onClick={closeMenu}>
