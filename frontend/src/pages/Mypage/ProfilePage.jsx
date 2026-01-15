@@ -198,7 +198,7 @@ const ProfilePage = () => {
 
             <div className="font-pretendard min-h-screen w-full bg-[#E7EEFF] overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-y-auto flex flex-col w-full pt-15">
-                    <div className="w-full max-w-2xl mx-auto px-1 py-3 flex flex-col">
+                    <div className="w-full max-w-xl mx-auto px-1 py-3 flex flex-col">
 
                         {/* 페이지 제목 */}
                         <div className="w-full mb-4 ml-2">
@@ -309,7 +309,7 @@ const ProfilePage = () => {
                         </div>
 
                         {/* 회원 상태 관리 버튼 */}
-                        <div className="flex justify-end ">
+                        <div className="flex justify-end mr-1 ">
                             {userInfo?.provider === "LOCAL" && (
                                 <button
                                     onClick={deleteAccount}
