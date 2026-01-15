@@ -853,3 +853,16 @@
   background-color: #ff1f1f;
   /* 더 진한 레드로 변경 */
 }
+/* 공지사항 이모지 스타일 */
+.notice-emoji {
+  /* 1. 채도를 완전히 빼서 회색으로 만듭니다. */
+  filter: grayscale(100%); 
+  
+  /* 2. 농도를 더 연하게 조절합니다. (0.4 ~ 0.6 추천) */
+  opacity: 0.5; 
+  
+  /* 3. 텍스트와의 정렬 및 간격 미세 조정 */
+  margin-left: 4px;
+  font-size: 0.9em; /* 크기를 살짝 줄이면 더 차분해 보입니다. */
+  vertical-align: middle;
+}

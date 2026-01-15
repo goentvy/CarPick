@@ -191,17 +191,17 @@ const About = () => {
                     {
                         title: "AI 기반 차량 추천",
                         desc: "단순한 필터링을 넘어 사용자의 이용 패턴, 선호 스타일, 목적지까지의 경로 등 수십 가지 데이터를 실시간으로 분석합니다. 당신에게 가장 최적화된 맞춤형 차량을 AI가 즉시 제안하여 선택의 고민을 덜어드립니다.",
-                        imageSrc: "/images/sub/about/공항자동차.png",
+                        imageSrc: "/images/sub/about/AirportCar.png",
                     },
                     {
                         title: "CarP!ck Zone",
                         desc: "여행의 시작과 끝이 더 자유로워집니다. 공항, KTX역 등 주요 거점에 위치한 전용 픽업 존에서 별도의 대기나 대면 절차 없이 스마트폰 하나로 바로 차량을 이용하세요. 당신의 소중한 시간을 1분 1초라도 아껴드립니다.",
-                        imageSrc: "/images/sub/about/주차장보완.png",
+                        imageSrc: "/images/sub/about/CarPark.png",
                     },
                     {
                         title: "투명한 프로세스",
                         desc: "복잡한 서류 작업과 숨겨진 비용은 이제 없습니다. 예약부터 보험 가입, 차량 상태 확인, 그리고 반납까지 모든 과정을 투명하게 디지털화했습니다. 오직 드라이빙의 즐거움에만 집중할 수 있는 혁신적인 렌터카 경험을 제공합니다.",
-                        imageSrc: "/images/sub/about/자동차360블루_01.png",
+                        imageSrc: "/images/sub/about/Car360blue.png",
                     },
                 ].map((offer, i) => (
                     <div
