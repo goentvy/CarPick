@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 public class CarListItemDto {
+    private Long specId;                 //차종 스펙 / 상세 기준 (경진)
     private Long vehicleId;              // 차량 ID (상세 페이지 이동용)
 
     // 기본 정보
