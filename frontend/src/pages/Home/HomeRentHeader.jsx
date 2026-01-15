@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RentDateRangePicker from '../../components/common/RentDateRangePicker';
 import { useNavigate } from 'react-router-dom';
 import PickupLocationModal from '../../components/common/PickupLocationModal';
@@ -14,6 +14,19 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
     startDate: new Date(),
     endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
   });
+
+  useEffect(() => {
+    if (showPickupModal || showDatePicker) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showPickupModal, showDatePicker]);
+
 
 
 
@@ -201,9 +214,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                       type: "short",  // 다른 곳에서 쓰면 유지
                     });
                     setShowDatePicker(false); // 달력 모달 닫기
-
-
-
+                    handleSearch(rentType); // 즉시검색
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="short"
@@ -251,6 +262,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     });
 
                     setShowDatePicker(false); // 달력 모달 닫기
+                    handleSearch(rentType); // 즉시검색
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="long"
