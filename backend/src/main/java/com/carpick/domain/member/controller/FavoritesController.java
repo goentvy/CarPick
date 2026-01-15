@@ -28,7 +28,7 @@ public class FavoritesController {
     public ResponseEntity<List<FavoriteResponse>> getMyFavorites(
             HttpServletRequest request) {
 
-        Long userId = getCurrentUserId(request);  // ✅ LicenseController 패턴!
+        Long userId = getCurrentUserId(request);
         log.info("### FAVORITES /me USER_ID = " + userId);
 
         List<FavoriteResponse> favorites = favoritesService.getMyFavorites(userId);
@@ -42,7 +42,7 @@ public class FavoritesController {
             @PathVariable Long carId,
             @RequestBody FavoriteRequest requestBody) {
 
-        Long userId = getCurrentUserId(request);  // ✅ LicenseController 패턴!
+        Long userId = getCurrentUserId(request);
         favoritesService.addFavorite(userId, carId, requestBody.getCarName(), requestBody.getCarImageUrl());
 
         return ResponseEntity.ok(java.util.Map.of("message", "찜 추가 완료"));
