@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.reservation.mapper.ReservationReadMapperV2">
+
+    <!-- 공통 컬럼 정의 -->
+    <sql id="reservationColumns">
+        reservation_id,
+        reservation_no,
+        user_id,
+        vehicle_id,
+
+        driver_last_name,
+        driver_first_name,
+        driver_birthdate,
+        driver_phone,
+        driver_email,
+        driver_license_no,
+
+        start_date,
+        end_date,
+        actual_return_date,
+
+        pickup_type,
+        pickup_branch_id,
+        pickup_address,
+
+        return_type,
+        return_branch_id,
+        return_address,
+
+        insurance_id,
+        coupon_id,
+
+        base_rent_fee_snapshot,
+        rent_discount_amount_snapshot,
+
+        base_insurance_fee_snapshot,
+        insurance_discount_amount_snapshot,
+
+        option_fee_snapshot,
+
+        coupon_discount_snapshot,
+
+        member_discount_rate_snapshot,
+        event_discount_amount_snapshot,
+
+        total_amount_snapshot,
+
+        applied_rent_fee_snapshot,
+        applied_insurance_fee_snapshot,
+
+        agreement_yn,
+
+        reservation_status,
+        cancel_reason,
+        cancelled_at,
+
+        created_at,
+        updated_at
+    </sql>
+
+    <!-- Reservation Entity 매핑 -->
+    <resultMap id="ReservationResultMap" type="com.carpick.domain.reservation.entity.Reservation">
+        <id     property="reservationId" column="reservation_id"/>
+        <result property="reservationNo" column="reservation_no"/>
+
+        <result property="userId" column="user_id"/>
+        <result property="vehicleId" column="vehicle_id"/>
+
+        <result property="driverLastName" column="driver_last_name"/>
+        <result property="driverFirstName" column="driver_first_name"/>
+        <result property="driverBirthdate" column="driver_birthdate"/>
+        <result property="driverPhone" column="driver_phone"/>
+        <result property="driverEmail" column="driver_email"/>
+        <result property="driverLicenseNo" column="driver_license_no"/>
+
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="actualReturnDate" column="actual_return_date"/>
+
+        <result property="pickupType" column="pickup_type"/>
+        <result property="pickupBranchId" column="pickup_branch_id"/>
+        <result property="pickupAddress" column="pickup_address"/>
+
+        <result property="returnType" column="return_type"/>
+        <result property="returnBranchId" column="return_branch_id"/>
+        <result property="returnAddress" column="return_address"/>
+
+        <result property="insuranceId" column="insurance_id"/>
+        <result property="couponId" column="coupon_id"/>
+
+        <result property="baseRentFeeSnapshot" column="base_rent_fee_snapshot"/>
+        <result property="rentDiscountAmountSnapshot" column="rent_discount_amount_snapshot"/>
+
+        <result property="baseInsuranceFeeSnapshot" column="base_insurance_fee_snapshot"/>
+        <result property="insuranceDiscountAmountSnapshot" column="insurance_discount_amount_snapshot"/>
+
+        <result property="optionFeeSnapshot" column="option_fee_snapshot"/>
+
+        <result property="couponDiscountSnapshot" column="coupon_discount_snapshot"/>
+
+        <result property="memberDiscountRateSnapshot" column="member_discount_rate_snapshot"/>
+        <result property="eventDiscountAmountSnapshot" column="event_discount_amount_snapshot"/>
+
+        <result property="totalAmountSnapshot" column="total_amount_snapshot"/>
+
+        <result property="appliedRentFeeSnapshot" column="applied_rent_fee_snapshot"/>
+        <result property="appliedInsuranceFeeSnapshot" column="applied_insurance_fee_snapshot"/>
+
+        <result property="agreementYn" column="agreement_yn"/>
+
+        <!-- enum: DB ENUM 문자열 -> Java Enum(ReservationStatus/PickupType/ReturnTypes) -->
+        <result property="reservationStatus" column="reservation_status"/>
+        <result property="cancelReason" column="cancel_reason"/>
+        <result property="cancelledAt" column="cancelled_at"/>
+
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+        <!-- 엔티티에만 있고 DDL에는 아직 없을 수 있으므로,
+             실제 컬럼이 생기면 reservationColumns에도 추가해서 같이 조회하세요. -->
+        <!-- <result property="useYn" column="use_yn"/> -->
+    </resultMap>
+
+    <!-- [1] 예약 상세 조회 (회원/공통) -->
+    <select id="selectReservationByReservationNo" resultMap="ReservationResultMap">
+        <![CDATA[
+        SELECT <include refid="reservationColumns"/>
+        FROM RESERVATION
+        WHERE reservation_no = #{reservationNo}
+            LIMIT 1
+        ]]>
+    </select>
+
+    <!-- [2] 비회원 예약 취소 (담당 코드 유지) -->
+    <update id="updateReservationStatusForNonMember" parameterType="map">
+        <![CDATA[
+        UPDATE RESERVATION
+        SET
+            reservation_status = #{params.status},
+            cancel_reason = #{params.reason},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reservation_id = #{params.reservationId}
+        ]]>
+    </update>
+
+    <!-- [3] 비회원 예약 조회 (담당 코드 유지) -->
+    <select id="findByDriverEmailAndReservationNo" resultMap="ReservationResultMap">
+        <![CDATA[
+        SELECT <include refid="reservationColumns"/>
+        FROM RESERVATION
+        WHERE driver_email = #{email}
+          AND reservation_no = #{reservationNumber}
+            LIMIT 1
+        ]]>
+    </select>
+
+</mapper>
