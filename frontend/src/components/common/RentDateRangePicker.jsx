@@ -48,7 +48,7 @@ const RentDateRangePicker = ({
         },
       ]);
     }
-  }, [initialRange]);  
+  }, [initialRange]);
 
   // 단기 렌트 시간
   const [startHour, setStartHour] = useState(10);
@@ -164,10 +164,10 @@ const RentDateRangePicker = ({
       <div className="flex flex-row justify-between">
         <div className="font-lg font-bold p-3">언제 필요하세요?</div>
         <div className="p-3 text-right">
-          <img 
-            src="./images/common/close.svg" 
+          <img
+            src="./images/common/close.svg"
             alt="close"
-            onClick={() => onClose()}/>
+            onClick={() => onClose()} />
         </div>
       </div>
       {/* 탭 */}
@@ -175,18 +175,16 @@ const RentDateRangePicker = ({
         <button
           type="button"
           onClick={() => handleTabClick('short')}
-          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm ${
-            activeTab === 'short' ? 'bg-blue-500 text-white' : 'text-black-500'
-          }`}
+          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm ${activeTab === 'short' ? 'bg-blue-500 text-white' : 'text-black-500'
+            }`}
         >
           단기렌트
         </button>
         <button
           type="button"
           onClick={() => handleTabClick('long')}
-          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm ${
-            activeTab === 'long' ? 'bg-blue-500 text-white' : 'text-black-500'
-          }`}
+          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm ${activeTab === 'long' ? 'bg-blue-500 text-white' : 'text-black-500'
+            }`}
         >
           장기렌트
         </button>
@@ -295,11 +293,10 @@ const RentDateRangePicker = ({
                   <label
                     key={months}
                     onClick={() => setSelectedMonths(months)}
-                    className={`cursor-pointer w-[49%] text-center rounded-full text-sm py-1 mb-2 border ${
-                      isSelected
+                    className={`cursor-pointer w-[49%] text-center rounded-full text-sm py-1 mb-2 border ${isSelected
                         ? 'bg-blue-500 text-white border-blue-500'
                         : 'bg-blue-50 border-gray-200'
-                    }`}
+                      }`}
                   >
                     {months}개월
                     <input type="radio" className="hidden" checked={isSelected} value={months} readOnly />

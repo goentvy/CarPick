@@ -19,11 +19,11 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
     if (showPickupModal || showDatePicker) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     };
   }, [showPickupModal, showDatePicker]);
 
@@ -65,8 +65,8 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       pickupBranchId: String(pickupBranchId), // 수정: 의미 정확
       returnBranchId: String(returnBranchId), // ✅ 추가
       rentType: type,
-      startDateTime: formatKST(dateRange.startDate),
-      endDateTime: formatKST(dateRange.endDate),
+      startDate: formatKST(dateRange.startDate),
+      endDate: formatKST(dateRange.endDate),
       // 수정(선택): 표시용으로 지점명도 같이 넘기고 싶으면 아래 주석 해제
       pickupBranchName: pickupBranchName || "",
       // (선택) 반납 지점명도 표시용으로 넣고 싶으면:
@@ -108,6 +108,27 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
     setShowDatePicker(false); // 전환 시 달력 닫기
     setRentType(type);
   };
+
+  const handleSearchWithDates = (type, startDate, endDate) => {
+    if (!pickupBranchId) {
+      alert("픽업 장소를 선택해주세요.");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      pickupBranchId: String(pickupBranchId),
+      returnBranchId: String(pickupBranchId),
+      rentType: type,
+      startDate: formatKST(startDate),
+      endDate: formatKST(endDate),
+      pickupBranchName: pickupBranchName || "",
+      returnBranchName: pickupBranchName || "",
+    });
+
+    const path = type === "short" ? "/day" : "/month";
+    navigate(`${path}?${params.toString()}`);
+  };
+
 
   // 수정 (단순화)
   const handleSelectBranch = (branchId, branchName) => {
@@ -210,11 +231,10 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                   onChange={(selection) => {
                     setDateRange({
                       startDate: selection.startDate,
-                      endDate: selection.endDate,
-                      type: "short",  // 다른 곳에서 쓰면 유지
+                      endDate: selection.endDate
                     });
                     setShowDatePicker(false); // 달력 모달 닫기
-                    handleSearch(rentType); // 즉시검색
+                    handleSearchWithDates('short', selection.startDate, selection.endDate);
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="short"
@@ -257,12 +277,10 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                     setDateRange({
                       startDate: selection.startDate,
                       endDate: selection.endDate,
-                      months: selection.months ?? 1,
-                      type: "long",
+                      months: selection.months ?? 1
                     });
-
                     setShowDatePicker(false); // 달력 모달 닫기
-                    handleSearch(rentType); // 즉시검색
+                    handleSearchWithDates('long', selection.startDate, selection.endDate);
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="long"
