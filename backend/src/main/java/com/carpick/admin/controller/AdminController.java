@@ -2,6 +2,8 @@ package com.carpick.admin.controller;
 
 import com.carpick.admin.carAdmin.service.AdminCarOptionService;
 import com.carpick.admin.insuranceAdmin.service.AdminInsuranceService;
+import com.carpick.admin.useradmin.service.UserAdminService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,11 +18,18 @@ public class AdminController {
 
     private  final AdminCarOptionService adminCarOptionService;
     private final AdminInsuranceService adminInsuranceService;
-    // AdminController에서 분리해서 새로 개발하실 경우, 관련 메소드를 삭제 후 이동해주세요!
+    private final UserAdminService userAdminService;
 
     ///  관리자 메인 ///
     @GetMapping()
-    public String mainAdmin() {
+    public String mainAdmin(Model model) {
+    	int weeklyJoinCount = userAdminService.getWeeklyJoinedUserCount();
+        int monthlyJoinCount = userAdminService.getMonthlyJoinedUserCount();
+
+        model.addAttribute("weeklyJoinCount", weeklyJoinCount);
+        model.addAttribute("monthlyJoinCount", monthlyJoinCount);
+        model.addAttribute("recentUsers",userAdminService.getRecentJoinedUsers(7));
+        
         return "index";
     }
     ///  관리자 메인 ///
@@ -92,5 +101,14 @@ public class AdminController {
         return "spotWrite";
     }
     ///  지점 관리 ///
-
+    ///  통계 관리 ///
+    @GetMapping("/sales")
+    public String salesAdmin() {
+        return "sales";
+    }
+    @GetMapping("/carSales")
+    public String carSalesAdmin() {
+        return "carSales";
+    }
+    ///  통계 관리 ///
 }

@@ -1,6 +1,6 @@
 package com.carpick.domain.reservationHistory.service;
 
-import com.carpick.domain.reservation.enums.ActorType;
+import com.carpick.domain.reservation.mypage.enums.ActorType;
 import com.carpick.domain.reservation.enums.ReservationStatus;
 import com.carpick.domain.reservationHistory.entity.ReservationStatusHistory;
 import com.carpick.domain.reservationHistory.mapper.ReservationStatusHistoryMapper;
