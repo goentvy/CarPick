@@ -16,7 +16,7 @@ const RentHeader = ({ type, location }) => {
 
   // URL 쿼리에서 값 가져오기, 없으면 기본값
   const initialRentType = query.get('rentType') || 'short';
-  const initialPickupLocation = query.get('pickupLocation') || '서울역 KTX';
+  const initialPickupBranchName = query.get('pickupBranchName') || '서울역 KTX';
   const queryStartDate = query.get('startDate') ? new Date(query.get('startDate')) : null;
   const queryEndDate = query.get('endDate') ? new Date(query.get('endDate')) : null;
 
@@ -34,7 +34,7 @@ const RentHeader = ({ type, location }) => {
     };
 
   const [rentType, setRentType] = useState(initialRentType);
-  const [pickupLocation, setPickupLocation] = useState(initialPickupLocation);
+  const [pickupBranchName, setPickupBranchName] = useState(query.get('pickupBranchName') || '픽업 장소 선택');
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState(initialDateRange);
@@ -70,6 +70,18 @@ const RentHeader = ({ type, location }) => {
     }
   }, [type]);
 
+  useEffect(() => {
+    if (showLocationPicker || showDatePicker) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showLocationPicker, showDatePicker]);
+
   const formatDate = (date) =>
     date.toLocaleDateString('ko-KR', {
       month: '2-digit',
@@ -101,15 +113,16 @@ const RentHeader = ({ type, location }) => {
   };
 
   // URL로 파라미터를 기반으로 페이지 이동
-  const handleSearch = () => {
-    const params = new URLSearchParams({
-      pickupLocation,
-      pickupBranchId,
-      rentType,
-      startDate: dateRange.startDate.toISOString(),
-      endDate: dateRange.endDate.toISOString(),
-    });
-    navigate(`/${rentType === 'short' ? 'day' : 'month'}?${params.toString()}`);
+  const handleSearch = (selection) => {
+    const params = new URLSearchParams();
+    params.set('pickupBranchName', pickupBranchName);
+    params.set('pickupBranchId', pickupBranchId);
+    params.set('rentType', rentType);
+    params.set('startDate', selection.startDate.toISOString());
+    params.set('endDate', selection.endDate.toISOString());
+    params.set('months', selection.months || 1);
+
+    navigate(`/${selection.activeType <= 1 ? 'day' : 'month'}?${params.toString()}`);
   };
 
   return (
@@ -125,7 +138,7 @@ const RentHeader = ({ type, location }) => {
                 className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold"
                 onClick={() => setShowLocationPicker(prev => !prev)}
               >
-                {pickupLocation}
+                {pickupBranchName}
               </p>
               <p
                 id="rentTime"
@@ -143,9 +156,9 @@ const RentHeader = ({ type, location }) => {
           {showLocationPicker && (
             <PickupLocationModal
               onClose={() => setShowLocationPicker(false)}
-              onSelect={(branch) => {
-                setPickupLocation(branch.branchName);
-                setPickupBranchId(branch.branchId);
+              onSelect={(branchId, branchName) => {
+                setPickupBranchName(branchName);
+                setPickupBranchId(branchId);
                 setShowLocationPicker(false);
                 setShowDatePicker(true);
               }}
@@ -160,16 +173,19 @@ const RentHeader = ({ type, location }) => {
                   setDateRange({
                     startDate: selection.startDate,
                     endDate: selection.endDate,
-                    months: calculateMonths(selection.startDate, selection.endDate),
+                    months: selection.months || 1,
                   });
+
+                  setRentType(selection.activeType);
                   setShowDatePicker(false);
 
                   const params = new URLSearchParams({
-                    pickupLocation,
+                    pickupBranchName,
                     pickupBranchId,
                     rentType: selection.activeType,
                     startDate: selection.startDate.toISOString(),
                     endDate: selection.endDate.toISOString(),
+                    months: selection.months || 1,
                   });
 
                   navigate(
@@ -179,7 +195,10 @@ const RentHeader = ({ type, location }) => {
                   );
                 }}
                 onClose={() => setShowDatePicker(false)}
-                type={type}
+                onTabChange={(tab) => {
+                  setRentType(tab); // 타입만 변경
+                }}
+                type={rentType}
                 location={location}
               />
             </div>
