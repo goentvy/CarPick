@@ -11,16 +11,8 @@ import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
@@ -31,124 +23,94 @@ public class OAuthService {
     private final NaverClient naverClient;
     private final UserMapper userMapper;
     private final JwtProvider jwtProvider;
-    private final RestTemplate restTemplate;
-
 
     /* ==================================================
-       소셜 로그인
+       소셜 로그인 (실서버 안정)
     ================================================== */
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
-        log.info("소셜 로그인 동작: provider={}, code={}", provider, request.getCode());
 
+        String normalizedProvider = provider.toUpperCase();
         User socialUser;
 
-        /* 1️⃣ 소셜 토큰 발급 + 프로필 조회 */
+        /* 1️⃣ 토큰 + 프로필 */
         try {
-            if ("KAKAO".equalsIgnoreCase(provider)) {
+            if ("KAKAO".equals(normalizedProvider)) {
                 String accessToken = kakaoClient.getAccessToken(request.getCode());
                 socialUser = kakaoClient.getProfile(accessToken);
                 socialUser.setAccessToken(accessToken);
+                socialUser.setProvider("KAKAO");
 
-            } else if ("NAVER".equalsIgnoreCase(provider)) {
+            } else if ("NAVER".equals(normalizedProvider)) {
                 String accessToken = naverClient.getAccessToken(
                         request.getCode(),
                         request.getState()
                 );
                 socialUser = naverClient.getProfile(accessToken);
                 socialUser.setAccessToken(accessToken);
+                socialUser.setProvider("NAVER");
 
             } else {
                 throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
             }
         } catch (Exception e) {
+            log.error("OAuth 토큰/프로필 실패", e);
             throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
         }
 
-        /* 2️⃣ provider + providerId 기준 기존 유저 조회 */
+        if (socialUser.getProviderId() == null || socialUser.getProviderId().isBlank()) {
+            throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
+        }
+
+        /* 2️⃣ 기존 계정 */
         User existUser = userMapper.findByProvider(
                 socialUser.getProvider(),
                 socialUser.getProviderId()
         );
 
-        /* 3️⃣ 신규 / 복구 / 차단 처리 */
+        /* 3️⃣ 삭제 계정 복구 */
         if (existUser == null) {
-
-            // 3-1️⃣ 소프트 탈퇴 이력 복구
             User deletedUser = userMapper.findDeletedByProvider(
                     socialUser.getProvider(),
                     socialUser.getProviderId()
             );
 
             if (deletedUser != null) {
-                userMapper.reviveSocialUser(
+                userMapper.reviveSocialUserFull(
+                        deletedUser.getUserId(),
                         socialUser.getAccessToken(),
-                        deletedUser.getUserId()
+                        resolveEmail(socialUser),
+                        socialUser.getName()
                 );
-                existUser = deletedUser;
-
-            } else {
-                // 3-2️⃣ 이메일 세팅 (없으면 더미)
-                if (socialUser.getEmail() == null || socialUser.getEmail().isBlank()) {
-                    socialUser.setEmail(
-                            provider.toLowerCase() + "_" +
-                                    socialUser.getProviderId() + "@social.local"
-                    );
-                }
-
-                // 🔥 이메일 중복 차단
-                User emailUser = userMapper.findByEmail(socialUser.getEmail());
-                if (emailUser != null) {
-                    throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
-                }
-
-                // 3-3️⃣ 신규 소셜 가입
-                socialUser.setPassword("");
-                socialUser.setMembershipGrade("BASIC");
-
-                // ✅ DB 안 건드리기: gender는 NULL로 저장
-                socialUser.setGender(null);
-
-                if (socialUser.getMarketingAgree() == null) {
-                    socialUser.setMarketingAgree(0);
-                }
-
-                userMapper.insertSocialUser(socialUser);
-
-                // INSERT 후 PK 재조회
-                existUser = userMapper.findByProvider(
-                        socialUser.getProvider(),
-                        socialUser.getProviderId()
-                );
-
-                if (existUser == null || existUser.getUserId() == null) {
-                    throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
-                }
+                existUser = userMapper.findById(deletedUser.getUserId());
             }
-
-        } else if (existUser.getDeletedAt() != null) {
-            // 4️⃣ 소프트 삭제된 유저 복구
-            userMapper.reviveSocialUser(
-                    socialUser.getAccessToken(),
-                    existUser.getUserId()
-            );
-            existUser.setDeletedAt(null);
-            existUser.setAccessToken(socialUser.getAccessToken());
         }
 
-        /* 5️⃣ 최종 안전 체크 */
+        /* 4️⃣ 신규 가입 */
+        if (existUser == null) {
+            socialUser.setEmail(resolveEmail(socialUser));
+            socialUser.setPassword("");
+            socialUser.setMembershipGrade("BASIC");
+            socialUser.setGender(null);
+            socialUser.setMarketingAgree(
+                    socialUser.getMarketingAgree() != null ? socialUser.getMarketingAgree() : 0
+            );
+
+            userMapper.insertSocialUser(socialUser);
+            existUser = userMapper.findById(socialUser.getUserId());
+        }
+
+        /* 5️⃣ 최종 방어 */
         if (existUser == null || existUser.getUserId() == null) {
             throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
 
-        /* 6️⃣ JWT 발급 */
-        String role = (existUser.getMembershipGrade() != null)
-                ? existUser.getMembershipGrade()
-                : "BASIC";
-
+        /* 6️⃣ JWT */
         String token = jwtProvider.generateToken(
                 existUser.getUserId(),
-                role
+                existUser.getMembershipGrade() != null
+                        ? existUser.getMembershipGrade()
+                        : "BASIC"
         );
 
         return OAuthLoginResponse.builder()
@@ -159,10 +121,10 @@ public class OAuthService {
                 .provider(existUser.getProvider())
                 .build();
     }
-
     /* ==================================================
-       소셜 연동 해제
-    ================================================== */
+          소셜 연동 해제 (컨트롤러용)
+          ❗ 실서버 안정 목적: 최소 동작
+       ================================================== */
     @Transactional
     public void unlinkSocial(String provider, String jwtToken) {
 
@@ -173,40 +135,17 @@ public class OAuthService {
             throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
 
-        if (!provider.equalsIgnoreCase(user.getProvider())) {
-            throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
+        // 연동 해제 = accessToken만 제거
+        userMapper.updateAccessToken(userId, null);
+
+        log.info("소셜 연동 해제 완료 userId={}, provider={}", userId, provider);
+    }
+    private String resolveEmail(User user) {
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            return user.getEmail();
         }
-
-        if (user.getAccessToken() == null || user.getAccessToken().isBlank()) {
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
-        }
-
-        if ("KAKAO".equalsIgnoreCase(provider)) {
-
-            String url = "https://kapi.kakao.com/v1/user/unlink";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(user.getAccessToken());
-
-            HttpEntity<Void> request = new HttpEntity<>(headers);
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(url, request, String.class);
-
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
-            }
-
-            log.info("카카오 연동 해제 완료: userId={}", userId);
-
-        } else if ("NAVER".equalsIgnoreCase(provider)) {
-
-            naverClient.unlink(user.getAccessToken());
-            log.info("네이버 연동 해제 완료: userId={}", userId);
-
-        } else {
-            throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
-        }
-
-        // 소셜 계정은 소프트 탈퇴
-        userMapper.softDeleteSocialUser(userId);
+        return user.getProvider().toLowerCase()
+                + "_" + user.getProviderId()
+                + "@social.local";
     }
 }
