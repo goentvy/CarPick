@@ -15,6 +15,21 @@ function MyLicense() {
     const [licenses, setLicenses] = useState([]);
     const [hasLicense, setHasLicense] = useState(false);
 
+    // 면허번호 자동 하이픈 함수 (입력 시: 12자리 + 3하이픈 = 15자리)
+    const handleLicenseNumberInput = (e) => {
+        const value = e.target.value.replace(/-/g, "");
+        const onlyNumbers = value.replace(/\D/g, "");
+        const limited = onlyNumbers.slice(0, 12);
+
+        let formatted = "";
+        if (limited.length > 0) formatted += limited.slice(0, 2);
+        if (limited.length > 2) formatted += "-" + limited.slice(2, 4);
+        if (limited.length > 4) formatted += "-" + limited.slice(4, 10);
+        if (limited.length > 10) formatted += "-" + limited.slice(10, 12);
+
+        e.target.value = formatted;
+    };
+
     useEffect(() => {
         fetchLicenses();
     }, [accessToken]);
@@ -42,13 +57,33 @@ function MyLicense() {
 
             const data = await response.json();
             if (data?.data && Array.isArray(data.data)) {
-                const licenseList = data.data.map((item) => ({
-                    id: item.id,
-                    name: item.driverName,
-                    birthday: item.birthday,
-                    licenseNumber: item.licenseNumber,
-                    serialNumber: item.serialNumber,
-                }));
+                // 목록에서도 하이픈 표시
+                const licenseList = data.data.map((item) => {
+                    const licenseNumberRaw = item.licenseNumber;
+                    // 12자리 숫자면 자동 하이픈 추가
+                    if (/^\d{12}$/.test(licenseNumberRaw)) {
+                        const formatted = [
+                            licenseNumberRaw.slice(0, 2),
+                            licenseNumberRaw.slice(2, 4),
+                            licenseNumberRaw.slice(4, 10),
+                            licenseNumberRaw.slice(10, 12)
+                        ].join('-');
+                        return {
+                            id: item.id,
+                            name: item.driverName,
+                            birthday: item.birthday,
+                            licenseNumber: formatted, //  하이픈 포함
+                            serialNumber: item.serialNumber,
+                        };
+                    }
+                    return {
+                        id: item.id,
+                        name: item.driverName,
+                        birthday: item.birthday,
+                        licenseNumber: licenseNumberRaw, // 이미 포맷된 경우
+                        serialNumber: item.serialNumber,
+                    };
+                });
                 setLicenses(licenseList);
                 setHasLicense(licenseList.length > 0);
             } else {
@@ -66,8 +101,7 @@ function MyLicense() {
         const newErrors = {};
         const name = document.getElementById("driverName").value.trim();
         const birthday = document.getElementById("driverBirthday").value;
-        const licenseRaw = document.getElementById("licenseNumber").value;
-        const license = licenseRaw.replace(/-/g, "");
+        const licenseRaw = document.getElementById("licenseNumber").value.replace(/-/g, "");
         const serial = document.getElementById("serialNumber").value.trim();
 
         if (!name || name.length < 2) newErrors.name = "성명은 2자 이상 입력하세요";
@@ -78,13 +112,11 @@ function MyLicense() {
             const selected = new Date(birthday);
             if (selected >= today) newErrors.birthday = "생년월일을 다시 확인해주세요";
         }
-        if (!license || !/^\d{12}$/.test(license)) {
-            newErrors.license =
-                "면허번호는 하이픈 제외 12자리 숫자여야 합니다 (예: 119012345600)";
+        if (!licenseRaw || !/^\d{12}$/.test(licenseRaw)) {
+            newErrors.license = "면허번호는 하이픈 제외 12자리 숫자여야 합니다 (예: 119012345600)";
         }
         if (!serial || !/^[A-Za-z0-9]{6}$/.test(serial)) {
-            newErrors.serial =
-                "일련번호는 숫자/영문 6자리입니다 (뒷면 작은 사진 아래)";
+            newErrors.serial = "일련번호는 숫자/영문 6자리입니다 (뒷면 작은 사진 아래)";
         }
 
         setErrors(newErrors);
@@ -93,7 +125,7 @@ function MyLicense() {
             data: {
                 name,
                 birthday,
-                licenseNumber: licenseRaw,
+                licenseNumber: licenseRaw, // API에는 하이픈 제거
                 serialNumber: serial,
                 driverName: name,
             },
@@ -121,7 +153,7 @@ function MyLicense() {
                 body: JSON.stringify({
                     driverName: data.driverName,
                     birthday: data.birthday,
-                    licenseNumber: data.licenseNumber.replace(/-/g, ""),
+                    licenseNumber: data.licenseNumber, // 하이픈 제거된 값
                     serialNumber: data.serialNumber,
                 }),
             });
@@ -129,11 +161,19 @@ function MyLicense() {
             const resultData = await response.json();
 
             if (response.ok && resultData.success) {
+                //  새로 등록된 면허도 하이픈 포맷으로 표시
+                const formattedLicenseNumber = [
+                    data.licenseNumber.slice(0, 2),
+                    data.licenseNumber.slice(2, 4),
+                    data.licenseNumber.slice(4, 10),
+                    data.licenseNumber.slice(10, 12)
+                ].join('-');
+
                 const newLicense = {
                     id: resultData.data.id,
                     name: resultData.data.driverName,
                     birthday: resultData.data.birthday,
-                    licenseNumber: resultData.data.licenseNumber,
+                    licenseNumber: formattedLicenseNumber, //  하이픈 포함
                     serialNumber: resultData.data.serialNumber,
                 };
                 setLicenses((prev) => [newLicense, ...prev]);
@@ -226,7 +266,7 @@ function MyLicense() {
                             className="bg-white rounded-2xl shadow-sm px-5 py-4 flex flex-col"
                         >
                             <span className="mb-2 text-base font-semibold text-[#1A1A1A]">
-                              {license.name}
+                                {license.name}
                             </span>
                             <div className="text-sm text-[#333333] space-y-1.5 leading-snug">
                                 <p className="flex items-center">
@@ -235,12 +275,12 @@ function MyLicense() {
                                 </p>
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">면허번호</span>
-                                    <span>{license.licenseNumber}</span>
+                                    <span>{license.licenseNumber}</span> {/*  하이픈 표시 */}
                                 </p>
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">일련번호</span>
                                     <span className="tracking-[0.15em] font-medium">
-                                      {license.serialNumber}
+                                        {license.serialNumber}
                                     </span>
                                 </p>
                             </div>
@@ -265,11 +305,7 @@ function MyLicense() {
                     </div>
                 )}
 
-                {hasLicense ? (
-                    <div>
-
-                    </div>
-                ) : (
+                {!hasLicense && (
                     <button
                         onClick={openModal}
                         className="w-full h-11 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#215FCC]"
@@ -330,12 +366,11 @@ function MyLicense() {
                                         <input
                                             id="licenseNumber"
                                             placeholder="면허번호 (예: 11-90-123456-00)"
-                                            maxLength={14}
-                                            className={`w-full rounded-lg border px-3 py-2 text-sm ${
-                                                errors.license
-                                                    ? "border-[#dc3545]"
-                                                    : "border-[#dddddd]"
+                                            maxLength={15} // 12자리 + 3하이픈
+                                            className={`w-full rounded-lg border px-3 py-2 text-sm font-mono tracking-wider ${
+                                                errors.license ? "border-[#dc3545]" : "border-[#dddddd]"
                                             }`}
+                                            onInput={handleLicenseNumberInput}
                                         />
                                         {errors.license && (
                                             <small className="mt-1 block text-xs text-[#dc3545]">

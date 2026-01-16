@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.service;
+package com.carpick.domain.reservation.service.v1;
 
 
 import com.carpick.domain.reservation.dto.request.ReservationPaymentRequestDto;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationPaymentCommandService {
+public class ReservationPaymentCommandServiceV1 {
 
     private final ReservationMapper reservationMapper;
     private final ReservationStatusHistoryMapper historyMapper;

@@ -10,6 +10,7 @@
     <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/common.css}">
     <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
     <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
@@ -18,21 +19,15 @@
     <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
 
     <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
-    <style>
-        /* 앞서 말씀하신 헤더와의 간격을 위해 추가 */
-        .main-content {
-            padding-top: 20px;
-        }
-    </style>
 </head>
 
 <body>
 <div class="page-container">
 
     <div th:replace="fragments/fragments :: sidebar"></div>
-    <div th:replace="fragments/fragments :: header"></div>
 
     <div class="main-content">
+        <div th:replace="fragments/fragments :: header"></div>
 
         <div class="page-title-area">
             <div class="row align-items-center">
@@ -49,54 +44,55 @@
             </div>
         </div>
 
-        <div class="col-lg-12 mt-5">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="header-title" 
-                        th:text="${notice.id != null} ? '공지사항 수정 ✅' : '새 공지사항 작성 📝'">새 공지사항 작성</h4>
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12 mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title" 
+                                th:text="${notice.id != null} ? '공지사항 수정 ✅' : '새 공지사항 작성 📝'">새 공지사항 작성</h4>
 
-                    <form th:action="@{/admin/notice/save}"
-                          th:object="${notice}"
-                          method="post">
+                            <form th:action="@{/admin/notice/save}"
+                                  th:object="${notice}"
+                                  method="post">
 
-                        <input type="hidden" th:field="*{id}"/>
+                                <input type="hidden" th:field="*{id}"/>
 
-                        <div class="form-group">
-                            <label for="title" class="col-form-label">제목</label>
-                            <input type="text"
-                                   id="title"
-                                   class="form-control"
-                                   th:field="*{title}"
-                                   placeholder="제목을 입력하세요"
-                                   required>
+                                <div class="form-group">
+                                    <label for="title" class="col-form-label">제목</label>
+                                    <input type="text"
+                                           id="title"
+                                           class="form-control"
+                                           th:field="*{title}"
+                                           placeholder="제목을 입력하세요"
+                                           required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="content" class="col-form-label">내용</label>
+                                    <textarea id="content"
+                                              class="form-control"
+                                              th:field="*{content}"
+                                              rows="10"
+                                              placeholder="내용을 입력하세요"
+                                              required></textarea>
+                                </div>
+
+                                <div class="mt-4 text-right">
+                                    <a th:href="@{/admin/notice}" class="btn btn-secondary mr-2">
+                                        취소
+                                    </a>
+                                    <button type="submit" class="btn btn-primary"
+                                            th:text="${notice.id != null} ? '수정완료' : '저장하기'">
+                                        저장하기
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="form-group">
-                            <label for="content" class="col-form-label">내용</label>
-                            <textarea id="content"
-                                      class="form-control"
-                                      th:field="*{content}"
-                                      rows="12"
-                                      placeholder="내용을 입력하세요"
-                                      required></textarea>
-                        </div>
-
-                        <div class="mt-4 text-right">
-                            <a th:href="@{/admin/notice}" class="btn btn-secondary mr-2">
-                                취소
-                            </a>
-                            <button type="submit" class="btn btn-primary"
-                                    th:text="${notice.id != null} ? '수정완료' : '저장하기'">
-                                저장하기
-                            </button>
-                        </div>
-
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
-
-    </div>
+        </div> </div>
 
     <div th:replace="fragments/fragments :: footer"></div>
 </div>

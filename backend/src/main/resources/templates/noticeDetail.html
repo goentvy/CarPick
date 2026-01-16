@@ -11,6 +11,7 @@
 	<link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/common.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+	<link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/typography.css}">
@@ -25,9 +26,9 @@
 	<div class="page-container">
 
 		<div th:replace="fragments/fragments :: sidebar"></div>
-		<div th:replace="fragments/fragments :: header"></div>
 
 		<div class="main-content">
+			<div th:replace="fragments/fragments :: header"></div>
 
 			<div class="page-title-area">
 				<div class="row align-items-center">
@@ -43,55 +44,53 @@
 				</div>
 			</div>
 
-			<div class="col-lg-12 mt-5">
-				<div class="card">
-					<div class="card-body">
-						<h4 class="header-title" th:text="${notice.title}">공지사항 제목</h4>
+			<div class="main-content-inner">
+				<div class="row">
+					<div class="col-lg-12 mt-4"> <div class="card">
+							<div class="card-body">
+								<h4 class="header-title" th:text="${notice.title}">공지사항 제목</h4>
 
-						<div class="text-muted mb-3" style="font-size: 0.9rem;">
-						    <i class="fa fa-user"></i> 작성자: 관리자
-						    <span class="mx-2">|</span>
-						    
-						    <i class="fa fa-calendar"></i> 작성일:
-						    <span th:text="${notice.createdAt != null ? #temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm') : ''}"></span>
-						    
-						    <span class="mx-2">|</span>
-						    
-						    <i class="fa fa-edit"></i> 수정일:
-						    <span th:text="${notice.updatedAt != null ? #temporals.format(notice.updatedAt, 'yyyy-MM-dd HH:mm') : #temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-						</div>
+								<div class="text-muted mb-3" style="font-size: 0.9rem;">
+									<i class="fa fa-user"></i> 작성자: 관리자
+									<span class="mx-2">|</span>
 
-						<hr>
+									<i class="fa fa-calendar"></i> 작성일:
+									<span th:text="${notice.createdAt != null ? #temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm') : ''}"></span>
 
-						<div class="notice-content mt-4 mb-5" style="min-height: 300px; line-height: 1.6;">
-							<div th:utext="${notice.content}">
-								공지사항 내용이 여기에 표시됩니다.
+									<span class="mx-2">|</span>
+
+									<i class="fa fa-edit"></i> 수정일:
+									<span th:text="${notice.updatedAt != null ? #temporals.format(notice.updatedAt, 'yyyy-MM-dd HH:mm') : #temporals.format(notice.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+								</div>
+
+								<hr>
+
+								<div class="notice-content mt-4 mb-4" style="min-height: auto; line-height: 1.6;">
+									<div th:utext="${notice.content}">
+										공지사항 내용이 여기에 표시됩니다.
+									</div>
+								</div>
+
+								<hr>
+
+								<div class="mt-4 text-right">
+									<a th:href="@{/admin/notice}" class="btn btn-secondary mr-2">목록으로</a>
+									<a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}" class="btn btn-primary mr-2">
+										<i class="fa fa-edit"></i> 수정하기
+									</a>
+									<button type="button" class="btn btn-danger" th:onclick="|deleteNotice(${notice.id})|">
+										<i class="fa fa-trash"></i> 삭제하기
+									</button>
+								</div>
 							</div>
-						</div>
-
-						<hr>
-
-						<div class="mt-4 text-right">
-							<a th:href="@{/admin/notice}" class="btn btn-secondary mr-2">목록으로</a>
-
-							<a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}" class="btn btn-primary mr-2">
-								<i class="fa fa-edit"></i> 수정하기
-							</a>
-
-							<button type="button" class="btn btn-danger" th:onclick="|deleteNotice(${notice.id})|">
-								<i class="fa fa-trash"></i> 삭제하기
-							</button>
 						</div>
 					</div>
 				</div>
-			</div>
-
-		</div>
+			</div> </div>
 
 		<div th:replace="fragments/fragments :: footer"></div>
 	</div>
 
-	<!-- JS (⚠️ admin 페이지들과 동일한 순서 유지) -->
 	<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
 	<script th:src="@{/assets/js/popper.min.js}"></script>
 	<script th:src="@{/assets/js/bootstrap.min.js}"></script>
@@ -103,18 +102,15 @@
 	<script>
 		function deleteNotice(id) {
 			if (!confirm('정말 삭제하시겠습니까?')) return;
-
-			fetch('/admin/notice/delete/' + id, {
-				method: 'POST'
-			}).then(response => {
-				if (response.ok) {
-					location.href = '/admin/notice';
-				} else {
-					alert('삭제에 실패했습니다.');
-				}
-			});
+			fetch('/admin/notice/delete/' + id, { method: 'POST' })
+				.then(response => {
+					if (response.ok) {
+						location.href = '/admin/notice';
+					} else {
+						alert('삭제에 실패했습니다.');
+					}
+				});
 		}
 	</script>
 </body>
-
 </html>

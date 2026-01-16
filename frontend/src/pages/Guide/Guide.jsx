@@ -4,11 +4,6 @@ import { Car, Check, ChevronRight, X } from "lucide-react"; // X 아이콘 추�
 import GuideStep from "./GuideStep";
 import "../../styles/guide.css";
 
-// 텍스트 파일 임포트
-import agree1 from "../../components/txt/agree1.txt?raw";
-import agree2 from "../../components/txt/agree2.txt?raw";
-import csInfo from "../../components/txt/cs.txt?raw";
-
 function Guide() {
   const [guideList, setGuideList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +44,7 @@ function Guide() {
   if (error) return <p className="guide-error">이용가이드를 불러올 수 없습니다.</p>;
 
   return (
-    <div className="guide-page pb-24"> {/* 하단 탭 바 겹침 방지 */}
+    <div className="guide-page"> {/* 하단 탭 바 겹침 방지 */}
       <div className="guide-header-section">
         <h2>이용가이드</h2>
       </div>

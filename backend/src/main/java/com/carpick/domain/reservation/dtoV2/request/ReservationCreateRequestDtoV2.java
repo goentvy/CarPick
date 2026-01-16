@@ -14,7 +14,7 @@ public class ReservationCreateRequestDtoV2 {
  * 1. 차량 및 시간 (What & When)
  * ========================== */
 
-private Long specId;    // ⭕ 차종 ID (예: 아반떼)
+    private Long specId;    // ⭕ 차종 ID (예: 아반떼)
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDateTime;

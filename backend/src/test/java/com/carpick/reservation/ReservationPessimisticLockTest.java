@@ -6,7 +6,7 @@ import com.carpick.domain.inventory.enums.InventoryOperationalStatus;
 import com.carpick.domain.inventory.mapper.VehicleInventoryMapper;
 import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
 import com.carpick.domain.reservation.mapper.ReservationMapper;
-import com.carpick.domain.reservation.service.ReservationCommandService;
+import com.carpick.domain.reservation.service.v1.ReservationCommandServiceV1;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +28,7 @@ public class ReservationPessimisticLockTest {
 
 
 @Autowired
-    private ReservationCommandService reservationCommandService;
+    private ReservationCommandServiceV1 reservationCommandServiceV1;
 
     @Autowired
     private VehicleInventoryMapper vehicleInventoryMapper;
@@ -80,7 +80,7 @@ public class ReservationPessimisticLockTest {
 
                     req.setDriverInfo(driver);
                     // 👆👆 여기까지 추가 👆👆
-                    reservationCommandService.createReservation(req, userId);
+                    reservationCommandServiceV1.createReservation(req, userId);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     System.out.println("예약 실패: " + e.getMessage());
