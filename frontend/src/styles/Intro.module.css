@@ -227,6 +227,7 @@
     margin-top: 30px;
   }
 }
+
 @media (max-height: 830px) {
   .intro_container .checkbox_container {
     height: 40vh;

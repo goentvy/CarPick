@@ -98,7 +98,7 @@
 	                                <h4 class="header-title mb-0">이번주 가입수</h4>
 	                            </div>
 	                        </div>
-	                        <h2>142명</h2>
+							<h2 th:text="${weeklyJoinCount != null ? weeklyJoinCount : 0} + '명'">0명</h2>
 	                    </div>
 	                </div>
 	                <div class="col-xl-3 col-ml-3 col-md-6 mt-5">
@@ -108,7 +108,7 @@
 	                                <h4 class="header-title mb-0">이번달 가입수</h4>
 	                            </div>
 	                        </div>
-	                        <h2>1324명</h2>
+	                        <h2 th:text="${monthlyJoinCount != null ? monthlyJoinCount : 0} + '명'">0명</h2>
 	                    </div>
 	                </div>
 	            </div>
@@ -189,63 +189,24 @@
 	                                <input type="text" name="search" placeholder="Search Here">
 	                            </form>
 	                        </div>
-	                        <div class="member-box">
-	                            <div class="s-member">
-	                                <div class="media align-items-center">
-	                                    <div class="media-body">
-	                                        <p>홍길동</p><span>admin@naver.com</span>
-	                                    </div>
-	                                    <div class="tm-social">
-	                                        <a href="#"><i class="fa fa-phone"></i></a>
-	                                        <a href="#"><i class="fa fa-envelope"></i></a>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="s-member">
-	                                <div class="media align-items-center">
-	                                    <div class="media-body">
-	                                        <p>강호동</p><span>kang@naver.com</span>
-	                                    </div>
-	                                    <div class="tm-social">
-	                                        <a href="#"><i class="fa fa-phone"></i></a>
-	                                        <a href="#"><i class="fa fa-envelope"></i></a>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="s-member">
-	                                <div class="media align-items-center">
-	                                    <div class="media-body">
-	                                        <p>유재석</p><span>yu@naver.com</span>
-	                                    </div>
-	                                    <div class="tm-social">
-	                                        <a href="#"><i class="fa fa-phone"></i></a>
-	                                        <a href="#"><i class="fa fa-envelope"></i></a>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="s-member">
-	                                <div class="media align-items-center">
-	                                    <div class="media-body">
-	                                        <p>한지우</p><span>han@asddsa.com</span>
-	                                    </div>
-	                                    <div class="tm-social">
-	                                        <a href="#"><i class="fa fa-phone"></i></a>
-	                                        <a href="#"><i class="fa fa-envelope"></i></a>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                            <div class="s-member">
-	                                <div class="media align-items-center">
-	                                    <div class="media-body">
-	                                        <p>최이슬</p><span>choi@naver.com</span>
-	                                    </div>
-	                                    <div class="tm-social">
-	                                        <a href="#"><i class="fa fa-phone"></i></a>
-	                                        <a href="#"><i class="fa fa-envelope"></i></a>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                        </div>
+							<div class="member-box">
+							    <div class="s-member" th:each="user : ${recentUsers}">
+							        <div class="media align-items-center">
+							            <div class="media-body">
+							                <p th:text="${user.name}">홍길동</p>
+							                <span th:text="${user.email}">admin@naver.com</span>
+							            </div>
+							            <div class="tm-social">
+							                <a th:href="'tel:' + ${user.phone}">
+							                    <i class="fa fa-phone"></i>
+							                </a>
+							                <a th:href="'mailto:' + ${user.email}">
+							                    <i class="fa fa-envelope"></i>
+							                </a>
+							            </div>
+							        </div>
+							    </div>
+							</div>
 	                    </div>
 	                </div>
 	            </div>
