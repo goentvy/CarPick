@@ -118,6 +118,9 @@ export default function Intro() {
               취향을 몇 가지 골라주세요.
             </h4>
             <p className={styles.green}>최소 3개 이상 선택해주세요.</p>
+            <button type="button" onClick={goHome} className={styles.pass}>
+              건너뛰기&gt;&gt;
+            </button>
           </div>
 
           <div className={styles.checkbox_container}>
@@ -142,9 +145,6 @@ export default function Intro() {
               <p className={styles.selno}>
                 <span>{selected.length}</span>개 선택됨
               </p>
-              <button type="button" onClick={goHome} className={styles.pass}>
-                건너뛰기
-              </button>
             </div>
 
             <button
