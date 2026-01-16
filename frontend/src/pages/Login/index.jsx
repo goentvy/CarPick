@@ -4,6 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useEffect, useState } from 'react';
 import ContentTopLogo from '../../components/common/ContentTopLogo';
+// ✅ 공통 로딩 컴포넌트 Import (경로 확인해주세요)
+import LoadingOverlay from '../../components/common/LoadingOverlay';
 import { login } from '../../services/auth';
 import useUserStore from '../../store/useUserStore';
 
@@ -43,7 +45,6 @@ const Login = () => {
       setLoading(true);
       setServerMessage("");
 
-      // 1초 대기 + 로그인 요청 병렬 처리
       const minTime = new Promise((resolve) => setTimeout(resolve, 1000));
       const loginRequest = login(formData.email, formData.password);
 
@@ -76,17 +77,32 @@ const Login = () => {
     window.location.href = kakaoAuthUrl;
   };
 
+  // ✅ [핵심 수정] 네이버 로그인 핸들러 (HTTP 환경 호환성 패치)
   const handleNaverLogin = () => {
     const CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
     const REDIRECT_URI = import.meta.env.VITE_NAVER_REDIRECT_URI;
-    const STATE = crypto.randomUUID();
+
+    // 1. 안전한 랜덤 문자열 생성 함수 (http에서도 작동)
+    const generateRandomString = () => {
+      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    };
+
+    // 2. crypto.randomUUID() 대신 위 함수 사용
+    const STATE = generateRandomString();
+
     sessionStorage.setItem("naver_state", STATE);
-    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${STATE}`;
+
+    const naverAuthUrl =
+      `https://nid.naver.com/oauth2.0/authorize` +
+      `?response_type=code` +
+      `&client_id=${CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&state=${STATE}`;
+
     window.location.href = naverAuthUrl;
   };
 
   return (
-    // ✅ Home과 동일한 max-w-[640px] 적용
     <div className="flex flex-col w-full max-w-[640px] justify-center min-h-[calc(100vh-67px)] mx-auto mt-[67px] pb-20">
       <div className="w-full bg-white p-8">
         <ContentTopLogo title="로그인 하세요" titleStyle={"text-center mb-4 text-xl font-bold"} />
@@ -166,13 +182,8 @@ const Login = () => {
         </div>
       </div>
 
-      {/* ✅ [검증 완료] 640px에 딱 맞춘 로딩 오버레이 */}
-      {loading && (
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[640px] h-full z-[9999] flex flex-col items-center justify-center bg-blue-500">
-          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
-          <p className="text-white text-lg font-bold">회원정보를 불러오는 중</p>
-        </div>
-      )}
+      {/* ✅ 공통 로딩 컴포넌트 사용 */}
+      <LoadingOverlay loading={loading} />
     </div>
   );
 };
