@@ -18,39 +18,39 @@ public class OAuthController {
     private final OAuthService oAuthService;
 
     /**
-     * 소셜 로그인 통합 엔드포인트
-     *
-     * @param provider "kakao" 또는 "naver" (경로 변수)
-     * @param request  프론트에서 보낸 인가 코드(code)와 상태값(state)
-     * @return 보안 DTO에 담긴 토큰 및 사용자 정보
+     * 소셜 로그인 (NAVER / KAKAO)
+     * ❗ 비인증 엔드포인트
      */
     @PostMapping("/login/{provider}")
     public ResponseEntity<OAuthLoginResponse> socialLogin(
-            @PathVariable("provider") String provider,
+            @PathVariable String provider,
             @RequestBody OAuthLoginRequest request
     ) {
-        log.info("소셜 로그인 요청: provider={}", provider);
+        log.info("[OAUTH-LOGIN] provider={}", provider);
+
         OAuthLoginResponse response = oAuthService.login(provider, request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * ✅ 소셜 연동 해제 (카카오/네이버)
-     * 프론트에서 /auth/unlink/{provider} 로 POST 요청
+     * 소셜 연동 해제 (NAVER / KAKAO)
+     * ❗ 인증 필요 (JWT)
      */
     @PostMapping("/unlink/{provider}")
     public ResponseEntity<Void> unlinkSocial(
-            @PathVariable("provider") String provider,
+            @PathVariable String provider,
             HttpServletRequest request
     ) {
-        // Authorization 헤더에서 JWT 추출
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().build();
         }
+
         String jwtToken = authHeader.substring(7);
 
-        log.info("소셜 연동 해제 요청: provider={}", provider);
+        log.info("[OAUTH-UNLINK] provider={}", provider);
+
         oAuthService.unlinkSocial(provider, jwtToken);
         return ResponseEntity.ok().build();
     }
