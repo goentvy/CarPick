@@ -1,10 +1,10 @@
 const VehicleCard = ({ discount, imageSrc, aiSummary, title, features, price, onClick }) => {
-  
+
   // 할인된 가격 계산
   const discountedPrice = Math.floor(price * (1 - discount / 100));
   return (
-    <div 
-      className="relative bg-white rounded-[18px] shadow-md mb-4 w-full outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200"
+    <div
+      className="relative bg-white rounded-[18px] shadow-md mb-4 w-full outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 cursor-pointer"
       onClick={onClick}
     >
       {/* 할인 라벨 */}
@@ -18,7 +18,7 @@ const VehicleCard = ({ discount, imageSrc, aiSummary, title, features, price, on
       <div className="flex flex-col p-3">
         <h3 className="text-base font-bold">{title}</h3>
         <p className="xx:text-sm text-gray-400">
-         {aiSummary}
+          {aiSummary}
         </p>
         <div className="text-right xx:text-xs sm:text-sm text-gray-400 space-y-1 space-x-2 mt-3">
           {features?.option?.map((item, idx) => (
@@ -28,7 +28,7 @@ const VehicleCard = ({ discount, imageSrc, aiSummary, title, features, price, on
           ))}
         </div>
 
-        
+
         {/* 경계 라인 */}
         <hr className="border-t-2 border-gray-200 mb-2" />
 

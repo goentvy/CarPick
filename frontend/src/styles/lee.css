@@ -457,4 +457,7 @@
   .chatContent {
     height: calc(100vh - 358px);
   }
+  .agree-row {
+    margin-bottom: 70px;
+  }
 }
