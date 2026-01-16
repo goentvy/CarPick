@@ -88,10 +88,9 @@ const CarList = () => {
 
 
 
-    const handleClickCar = (id) => {
+    const handleClickCar = (specId) => {
 
-
-        navigate(`/cars/detail/${id}${routerLocation.search}`);
+        navigate(`/cars/detail/${specId}${routerLocation.search}`);
     };
 
     if (loading) return <p>Loading...</p>;
@@ -175,9 +174,9 @@ const CarList = () => {
             ) : (
                 <div className="xx:p-2 sm:p-6 flex xx:flex-col xs:flex-row justify-between gap-2 flex-wrap">
                     {cars.map((car) => (
-                        <div key={car.vehicleId} className="w-full sm:w-[49%]">
+                        <div key={car.specId} className="w-full sm:w-[49%]">
                             <CarCard
-                                id={car.vehicleId}
+                                id={car.specId}
                                 discount={car.discountRate !== null}
                                 discountRate={car.discountRate || 0}
                                 imageSrc={car.mainImageUrl || "/images/common/carList.png"}
@@ -190,7 +189,7 @@ const CarList = () => {
                                 cost={car.originalPrice}
                                 price={car.finalPrice}
                                 day={true} // 단기면 true, 장기면 false
-                                onClick={() => handleClickCar(car.vehicleId)}
+                                onClick={() => handleClickCar(car.specId)}
                             />
                         </div>
                     ))}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getZoneMap } from "@/services/zoneApi.js";
+import { getZoneMap, getDropzoneStatus } from "@/services/zoneApi.js";
 
 export function useZoneMap() {
   const [zones, setZones] = useState([]);
@@ -14,12 +14,11 @@ export function useZoneMap() {
         setLoading(true);
         setError(null);
 
-        // ✅ axios면 getZoneMap 내부에서 signal 전달 가능하게 해두면 베스트
         const res = await getZoneMap({ signal: ac.signal });
-
         const { branches = [], dropzones = [] } = res.data || {};
 
-        const nextZones = [
+        // 1) 기본 zones 생성
+        const baseZones = [
           ...branches.map((b) => ({
             id: `B-${b.branchId}`,
             kind: "BRANCH",
@@ -33,40 +32,73 @@ export function useZoneMap() {
           ...dropzones.map((d) => ({
             id: `D-${d.dropzoneId}`,
             kind: "DROP",
-            dropzoneId: d.dropzoneId,  // ✅ API 호출용 numeric id
+            dropzoneId: d.dropzoneId, // ✅ numeric
             branchId: d.branchId,
             parentZoneId: `B-${d.branchId}`,
-
             name: d.dropzoneName,
             address: d.addressText,
             lat: Number(d.latitude),
             lng: Number(d.longitude),
-
             walkingTimeMin: d.walkingTimeMin,
             locationDesc: d.locationDesc,
             isActive: d.isActive === true || d.isActive === 1,
-
           })),
         ];
 
-        console.log("[useZoneMap] nextZones(branch sample):", nextZones[0]);
+        // 2) 드롭존들 status 병합 (단건 API를 병렬 호출)
+        const drops = baseZones.filter((z) => z.kind === "DROP");
 
-        setZones(nextZones);
+        const statusList = await Promise.all(
+          drops.map(async (dz) => {
+            try {
+              const sres = await getDropzoneStatus(dz.dropzoneId, {
+                signal: ac.signal,
+              });
+              // 예상: { dropzoneId, status, label, ... } 형태
+              return { id: dz.id, data: sres.data };
+            } catch (e) {
+              // 일부 실패해도 전체는 살려두기
+              if (e?.name === "CanceledError" || e?.name === "AbortError") return null;
+              console.warn("[dropzone status fail]", dz.dropzoneId, e);
+              return { id: dz.id, data: null };
+            }
+          })
+        );
+
+        const statusMap = new Map(
+          statusList
+            .filter(Boolean)
+            .map((x) => [x.id, x.data])
+        );
+
+        const nextZones = baseZones.map((z) => {
+          if (z.kind !== "DROP") return z;
+
+          const st = statusMap.get(z.id);
+          return {
+            ...z,
+            // ✅ ZoneMapKakao가 읽는 필드명으로 맞춰줌
+            status: st?.status, // FREE | NORMAL | CROWDED | FULL
+            label: st?.label,   // 여유 | 보통 | 혼잡 | 만차
+            occupancyRate: st?.occupancyRate,
+            currentCount: st?.currentCount,
+            capacity: st?.capacity,
+            measuredAt: st?.measuredAt,
+          };
+        });
+
+        if (!ac.signal.aborted) setZones(nextZones);
       } catch (e) {
-        // ✅ Abort는 에러로 취급 안 함
         if (e?.name === "CanceledError" || e?.name === "AbortError") return;
         console.error("zone map load fail", e);
         setZones([]);
         setError(e);
       } finally {
-        // ✅ StrictMode에서도 항상 로딩 내려가게
         if (!ac.signal.aborted) setLoading(false);
       }
     })();
 
-    return () => {
-      ac.abort();
-    };
+    return () => ac.abort();
   }, []);
 
   const branchItems = useMemo(() => zones.filter((z) => z.kind === "BRANCH"), [zones]);
