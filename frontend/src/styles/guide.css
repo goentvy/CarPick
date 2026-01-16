@@ -61,7 +61,7 @@
 }
 
 .guide-step-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #212529;
   margin: 0;
@@ -113,7 +113,7 @@
   }
 
   .guide-step-title {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
 
@@ -168,7 +168,7 @@
 
 /* 텍스트 스타일 */
 .finish-text h3 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   color: #111827;
   letter-spacing: -0.5px;
@@ -190,7 +190,7 @@
   border: none;
   padding: 18px;
   border-radius: 18px;
-  font-size: 1.1rem;
+  font-size: 18px;
   font-weight: 700;
   display: flex;
   align-items: center;
