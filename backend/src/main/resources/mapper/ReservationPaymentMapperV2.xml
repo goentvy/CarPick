@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.reservation.mapper.ReservationPaymentMapperV2">
+<!--결제 확정 시점에 예약 row를 잠그고,
+상태와 결제 금액이 유효할 때만 조건부로 상태를 확정하는 Mapper입니다-->
+    <!-- ===== VO 매핑 ===== -->
+    <resultMap id="paymentVerificationMap" type="com.carpick.domain.payment.vo.PaymentVerificationVo">
+        <result property="reservationId" column="reservation_id"/>
+        <result property="reservationStatus" column="reservation_status"/>
+        <result property="totalAmountSnapshot" column="total_amount_snapshot"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <!-- [1] 결제 검증용 조회 + row lock -->
+    <select id="selectPaymentInfoForUpdate"
+            parameterType="String"
+            resultMap="paymentVerificationMap">
+        SELECT
+            reservation_id,
+            reservation_status,
+            total_amount_snapshot,
+            user_id
+        FROM RESERVATION
+        WHERE reservation_no = #{reservationNo}
+            FOR UPDATE
+    </select>
+
+    <!-- [2] 조건부 상태 전이 (멱등) -->
+    <update id="updateStatusIfCurrent">
+        UPDATE RESERVATION
+        SET
+            reservation_status = #{nextStatus},
+            updated_at = NOW()
+        WHERE reservation_id = #{reservationId}
+          AND reservation_status = #{expectedStatus}
+    </update>
+
+    <!-- [3] 결제 실패/취소 처리 -->
+    <update id="updateStatusToCanceled">
+        UPDATE RESERVATION
+        SET
+            reservation_status = 'CANCELED',
+            cancel_reason = #{cancelReason},
+            cancelled_at = NOW(),
+            updated_at = NOW()
+        WHERE reservation_id = #{reservationId}
+    </update>
+
+</mapper>

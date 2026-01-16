@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.service;
+package com.carpick.domain.reservation.service.v1;
 
 import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
 import com.carpick.domain.car.service.CarService;
@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationUiService {
+public class ReservationUiServiceV1 {
     private final CarService carService;
     private final ReservationMapper reservationMapper;
-    private final ReservationPriceService priceService;
-    private final ReservationCommandService commandService;
+    private final ReservationPriceServiceV1 priceService;
+    private final ReservationCommandServiceV1 commandService;
     /**
      * 예약 페이지 초기 로딩 데이터
      */

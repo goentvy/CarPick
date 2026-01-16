@@ -23,10 +23,10 @@ const EmergencyService = () => {
   if (error) return <div className="status-message error">데이터 로드에 실패했습니다.</div>;
 
   return (
-    <div className="emergency-container"> {/* CSS 클래스명과 일치시킴 */}
-      <header className="emergency-header">
-        <h2 className="emergency-main-title">긴급지원서비스</h2>
-      </header>
+    <div className="emergency-container"> 
+    <header className="emergency-header">
+      <h2 className="emergency-main-title">긴급지원서비스</h2>
+    </header>
 
       <main className="emergency-body">
         <div className="emergency-grid">
@@ -55,7 +55,6 @@ const EmergencyService = () => {
         <section className="contact-section">
           <div className="contact-container">
             <div className="contact-text">
-              {/* 배지는 삭제하여 시각적 복잡도를 줄였습니다 */}
               <h3>도움이 필요하신가요?</h3>
               <p>365일 24시간 연중무휴 사고 접수 및 긴급출동 서비스를 이용하실 수 있습니다.</p>
             </div>
@@ -65,6 +64,7 @@ const EmergencyService = () => {
             </a>
           </div>
         </section>
+        
       </main>
     </div>
   );

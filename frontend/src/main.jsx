@@ -77,7 +77,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         {/* 기본 레이아웃 */}
         <Route path="/" element={<App />}>
-          
+
           {/* 인트로 */}
           <Route index element={<Intro />} />
 
@@ -91,8 +91,8 @@ createRoot(document.getElementById('root')).render(
           {/* 차량 목록 */}
           <Route path="day" element={<CarDayList />} />
           <Route path="month" element={<CarMonthList />} />
-          <Route path="cars/detail/:id" element={<CarDetailPage />} />
-          
+          <Route path="cars/detail/:specId" element={<CarDetailPage />} />
+
           {/* 카픽존 & 드롭존 */}
           <Route path="zone" element={<CarpickZonePage />} />
 
@@ -106,12 +106,12 @@ createRoot(document.getElementById('root')).render(
           <Route path="signup/joinus" element={<SignupJoinus />} />
           <Route path="signup/complete" element={<SignupComplete />} />
 
-            <Route path="guest" element={<Outlet />}>
-                <Route path="view" element={<GuestView />} />
-                <Route path="cancel" element={<GuestCancel />} />
-                <Route path="cancel/complete" element={<GuestCancelComplete />} />
-                <Route path="reservation-detail" element={<GuestReservationDetail />} />
-            </Route>
+          <Route path="guest" element={<Outlet />}>
+            <Route path="view" element={<GuestView />} />
+            <Route path="cancel" element={<GuestCancel />} />
+            <Route path="cancel/complete" element={<GuestCancelComplete />} />
+            <Route path="reservation-detail" element={<GuestReservationDetail />} />
+          </Route>
           {/* 예약 */}
           <Route path="reservation/:id" element={<ReservationPage />} />
 
@@ -124,17 +124,17 @@ createRoot(document.getElementById('root')).render(
 
           {/* 마이페이지 */}
           <Route path="mypage" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
-              <Route index element={<MyPageHome />} />
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="reviewhistory" element={<ReviewHistory />} />
-              <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
-              <Route path="favorites" element={<Favorites />} />
-              <Route path="license" element={<MyLicense />} />
-              <Route path="changeHistory" element={<ChangeHistoryPage />} />
-              {/* ✅ 예약 내역 */}
-              <Route path="reservations" element={<ReservationsList />} />
-              <Route path="reservations/:reservationId/change" element={<ReservationChangeDetail />} />
-              <Route path="reservations/:reservationId" element={<ReservationDetail />} />
+            <Route index element={<MyPageHome />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="reviewhistory" element={<ReviewHistory />} />
+            <Route path="qna" element={<QnAlist />} />        {/* QnAlist → qna */}
+            <Route path="favorites" element={<Favorites />} />
+            <Route path="license" element={<MyLicense />} />
+            <Route path="changeHistory" element={<ChangeHistoryPage />} />
+            {/* ✅ 예약 내역 */}
+            <Route path="reservations" element={<ReservationsList />} />
+            <Route path="reservations/:reservationId/change" element={<ReservationChangeDetail />} />
+            <Route path="reservations/:reservationId" element={<ReservationDetail />} />
           </Route>
           {/* 약관 */}
           <Route path="terms" element={<Agree1 />} />
@@ -163,7 +163,7 @@ createRoot(document.getElementById('root')).render(
 
           {/* 회사소개 */}
           <Route path="about" element={<About />} />
-          
+
         </Route>
       </Routes>
     </BrowserRouter>

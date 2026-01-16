@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carpick.domain.reservation.mapper.ReservationCreateMapperV2">
+<!--예약 생성 시 차량 재고에 비관적 락을 걸어 동시성을 제어하고, 기간 겹침 검증 후 예약을 확정(CONFIRMED) 상태로 INSERT하는 매퍼.-->
+    <!-- [1] 예약 가능 실차 1대 선택 -->
+    <select id="selectAvailableVehicleIdForPeriod" resultType="Long">
+        <![CDATA[
+        SELECT vi.vehicle_id
+        FROM vehicle_inventory vi
+        WHERE vi.branch_id = #{pickupBranchId}
+          AND vi.spec_id = #{specId}
+          AND vi.status = 'AVAILABLE'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM reservation r
+            WHERE r.vehicle_id = vi.vehicle_id
+              AND r.status IN ('CONFIRMED', 'ACTIVE')
+              AND r.pickup_date < #{endDate}
+              AND r.return_date > #{startDate}
+        )
+        ORDER BY vi.vehicle_id
+            LIMIT 1
+        ]]>
+    </select>
+
+    <!-- [2] 차량 재고 Row Lock 획득 (비관적 락) -->
+    <select id="lockVehicleInventory" resultType="Long">
+        <![CDATA[
+        SELECT vehicle_id
+        FROM vehicle_inventory
+        WHERE vehicle_id = #{vehicleId}
+            FOR UPDATE
+        ]]>
+    </select>
+
+    <!-- [3] 예약 기간 겹침 여부 검증 -->
+    <select id="countOverlappingReservations" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*)
+        FROM reservation
+        WHERE vehicle_id = #{vehicleId}
+          AND status IN ('CONFIRMED', 'ACTIVE')
+          AND pickup_date < #{endDate}
+          AND return_date > #{startDate}
+        ]]>
+    </select>
+
+    <!-- [4] 예약 생성 (Mock 결제 → 즉시 CONFIRMED) -->
+    <insert id="insertReservation"
+            parameterType="com.carpick.domain.reservation.entity.Reservation"
+            useGeneratedKeys="true"
+            keyProperty="reservationId"
+            keyColumn="reservation_id">
+        <![CDATA[
+        INSERT INTO reservation (
+            user_id,
+            vehicle_id,
+            pickup_branch_id,
+            return_branch_id,
+            pickup_date,
+            return_date,
+            total_price,
+            status,
+            created_at
+        ) VALUES (
+                     #{userId},
+                     #{vehicleId},
+                     #{pickupBranchId},
+                     #{returnBranchId},
+                     #{pickupDate},
+                     #{returnDate},
+                     #{totalPrice},
+                     'CONFIRMED',
+                     NOW()
+                 )
+        ]]>
+    </insert>
+
+</mapper>

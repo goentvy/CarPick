@@ -1,7 +1,5 @@
 package com.carpick.domain.reservation.controller;
 
-import com.carpick.domain.reservation.dto.ReservationRequest;
-import com.carpick.domain.reservation.dto.ReservationRequest.CardPayment;
 import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
 import com.carpick.domain.reservation.dto.request.ReservationPaymentRequestDto;
 import com.carpick.domain.reservation.dto.request.ReservationPriceRequestDto;
@@ -9,9 +7,9 @@ import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
 import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
 import com.carpick.domain.reservation.dto.response.ReservationPayResponseDto;
 import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
-import com.carpick.domain.reservation.service.ReservationCommandService;
-import com.carpick.domain.reservation.service.ReservationPaymentCommandService;
-import com.carpick.domain.reservation.service.ReservationUiService;
+import com.carpick.domain.reservation.service.v1.ReservationCommandServiceV1;
+import com.carpick.domain.reservation.service.v1.ReservationPaymentCommandServiceV1;
+import com.carpick.domain.reservation.service.v1.ReservationUiServiceV1;
 import com.carpick.global.security.details.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +26,11 @@ import java.util.Map;
 @RequestMapping("/api/reservation")
 @RequiredArgsConstructor
 public class ReservationController {
-    private final ReservationUiService reservationUiService;
-    private final ReservationCommandService reservationCommandService;
+    private final ReservationUiServiceV1 reservationUiServiceV1;
+    private final ReservationCommandServiceV1 reservationCommandServiceV1;
 
     // ▼▼▼ [핵심] 이 줄이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
-    private final ReservationPaymentCommandService paymentService;
+    private final ReservationPaymentCommandServiceV1 paymentService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -59,7 +57,7 @@ public class ReservationController {
      */
     @GetMapping("/form")
     public ReservationFormResponseDto getForm(@RequestParam("carId") Long carId){
-        return reservationUiService.getForm(carId);
+        return reservationUiServiceV1.getForm(carId);
 
     }
     /**
@@ -70,7 +68,7 @@ public class ReservationController {
     @PostMapping("/price")
     public ReservationPriceResponseDto calcPrice(@RequestParam("carId") Long carId
             , @RequestBody(required = false) ReservationPriceRequestDto req){
-        return reservationUiService.calcPrice(carId, req);
+        return reservationUiServiceV1.calcPrice(carId, req);
     }
     @PostMapping("/create")
     public ResponseEntity<ReservationCreateResponseDto> create(
@@ -82,7 +80,7 @@ public class ReservationController {
 
         }
         Long userId = userDetails.getUserId(); // 유저 아이디 연동
-        ReservationCreateResponseDto response = reservationCommandService.createReservation(req, userId);
+        ReservationCreateResponseDto response = reservationCommandServiceV1.createReservation(req, userId);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/{reservationId}/cancel")

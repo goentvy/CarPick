@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.insurance.mapper.InsuranceMapper">
+
+    <!--
+        ============================
+        보험 옵션 전체 조회 (V2)
+        - 예약 폼 / 가격 계산 공용
+        - 활성화된 보험만 조회
+        - 정렬 순서(sort_order) 기준
+        ============================
+    -->
+    <select id="selectInsuranceOptionsV2"
+            resultType="com.carpick.domain.insurance.dto.raw.InsuranceRawDto">
+        SELECT
+            insurance_id        AS insuranceId,
+            insurance_code      AS insuranceCode,
+            insurance_label     AS insuranceLabel,
+            summary_label       AS summaryLabel,
+            extra_daily_price   AS extraDailyPrice,
+            is_default          AS isDefault,
+            sort_order          AS sortOrder
+        FROM INSURANCE
+        WHERE is_active = TRUE
+        ORDER BY sort_order ASC
+    </select>
+
+
+    <!--
+        ============================
+        보험 코드로 단건 조회 (V2)
+        - 예약 생성 시 가격 계산용
+        - 활성 보험만 대상
+        - 존재하지 않으면 null 반환
+        ============================
+    -->
+    <select id="selectInsuranceByCodeV2"
+            parameterType="String"
+            resultType="com.carpick.domain.insurance.dto.raw.InsuranceRawDto">
+        SELECT
+            insurance_id        AS insuranceId,
+            insurance_code      AS insuranceCode,
+            insurance_label     AS insuranceLabel,
+            summary_label       AS summaryLabel,
+            extra_daily_price   AS extraDailyPrice,
+            is_default          AS isDefault,
+            sort_order          AS sortOrder
+        FROM INSURANCE
+        WHERE insurance_code = #{insuranceCode}
+          AND is_active = TRUE
+            LIMIT 1
+    </select>
+
+</mapper>

@@ -18,6 +18,8 @@ export default function CarPickZonePage() {
   /** 1) View / UI */
   const [viewMode, setViewMode] = useState("ALL"); // "ALL" | "BRANCH" | "DROP"
   const [filterOpen, setFilterOpen] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
+
 
   /** 2) Search */
   const [q, setQ] = useState("");
@@ -158,6 +160,7 @@ export default function CarPickZonePage() {
               onMapClick={closeOverlays}
               center={camera}
               myPos={myPos}
+              showCrowd={legendOpen}
             />
           </div>
 
@@ -173,24 +176,21 @@ export default function CarPickZonePage() {
               />
             </div>
 
-            {/* 필터 */}
+            {/* 필터 + 혼잡도 토글 */}
             <div className="flex items-center justify-between gap-2 pointer-events-auto">
+              {/* 왼쪽: 필터 */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setFilterOpen((v) => !v)}
                   className="h-8 px-3 rounded-full text-xs font-semibold border bg-[#C8FF48] text-[#111] border-black/10 shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur"
                 >
-                  {viewMode === "ALL"
-                    ? "모두보기"
-                    : viewMode === "BRANCH"
-                      ? "카픽존"
-                      : "드롭존"}
+                  {viewMode === "ALL" ? "모두보기" : viewMode === "BRANCH" ? "카픽존" : "드롭존"}
                   <span className="ml-1 text-black/40">▾</span>
                 </button>
 
                 {filterOpen && (
-                  <div className="absolute mt-2 w-36 rounded-2xl bg-white border border-black/10 shadow-[0_16px_50px_rgba(0,0,0,0.16)] overflow-hidden">
+                  <div className="absolute z-40 mt-2 w-36 rounded-2xl bg-white border border-black/10 shadow-[0_16px_50px_rgba(0,0,0,0.16)] overflow-hidden">
                     {[
                       { key: "ALL", label: "모두보기" },
                       { key: "BRANCH", label: "카픽존" },
@@ -205,9 +205,7 @@ export default function CarPickZonePage() {
                         }}
                         className={[
                           "w-full text-left px-4 py-3 text-sm",
-                          viewMode === opt.key
-                            ? "bg-[#EEF3FF] font-semibold"
-                            : "hover:bg-black/5",
+                          viewMode === opt.key ? "bg-[#EEF3FF] font-semibold" : "hover:bg-black/5",
                         ].join(" ")}
                       >
                         {opt.label}
@@ -217,13 +215,31 @@ export default function CarPickZonePage() {
                 )}
               </div>
 
-              {loading && (
-                <div className="text-xs text-black/50 bg-white/90 border border-black/10 rounded-full px-3 h-8 flex items-center">
-                  지점 불러오는 중...
-                </div>
-              )}
+              {/* 오른쪽: 혼잡도 토글 + 로딩 */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLegendOpen((v) => !v)}
+                  className={[
+                    "h-8 px-3 rounded-full text-xs font-semibold border border-black/10",
+                    "bg-white/90 backdrop-blur shadow-[0_6px_18px_rgba(0,0,0,0.12)]",
+                    legendOpen ? "text-[#111]" : "text-black/60",
+                  ].join(" ")}
+                  aria-pressed={legendOpen}
+                >
+                  혼잡도
+                  <span className="ml-1 text-black/40">{legendOpen ? "ON" : "OFF"}</span>
+                </button>
+
+                {loading && (
+                  <div className="text-xs text-black/50 bg-white/90 border border-black/10 rounded-full px-3 h-8 flex items-center">
+                    지점 불러오는 중...
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
 
           {/* 아래 배너(예시) */}
           {!sheetOpen && (
