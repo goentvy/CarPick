@@ -49,6 +49,19 @@ public class Period {
         return ChronoUnit.HOURS.between(startDateTime, endDateTime);
     }
 
+    public long getRentDaysForBilling() {
+        long totalHours = ChronoUnit.HOURS.between(startDateTime, endDateTime);
+        // 24시간 단위 올림(ceil) + 최소 1일 보장
+        long days = (totalHours + 23) / 24;
+        return Math.max(days, 1);
+    }
+    // Period.java에 추가
+    public int getRentMonths() {
+        long days = getRentDays();
+        int months = (int) Math.ceil(days / 30.0);
+        return Math.max(1, Math.min(months, 12));  // 1~12 범위
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.coupon.mapper.CouponMapper">
+
+    <sql id="couponColumns">
+        coupon_id,
+        coupon_code,
+        coupon_name,
+        discount_type,
+        discount_value,
+        max_discount_amount,
+        min_order_amount,
+        valid_from,
+        valid_to,
+        total_quantity,
+        used_quantity,
+        use_yn,
+        deleted_at,
+        is_active,
+        created_at,
+        updated_at
+    </sql>
+
+    <resultMap id="CouponResultMap" type="com.carpick.domain.coupon.entity.Coupon">
+        <id property="couponId" column="coupon_id"/>
+
+        <result property="couponCode" column="coupon_code"/>
+        <result property="couponName" column="coupon_name"/>
+
+        <!-- enum 매핑: DB 값(FIXED/RATE) -> CouponType -->
+        <result property="couponType" column="discount_type"
+                javaType="com.carpick.domain.coupon.enums.CouponType"/>
+
+        <result property="discountValue" column="discount_value"/>
+        <result property="maxDiscountAmount" column="max_discount_amount"/>
+        <result property="minOrderAmount" column="min_order_amount"/>
+
+        <result property="validFrom" column="valid_from"/>
+        <result property="validTo" column="valid_to"/>
+
+        <result property="totalQuantity" column="total_quantity"/>
+        <result property="usedQuantity" column="used_quantity"/>
+
+        <result property="isActive" column="is_active"/>
+
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 쿠폰 코드로 조회 -->
+    <select id="findByCouponCode" resultMap="CouponResultMap">
+        SELECT <include refid="couponColumns"/>
+        FROM COUPON
+        WHERE coupon_code = #{couponCode}
+        AND use_yn = 'Y'
+        AND deleted_at IS NULL
+        LIMIT 1
+    </select>
+
+    <!-- 쿠폰 ID로 조회 (관리용) -->
+    <select id="findById" resultMap="CouponResultMap">
+        SELECT <include refid="couponColumns"/>
+        FROM COUPON
+        WHERE coupon_id = #{couponId}
+        AND use_yn = 'Y'
+        AND deleted_at IS NULL
+        LIMIT 1
+    </select>
+
+    <!-- 쿠폰 사용 처리 (used_quantity 증가)
+         - total_quantity가 NULL이면 무제한
+         - 제한 쿠폰이면 used_quantity < total_quantity일 때만 증가 -->
+    <update id="incrementUsedQuantity">
+        UPDATE COUPON
+        SET used_quantity = used_quantity + 1,
+            updated_at = NOW()
+        WHERE coupon_code = #{couponCode}
+          AND use_yn = 'Y'
+          AND is_active = TRUE
+          AND deleted_at IS NULL
+          AND (total_quantity IS NULL OR used_quantity &lt; total_quantity)
+    </update>
+
+</mapper>
