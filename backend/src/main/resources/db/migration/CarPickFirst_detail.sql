@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS DROPZONE_POINT (
                                               UNIQUE KEY uk_branch_dropzone_code (branch_id, dropzone_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-/* [8] 단순 가격표 (Legacy) */
+/* [8]  가격표 (핵심 기능) */
 CREATE TABLE IF NOT EXISTS PRICE (
                                      price_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                      car_spec_id BIGINT NOT NULL,

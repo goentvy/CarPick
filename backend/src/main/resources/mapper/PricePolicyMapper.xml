@@ -38,31 +38,32 @@
     </resultMap>
 
     <select id="findBySpecIdAndPriceType" resultMap="PricePolicyResultMap">
-        <![CDATA[
-        SELECT <include refid="pricePolicyColumns"/>
+        SELECT
+            price_policy_id,
+            spec_id,
+            branch_id,
+            price_type,
+            base_price,
+            discount_rate,
+            valid_from,
+            valid_to,
+            is_active,
+            use_yn,
+            deleted_at,
+            created_at,
+            updated_at
         FROM PRICE_POLICY
         WHERE spec_id = #{specId}
           AND price_type = #{priceType}
-
-        -- [규칙 1] 유효성 검사: 현재 활성화되어 있고, 삭제되지 않았으며, 유효기간 내에 있어야 함
           AND is_active = TRUE
           AND use_yn = 'Y'
-          AND valid_from <= NOW()
-          AND (valid_to IS NULL OR valid_to >= NOW())
-
-        -- [규칙 2] 후보군 선출: '내 지점 정책' 이거나 '전국 정책(NULL)' 인 것만 조회
+          AND valid_from &lt;= NOW()
+          AND (valid_to IS NULL OR valid_to &gt;= NOW())
           AND (branch_id = #{branchId} OR branch_id IS NULL)
-
         ORDER BY
-                                  -- [규칙 3] 지점 우선 순위 결정 (핵심 로직)
-                                  -- 내 지점 ID와 같으면 0점(1등), 아니면(전국이면) 1점(2등) 부여 -> 오름차순 정렬
             CASE WHEN branch_id = #{branchId} THEN 0 ELSE 1 END ASC,
-
-          -- [규칙 4] 같은 순위라면(예: 전국 정책이 여러 개라면) 최신 시작일 기준 우선
-          valid_from DESC
-
-        LIMIT 1
-        ]]>
+            valid_from DESC
+            LIMIT 1
     </select>
 
 </mapper>
