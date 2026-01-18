@@ -176,8 +176,8 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
 /* [4] 가격 정책 (기본 할인 담당) */
 CREATE TABLE IF NOT EXISTS PRICE_POLICY (
                                             price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
-                                            spec_id BIGINT NOT NULL COMMENT '차종 ID',
-                                            branch_id BIGINT NULL COMMENT '지점 ID (NULL=전국)',
+                                            spec_id BIGINT  NULL COMMENT '차종 ID',
+                                            branch_id BIGINT NOT NULL  COMMENT '지점 ID (NULL=전국)',
                                             price_type ENUM('DAILY', 'MONTHLY') NOT NULL COMMENT '가격 단위',
 
     -- 표시용 기존가(정가)
@@ -410,11 +410,11 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            driver_birthdate DATE NOT NULL COMMENT '생년월일',
                                            driver_phone VARCHAR(20) NOT NULL COMMENT '연락처',
                                            driver_email VARCHAR(100) NULL COMMENT '운전자 이메일',
-                                           driver_license_no VARCHAR(30) NULL COMMENT '면허번호',
+#                                            driver_license_no VARCHAR(30) NULL COMMENT '면허번호',
 #                                            driver_license_expiry DATE NULL COMMENT '면허만료일',
 #                                            driver_verified_yn CHAR(1) NOT NULL DEFAULT 'N',
 
-    /* WHEN */                             nonMember_password VARCHAR(20) NULL COMMENT '비회원 예약 확인용 비밀번호',
+    /* WHEN */                             non_member_password VARCHAR(255) NULL COMMENT '비회원 예약 확인용 비밀번호',
                                            start_date DATETIME NOT NULL COMMENT '대여시작',
                                            end_date DATETIME NOT NULL COMMENT '반납예정',
                                            actual_return_date DATETIME NULL COMMENT '실반납일시',
@@ -424,9 +424,13 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            pickup_branch_id BIGINT NOT NULL COMMENT '인수지점(FK)',
                                            pickup_address VARCHAR(255) NULL COMMENT '배달주소',
 
-                                           return_type ENUM('VISIT','COLLECTION') NOT NULL DEFAULT 'VISIT',
-                                           return_branch_id BIGINT NOT NULL COMMENT '반납지점(FK)',
-                                           return_address VARCHAR(255) NULL COMMENT '수거주소',
+                                           return_type ENUM('VISIT','DROPZONE') NOT NULL DEFAULT 'VISIT',
+    -- 1. 지점 반납일 경우 채워짐 (드롭존이면 NULL)
+                                           return_branch_id BIGINT  NULL  COMMENT '반납지점(FK) - 일반 지점 반납 시',
+                                           return_address VARCHAR(255) NULL COMMENT '반납 주소(스냅샷)',
+    -- 2. 드롭존 반납일 경우 채워짐 (지점 반납이면 NULL)
+                                           return_dropzone_id BIGINT NULL COMMENT '반납드롭존(FK) - 드롭존 반납 시',
+
 
     /* WHAT & HOW MUCH (SNAPSHOTS) */
                                            insurance_id BIGINT NOT NULL COMMENT '보험 ID (FK)',
@@ -483,8 +487,14 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
                                            CONSTRAINT fk_res_user FOREIGN KEY (user_id) REFERENCES USERS(user_id),
 
                                            CONSTRAINT fk_res_vehicle FOREIGN KEY (vehicle_id) REFERENCES VEHICLE_INVENTORY(vehicle_id),
-                                           CONSTRAINT fk_res_pickup FOREIGN KEY (pickup_branch_id) REFERENCES BRANCH(branch_id),
-                                           CONSTRAINT fk_res_return FOREIGN KEY (return_branch_id) REFERENCES BRANCH(branch_id),
+    /* 위치 관련 외래키 */
+                                           CONSTRAINT fk_res_pickup_branch FOREIGN KEY (pickup_branch_id) REFERENCES BRANCH(branch_id),
+
+    -- 반납 지점은 BRANCH 테이블 참조 (NULL 허용)
+                                           CONSTRAINT fk_res_return_branch FOREIGN KEY (return_branch_id) REFERENCES BRANCH(branch_id),
+
+    -- 반납 드롭존은 DROPZONE_POINT 테이블 참조 (NULL 허용)
+                                           CONSTRAINT fk_res_return_dropzone FOREIGN KEY (return_dropzone_id) REFERENCES DROPZONE_POINT(dropzone_id),
                                            CONSTRAINT fk_res_insurance FOREIGN KEY (insurance_id) REFERENCES INSURANCE(insurance_id),
                                            CONSTRAINT fk_res_coupon FOREIGN KEY (coupon_id) REFERENCES COUPON(coupon_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

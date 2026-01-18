@@ -1,8 +1,10 @@
 package com.carpick.domain.reservation.dtoV2.request;
 
 import com.carpick.domain.reservation.enums.PickupType;
+import com.carpick.domain.reservation.enums.RentType;
 import com.carpick.domain.reservation.enums.ReturnTypes;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,9 @@ public class ReservationCreateRequestDtoV2 {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDateTime;
 
+    @NotNull(message = "rentType은 필수입니다. (SHORT/LONG)")
+    private RentType rentType;
+
     /* ==========================
      * 2. 장소 및 방식 (Where & How)
      * ========================== */
@@ -33,9 +38,9 @@ public class ReservationCreateRequestDtoV2 {
 
     // 반납 정보 (드롭존 포함)
     private Long returnBranchId;
-    private ReturnTypes returnType; // VISIT / COLLECTION (Enum 사용)
+    private ReturnTypes returnType; // VISIT / DROPZONE (Enum 사용)
     // 드롭존 (선택)
-    private Long dropzoneId;       // returnType == COLLECTION 일 때만 사용
+    private Long dropzoneId;       // returnType == DROPZONE 일 때만 사용
     /* ==========================
      * 3. 옵션 (Option)
      * ========================== */
