@@ -417,5 +417,26 @@ INSERT INTO VEHICLE_INVENTORY (
       (10, 1, '21차2346', 'VIN-TESLA3-0002', 2023, 'AVAILABLE', NULL, '2026-01-12 10:00:00', 27630, 350000, TRUE, 'Y', NULL);
 
 
-
+INSERT INTO PRICE_POLICY (
+    spec_id,
+    branch_id,
+    price_type,
+    base_price,    -- 정가 (마케팅용 취소선 가격)
+    discount_rate, -- 할인율
+    valid_from,
+    valid_to,
+    is_active,
+    use_yn
+)
+VALUES (
+           1,             -- spec_id: 아반떼 (1번 차종)
+           1,             -- branch_id: 김포공항점 (1번 지점)
+           'DAILY',       -- price_type: 단기 렌트용 일간 요금
+           100000,        -- base_price: 10만원 (5만원의 2배로 설정해둠)
+           50,            -- discount_rate: 50% 할인
+           NOW(),         -- 유효 시작일: 지금부터
+           '2099-12-31',  -- 유효 종료일: 무기한
+           TRUE,          -- 활성화 여부
+           'Y'            -- 사용 여부
+       );
 COMMIT;

@@ -173,33 +173,36 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-/* [4] 가격 정책 (차량 기본료) */
+/* [4] 가격 정책 (기본 할인 담당) */
 CREATE TABLE IF NOT EXISTS PRICE_POLICY (
-    price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
-    spec_id BIGINT NOT NULL COMMENT '차량 스펙 ID (FK)',
-    branch_id BIGINT NULL COMMENT '지점 ID (NULL=전국)(FK)',
+                                            price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
+                                            spec_id BIGINT NOT NULL COMMENT '차종 ID',
+                                            branch_id BIGINT NULL COMMENT '지점 ID (NULL=전국)',
+                                            price_type ENUM('DAILY', 'MONTHLY') NOT NULL COMMENT '가격 단위',
 
-    unit_type ENUM('DAILY','MONTHLY') NOT NULL COMMENT '요금 단위',
-    base_price INT NOT NULL COMMENT '기준 대여료(Dynamic Pricing용)',
+    -- 표시용 기존가(정가)
+                                            base_price DECIMAL(15, 2) NOT NULL DEFAULT 0 COMMENT '정가(할인 전)',
 
-    /* MVP 핵심 가짜 할인율*/
-    discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '할인율(0~100)',
-    valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '적용 시작일',
-    valid_to DATETIME NULL COMMENT '적용 종료일',
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
--- 기본 조회 조건: use_yn='Y'
-    use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',   -- [추가]
-    deleted_at DATETIME NULL COMMENT '삭제 처리 일시',              -- [추가]
+    -- 기본 할인율
+                                            discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '기본 할인율(0~100)',
 
+                                            valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                            valid_to DATETIME NULL,
+                                            is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                                            use_yn CHAR(1) NOT NULL DEFAULT 'Y',
+                                            deleted_at DATETIME NULL,
 
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    INDEX idx_price_lookup (spec_id, branch_id, unit_type, is_active),
-    CONSTRAINT fk_price_policy_spec
-        FOREIGN KEY (spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE,
-    CONSTRAINT fk_price_policy_branch
-        FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
+                                            INDEX idx_price_policy_lookup (
+                                                                           spec_id, branch_id, price_type, is_active, use_yn, valid_from
+                                                ),
+                                            CONSTRAINT fk_price_policy_spec
+                                                FOREIGN KEY (spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE,
+                                            CONSTRAINT fk_price_policy_branch
+                                                FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE,
+                                            CONSTRAINT chk_discount_rate CHECK (discount_rate BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -309,7 +312,7 @@ CREATE TABLE IF NOT EXISTS DROPZONE_POINT (
                                               UNIQUE KEY uk_branch_dropzone_code (branch_id, dropzone_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-/* [8] 단순 가격표 (Legacy) */
+/* [8]  가격표 (핵심 기능) */
 CREATE TABLE IF NOT EXISTS PRICE (
                                      price_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                      car_spec_id BIGINT NOT NULL,
@@ -329,6 +332,7 @@ CREATE TABLE IF NOT EXISTS PRICE (
                                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                      FOREIGN KEY (car_spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 /* ==================================================
@@ -708,6 +712,96 @@ CREATE TABLE IF NOT EXISTS SEASON_PERIOD (
                                                  FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+/* [3] DISCOUNT_POLICY - 추가 할인 정책 (이벤트, 악성재고 등) */
+CREATE TABLE IF NOT EXISTS DISCOUNT_POLICY (
+                                               discount_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+                                               policy_name VARCHAR(100) NOT NULL COMMENT '정책명',
+                                               description VARCHAR(255) NULL COMMENT '설명',
+
+                                               discount_type ENUM('RATE', 'AMOUNT') NOT NULL DEFAULT 'RATE' COMMENT 'RATE(%), AMOUNT(원)',
+                                               discount_value INT NOT NULL COMMENT '할인값',
+
+                                               target_spec_id BIGINT NULL COMMENT '차종 ID (NULL=전체)',
+                                               target_branch_id BIGINT NULL COMMENT '지점 ID (NULL=전체)',
+                                               target_price_type ENUM('DAILY', 'MONTHLY') NULL COMMENT '가격 타입 (NULL=전체)',
+
+                                               min_rental_days INT DEFAULT 0 COMMENT '최소 대여 일수',
+
+                                               start_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                               end_date DATETIME NULL,
+                                               priority INT DEFAULT 0 COMMENT '우선순위 (높을수록 먼저)',
+
+                                               is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                                               use_yn CHAR(1) NOT NULL DEFAULT 'Y',
+                                               deleted_at DATETIME NULL,
+
+                                               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                               updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+                                               INDEX idx_discount_lookup (start_date, end_date, is_active, use_yn),
+                                               INDEX idx_discount_target (target_spec_id, target_branch_id, target_price_type),
+
+                                               CONSTRAINT fk_discount_spec
+                                                   FOREIGN KEY (target_spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE,
+                                               CONSTRAINT fk_discount_branch
+                                                   FOREIGN KEY (target_branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='추가 할인 정책';
+
+
+/* [4] RESERVATION_DISCOUNT_HISTORY - 할인 적용 이력 */
+CREATE TABLE IF NOT EXISTS RESERVATION_DISCOUNT_HISTORY (
+                                                            history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+                                                            reservation_id BIGINT NOT NULL COMMENT '예약 ID',
+                                                            discount_id BIGINT NULL COMMENT '할인 정책 ID',
+                                                            coupon_id BIGINT NULL COMMENT '쿠폰 ID',
+
+                                                            discount_type ENUM('RATE', 'AMOUNT') NOT NULL COMMENT '할인 타입',
+                                                            discount_value INT NOT NULL COMMENT '할인 값',
+                                                            discount_amount DECIMAL(15, 2) NOT NULL COMMENT '실제 할인 금액',
+
+                                                            discount_source ENUM('BASE', 'EVENT', 'COUPON', 'SLOW_MOVING') NOT NULL COMMENT '할인 출처',
+
+                                                            applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '적용 일시',
+
+                                                            INDEX idx_history_reservation (reservation_id),
+                                                            INDEX idx_history_discount (discount_id),
+                                                            INDEX idx_history_coupon (coupon_id),
+
+                                                            CONSTRAINT fk_history_reservation
+                                                                FOREIGN KEY (reservation_id) REFERENCES RESERVATION(reservation_id),
+                                                            CONSTRAINT fk_history_discount
+                                                                FOREIGN KEY (discount_id) REFERENCES DISCOUNT_POLICY(discount_id),
+                                                            CONSTRAINT fk_history_coupon
+                                                                FOREIGN KEY (coupon_id) REFERENCES COUPON(coupon_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='예약별 할인 적용 이력';
+
+
+/* [5] SLOW_MOVING_INVENTORY - 악성 재고 */
+CREATE TABLE IF NOT EXISTS SLOW_MOVING_INVENTORY (
+                                                     slow_moving_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '악성재고 ID',
+                                                     vehicle_id BIGINT NOT NULL COMMENT '대상 차량',
+
+                                                     discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '할인율(0~100)',
+                                                     reason VARCHAR(200) NULL COMMENT '지정 사유',
+
+                                                     designated_by BIGINT NULL COMMENT '지정한 관리자 ID',
+                                                     designated_at DATETIME NULL COMMENT '지정 일시',
+
+                                                     valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                     valid_to DATETIME NULL COMMENT '종료일 (NULL=무기한)',
+
+                                                     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                                                     use_yn CHAR(1) NOT NULL DEFAULT 'Y',
+
+                                                     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+                                                     CONSTRAINT fk_slow_moving_vehicle
+                                                         FOREIGN KEY (vehicle_id) REFERENCES VEHICLE_INVENTORY(vehicle_id),
+                                                     CONSTRAINT chk_slow_discount_rate CHECK (discount_rate BETWEEN 0 AND 100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='악성 재고 할인';
 
 /* ==================================================
    (선택) "연장 1회만 허용"을 DB 레벨에서 강제하고 싶다면

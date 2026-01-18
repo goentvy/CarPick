@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.price.mapper.PricePolicyMapper">
+<!--정가 + 할인율 조회 => 기본 할인율 (전국/지점)-->
+<!--  지점 정책이 있으면 그걸 우선 적용하고, 없으면 전국(NULL) 정책을 적용한다  -->
+    <sql id="pricePolicyColumns">
+        price_policy_id,
+        spec_id,
+        branch_id,
+        price_type,
+        base_price,
+        discount_rate,
+        valid_from,
+        valid_to,
+        is_active,
+        use_yn,
+        deleted_at,
+        created_at,
+        updated_at
+    </sql>
+
+    <resultMap id="PricePolicyResultMap" type="com.carpick.domain.price.entity.PricePolicy">
+        <id property="pricePolicyId" column="price_policy_id"/>
+        <result property="specId" column="spec_id"/>
+        <result property="branchId" column="branch_id"/>
+        <result property="priceType" column="price_type"/>
+        <result property="basePrice" column="base_price"/>
+        <result property="discountRate" column="discount_rate"/>
+        <result property="validFrom" column="valid_from"/>
+        <result property="validTo" column="valid_to"/>
+        <result property="isActive" column="is_active"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findBySpecIdAndPriceType" resultMap="PricePolicyResultMap">
+        SELECT
+            price_policy_id,
+            spec_id,
+            branch_id,
+            price_type,
+            base_price,
+            discount_rate,
+            valid_from,
+            valid_to,
+            is_active,
+            use_yn,
+            deleted_at,
+            created_at,
+            updated_at
+        FROM PRICE_POLICY
+        WHERE spec_id = #{specId}
+          AND price_type = #{priceType}
+          AND is_active = TRUE
+          AND use_yn = 'Y'
+          AND valid_from &lt;= NOW()
+          AND (valid_to IS NULL OR valid_to &gt;= NOW())
+          AND (branch_id = #{branchId} OR branch_id IS NULL)
+        ORDER BY
+            CASE WHEN branch_id = #{branchId} THEN 0 ELSE 1 END ASC,
+            valid_from DESC
+            LIMIT 1
+    </select>
+
+</mapper>
