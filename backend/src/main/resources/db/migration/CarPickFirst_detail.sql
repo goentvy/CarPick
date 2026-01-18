@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
     fuel_efficiency VARCHAR(50) NULL COMMENT '연비',
 
     /* 이미지/태그 */
-    main_image_url VARCHAR(255) NULL COMMENT '대표 이미지',
+    main_video_url VARCHAR(255) NULL COMMENT '대표 차량 스핀 비디오',
     img_url VARCHAR(500) NULL COMMENT '추가 이미지',
     ai_keywords VARCHAR(500) NULL COMMENT 'AI 검색 태그',
 
@@ -285,23 +285,23 @@ CREATE TABLE IF NOT EXISTS COUPON (
 
 /* [7] 드롭존 포인트 <경진>*/
 CREATE TABLE IF NOT EXISTS DROPZONE_POINT (
-                                              dropzone_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                              branch_id BIGINT NOT NULL,
+                                              dropzone_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '드롭존 고유 ID',
+                                              branch_id BIGINT NOT NULL COMMENT '소속 대여 지점 ID (BRANCH)',
 
-                                              dropzone_code VARCHAR(30) NOT NULL,
-                                              dropzone_name VARCHAR(100) NOT NULL,
+                                              dropzone_code VARCHAR(30) NOT NULL COMMENT '지점 내 드롭존 식별 코드 (ex: D1, D2)',
+                                              dropzone_name VARCHAR(100) NOT NULL COMMENT '드롭존 표시 이름 (ex: 서울역 서부 주차장)',
 
-                                              address_text VARCHAR(255) NULL,
-                                              location_desc TEXT NULL,
-                                              walking_time_min INT NULL,
+                                              address_text VARCHAR(255) NULL COMMENT '드롭존 주소 텍스트',
+                                              location_desc TEXT NULL COMMENT '상세 위치 설명 (ex: 지하 2층 A구역)',
+                                              walking_time_min INT NULL COMMENT '지점 → 드롭존 도보 소요 시간(분)',
 
-                                              latitude DECIMAL(10,8) NOT NULL,
-                                              longitude DECIMAL(11,8) NOT NULL,
+                                              latitude DECIMAL(10,8) NOT NULL COMMENT '위도',
+                                              longitude DECIMAL(11,8) NOT NULL COMMENT '경도',
 
-                                              service_hours VARCHAR(100) NULL,
+                                              service_hours VARCHAR(100) NULL COMMENT '운영 시간 안내 (ex: 24시간, 06:00~22:00)',
 
-                                              is_active BOOLEAN NOT NULL DEFAULT 1,
-                                              deleted_at DATETIME NULL,
+                                              is_active BOOLEAN NOT NULL DEFAULT 1 COMMENT '사용 가능 여부 (1: 활성, 0: 비활성)',
+                                              deleted_at DATETIME NULL COMMENT '소프트 삭제 시점',
 
                                               created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                               updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

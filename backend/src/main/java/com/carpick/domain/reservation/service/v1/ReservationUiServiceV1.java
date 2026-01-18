@@ -40,7 +40,6 @@ public class ReservationUiServiceV1 {
         car.setCarId(detail.getCarId());
         car.setTitle(detail.getLegacyTopCarDetailDto().getTitle());
         car.setSubtitle(detail.getLegacyTopCarDetailDto().getSubtitle());
-        car.setImageUrl(detail.getLegacyTopCarDetailDto().getImageUrls().get(0));
         car.setDailyPrice(dailyPrice);
         car.setCurrency("KRW");
         res.setCar(car);

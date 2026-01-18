@@ -179,7 +179,10 @@ const CarList = () => {
                                 id={car.specId}
                                 discount={car.discountRate !== null}
                                 discountRate={car.discountRate || 0}
-                                imageSrc={car.mainImageUrl || "/images/common/carList.png"}
+                                imageSrc={
+                                    car.imgUrl ||
+                                    "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
+                                }
                                 title={car.displayNameShort}
                                 info={{
                                     year: car.modelYear,
@@ -189,7 +192,7 @@ const CarList = () => {
                                 cost={car.originalPrice}
                                 price={car.finalPrice}
                                 day={true} // 단기면 true, 장기면 false
-                                onClick={() => handleClickCar(car.specId)}
+                                onClick={handleClickCar}
                             />
                         </div>
                     ))}

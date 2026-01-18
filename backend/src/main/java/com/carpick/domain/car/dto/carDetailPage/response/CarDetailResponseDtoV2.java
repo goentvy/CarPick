@@ -28,7 +28,7 @@ public class CarDetailResponseDtoV2 {
     public static class TopCarDetail {
         private String title;
         private String subtitle;
-        private List<String> imageUrls;
+        private String mainVideoUrl; // ⭐ 메인 스핀 mp4 URL
         private CarClass carType;
     }
 
