@@ -61,7 +61,10 @@ public class Period {
         int months = (int) Math.ceil(days / 30.0);
         return Math.max(1, Math.min(months, 12));  // 1~12 범위
     }
-
+    // ✅ 정적 팩토리 메서드 추가
+    public static Period of(LocalDateTime start, LocalDateTime end) {
+        return new Period(start, end);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
