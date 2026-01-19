@@ -8,6 +8,10 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface UserMapper {
 
+    // =====================
+    // SELECT
+    // =====================
+
     User findByEmail(@Param("email") String email);
 
     User findByProvider(
@@ -22,21 +26,28 @@ public interface UserMapper {
 
     User findById(@Param("userId") Long userId);
 
+    int existsByEmail(@Param("email") String email);
+
+    // =====================
+    // INSERT
+    // =====================
+
     void insertLocalUser(SignupRequest request);
 
     void insertSocialUser(User user);
 
-    int existsByEmail(@Param("email") String email);
+    // =====================
+    // UPDATE
+    // =====================
 
-    void softDeleteLocalUser(@Param("userId") Long userId);
-
-    void softDeleteSocialUser(@Param("userId") Long userId);
-
-    void hardDeleteSocialUser(@Param("userId") Long userId);
+    void updateAccessToken(
+            @Param("userId") Long userId,
+            @Param("accessToken") String accessToken
+    );
 
     void reviveSocialUser(
-            @Param("accessToken") String accessToken,
-            @Param("userId") Long userId
+            @Param("userId") Long userId,
+            @Param("accessToken") String accessToken
     );
 
     void reviveSocialUserFull(
@@ -46,8 +57,13 @@ public interface UserMapper {
             @Param("name") String name
     );
 
-    void updateAccessToken(
-            @Param("userId") Long userId,
-            @Param("accessToken") String accessToken
-    );
+    // =====================
+    // DELETE
+    // =====================
+
+    void softDeleteLocalUser(@Param("userId") Long userId);
+
+    void softDeleteSocialUser(@Param("userId") Long userId);
+
+    void hardDeleteSocialUser(@Param("userId") Long userId);
 }
