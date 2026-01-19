@@ -1,13 +1,13 @@
 import DriverInfoSection from "./DriverInfoSection";
 import InsuranceInfoSection from "./InsuranceInfoSection";
-import { useSearchParams, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PickupReturnSection from "./PickupReturnSection";
 import PaymentSummarySection from "./PaymentSummarySection";
 import AgreementSection from "./AgreementSection";
 import ReservationBanner from "./ReservationBanner";
 import CardPaymentForm from "../Payment/CardPaymentForm";
 import ReservationInsurance from "./ReservationInsurance";
-
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -58,11 +58,14 @@ const schema = yup.object().shape({
 
 
 const ReservationPage = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState(null);
     const { setVehicle, setPickupReturn, setRentalPeriod } = useReservationStore();
     const [searchParams] = useSearchParams();
     const { id } = useParams();
-    const carId = Number(id);
+
+    const specId = Number(id);
+
     const methods = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -86,21 +89,48 @@ const ReservationPage = () => {
 
     // 데이터 초기 셋팅
     useEffect(() => {
-        const startDateTime = searchParams.get("startDateTime");
-        const endDateTime = searchParams.get("endDateTime");
+        const startDateTime = searchParams.get("startDate");
+        const endDateTime = searchParams.get("endDate");
 
         if (!startDateTime || !endDateTime) {
             alert("예약 기간 정보가 없습니다. 다시 검색해주세요.");
             navigate("/");
             return;
         }
-        api.get("/reservation/form", { params: { carId } })
+        //  (수정 2) pickupBranchId / returnBranchId / rentType을 URL에서 같이 꺼내서 body 구성
+        const pickupBranchId = Number(searchParams.get("pickupBranchId"));
+        // returnBranchId는 FormRequestDtoV2에 없으므로 일단 프런트 store용으로만 쓰거나,
+        // 백엔드 DTO에 추가할 계획이 없다면 body에는 넣지 마세요.
+        // const returnBranchId = Number(searchParams.get("returnBranchId"));
+
+        const rentTypeRaw = searchParams.get("rentType"); // "short" or "long" 일 가능성
+        const rentType =
+            (rentTypeRaw ? rentTypeRaw.toUpperCase() : "SHORT"); //  Enum 맞춤: SHORT/LONG
+
+        //  (수정 3) 백엔드가 기대하는 @RequestBody(JSON) 형태로 보내기
+        // ReservationFormRequestDtoV2에 맞춘 body
+        const body = {
+            specId,
+            pickupBranchId,
+            rentType,
+            startDateTime, //  DTO의 @JsonProperty("startDateTime")
+            endDateTime,   //  DTO의 @JsonProperty("endDateTime")
+            // driverInfo는 Form 단계에서 굳이 안 보내도 되지만 DTO가 필수 검증 걸려있으면 빈 값이라도 맞춰줍니다.
+            driverInfo: {
+                lastname: "",
+                firstname: "",
+                phone: "",
+                email: "",
+                birth: "",
+            },
+        };
+        api.post("/reservation/form", body)
             .then(res => {
                 setFormData(res.data);
                 setVehicle({
-                    id: res.data.car.carId,
-                    title: res.data.car.title,
-                    dailyPrice: res.data.paymentSummary.carDailyPrice,
+                    id: res.data.car?.specId,
+                    title: res.data.car?.title,
+
                 });
 
                 //예약 완료 페이지
@@ -112,8 +142,8 @@ const ReservationPage = () => {
 
                 setPickupReturn({
                     method: "visit", // 기본값 (방문)
-                    pickupBranch: res.data.pickupBranch,   // 수정 (기존: 1)
-                    dropoffBranch: res.data.dropoffBranch//  수정 (기존: 1)
+                    pickupBranch: res.data.pickupLocation,   // 수정 (기존: 1)
+                    dropoffBranch: res.data.returnLocation//  수정 (기존: 1)
                 });
 
 
@@ -123,7 +153,7 @@ const ReservationPage = () => {
                 });
             })
             .catch(err => console.error("예약 폼 데이터 불러오기 실패:", err));
-    }, [searchParams, setVehicle, setPickupReturn, setRentalPeriod]);
+    }, [searchParams, setVehicle, setPickupReturn, setRentalPeriod, navigate, specId]);
 
     return (
         <FormProvider {...methods}>
@@ -134,8 +164,8 @@ const ReservationPage = () => {
                         <ReservationBanner formData={formData} />
                         {/* 대여/반납 방식 선택 (업체 방문 vs 배송), 지점 정보, 운영시간, 주소 표시 */}
                         <PickupReturnSection
-                            pickup={formData.pickupBranch}
-                            dropoff={formData.dropoffBranch}
+                            pickup={formData.pickupLocation}
+                            dropoff={formData.returnLocation}
                         />
                         {/* 운전자 정보 입력 (성, 이름, 생년월일, 휴대폰, 이메일, 인증요청 버튼 포함) */}
                         <DriverInfoSection />
