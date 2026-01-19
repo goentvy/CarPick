@@ -304,7 +304,7 @@ export default function CarDetailPage() {
 
           <SpinVideo
             ref={spinRef}
-            src="/assets/spin/car_spin_01.mp4"
+            src={top?.mainVideoUrl || "http://carpicka.mycafe24.com/car_spin_video/default_spin.mp4"}
             className="w-full"
             dragWidth={640}
           />

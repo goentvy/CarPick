@@ -9,7 +9,15 @@ const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, 
   return (
     <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[98%] outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 shadow-lg overflow-hidden" onClick={() => onClick(id)}>
       {/* 차량 이미지 */}
-      <img src={imageSrc} alt={title} className="w-full h-auto object-cover" />
+      <img
+        src={imageSrc}
+        alt={title}
+        className="w-full h-auto object-cover"
+        onError={(e) => {
+          e.currentTarget.src =
+            "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
+        }}
+      />
 
       {/* 차량 정보 */}
       <div className="p-3">

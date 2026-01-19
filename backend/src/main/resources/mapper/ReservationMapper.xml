@@ -145,7 +145,7 @@
             driver_birthdate,
             driver_phone,
             driver_email,
-            driver_license_no,
+
 
             start_date,
             end_date,

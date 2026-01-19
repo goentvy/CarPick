@@ -65,7 +65,7 @@ const SpinVideo = forwardRef(function SpinVideo(
       setErr("");
       try {
         v.currentTime = 0.001;
-      } catch {}
+      } catch { }
     };
 
     const onError = () => {
@@ -106,7 +106,7 @@ const SpinVideo = forwardRef(function SpinVideo(
 
     try {
       v.currentTime = t;
-    } catch {}
+    } catch { }
   };
 
   const scheduleApply = (progress, pitch) => {
@@ -189,7 +189,7 @@ const SpinVideo = forwardRef(function SpinVideo(
     if (st.current.pointerId != null) {
       try {
         e.currentTarget.releasePointerCapture?.(st.current.pointerId);
-      } catch {}
+      } catch { }
     }
     st.current.pointerId = null;
   };
