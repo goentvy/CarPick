@@ -41,7 +41,7 @@ export function getCrowdBadge(status) {
   if (status === "FREE")
     return { label: "여유", cls: "bg-[#0A56FF] text-white" }; // ✅ primary 강하게
   if (status === "NORMAL")
-    return { label: "보통", cls: "bg-black/70 text-white" }; // ✅ 회색 → 짙은 회색
+    return { label: "보통", cls: "bg-black/50 text-white" }; // ✅ 
   if (status === "CROWDED")
     return { label: "혼잡", cls: "bg-[#FFB703] text-black" }; // ✅ 노랑 대비 업
   if (status === "FULL")

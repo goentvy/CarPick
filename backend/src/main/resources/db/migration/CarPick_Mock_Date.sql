@@ -185,7 +185,7 @@ INSERT INTO CAR_SPEC (
     car_options,
     min_driver_age, min_license_years,
     seating_capacity, trunk_capacity, fuel_efficiency,
-    main_image_url, img_url, ai_keywords,
+    main_video_url, img_url, ai_keywords,
     drive_labels,
     use_yn, deleted_at
 ) VALUES
@@ -199,7 +199,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,블루투스,열선시트',
           21, 1,
           5, '소형 트렁크/적재 유연', '복합 12~14km/L',
-          'https://example.com/images/ray_main.png', 'https://example.com/images/ray_1.png,https://example.com/images/ray_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_light_ray_white_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_light_ray_white_thumb.png',
           '경차,도심,주차,박스카,가성비',
           '가솔린,경차,도심주행,주차편함',
           'Y', NULL
@@ -214,7 +215,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,블루투스,크루즈컨트롤',
           21, 1,
           4, '트렁크 소형', '복합 12~14km/L',
-          'https://example.com/images/mini_main.png', 'https://example.com/images/mini_1.png,https://example.com/images/mini_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_light_mini_blue_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_light_mini_blue_thumb.png',
           '수입차,컴팩트,디자인,도심,주행감',
           '가솔린,수입,컴팩트,도심주행',
           'Y', NULL
@@ -229,7 +231,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,차선보조,블루투스,열선시트',
           21, 1,
           5, '준중형 트렁크', '복합 14~16km/L',
-          'https://example.com/images/avante_main.png', 'https://example.com/images/avante_1.png,https://example.com/images/avante_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_compact_avante_black_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_compact_avante_black_thumb.png',
           '준중형,출퇴근,연비,실용,안전보조',
           '가솔린,준중형,출퇴근,연비',
           'Y', NULL
@@ -244,7 +247,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,크루즈컨트롤,블루투스',
           21, 1,
           5, '준중형 트렁크', '복합 13~15km/L',
-          'https://example.com/images/k3_main.png', 'https://example.com/images/k3_1.png,https://example.com/images/k3_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_compact_k3_white_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_compact_k3_white_thumb.png',
           '준중형,세단,가성비,출퇴근',
           '가솔린,준중형,가성비,도심주행',
           'Y', NULL
@@ -259,7 +263,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,차선보조,통풍시트,블루투스',
           21, 1,
           5, '중형 트렁크 넓음', '복합 11~13km/L',
-          'https://example.com/images/sonata_main.png', 'https://example.com/images/sonata_1.png,https://example.com/images/sonata_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_mid_sonata_black_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_mid_sonata_black_thumb.png',
           '중형,장거리,패밀리,편의사양',
           '가솔린,중형,장거리,패밀리',
           'Y', NULL
@@ -267,14 +272,15 @@ INSERT INTO CAR_SPEC (
 
 /* 6) K5 (중형) */
       (
-          'KIA', 'Kia K5 2.0', 'RED', 'K5',
+          'KIA', 'Kia K5 2.0', 'white', 'K5',
           'MID', 2024,
           '스포티한 디자인과 주행감으로 인기 높은 중형 세단입니다.',
           'GASOLINE', 'AUTO', FALSE,
           '네비게이션,후방카메라,크루즈컨트롤,블루투스,열선시트',
           21, 1,
           5, '중형 트렁크', '복합 11~13km/L',
-          'https://example.com/images/k5_main.png', 'https://example.com/images/k5_1.png,https://example.com/images/k5_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_mid_k5_white_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_mid_k5_white_thumb.png',
           '중형,세단,디자인,주행감',
           '가솔린,중형,도심주행,장거리',
           'Y', NULL
@@ -289,7 +295,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,루프랙,블루투스,크루즈컨트롤',
           21, 1,
           5, 'SUV 적재 공간 여유', '복합 11~13km/L',
-          'https://example.com/images/seltos_main.png', 'https://example.com/images/seltos_1.png,https://example.com/images/seltos_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_suv_seltos_white_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_suv_seltos_white_thumb.png',
           'SUV,여행,적재,도심형',
           '가솔린,SUV,여행,적재공간',
           'Y', NULL
@@ -304,7 +311,8 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,차선보조,통풍시트,블루투스',
           23, 1,
           5, 'SUV 적재 공간 넓음', '복합 10~12km/L',
-          'https://example.com/images/sportage_main.png', 'https://example.com/images/sportage_1.png,https://example.com/images/sportage_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_suv_sportage_blue_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_suv_sportage_blue_thumb.png',
           'SUV,패밀리,장거리,공간',
           '가솔린,SUV,패밀리,장거리',
           'Y', NULL
@@ -319,24 +327,26 @@ INSERT INTO CAR_SPEC (
           '네비게이션,후방카메라,차선보조,스마트크루즈,블루투스',
           23, 1,
           5, 'EV 적재 공간 여유', '전비 4~5km/kWh',
-          'https://example.com/images/ioniq5_main.png', 'https://example.com/images/ioniq5_1.png,https://example.com/images/ioniq5_2.png',
+          'https://carpicka.mycafe24.com/car_spin_video/car_rv_ioniq5_white_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_rv_ioniq5_white_thumb.png',
           '전기차,EV,정숙,충전,미래지향',
           '전기,EV,정숙,장거리',
           'Y', NULL
       ),
 
-/* 10) 테슬라 (전기) - 모델3로 가정 */
+/* 10) 테슬라 (전기) - Model Y */
       (
-          'TESLA', 'Tesla Model 3', 'BLACK', '테슬라',
+          'TESLA', 'Tesla Model Y', 'BLACK', '테슬라',
           'IMPORT', 2023,
-          '전기차 주행감과 소프트웨어 경험이 강점인 수입 EV 세단입니다.',
+          '전기차 특유의 가속력과 넓은 실내 공간을 갖춘 수입 EV SUV입니다.',
           'ELECTRIC', 'AUTO', FALSE,
           '오토파일럿,네비게이션,후방카메라,블루투스,OTA업데이트',
           25, 2,
-          5, '세단 트렁크/프렁크', '전비 5~6km/kWh',
-          'https://example.com/images/tesla3_main.png', 'https://example.com/images/tesla3_1.png,https://example.com/images/tesla3_2.png',
-          '테슬라,전기차,수입,오토파일럿,EV',
-          '전기,EV,수입,장거리',
+          5, 'SUV 트렁크/프렁크', '전비 5~6km/kWh',
+          'https://carpicka.mycafe24.com/car_spin_video/car_suv_modelY_black_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_suv_modelY_black_thumb.png',
+          '테슬라,전기차,SUV,수입,오토파일럿,EV',
+          '전기,EV,SUV,패밀리',
           'Y', NULL
       );
 
