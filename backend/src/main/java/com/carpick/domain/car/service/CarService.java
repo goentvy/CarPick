@@ -35,13 +35,11 @@ public class CarService {
         top.setTitle(raw.getModelName());
         top.setSubtitle(
                 raw.getModelYearBase() + "년형 - "
-                + raw.getSeatingCapacity() + "인승 - "
-                + raw.getFuelType() + " " + raw.getCarClass()
+                        + raw.getSeatingCapacity() + "인승 - "
+                        + raw.getFuelType() + " " + raw.getCarClass()
         );
 //        수정부분
-        top.setImageUrls(
-                raw.getMainImageUrl() == null ? List.of() : List.of(raw.getMainImageUrl())
-        );
+        top.setMainVideoUrl(raw.getMainVideoUrl());
 //        top.setImageUrls(List.of(raw.getMainImageUrl()));
 //        top.setCarType(raw.getCarClass());
 //2. 카드 영역

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.price.mapper.PricePolicyMapper">
+<!--정가 + 할인율 조회 => 기본 할인율 (지점)-->
+<!--  지점 정책 적용 전국 정책은 적용 안함-->
+    <sql id="pricePolicyColumns">
+        price_policy_id,
+        spec_id,
+        branch_id,
+        price_type,
+        base_price,
+        discount_rate,
+        valid_from,
+        valid_to,
+        is_active,
+        use_yn,
+        deleted_at,
+        created_at,
+        updated_at
+    </sql>
+
+    <resultMap id="PricePolicyResultMap" type="com.carpick.domain.price.entity.PricePolicy">
+        <id property="pricePolicyId" column="price_policy_id"/>
+        <result property="specId" column="spec_id"/>
+        <result property="branchId" column="branch_id"/>
+        <result property="priceType" column="price_type"/>
+        <result property="basePrice" column="base_price"/>
+        <result property="discountRate" column="discount_rate"/>
+        <result property="validFrom" column="valid_from"/>
+        <result property="validTo" column="valid_to"/>
+        <result property="isActive" column="is_active"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findBySpecIdAndPriceType" resultMap="PricePolicyResultMap">
+        SELECT
+        <include refid="pricePolicyColumns"/>
+        FROM PRICE_POLICY
+        WHERE
+        -- [1] 지점은 무조건 일치해야 함 (테이블이 NOT NULL이므로)
+        branch_id = #{branchId}
+
+        -- [2] 차종: "딱 맞는 차종" OR "해당 지점의 전 차종(NULL)"
+        AND (spec_id = #{specId} OR spec_id IS NULL)
+
+        -- [3] 유효성 체크
+        AND price_type = #{priceType}
+        AND is_active = TRUE
+        AND use_yn = 'Y'
+        AND valid_from &lt;= NOW()
+        AND (valid_to IS NULL OR valid_to &gt;= NOW())
+
+        ORDER BY
+        -- [4] 우선순위 정렬 (핵심!)
+        -- spec_id가 큰 값(특정 차종 ID)이 먼저 오고, NULL(전차종)이 나중에 오도록
+        -- MySQL에서 DESC 정렬 시 NULL은 가장 마지막에 위치함
+        spec_id DESC,
+        valid_from DESC
+        LIMIT 1
+    </select>
+</mapper>

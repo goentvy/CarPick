@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class CarDetailRequestDto {
+public class CarDetailRequestDtoV2 {
     @NotNull(message = "specId는 필수입니다")
     @Positive(message = "specId는 양수여야 합니다")
     private Long specId;

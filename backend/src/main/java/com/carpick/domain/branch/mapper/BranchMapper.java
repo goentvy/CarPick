@@ -1,5 +1,6 @@
 package com.carpick.domain.branch.mapper;
 
+import com.carpick.domain.branch.dto.BranchDto;
 import com.carpick.domain.branch.dto.BranchHomeDto;
 import com.carpick.domain.branch.dto.BranchZoneDetailDto;
 import com.carpick.domain.branch.dto.BranchMapDto;
@@ -31,5 +32,6 @@ public interface BranchMapper {
      * 지도/검색/마커용: 지점 포인트 전체
      */
     List<BranchMapDto> findForMap();
+
 }
 

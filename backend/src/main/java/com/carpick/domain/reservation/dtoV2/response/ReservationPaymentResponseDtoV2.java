@@ -4,7 +4,7 @@ import com.carpick.domain.payment.enums.PayStatus;
 import lombok.Data;
 
 @Data
-public class ReservationPayResponseDtoV2 {
+public class ReservationPaymentResponseDtoV2 {
     /*
      * 1. 결제 처리 상태 (핵심)
      * 역할: 프론트엔드가 성공/실패 분기를 태우는 기준값

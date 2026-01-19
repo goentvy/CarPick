@@ -16,7 +16,7 @@ private Long vehicleId;
     private FuelType fuelType;
 
     // 이미지
-    private String mainImageUrl;
+    private String imgUrl;
 
     // 가격 표시(카드 하단)
     private Integer discountRate;       // 30%

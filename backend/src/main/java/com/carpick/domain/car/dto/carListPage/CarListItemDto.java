@@ -12,7 +12,7 @@ public class CarListItemDto {
 
     // 기본 정보
     private String displayNameShort;     // "캐스퍼" (카드용 짧은 모델명)
-    private String mainImageUrl;         // 썸네일 이미지
+    private String ImgUrl;         // 썸네일 이미지
 
     // 스펙 정보 (부제용)
     private Integer modelYear;           // 2025

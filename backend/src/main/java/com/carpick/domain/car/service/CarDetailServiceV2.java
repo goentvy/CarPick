@@ -51,16 +51,11 @@ public class CarDetailServiceV2 {
        ========================= */
 
     private CarDetailResponseDtoV2.TopCarDetail buildTopCarDetail(CarDetailRawDto raw) {
-        List<String> imageUrls = new ArrayList<>();
-        if (hasText(raw.getMainImageUrl())) {
-            imageUrls.add(raw.getMainImageUrl().trim());
-        }
-
         return CarDetailResponseDtoV2.TopCarDetail.builder()
                 .title(raw.getModelName())
                 .subtitle(buildSubtitle(raw))
-                .imageUrls(imageUrls)
-                .carType(raw.getCarClass()) // CarClass enum 그대로
+                .mainVideoUrl(hasText(raw.getMainVideoUrl()) ? raw.getMainVideoUrl().trim() : null)
+                .carType(raw.getCarClass())
                 .build();
     }
 

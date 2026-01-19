@@ -1,6 +1,7 @@
 package com.carpick.domain.coupon.entity;
 
 
+import com.carpick.domain.coupon.enums.CouponType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class Coupon {
     private String couponName;               // 쿠폰 이름 (오픈기념 10% 등)
 
     /* 할인 정책 */
-    private String discountType;             // 할인 타입 (FIXED / RATE)
+    private CouponType couponType;             // 할인 타입 (FIXED / RATE)
     private Integer discountValue;            // 할인 값 (원 또는 %)
     private Integer maxDiscountAmount;        // 최대 할인 금액 (정률일 때만 사용)
     private Integer minOrderAmount;           // 최소 주문 금액 조건
