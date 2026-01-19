@@ -172,29 +172,28 @@ const CarList = () => {
                     </button>
                 </div>
             ) : (
-                <div className="xx:p-2 sm:p-6 flex xx:flex-col xs:flex-row justify-between gap-2 flex-wrap">
+                <div className="mt-4 px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {cars.map((car) => (
-                        <div key={car.specId} className="w-full sm:w-[49%]">
-                            <CarCard
-                                id={car.specId}
-                                discount={car.discountRate !== null}
-                                discountRate={car.discountRate || 0}
-                                imageSrc={
-                                    car.imgUrl ||
-                                    "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
-                                }
-                                title={car.displayNameShort}
-                                info={{
-                                    year: car.modelYear,
-                                    seat: car.seatingCapacity + "인승",
-                                }}
-                                features={car.driveLabels} // "가솔린,SUV,패밀리카"
-                                cost={car.originalPrice}
-                                price={car.finalPrice}
-                                day={true} // 단기면 true, 장기면 false
-                                onClick={handleClickCar}
-                            />
-                        </div>
+                        <CarCard
+                            key={car.specId}
+                            id={car.specId}
+                            discount={car.discountRate !== null}
+                            discountRate={car.discountRate || 0}
+                            imageSrc={
+                                car.imgUrl ||
+                                "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
+                            }
+                            title={car.displayNameShort}
+                            info={{
+                                year: car.modelYear,
+                                seat: car.seatingCapacity + "인승",
+                            }}
+                            features={car.driveLabels}
+                            cost={car.originalPrice}
+                            price={car.finalPrice}
+                            day={true}
+                            onClick={handleClickCar}
+                        />
                     ))}
                 </div>
             )}
