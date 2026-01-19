@@ -84,5 +84,7 @@ public class Reservation {
     private LocalDateTime updatedAt;
     // 기존 필드들 아래에 추가
     private String useYn; // 삭제 여부 (Y/N)
-
+    // 기존 필드들 아래에 추가
+    private String nonMemberPassword;  // 비회원 예약 확인용 비밀번호
+    private Long returnDropzoneId;     // 드롭존 반납 시 사용
 }

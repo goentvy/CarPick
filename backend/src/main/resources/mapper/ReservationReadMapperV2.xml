@@ -16,7 +16,7 @@
         driver_birthdate,
         driver_phone,
         driver_email,
-        driver_license_no,
+
 
         start_date,
         end_date,
@@ -74,7 +74,7 @@
         <result property="driverBirthdate" column="driver_birthdate"/>
         <result property="driverPhone" column="driver_phone"/>
         <result property="driverEmail" column="driver_email"/>
-        <result property="driverLicenseNo" column="driver_license_no"/>
+
 
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
@@ -126,35 +126,35 @@
 
     <!-- [1] 예약 상세 조회 (회원/공통) -->
     <select id="selectReservationByReservationNo" resultMap="ReservationResultMap">
-        <![CDATA[
+
         SELECT <include refid="reservationColumns"/>
         FROM RESERVATION
         WHERE reservation_no = #{reservationNo}
             LIMIT 1
-        ]]>
+
     </select>
 
     <!-- [2] 비회원 예약 취소 (담당 코드 유지) -->
     <update id="updateReservationStatusForNonMember" parameterType="map">
-        <![CDATA[
+
         UPDATE RESERVATION
         SET
             reservation_status = #{params.status},
             cancel_reason = #{params.reason},
             updated_at = CURRENT_TIMESTAMP
         WHERE reservation_id = #{params.reservationId}
-        ]]>
+
     </update>
 
     <!-- [3] 비회원 예약 조회 (담당 코드 유지) -->
     <select id="findByDriverEmailAndReservationNo" resultMap="ReservationResultMap">
-        <![CDATA[
+
         SELECT <include refid="reservationColumns"/>
         FROM RESERVATION
         WHERE driver_email = #{email}
           AND reservation_no = #{reservationNumber}
             LIMIT 1
-        ]]>
+
     </select>
 
 </mapper>

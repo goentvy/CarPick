@@ -18,7 +18,7 @@ public class LegacyTopCarDetailDto {
     
 //	@NotNull
 //	@Size(min = 1) -> 이미지가 반드시 1개 이상 들어가야 한다면 주석제거하고 사용가능
-    private List<String> imageUrls; // 상단 슬라이더 이미지
+    private String mainVideoUrl;
     private  List<LegacyOptionTagDto> legacyOptionTagDtos;
     private String carType; //    차종
 

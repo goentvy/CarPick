@@ -10,14 +10,15 @@
         FROM vehicle_inventory vi
         WHERE vi.branch_id = #{pickupBranchId}
           AND vi.spec_id = #{specId}
-          AND vi.status = 'AVAILABLE'
+          -- [수정 완료] DB 컬럼명 operational_status 적용
+          AND vi.operational_status = 'AVAILABLE'
           AND NOT EXISTS (
             SELECT 1
             FROM reservation r
             WHERE r.vehicle_id = vi.vehicle_id
-              AND r.status IN ('CONFIRMED', 'ACTIVE')
-              AND r.pickup_date < #{endDate}
-              AND r.return_date > #{startDate}
+              AND r.reservation_status IN ('CONFIRMED', 'ACTIVE')
+              AND r.start_date < #{endDate}
+              AND r.end_date > #{startDate}
         )
         ORDER BY vi.vehicle_id
             LIMIT 1
@@ -40,41 +41,121 @@
         SELECT COUNT(*)
         FROM reservation
         WHERE vehicle_id = #{vehicleId}
-          AND status IN ('CONFIRMED', 'ACTIVE')
-          AND pickup_date < #{endDate}
-          AND return_date > #{startDate}
+          AND reservation_status IN ('CONFIRMED', 'ACTIVE')
+          AND start_date < #{endDate}
+          AND end_date > #{startDate}
         ]]>
     </select>
 
-    <!-- [4] 예약 생성 (Mock 결제 → 즉시 CONFIRMED) -->
     <insert id="insertReservation"
             parameterType="com.carpick.domain.reservation.entity.Reservation"
             useGeneratedKeys="true"
             keyProperty="reservationId"
             keyColumn="reservation_id">
-        <![CDATA[
-        INSERT INTO reservation (
+
+        INSERT INTO RESERVATION (
+            reservation_no,
+
             user_id,
             vehicle_id,
+
+            driver_last_name,
+            driver_first_name,
+            driver_birthdate,
+            driver_phone,
+            driver_email,
+
+            non_member_password,
+
+            start_date,
+            end_date,
+
+            pickup_type,
             pickup_branch_id,
+            pickup_address,
+
+            return_type,
             return_branch_id,
-            pickup_date,
-            return_date,
-            total_price,
-            status,
+            return_dropzone_id,
+            return_address,
+
+            insurance_id,
+            coupon_id,
+
+            base_rent_fee_snapshot,
+            rent_discount_amount_snapshot,
+
+            base_insurance_fee_snapshot,
+            insurance_discount_amount_snapshot,
+
+            option_fee_snapshot,
+            coupon_discount_snapshot,
+
+            member_discount_rate_snapshot,
+            event_discount_amount_snapshot,
+
+            total_amount_snapshot,
+
+            applied_rent_fee_snapshot,
+            applied_insurance_fee_snapshot,
+
+            agreement_yn,
+            reservation_status,
+
             created_at
         ) VALUES (
+                     #{reservationNo},
+
                      #{userId},
                      #{vehicleId},
+
+                     #{driverLastName},
+                     #{driverFirstName},
+                     #{driverBirthdate},
+                     #{driverPhone},
+                     #{driverEmail},
+
+                     #{nonMemberPassword},
+
+                     #{startDate},
+                     #{endDate},
+
+                     #{pickupType},
                      #{pickupBranchId},
+                     #{pickupAddress},
+
+                     #{returnType},
                      #{returnBranchId},
-                     #{pickupDate},
-                     #{returnDate},
-                     #{totalPrice},
-                     'CONFIRMED',
+                     #{returnDropzoneId},
+                     #{returnAddress},
+
+                     #{insuranceId},
+                     #{couponId},
+
+                     #{baseRentFeeSnapshot},
+                     #{rentDiscountAmountSnapshot},
+
+                     #{baseInsuranceFeeSnapshot},
+                     #{insuranceDiscountAmountSnapshot},
+
+                     #{optionFeeSnapshot},
+                     #{couponDiscountSnapshot},
+
+                     #{memberDiscountRateSnapshot},
+                     #{eventDiscountAmountSnapshot},
+
+                     #{totalAmountSnapshot},
+
+                     #{appliedRentFeeSnapshot},
+                     #{appliedInsuranceFeeSnapshot},
+
+                     #{agreementYn},
+                     #{reservationStatus},
+
                      NOW()
                  )
-        ]]>
-    </insert>
+
+</insert>
+
 
 </mapper>

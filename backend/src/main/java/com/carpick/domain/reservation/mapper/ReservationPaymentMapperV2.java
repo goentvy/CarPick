@@ -2,6 +2,7 @@ package com.carpick.domain.reservation.mapper;
 
 import com.carpick.domain.payment.vo.PaymentVerificationVo;
 import com.carpick.domain.reservation.entity.Reservation;
+import com.carpick.domain.reservation.enums.ReservationStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,8 +19,8 @@ public interface ReservationPaymentMapperV2 {
      */
     int updateStatusIfCurrent(
             @Param("reservationId") long reservationId,
-            @Param("expectedStatus") String expectedStatus,
-            @Param("nextStatus") String nextStatus
+            @Param("expectedStatus") ReservationStatus expectedStatus,
+            @Param("nextStatus") ReservationStatus nextStatus
     );
 
     /**

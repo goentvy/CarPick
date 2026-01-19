@@ -143,7 +143,7 @@ public class ReservationCommandServiceV1 {
         r.setPickupBranchId(pickupBranchId); // ✅ 이제 절대 null 아님
         r.setPickupAddress(null);
 
-        r.setReturnType(isDelivery ? ReturnTypes.COLLECTION : ReturnTypes.VISIT);
+        r.setReturnType(isDelivery ? ReturnTypes.DROPZONE : ReturnTypes.VISIT);
         r.setReturnBranchId(returnBranchId); // ✅ 이제 절대 null 아님
         r.setReturnAddress(null);
 // =============================================================

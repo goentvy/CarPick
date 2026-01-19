@@ -346,7 +346,7 @@ export default function ZoneMapKakao({
     <div className="h-full w-full relative">
       <div ref={mapElRef} className="h-full w-full" />
       {status === "loading" && (
-        <div className="absolute inset-0 bg-white/60 grid place-items-center">
+        <div className="absolute inset-0 bg-white/60 grid place-items-center pointer-events-none">
           <div className="text-sm text-black/60">지도 불러오는 중…</div>
         </div>
       )}

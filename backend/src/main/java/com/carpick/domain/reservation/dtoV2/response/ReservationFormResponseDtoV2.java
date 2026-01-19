@@ -1,9 +1,13 @@
 package com.carpick.domain.reservation.dtoV2.response;
 
 
+
+import com.azure.core.annotation.ReturnType;
 import com.carpick.domain.payment.dto.PaymentSummaryDtoV2;
 import com.carpick.domain.price.enums.PriceType;
+import com.carpick.domain.reservation.enums.PickupType;
 import com.carpick.domain.reservation.enums.RentType;
+import com.carpick.domain.reservation.enums.ReturnTypes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,18 +22,40 @@ public class ReservationFormResponseDtoV2 {
     private CarSummaryDtoV2 car;
     private List<InsuranceOptionDtoV2> insuranceOptions;
     private PaymentSummaryDtoV2 paymentSummary;
+    private PickupLocationDtoV2 pickupLocation;    // ✅ 추가
+    private ReturnLocationDtoV2 returnLocation;    // ✅ 추가
+
     @Data
     public static class CarSummaryDtoV2{
         private Long specId;
         private String title;
         private String subtitle;
         private String imageUrl;
-        // ✅ 어제 mock의 estimatedTotalPrice(128000)를 1일 가격으로 사용
-        private int dailyPrice;
-        private String currency; // KRW
 
 
 
+
+
+    }
+    @Data
+    public static class PickupLocationDtoV2 {
+        private PickupType pickType;       // VISIT | DELIVERY
+        private Long branchId;         // VISIT일 때
+        private String branchName;     // VISIT일 때
+        private String address;        // VISIT: 지점주소 / DELIVERY: 배달주소
+        private String contact;        // 지점 연락처
+        private Double latitude;
+        private Double longitude;
+    }
+
+    @Data
+    public static class ReturnLocationDtoV2 {
+        private ReturnTypes returnType;       // VISIT | DROPZONE
+        private Long branchId;         // VISIT일 때
+        private String branchName;     // VISIT일 때
+        private String address;        // VISIT: 지점주소 / DROPZONE: 드롭존주소
+        private String contact;        // 지점 연락처
+        private Long dropzoneId;       // DROPZONE일 때만
     }
     // ===== 보험 옵션 =====
     @Data

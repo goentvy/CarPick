@@ -14,18 +14,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Price {
-    private Long priceId;                   // 가격 ID (PK)
-    private Long carSpecId;                 // 차량 스펙 ID (CAR_SPEC FK)
+    private Long priceId;
+    private Long carSpecId;
 
-    private BigDecimal dailyPrice;           // 1일 대여료 (레거시 기준가)
-    private BigDecimal price1m;              // 1개월 대여료
-    private BigDecimal price3m;              // 3개월 대여료
-    private BigDecimal price6m;              // 6개월 대여료
+    private BigDecimal dailyPrice;    // 일일 판매가
+    private BigDecimal monthlyPrice;  // 월간 판매가
 
-    private LocalDateTime createdAt;          // 생성일시
-    private LocalDateTime updatedAt;          // 수정일시
-    // 기존 필드들 아래에 추가
-    private String useYn; // 삭제 여부 (Y/N)
+    private String useYn;
+    private LocalDateTime deletedAt;
+    private Integer version;          // 낙관적 락
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
 }

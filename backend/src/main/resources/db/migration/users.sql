@@ -2,7 +2,7 @@ SHOW DATABASES;
 
 USE carpick;
 
-
+drop table users;
 CREATE TABLE users (
     user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
