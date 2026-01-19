@@ -54,6 +54,12 @@ const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, 
         {/* 가격 */}
         <div className="flex flex-row justify-end items-center">
           <p className="text-gray-400 text-[14px] line-through pr-2">{cost.toLocaleString()} 원</p>
+          {/* [추가] 하단 할인율 표시 (0%면 숨김) */}
+          {Number(discountRate) > 0 && (
+            <p className="text-brand text-[14px] font-semibold pr-2">
+              -{Number(discountRate)}%
+            </p>
+          )}
           <p className="font-bold text-brand text-2xl text-right">{!day && <span className="text-[16px] mr-2">월</span>}{price.toLocaleString()} 원</p>
         </div>
       </div>
