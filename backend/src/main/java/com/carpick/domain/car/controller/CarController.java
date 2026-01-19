@@ -1,7 +1,7 @@
 package com.carpick.domain.car.controller;
 
 
-import com.carpick.domain.car.dto.carDetailPage.request.CarDetailRequestDto;
+import com.carpick.domain.car.dto.carDetailPage.request.CarDetailRequestDtoV2;
 import com.carpick.domain.car.dto.carDetailPage.response.CarDetailResponseDtoV2;
 import com.carpick.domain.car.dto.carListPage.CarListItemDto;
 import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
@@ -43,7 +43,7 @@ public class CarController {
     // 차량상세 V2 (스펙 중심 + 지점 컨텍스트)
     @GetMapping("/{carId}")
     public ResponseEntity<CarDetailResponseDtoV2> getCarDetailV2(
-            @Valid @ModelAttribute CarDetailRequestDto request) {
+            @Valid @ModelAttribute CarDetailRequestDtoV2 request) {
 
         CarDetailResponseDtoV2 response = carDetailServiceV2.getCarDetail(
                 request.getSpecId(),

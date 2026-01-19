@@ -35,8 +35,13 @@ public class PriceSummaryService {
             RentType rentType,
             Integer rentMonths // 장기용(나중에 씀)
     ) {
+        // =====================================================
+        // [0] Null Guard (이 부분이 없어서 에러 발생!)
+        // =====================================================
+        // createService에서 null을 넘기므로, 여기서 SHORT로 방어해야 함
+        RentType safeRentType = (rentType == null) ? RentType.SHORT : rentType;
         // 1) RentType -> PriceType 변환
-        PriceType priceType = rentType.toPriceType();
+        PriceType priceType = safeRentType.toPriceType();
 
         // 2) PRICE 조회
         Price price = priceMapper.findBySpecId(specId);
