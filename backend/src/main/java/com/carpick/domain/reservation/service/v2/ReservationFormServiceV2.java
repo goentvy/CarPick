@@ -204,7 +204,8 @@ public class ReservationFormServiceV2 {
         dto.setSpecId(raw.getSpecId());
         dto.setTitle(raw.getDisplayNameShort());
         dto.setSubtitle(buildSubtitle(raw));
-        dto.setImageUrl(raw.getMainImageUrl());
+        dto.setImageUrl(raw.getImgUrl()
+        );
         return dto;
     }
 

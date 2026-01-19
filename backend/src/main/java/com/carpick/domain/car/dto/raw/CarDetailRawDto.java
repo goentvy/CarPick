@@ -21,6 +21,7 @@ public class CarDetailRawDto {
     private Integer seatingCapacity;  // 탑승 인원 (예: 5)
     private Integer modelYearBase;    // 연식 (예: 2024)
     private String mainVideoUrl;      // 차량 메인 스핀 비디오 URL
+    private String imgUrl;            // 목록 카드용 썸네일 이미지
     private Integer minDriverAge;     // 최소 운전자 나이 (예: 21)
     private Integer minLicenseYears;  // 최소 운전 경력 년수 (예: 1)
     private String fuelEfficiency;    // 연비 (예: "15.2km/L")
