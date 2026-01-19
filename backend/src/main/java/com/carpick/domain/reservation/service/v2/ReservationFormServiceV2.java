@@ -201,8 +201,9 @@ public class ReservationFormServiceV2 {
      */
     private CarSummaryDtoV2 buildCarSummary(CarDetailRawDto raw) {
         CarSummaryDtoV2 dto = new CarSummaryDtoV2();
+
         dto.setSpecId(raw.getSpecId());
-        dto.setTitle(raw.getDisplayNameShort());
+        dto.setTitle(raw.getModelName());
         dto.setSubtitle(buildSubtitle(raw));
         dto.setImageUrl(raw.getImgUrl()
         );

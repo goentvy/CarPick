@@ -102,7 +102,7 @@ public class ReservationController {
 
     /**
      * (4) 예약 상세 조회 (결제 완료 화면 / 공통)
-     * GET /api/v2/reservation/detail/{reservationNo}
+     * GET /api/reservation/detail/{reservationNo}
      *
      * - 회원이면 본인 검증까지 하고 싶다면 readService.getReservationByNoWithAuth(...)로 변경
      * - 지금은 "경로만 추가"니까 최소로: 그냥 가져오기

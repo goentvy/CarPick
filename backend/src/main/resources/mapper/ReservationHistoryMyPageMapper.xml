@@ -9,7 +9,7 @@
         SELECT
         rh.id,
         rh.reservation_id AS reservationId,
-        r.reservation_no AS reservationNo,  <!-- ✅ 추가: 예약번호 -->
+        r.reservation_no AS reservationNo,
         rh.action_type AS actionType,
         rh.change_types AS changeTypes,
 
