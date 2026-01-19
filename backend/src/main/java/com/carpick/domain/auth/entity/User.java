@@ -12,28 +12,50 @@ public class User {
 
     private Long userId;
 
+    // =====================
     // 로그인 식별
-    private String email;        // nullable
+    // =====================
+
+    private String email;        // nullable (소셜 로그인 고려)
     private String password;
 
     private String provider;     // LOCAL / NAVER / KAKAO
-    private String providerId;   // 소셜 고유 ID (필수)
+    private String providerId;   // 소셜 고유 ID
 
+    // =====================
     // 개인정보
+    // =====================
+
     private String name;
     private String phone;
     private LocalDate birth;     // DATE
-    private String gender;       // "M" / "F"
 
+    private Gender gender;       // ✅ enum (TypeHandler 대상)
+
+    // =====================
     // 정책
+    // =====================
+
     private Integer marketingAgree;
     private String membershipGrade;
+
+    // =====================
+    // 권한
+    // =====================
+
+    private Role role;
+
+    // =====================
+    // 토큰
+    // =====================
+
+    private String accessToken;
+
+    // =====================
+    // Audit
+    // =====================
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
-
-    private Role role;
-
-    private String accessToken;
 }

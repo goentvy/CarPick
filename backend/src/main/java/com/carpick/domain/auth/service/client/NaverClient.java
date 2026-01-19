@@ -1,5 +1,6 @@
 package com.carpick.domain.auth.service.client;
 
+import com.carpick.domain.auth.entity.Gender;
 import com.carpick.domain.auth.entity.Role;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.global.exception.AuthenticationException;
@@ -35,33 +36,20 @@ public class NaverClient {
 
     private final RestTemplate restTemplate;
 
-
-
     @PostConstruct
     public void init() {
-        log.info("=== na oauth ===");
-
-
+        log.info("[NAVER] OAuth Client initialized");
     }
+
     /**
      * =========================
      * 네이버 AccessToken 발급
      * =========================
      */
     public String getAccessToken(String code, String state) {
-        log.info("[NAVER][TOKEN] 요청 시작");
-        log.info("[NAVER][TOKEN] code={}, state={}", code, state);
-        log.info("[NAVER][TOKEN] clientId={}, redirectUri={}", clientId, redirectUri);
 
-        // 🔥 실서버 500 최다 원인: 환경변수 누락
-        if (clientId == null || clientId.isBlank()
-                || clientSecret == null || clientSecret.isBlank()
-                || redirectUri == null || redirectUri.isBlank()) {
-
+        if (isBlank(clientId) || isBlank(clientSecret) || isBlank(redirectUri)) {
             log.error("[NAVER][CONFIG] 환경변수 누락");
-            log.error("clientId={}, clientSecret={}, redirectUri={}",
-                    clientId, mask(clientSecret), redirectUri);
-
             throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
         }
 
@@ -87,33 +75,18 @@ public class NaverClient {
                             new ParameterizedTypeReference<>() {}
                     );
 
-            log.info("[NAVER][TOKEN] 응답 status={}", response.getStatusCode());
-
             Map<String, Object> body = response.getBody();
-            log.debug("[NAVER][TOKEN] 응답 body={}", body);
-
             if (body == null || body.get("access_token") == null) {
-                log.error("[NAVER][TOKEN] access_token 없음 body={}", body);
                 throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
             }
 
             return body.get("access_token").toString();
 
         } catch (HttpStatusCodeException e) {
-            log.error("[NAVER][TOKEN] HTTP 오류");
-            log.error("status={}", e.getStatusCode());
-            log.error("body={}", e.getResponseBodyAsString());
-
-            // 네이버가 code 자체를 거절한 경우
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 throw new AuthenticationException(ErrorCode.OAUTH_INVALID_CODE);
             }
-
             throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
-
-        } catch (Exception e) {
-            log.error("[NAVER][TOKEN] 알 수 없는 오류", e);
-            throw new AuthenticationException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -124,10 +97,8 @@ public class NaverClient {
      */
     @SuppressWarnings("unchecked")
     public User getProfile(String accessToken) {
-        log.info("[NAVER][PROFILE] 요청 시작");
 
-        if (accessToken == null || accessToken.isBlank()) {
-            log.error("[NAVER][PROFILE] accessToken 누락");
+        if (isBlank(accessToken)) {
             throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
 
@@ -145,13 +116,8 @@ public class NaverClient {
                             new ParameterizedTypeReference<>() {}
                     );
 
-            log.info("[NAVER][PROFILE] 응답 status={}", response.getStatusCode());
-
             Map<String, Object> body = response.getBody();
-            log.debug("[NAVER][PROFILE] 응답 body={}", body);
-
             if (body == null || !body.containsKey("response")) {
-                log.error("[NAVER][PROFILE] 응답 구조 오류");
                 throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
             }
 
@@ -159,7 +125,6 @@ public class NaverClient {
 
             String providerId = (String) data.get("id");
             if (providerId == null) {
-                log.error("[NAVER][PROFILE] providerId 누락 data={}", data);
                 throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
             }
 
@@ -170,26 +135,31 @@ public class NaverClient {
                     .name((String) data.getOrDefault("name", "네이버사용자"))
                     .phone((String) data.get("mobile"))
                     .birth(parseBirth(data))
-                    .gender((String) data.get("gender"))
+                    .gender(parseGender(data))   // ✅ 핵심 수정
                     .role(Role.USER)
                     .membershipGrade("BASIC")
                     .marketingAgree(0)
                     .build();
 
         } catch (HttpStatusCodeException e) {
-            log.error("[NAVER][PROFILE] HTTP 오류");
-            log.error("status={}", e.getStatusCode());
-            log.error("body={}", e.getResponseBodyAsString());
-
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
                 throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
             }
-
             throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
+        }
+    }
 
+    // =========================
+    // private helpers
+    // =========================
+
+    private Gender parseGender(Map<String, Object> data) {
+        try {
+            String value = (String) data.get("gender"); // "M" / "F"
+            return value == null ? null : Gender.valueOf(value);
         } catch (Exception e) {
-            log.error("[NAVER][PROFILE] 알 수 없는 오류", e);
-            throw new AuthenticationException(ErrorCode.INTERNAL_SERVER_ERROR);
+            log.warn("[NAVER][PROFILE] gender 파싱 실패 data={}", data);
+            return null;
         }
     }
 
@@ -206,8 +176,7 @@ public class NaverClient {
         return null;
     }
 
-    private String mask(String value) {
-        if (value == null || value.length() < 4) return "****";
-        return value.substring(0, 2) + "****";
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }

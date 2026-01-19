@@ -40,6 +40,7 @@ server:
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
   type-aliases-package: com.carpick.domain.**.entity
+  type-handlers-package: com.carpick.global.mybatis.handler
 
 springdoc:
   swagger-ui:
@@ -87,3 +88,5 @@ mail:
         auth: true
         starttls:
           enable: true
+
+
