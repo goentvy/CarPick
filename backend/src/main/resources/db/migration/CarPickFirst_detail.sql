@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS CAR_SPEC (
     /* 풀네임(상세페이지용) */
     model_name VARCHAR(150) NOT NULL COMMENT '모델명(상세용 Full name)',
 #     차량 상세페이지 대표 색상
-    car_color ENUM('WHITE','BLACK','RED','BLUE') NOT NULL COMMENT '상세/카드 대표 색상(군청 포함 BLUE)',
+    car_color ENUM('WHITE','BLACK','RED','BLUE','SILVER') NOT NULL COMMENT '상세/카드 대표 색상(군청 포함 BLUE)',
     /* [추가] 쇼트네임(카드용) */
     display_name_short VARCHAR(60) NULL COMMENT '카드용 짧은 모델명(소렌토/캐스퍼 등)',
 
