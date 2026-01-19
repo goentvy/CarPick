@@ -334,19 +334,19 @@ INSERT INTO CAR_SPEC (
           'Y', NULL
       ),
 
-/* 10) 테슬라 (전기) - 모델3로 가정 */
+/* 10) 테슬라 (전기) - Model Y */
       (
-          'TESLA', 'Tesla Model 3', 'BLACK', '테슬라',
+          'TESLA', 'Tesla Model Y', 'BLACK', '테슬라',
           'IMPORT', 2023,
-          '전기차 주행감과 소프트웨어 경험이 강점인 수입 EV 세단입니다.',
+          '전기차 특유의 가속력과 넓은 실내 공간을 갖춘 수입 EV SUV입니다.',
           'ELECTRIC', 'AUTO', FALSE,
           '오토파일럿,네비게이션,후방카메라,블루투스,OTA업데이트',
           25, 2,
-          5, '세단 트렁크/프렁크', '전비 5~6km/kWh',
-          'https://carpicka.mycafe24.com/car_spin_video/car_import_tesla_model3_black_spin.mp4',
-          'https://carpicka.mycafe24.com/car_thumbnail/car_import_tesla_model3_black_thumb.png',
-          '테슬라,전기차,수입,오토파일럿,EV',
-          '전기,EV,수입,장거리',
+          5, 'SUV 트렁크/프렁크', '전비 5~6km/kWh',
+          'https://carpicka.mycafe24.com/car_spin_video/car_suv_modelY_black_spin.mp4',
+          'https://carpicka.mycafe24.com/car_thumbnail/car_suv_modelY_black_thumb.png',
+          '테슬라,전기차,SUV,수입,오토파일럿,EV',
+          '전기,EV,SUV,패밀리',
           'Y', NULL
       );
 
