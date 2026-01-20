@@ -10,6 +10,7 @@ import { useZoneMap } from "@/hooks/useZoneMap";
 import { useMyLocation } from "@/hooks/useMyLocation.js";
 import { useZoneSelection } from "@/hooks/useZoneSelection.js";
 import { useBranchDetail } from "@/hooks/usebranchDetail";
+import { useNavigate } from "react-router-dom";
 import { Images } from "lucide-react";
 
 
@@ -19,14 +20,15 @@ export default function CarPickZonePage() {
   const [viewMode, setViewMode] = useState("ALL"); // "ALL" | "BRANCH" | "DROP"
   const [filterOpen, setFilterOpen] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
-
+  const navigate = useNavigate();
 
   /** 2) Search */
   const [q, setQ] = useState("");
 
-  /** 3) BottomSheet */
+  /** 3) BottomSheet & Detailpage */
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetH, setSheetH] = useState("0px");
+
 
   /** 4) Camera */
   const [camera, setCamera] = useState({
@@ -112,41 +114,38 @@ export default function CarPickZonePage() {
   /** 11) Branch detail */
   const { branchDetail, branchDetailLoading } = useBranchDetail(selected);
 
-  /** 12) Render-time 가공 제거: useMemo로 “시트용 zone” 만들기 */
-  const branchZoneForSheet = useMemo(() => {
-    if (selected?.kind !== "BRANCH") return null;
-    return {
-      ...selected,
-      address: branchDetail?.addressBasic ?? selected.address,
-    };
-  }, [selected, branchDetail]);
-
-  /** 13) Layout calc */
+  /** 12) Layout calc */
   const GAP = 16;
   const BASE_BOTTOM = 120;
   const sheetPx = Number.parseInt(sheetH || "0", 10) || 0;
   const bottom = Math.max(BASE_BOTTOM, sheetPx + GAP);
 
-  /** 14) 단일 지점 정보 병합: branchZone, dropzone */
-  const branchZone =
-    selected?.kind === "BRANCH"
-      ? {
-        ...selected,
+  /** 13) 단일 지점 정보 병합: branchZone, dropzone */
+  const branchZone = useMemo(() => {
+    if (selected?.kind !== "BRANCH") return null;
 
-        // 상세 정보 우선
-        address: branchDetail?.addressBasic ?? selected.address,
-        openTime: branchDetail?.openTime,
-        closeTime: branchDetail?.closeTime,
-        openStatus: branchDetail?.openStatus,
-        openLabel: branchDetail?.openLabel,
+    return {
+      ...selected,
+      address: branchDetail?.addressBasic ?? selected.address,
+      openTime: branchDetail?.openTime,
+      closeTime: branchDetail?.closeTime,
+      openStatus: branchDetail?.openStatus,
+      openLabel: branchDetail?.openLabel,
+      imageUrl: branchDetail?.imageUrl,
+    };
+  }, [selected, branchDetail]);
 
-        // 대표 이미지
-        imageUrl: branchDetail?.imageUrl,
-      }
-      : null;
+  const goBranchDetail = useCallback(() => {
+    if (!branchZone?.branchId) return;
+    navigate(`/zone/branch/${branchZone.branchId}`);
+  }, [navigate, branchZone?.branchId]);
 
+  const goReserve = useCallback(() => {
+    if (!branchZone?.branchId) return;
+    navigate(`/cars?pickupBranchId=${branchZone.branchId}`);
+  }, [navigate, branchZone?.branchId]);
 
-  /** 15) Rendering */
+  /** 14) Rendering */
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-[640px]">
@@ -278,7 +277,10 @@ export default function CarPickZonePage() {
             open={sheetOpen && selected?.kind === "BRANCH"}
             onClose={closeOverlays}
             zone={branchZone}
-            onHeightChange={sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined}
+            onDetail={goBranchDetail}
+            onHeightChange={
+              sheetOpen && selected?.kind === "BRANCH" ? setSheetH : undefined
+            }
           />
 
 

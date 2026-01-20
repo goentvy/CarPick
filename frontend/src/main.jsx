@@ -14,6 +14,7 @@ import CarMonthList from "./pages/Car/CarMonthList";
 import CarDetailPage from "./pages/Car/CarDetailPage.jsx";
 
 import CarpickZonePage from "./pages/Zone/CarpickZonePage.jsx";
+import BranchDetailPage from "./pages/Zone/BranchDetailPage.jsx";
 
 import Agree1 from "./pages/Agree/Agree1";
 import Agree2 from "./pages/Agree/Agree2";
@@ -95,6 +96,7 @@ createRoot(document.getElementById('root')).render(
 
           {/* 카픽존 & 드롭존 */}
           <Route path="zone" element={<CarpickZonePage />} />
+          <Route path="/zone/branch/:branchId" element={<BranchDetailPage />} />
 
           {/* 로그인 & 회원가입 */}
           <Route path="login" element={<Login />} />
