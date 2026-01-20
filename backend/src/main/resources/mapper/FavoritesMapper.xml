@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.carpick.domain.member.mapper.FavoritesMapper">
 
-    <!-- ✅ member.dto 패키지로 수정 -->
+    <!--  member.dto 패키지로 수정 -->
     <resultMap id="FavoriteResultMap" type="com.carpick.domain.member.dto.FavoriteResponse">
         <id property="id" column="id"/>
         <result property="carId" column="car_id"/>

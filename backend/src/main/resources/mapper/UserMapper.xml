@@ -10,6 +10,7 @@
     <!-- ===================== -->
     <resultMap id="UserResultMap" type="com.carpick.domain.auth.entity.User">
         <id property="userId" column="user_id"/>
+
         <result property="email" column="email"/>
         <result property="password" column="password"/>
         <result property="provider" column="provider"/>
@@ -17,10 +18,16 @@
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
         <result property="birth" column="birth"/>
-        <result property="gender" column="gender" javaType="com.carpick.domain.auth.entity.Gender"/>
+
+        <!-- ✅ enum ↔ DB 변환 -->
+        <result property="gender"
+                column="gender"
+                typeHandler="com.carpick.global.mybatis.handler.GenderTypeHandler"/>
+
         <result property="marketingAgree" column="marketing_agree" jdbcType="INTEGER"/>
         <result property="membershipGrade" column="membership_grade"/>
         <result property="accessToken" column="accesstoken"/>
+
         <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
         <result property="deletedAt" column="deleted_at" javaType="java.time.LocalDateTime"/>
@@ -52,29 +59,6 @@
         AND deleted_at IS NULL
     </select>
 
-    <select id="existsByEmail" resultType="int">
-        SELECT COUNT(*)
-        FROM users
-        WHERE email = #{email}
-        AND deleted_at IS NULL
-    </select>
-
-    <select id="existsByProvider" resultType="int">
-        SELECT COUNT(*)
-        FROM users
-        WHERE provider = #{provider}
-        AND provider_id = #{providerId}
-        AND deleted_at IS NULL
-    </select>
-
-    <select id="findDeletedByProvider" resultMap="UserResultMap">
-        SELECT *
-        FROM users
-        WHERE provider = #{provider}
-        AND provider_id = #{providerId}
-        AND deleted_at IS NOT NULL
-    </select>
-
     <!-- ===================== -->
     <!-- INSERT -->
     <!-- ===================== -->
@@ -98,7 +82,7 @@
         #{phone},
         #{birth},
         #{name},
-        #{gender},
+        #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         #{marketingAgree},
         'BASIC',
         #{accessToken},
@@ -106,7 +90,10 @@
         )
     </insert>
 
-    <insert id="insertSocialUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+    <insert id="insertSocialUser"
+            useGeneratedKeys="true"
+            keyProperty="userId"
+            keyColumn="user_id">
         INSERT INTO users (
         email,
         password,
@@ -124,7 +111,7 @@
         #{name},
         #{provider},
         #{providerId},
-        #{gender},
+        #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         #{marketingAgree},
         'BASIC',
         #{accessToken}
@@ -140,79 +127,10 @@
         SET name = #{name},
         phone = #{phone},
         birth = #{birth},
-        gender = #{gender},
+        gender = #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         marketing_agree = #{marketingAgree}
-        WHERE user_id = #{user_id}
-        AND deleted_at IS NULL
-    </update>
-
-    <update id="updatePassword">
-        UPDATE users
-        SET password = #{password}
-        WHERE user_id = #{userId}
-        AND provider = #{provider}
-        AND deleted_at IS NULL
-    </update>
-
-    <update id="updateMembershipGrade">
-        UPDATE users
-        SET membership_grade = #{membershipGrade}
         WHERE user_id = #{userId}
         AND deleted_at IS NULL
-    </update>
-
-    <update id="softDeleteLocalUser">
-        UPDATE users
-        SET deleted_at = NOW()
-        WHERE user_id = #{userId}
-        AND provider = 'LOCAL'
-        AND deleted_at IS NULL
-    </update>
-
-    <update id="softDeleteSocialUser">
-        UPDATE users
-        SET deleted_at = NOW()
-        WHERE user_id = #{userId}
-        AND provider != 'LOCAL'
-    </update>
-
-    <update id="hardDeleteSocialUser">
-        DELETE FROM users
-        WHERE user_id = #{userId}
-        AND provider != 'LOCAL'
-    </update>
-
-    <update id="updateAccessToken">
-        UPDATE users
-        SET accesstoken = #{accessToken},
-        updated_at = NOW()
-        WHERE user_id = #{userId}
-    </update>
-
-    <update id="reviveSocialUser">
-        UPDATE users
-        SET deleted_at = NULL,
-        accesstoken = #{accessToken},
-        updated_at = NOW()
-        WHERE user_id = #{userId}
-    </update>
-
-    <!-- ✅ [추가] Service와 맞추기 위한 최소 SQL -->
-    <update id="reviveSocialUserFull">
-        UPDATE users
-        SET deleted_at = NULL,
-        accesstoken = #{accessToken},
-        email = #{email},
-        name = #{name},
-        updated_at = NOW()
-        WHERE user_id = #{userId}
-    </update>
-
-    <update id="restoreUser">
-        UPDATE users
-        SET deleted_at = NULL
-        WHERE user_id = #{userId}
-        AND deleted_at IS NOT NULL
     </update>
 
 </mapper>

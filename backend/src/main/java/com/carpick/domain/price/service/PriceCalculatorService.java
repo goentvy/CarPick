@@ -1,39 +1,34 @@
 package com.carpick.domain.price.service;
 
+import com.carpick.domain.insurance.enums.InsuranceCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class PriceCalculatorService {
-//     단순한 계산기 : 정가 역산 계산식도 포함한 순수한 계산식만 모아놓은 클래스 이걸 사용할지는 PriceSummaryService 에서 정함
-    /**
-     * 1. 총 대여료 계산 (일수 + 시간)
-     * - 수정 이유: 그냥 rentDays만 곱하면 "25시간" 빌렸을 때 1시간 요금을 못 받음.
-     * - 로직: (일수 * 일일요금) + (시간 * 시간당요금)
-     */
+//     계산식 총책임자  역산함수도 있도 이건 차목록에서 사용함
+private final RentChargeCalculator rentChargeCalculator;
+private final InsuranceCalculatorService insuranceCalculatorService;
+    // [호환용] 렌트요금 계산(일+시간) - 내부적으로 RentChargeCalculator에 위임
     public BigDecimal calculateTotalAmount(BigDecimal unitPrice, long days, long hours) {
-        // 1) 일수 요금 = 단가 * 일수
-        BigDecimal dayCost = unitPrice.multiply(BigDecimal.valueOf(days));
-
-        if (hours <= 0) {
-            return dayCost;
-        }
-
-        // 2) 시간 요금 = (단가 / 24) * 시간
-        // 소수점 처리는 반올림(HALF_UP) 혹은 올림(CEILING) 등 정책에 따름
-        BigDecimal hourCost = unitPrice
-                .multiply(BigDecimal.valueOf(hours))
-                .divide(BigDecimal.valueOf(24), 0, RoundingMode.HALF_UP);
-        // 3) 시간 요금 캡 (1일 요금 초과 방지)
-        if (hourCost.compareTo(unitPrice) >= 0) {
-            return dayCost.add(unitPrice);
-        }
-
-        // 3) 합산
-        return dayCost.add(hourCost);
+        return rentChargeCalculator.calculate(unitPrice, days, hours);
     }
+
+    public BigDecimal calculateRentFee(BigDecimal unitPrice, long days, long hours) {
+        return rentChargeCalculator.calculate(unitPrice, days, hours);
+    }
+
+    public BigDecimal calculateInsuranceFee(InsuranceCode code, LocalDateTime start, LocalDateTime end) {
+        return insuranceCalculatorService.calculateInsuranceFee(code, start, end);
+    }
+
+
+
 
     /**
      * 2. 할인 적용 단가 계산
