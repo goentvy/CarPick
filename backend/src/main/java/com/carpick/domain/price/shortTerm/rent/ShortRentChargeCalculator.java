@@ -25,36 +25,9 @@ import java.math.RoundingMode;
 
 @Service
 @RequiredArgsConstructor
-public class ShortRentChargeCalculator implements TermRentCalculator {
+public class ShortRentChargeCalculator {
 
 
-    @Override
-    public RentType supports() {
-        return RentType.SHORT;
-    }
-
-    @Override
-    public BigDecimal calculateTotalAmount(BigDecimal displayUnitPrice, Period period, Integer rentMonths) {
-        if (period == null) {
-            throw new IllegalArgumentException("단기 렌트는 period가 필수입니다.");
-        }
-
-        ShortRentDuration duration =
-                ShortRentDurationFactory.from(
-                        period.getStartDateTime(),
-                        period.getEndDateTime()
-                );
-
-        BigDecimal total = calculate(displayUnitPrice, duration);
-        return total.max(displayUnitPrice); // 최소 1일 요금
-    }
-
-
-
-    @Override
-    public long getBillingDays(Period period, Integer rentMonths) {
-        return (period == null) ? 0L : period.getRentDaysForBilling();
-    }
     private static final BigDecimal HOURS_PER_DAY = BigDecimal.valueOf(24);
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
