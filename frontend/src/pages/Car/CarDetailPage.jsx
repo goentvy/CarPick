@@ -60,7 +60,7 @@ function normalizeCards(cards) {
   return slots.map((type) => {
     const c = byType[type] ?? {};
     const hasValue = c.value !== undefined && c.value !== null;
-    const valueText = hasValue ? `${String(c.value)}${c.unit ?? ""}` : null;
+    const valueText = hasValue ? String(c.value) : null;
 
     let displayText = "정보 준비 중이에요.";
     if (valueText) {
@@ -81,7 +81,7 @@ function normalizeCards(cards) {
           displayText = `만 ${valueText}만 이용 가능해요.`;
           break;
         case "FUEL_EFF":
-          displayText = `연비는 약 ${valueText}예요.`;
+          displayText = `약 ${valueText}예요.`;
           break;
         default:
           break;
