@@ -69,7 +69,7 @@ function Header() {
       <aside id="navMenu" className={menuOpen ? "active" : ""}>
         <div className="inner">
           <div className="menu_top">
-            <Link to="/">
+            <Link to="/home" onClick={closeMenu}>
               <img src="/images/common/logo_b.svg" alt="CarPick Logo" />
             </Link>
             <button className="btn btn-close" onClick={closeMenu}>
