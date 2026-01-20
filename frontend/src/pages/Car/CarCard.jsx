@@ -36,7 +36,7 @@ const CarCard = ({
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {
             e.currentTarget.src =
-              "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
+              "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
           }}
         />
 

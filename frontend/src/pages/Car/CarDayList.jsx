@@ -181,7 +181,7 @@ const CarList = () => {
                             discountRate={car.discountRate || 0}
                             imageSrc={
                                 car.imgUrl ||
-                                "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
+                                "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
                             }
                             title={car.displayNameShort}
                             info={{
