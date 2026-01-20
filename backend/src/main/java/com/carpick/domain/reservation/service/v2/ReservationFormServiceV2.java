@@ -11,8 +11,8 @@ import com.carpick.domain.insurance.enums.InsuranceCode;
 import com.carpick.domain.insurance.mapper.InsuranceMapper;
 import com.carpick.domain.payment.dto.PaymentSummaryDtoV2;
 import com.carpick.domain.price.dto.PriceDisplayDTO;
-import com.carpick.domain.price.service.PriceCalculatorService;
-import com.carpick.domain.price.service.PriceSummaryService;
+import com.carpick.domain.price.display.PriceCalculatorService;
+import com.carpick.domain.price.display.PriceSummaryService;
 import com.carpick.domain.reservation.dtoV2.request.ReservationFormRequestDtoV2;
 import com.carpick.domain.reservation.dtoV2.response.ReservationFormResponseDtoV2;
 import com.carpick.domain.reservation.dtoV2.response.ReservationFormResponseDtoV2.*;
@@ -318,12 +318,12 @@ public class ReservationFormServiceV2 {
         // - 일수 + 시간 요금까지 정확히 계산
         // - 예: 25시간 → 1일 + 1시간 요금
         // ========================================
-        BigDecimal basePrice = priceCalculator.calculateTotalAmount(
-                priceDisplay.getDisplayUnitPrice(),
-                period.getRentDays(),
-                period.getRentRemainHours()
-        );
-        dto.setBasePrice(basePrice.intValue());
+//        BigDecimal basePrice = priceCalculator.calculateTotalAmount(
+//                priceDisplay.getDisplayUnitPrice(),
+//                period.getRentDays(),
+//                period.getRentRemainHours()
+//        );
+//        dto.setBasePrice(basePrice.intValue());
 
         // ========================================
         // 할인 정보 (폼 단계에서는 미적용)

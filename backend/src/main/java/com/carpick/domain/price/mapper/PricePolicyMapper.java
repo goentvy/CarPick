@@ -5,6 +5,8 @@ import com.carpick.domain.price.enums.PriceType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
+
 @Mapper
 public interface PricePolicyMapper {
     // 차종 + 가격타입으로 정책 조회 (지점 우선, 없으면 전국)
@@ -43,4 +45,8 @@ public interface PricePolicyMapper {
             @Param("branchId") Long branchId,
             @Param("priceType") PriceType priceType
     );
+
+
+
+
 }

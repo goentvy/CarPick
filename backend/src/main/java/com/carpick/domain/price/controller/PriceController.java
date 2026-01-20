@@ -2,19 +2,16 @@ package com.carpick.domain.price.controller;
 
 import com.carpick.common.vo.Period;
 import com.carpick.domain.price.dto.PriceDisplayDTO;
-import com.carpick.domain.price.service.PriceSummaryService;
+import com.carpick.domain.price.display.PriceSummaryService;
 import com.carpick.domain.reservation.enums.RentType;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -24,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class PriceController {
     private final PriceSummaryService priceSummaryService;
-
+// 장기/단기 가격 엔드 포인트
     // 프론트 형식: "2026-01-17 10:00:00"
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 

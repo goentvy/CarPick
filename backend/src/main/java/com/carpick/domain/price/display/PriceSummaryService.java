@@ -1,4 +1,4 @@
-package com.carpick.domain.price.service;
+package com.carpick.domain.price.display;
 
 import com.carpick.common.vo.Period;
 import com.carpick.domain.price.dto.PriceDisplayDTO;
@@ -6,6 +6,7 @@ import com.carpick.domain.price.entity.Price;
 import com.carpick.domain.price.entity.PricePolicy;
 import com.carpick.domain.price.enums.PriceType;
 import com.carpick.domain.price.mapper.PriceMapper;
+import com.carpick.domain.price.discount.DiscountPolicyService;
 import com.carpick.domain.reservation.enums.RentType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -92,8 +93,8 @@ public class PriceSummaryService {
             long days = period.getRentDays();
             long hours = period.getRentRemainHours();
 
-            totalBeforeCoupon = calculator.calculateTotalAmount(displayUnitPrice, days, hours)
-                    .max(displayUnitPrice); // 최소 1일 요금
+//            totalBeforeCoupon = calculator.calculateTotalAmount(displayUnitPrice, days, hours)
+//                    .max(displayUnitPrice); // 최소 1일 요금
 
             rentDaysForDto = period.getRentDaysForBilling();
         }

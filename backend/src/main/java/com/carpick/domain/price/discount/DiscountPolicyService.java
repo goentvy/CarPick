@@ -1,4 +1,4 @@
-package com.carpick.domain.price.service;
+package com.carpick.domain.price.discount;
 
 import com.carpick.domain.coupon.entity.Coupon;
 import com.carpick.domain.coupon.mapper.CouponMapper;
