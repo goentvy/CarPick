@@ -602,25 +602,30 @@
 
 @media (max-width: 640px) {
 
-  /* 번호 컬럼 */
+  /* 1. 번호(No.) 컬럼 헤더와 데이터 셀을 완전히 숨김 */
   .notice-table th:nth-child(1),
-  .notice-table td:nth-child(1) {
-    width: 50px;
-    color: #333333;
+  .notice-table td:nth-child(1),
+  .notice-id-column {
+    display: none !important; /* display: none으로 변경 */
   }
 
-
+  /* 2. colgroup에서도 첫 번째 컬럼의 공간을 제거 */
+  .notice-table colgroup col:nth-child(1) {
+    display: none;
+  }
 
   /* 작성일 */
   .notice-table th:nth-child(3),
   .notice-table td:nth-child(3) {
-    width: 90px;
+    width: 80px;
+    font-size: 14px;
     color: #333333;
   }
 
   /* 제목 중심 레이아웃 */
   .notice-subject {
     font-size: 15px;
+    text-align: center;
     line-height: 1.6;
   }
 
