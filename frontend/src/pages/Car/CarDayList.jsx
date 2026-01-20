@@ -253,7 +253,6 @@ const CarList = () => {
             ) : (
                 <div className="mt-4 px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {cars.map((car) => (
-<<<<<<< HEAD
                         <CarCard
                             key={car.specId}
                             id={car.specId}
@@ -274,29 +273,6 @@ const CarList = () => {
                             day={true}
                             onClick={handleClickCar}
                         />
-=======
-                        <div key={car.specId} className="w-full sm:w-[49%]">
-                            <CarCard
-                                id={car.specId}
-                                // [수정] 할인 표시 조건은 > 0으로 (0이어도 배지 뜨는 문제 방지)
-                                discount={Number(car.discountRate) > 0}
-                                discountRate={Number(car.discountRate) || 0}
-                                imageSrc={
-                                    car.imgUrl || "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
-                                }
-                                title={car.displayNameShort}
-                                info={{
-                                    year: car.modelYear,
-                                    seat: car.seatingCapacity + "인승",
-                                }}
-                                features={car.driveLabels}
-                                cost={car.originalPrice}
-                                price={car.finalPrice}
-                                day={true}
-                                onClick={handleClickCar}
-                            />
-                        </div>
->>>>>>> origin/dev
                     ))}
                 </div>
             )}

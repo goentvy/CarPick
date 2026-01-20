@@ -21,11 +21,11 @@ const CarCard = ({
   return (
     <div
       className="
-  relative bg-white w-full h-[330px] rounded-[18px] mb-4
-  shadow-md overflow-hidden cursor-pointer transition-all duration-200
-  outline outline-transparent
-  hover:outline-[#C8FF48] hover:outline-[3px]
-"
+      relative bg-white w-full h-[330px] rounded-[18px] mb-4
+      shadow-md overflow-hidden cursor-pointer transition-all duration-200
+      outline outline-transparent
+      hover:outline-[#C8FF48] hover:outline-[3px]
+      "
       onClick={() => onClick?.(id)}
     >
       {/* 이미지 */}
@@ -79,7 +79,6 @@ const CarCard = ({
 
           <hr className="border-t border-gray-200 my-2" />
 
-<<<<<<< HEAD
           {/* 가격 */}
           <div className="flex justify-end items-baseline gap-2">
             <span className="text-3 text-gray-400 line-through">
@@ -91,18 +90,6 @@ const CarCard = ({
               {Number(price ?? 0).toLocaleString()}원
             </span>
           </div>
-=======
-        {/* 가격 */}
-        <div className="flex flex-row justify-end items-center">
-          <p className="text-gray-400 text-[14px] line-through pr-2">{cost.toLocaleString()} 원</p>
-          {/* [추가] 하단 할인율 표시 (0%면 숨김) */}
-          {Number(discountRate) > 0 && (
-            <p className="text-brand text-[14px] font-semibold pr-2">
-              -{Number(discountRate)}%
-            </p>
-          )}
-          <p className="font-bold text-brand text-2xl text-right">{!day && <span className="text-[16px] mr-2">월</span>}{price.toLocaleString()} 원</p>
->>>>>>> origin/dev
         </div>
       </div>
     </div>
