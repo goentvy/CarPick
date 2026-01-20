@@ -68,6 +68,7 @@ import EmergencyService from './pages/emergency/EmergencyService.jsx'
 import About from './pages/About/About.jsx'
 import ReservationsList from "./pages/Mypage/ReservationsList.jsx";
 import ReservationDetail from "./pages/Mypage/ReservationDetail.jsx";
+import YearPage from './pages/Car/YearPage.jsx'
 
 
 
@@ -90,7 +91,7 @@ createRoot(document.getElementById('root')).render(
 
           {/* 차량 목록 */}
           <Route path="day" element={<CarDayList />} />
-          <Route path="month" element={<CarMonthList />} />
+          <Route path="year" element={<YearPage />} />
           <Route path="cars/detail/:specId" element={<CarDetailPage />} />
 
           {/* 카픽존 & 드롭존 */}
