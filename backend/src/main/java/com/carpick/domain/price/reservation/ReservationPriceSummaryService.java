@@ -1,7 +1,10 @@
 package com.carpick.domain.price.reservation;
 
 
+import com.carpick.common.vo.Period;
 import com.carpick.domain.insurance.enums.InsuranceCode;
+import com.carpick.domain.price.calculator.TermRentCalculator;
+import com.carpick.domain.price.calculator.TermRentCalculatorResolver;
 import com.carpick.domain.price.discount.DiscountPolicyService;
 import com.carpick.domain.price.dto.ReservationPriceSummaryRequestDto;
 import com.carpick.domain.price.dto.ReservationPriceSummaryResponseDto;
@@ -41,15 +44,19 @@ public class ReservationPriceSummaryService {
 private final ShortPricePolicyReader shortPricePolicyReader;
     private final LongPricePolicyReader longPricePolicyReader;
 
-    private final ShortRentChargeCalculator shortRentChargeCalculator;
     private final ShotrInsuranceCalculatorService shortInsuranceCalculator;
-
-    private final LongRentChargeCalculator longRentChargeCalculator;
-
     private final DiscountPolicyService discountPolicyService;
 
+    //  우리가 만든 라우터(Resolver) 주입
+    private final TermRentCalculatorResolver termRentCalculatorResolver;
+
     /**
-     * 예약 가격 요약 계산 (단기/장기 공용 엔드포인트에서 호출)
+     * 예약 가격 요약 계산 (단기/장기 공용)
+     *
+     * 정책(고정):
+     * - SHORT: period(시작/종료) 필수
+     * - LONG : months 필수 (period로 개월수 역산하지 않음)
+     * - 보험: MVP로 단기 보험 계산기 재사용(기간은 start/end 필요)
      */
     @Transactional(readOnly = true)
     public ReservationPriceSummaryResponseDto calculate(ReservationPriceSummaryRequestDto req) {
@@ -60,86 +67,66 @@ private final ShortPricePolicyReader shortPricePolicyReader;
             throw new IllegalArgumentException("specId가 비어있습니다.");
         }
 
-        // rentType이 null로 들어오는 케이스 방어 (기본은 SHORT)
+        // rentType null 방어
         RentType rentType = (req.getRentType() == null) ? RentType.SHORT : req.getRentType();
 
-        // 보험 코드 null 방어 (기본 NONE)
+        // 보험코드 null 방어
         InsuranceCode insuranceCode = (req.getInsuranceCode() == null) ? InsuranceCode.NONE : req.getInsuranceCode();
 
-        BigDecimal rentFee;
-        BigDecimal insuranceFee;
+        // ✅ Period는 단기/보험 계산에 필요(장기도 보험 MVP 재사용 때문에 필요)
+        if (req.getStartDateTime() == null || req.getEndDateTime() == null) {
+            throw new IllegalArgumentException("startDateTime/endDateTime이 비어있습니다.");
+        }
+        Period period = new Period(req.getStartDateTime(), req.getEndDateTime());
 
-        if (rentType == RentType.SHORT) {
-            // ----------------------------
-            // 1) 단기 렌트: 기간 계산
-            // ----------------------------
-            if (req.getStartDateTime() == null || req.getEndDateTime() == null) {
-                throw new IllegalArgumentException("단기 렌트는 startDateTime/endDateTime이 필수입니다.");
+        // ✅ 장기는 months를 반드시 신뢰(선택지 A)
+        Integer months = req.getMonths();
+        if (rentType == RentType.LONG) {
+            if (months == null || months <= 0) {
+                throw new IllegalArgumentException("장기 렌트는 months가 1 이상이어야 합니다. months=" + months);
             }
-
-            ShortRentDuration duration =
-                    ShortRentDurationFactory.from(req.getStartDateTime(), req.getEndDateTime());
-
-            // ----------------------------
-            // 2) 단기 렌트: 단가 조회(PRICE.daily_price)
-            // ----------------------------
-            BigDecimal dailyUnitPrice = shortPricePolicyReader.readDailyUnitPrice(req.getSpecId());
-
-            // ----------------------------
-            // 3) 단기 렌트: 대여료 계산
-            // ----------------------------
-            rentFee = shortRentChargeCalculator.calculate(dailyUnitPrice, duration);
-
-            // ----------------------------
-            // 4) 보험료 계산 (단기 보험 계산기 사용)
-            // ----------------------------
-            insuranceFee = shortInsuranceCalculator.calculate(insuranceCode, duration);
-
-        } else if (rentType == RentType.LONG) {
-            // ----------------------------
-            // 1) 장기 렌트: months 결정
-            // ----------------------------
-            // months가 있으면 우선, 없으면 start/end로 계산(fallback)
-            LongRentDuration longDuration =
-                    LongRentDurationFactory.from(req.getMonths(), req.getStartDateTime(), req.getEndDateTime());
-
-            // ----------------------------
-            // 2) 장기 렌트: 월 단가 조회(PRICE.monthly_price)
-            // ----------------------------
-            BigDecimal monthlyUnitPrice = longPricePolicyReader.readMonthlyUnitPrice(req.getSpecId());
-
-            // ----------------------------
-            // 3) 장기 렌트: 대여료 계산
-            // ----------------------------
-            rentFee = longRentChargeCalculator.calculate(monthlyUnitPrice, longDuration);
-
-            // ----------------------------
-            // 4) 보험료 계산 (MVP: 단기 보험 계산기 재사용)
-            // ----------------------------
-            if (req.getStartDateTime() == null || req.getEndDateTime() == null) {
-                throw new IllegalArgumentException("장기 렌트도 보험 계산을 위해 startDateTime/endDateTime이 필요합니다(MVP 정책).");
-            }
-
-            ShortRentDuration durationForInsurance =
-                    ShortRentDurationFactory.from(req.getStartDateTime(), req.getEndDateTime());
-
-            insuranceFee = shortInsuranceCalculator.calculate(insuranceCode, durationForInsurance);
-
         } else {
-            throw new IllegalArgumentException("지원하지 않는 rentType입니다. rentType=" + rentType);
+            // 단기는 months를 사용하지 않음
+            months = null;
         }
 
         // ----------------------------
-        // 5) 쿠폰 할인 적용
+        // 1) 단가 조회 (최소 분기 유지)
         // ----------------------------
-        // 쿠폰 할인은 "현재 합계(rent + insurance)" 기준으로 계산한다.
+        BigDecimal unitPrice;
+        if (rentType == RentType.LONG) {
+            unitPrice = longPricePolicyReader.readMonthlyUnitPrice(req.getSpecId());
+        } else {
+            unitPrice = shortPricePolicyReader.readDailyUnitPrice(req.getSpecId());
+        }
+        if (unitPrice == null || unitPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("단가(unitPrice)가 비어있습니다. specId=" + req.getSpecId() + ", rentType=" + rentType);
+        }
+
+        // ----------------------------
+        // 2) 렌트료 계산 (✅ 라우터 사용!)
+        // ----------------------------
+        TermRentCalculator rentCalculator = termRentCalculatorResolver.resolve(rentType);
+        BigDecimal rentFee = rentCalculator.calculateTotalAmount(unitPrice, period, months);
+
+        // ----------------------------
+        // 3) 보험료 계산 (MVP: 단기 보험 계산기 재사용)
+        // ----------------------------
+        ShortRentDuration insuranceDuration =
+                ShortRentDurationFactory.from(req.getStartDateTime(), req.getEndDateTime());
+
+        BigDecimal insuranceFee = shortInsuranceCalculator.calculate(insuranceCode, insuranceDuration);
+
+        // ----------------------------
+        // 4) 쿠폰 할인
+        // ----------------------------
         BigDecimal beforeCouponTotal = rentFee.add(insuranceFee);
 
         BigDecimal couponDiscount =
                 discountPolicyService.calculateCouponDiscountAmount(req.getCouponCode(), beforeCouponTotal);
 
         // ----------------------------
-        // 6) 최종 합계
+        // 5) 최종 합계
         // ----------------------------
         BigDecimal totalAmount = beforeCouponTotal.subtract(couponDiscount);
         if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {

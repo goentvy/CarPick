@@ -26,6 +26,7 @@ public class ReservationFormRequestDtoV2 {
     // 예약 버튼 활성화 및 입력 검증용 (Form 단계)
     // 실제 저장은 ReservationCreate에서 처리
     private DriverInfoDtoV2 driverInfo;
+    private Integer months;
     @Data
     public static class DriverInfoDtoV2{
         private String lastname;

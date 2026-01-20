@@ -14,5 +14,8 @@ public LongRentDuration {
         throw new IllegalArgumentException("장기 렌트 개월수(months)는 1 이상이어야 합니다. months=" + months);
     }
 }
-
+    // ✅ 이거 추가
+    public static LongRentDuration of(int months) {
+        return new LongRentDuration(months);
+    }
 }

@@ -1,6 +1,8 @@
 package com.carpick.domain.price.display;
 
 import com.carpick.common.vo.Period;
+import com.carpick.domain.price.calculator.TermRentCalculator;
+import com.carpick.domain.price.calculator.TermRentCalculatorResolver;
 import com.carpick.domain.price.dto.PriceDisplayDTO;
 import com.carpick.domain.price.entity.Price;
 import com.carpick.domain.price.entity.PricePolicy;
@@ -21,102 +23,114 @@ import java.math.BigDecimal;
 public class PriceSummaryService {
     private final PriceMapper priceMapper;
     private final DiscountPolicyService discountService;
-    private final PriceCalculatorService calculator;
+    private final PriceCalculatorService displayCalculator; // 역산/표시 규칙(정가 복원 등)
+    private final TermRentCalculatorResolver termRentCalculatorResolver; //  단기/장기 라우팅
 
     /**
-     * [견적 산출 메인]
-     * 현재 목표: 단기 렌트(SHORT) 완벽 구동
+     * [차 목록/차 상세 표시용 가격 산출]
+     * - 목적: UI에 표시할 단가/정가(취소선)/할인율/예상총액(기간 있을 때)을 만든다.
+     * - 주의: 결제/정산 확정은 "예약 스냅샷 서비스"에서 수행한다.
      */
     @Transactional(readOnly = true)
     public PriceDisplayDTO calculateDisplayPrice(
             Long specId,
             Long branchId,
-            Period period,
-            String couponCode,
-            RentType rentType,
-            Integer rentMonths // 장기용(나중에 씀)
+            Period period,        // 단기(일/시간) 화면에서는 필수, 목록처럼 기간 없으면 null 가능
+            RentType rentType,    // null이면 SHORT로 처리
+            Integer rentMonths    // 장기 화면에서 필수(1 이상), 단기면 null 가능
     ) {
         // =====================================================
-        // [0] Null Guard (이 부분이 없어서 에러 발생!)
+        // [0] Null Guard
         // =====================================================
-        // createService에서 null을 넘기므로, 여기서 SHORT로 방어해야 함
         RentType safeRentType = (rentType == null) ? RentType.SHORT : rentType;
-        // 1) RentType -> PriceType 변환
-        PriceType priceType = safeRentType.toPriceType();
+        PriceType priceType = safeRentType.toPriceType(); // DAILY / MONTHLY
 
-        // 2) PRICE 조회
+        // =====================================================
+        // [1] PRICE 조회 (실제 과금 기준 단가)
+        // =====================================================
         Price price = priceMapper.findBySpecId(specId);
         if (price == null) {
             throw new IllegalArgumentException("가격 정보가 없습니다. specId=" + specId);
         }
 
-        // 3) 단가 결정 (일단 DAILY만 확실하게)
+        // =====================================================
+        // [2] 표시 단가 결정 (단기=일 단가, 장기=월 단가)
+        // =====================================================
         BigDecimal displayUnitPrice;
-        if (rentType == RentType.LONG) {
-            // [나중에 구현] 장기 렌트가 들어오면 일단 0원으로 처리하거나 에러 방지
-            // (사용자님 전략: 단기 먼저 완성)
+        if (safeRentType == RentType.LONG) {
             displayUnitPrice = (price.getMonthlyPrice() != null) ? price.getMonthlyPrice() : BigDecimal.ZERO;
+            if (displayUnitPrice.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("장기 렌트 월 단가가 비어있습니다. specId=" + specId);
+            }
         } else {
-            // [단기] Daily Price 사용
             displayUnitPrice = price.getDailyPrice();
+            if (displayUnitPrice == null || displayUnitPrice.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("단기 렌트 일 단가가 비어있습니다. specId=" + specId);
+            }
         }
 
-        // 4) 정책 조회
+        // =====================================================
+        // [3] 정책 조회 (표시용 정가/할인율)
+        // =====================================================
         PricePolicy policy = discountService.findDiscountPolicy(specId, branchId, priceType);
         int discountRate = discountService.getDiscountRate(policy);
 
-        // 5) 정가(취소선) 계산
+        // =====================================================
+        // [4] 정가(취소선) 계산
+        //   - policy.basePrice가 있으면 우선 사용
+        //   - 없으면 할인율+표시단가로 역산(표시용)
+        // =====================================================
         BigDecimal basePrice;
         if (policy != null && policy.getBasePrice() != null) {
             basePrice = policy.getBasePrice();
         } else if (discountRate > 0 && displayUnitPrice.compareTo(BigDecimal.ZERO) > 0) {
-            basePrice = calculator.reverseBasePriceFromDiscountedPrice(displayUnitPrice, discountRate);
+            basePrice = displayCalculator.reverseBasePriceFromDiscountedPrice(displayUnitPrice, discountRate);
         } else {
             basePrice = displayUnitPrice;
         }
+// =====================================================
+// [5-0] RentType별 입력 정책 고정 (선택지 A)
+//   - LONG: rentMonths만 신뢰, period는 계산에 사용하지 않음(무시/참고용)
+//   - SHORT: period만 신뢰, rentMonths는 무시
+// =====================================================
+        Period calcPeriod = period;
+        Integer calcMonths = rentMonths;
 
-        // 6) 총액 계산 (여기가 핵심!)
-        BigDecimal totalBeforeCoupon = BigDecimal.ZERO;
-        Long rentDaysForDto = 0L;
-
-        if (rentType == RentType.LONG) {
-            // [나중에] 장기 렌트 로직은 일단 PASS
-            // (URL로 넘어오는 startDate/endDate로 계산할지, rentMonths로 할지 나중에 결정)
-            log.info("장기 렌트 요청 들어옴 (구현 예정)");
-            throw new IllegalStateException("장기 렌트 가격 계산은 아직 미구현입니다.");
-        } else {
-            // [단기] 여기가 진짜!
-            if (period == null) {
-                throw new IllegalArgumentException("단기 렌트는 기간 정보가 필수입니다.");
+        if (safeRentType == RentType.LONG) {
+            // 장기: 계약 단위(개월 수)가 진실
+            if (rentMonths == null || rentMonths <= 0) {
+                throw new IllegalArgumentException("장기 렌트는 rentMonths가 1 이상이어야 합니다.");
             }
-
-            long days = period.getRentDays();
-            long hours = period.getRentRemainHours();
-
-//            totalBeforeCoupon = calculator.calculateTotalAmount(displayUnitPrice, days, hours)
-//                    .max(displayUnitPrice); // 최소 1일 요금
-
-            rentDaysForDto = period.getRentDaysForBilling();
+            calcPeriod = null; //  장기는 period 계산에 절대 사용하지 않도록 명시
+        } else {
+            // 단기: 기간(start/end)이 진실
+            if (period == null) {
+                throw new IllegalArgumentException("단기 렌트는 period가 필수입니다.");
+            }
+            calcMonths = null; //  단기는 months 무시
         }
 
-        // 7) 쿠폰 할인
-        BigDecimal couponDiscount = discountService.calculateCouponDiscountAmount(couponCode, totalBeforeCoupon);
+        // =====================================================
+        // [5] 총액(estimatedTotalAmount) + 과금일수(rentDays) 계산
+        //   - 단기/장기 분기는 Resolver + TermRentCalculator가 담당
+        // =====================================================
+        TermRentCalculator termCalc = termRentCalculatorResolver.resolve(safeRentType);
 
-        // 8) 최종 금액
-        BigDecimal finalTotalAmount = totalBeforeCoupon.subtract(couponDiscount);
-        if (finalTotalAmount.compareTo(BigDecimal.ZERO) < 0) {
-            finalTotalAmount = BigDecimal.ZERO;
-        }
+        BigDecimal estimatedTotalAmount = termCalc.calculateTotalAmount(displayUnitPrice, calcPeriod, calcMonths);
+        long billingDays = termCalc.getBillingDays(calcPeriod, calcMonths);
 
-        // 9) DTO 리턴 (수정된 DTO 메서드 사용)
+
+        // =====================================================
+        // [6] DTO 리턴
+        // =====================================================
         return PriceDisplayDTO.ofWithPeriod(
                 displayUnitPrice,
                 basePrice,
                 discountRate,
                 priceType,
-                rentType, // [★] 아까 빠졌던 친구 추가 완료
-                rentDaysForDto,
-                finalTotalAmount
+                safeRentType,
+                billingDays,
+                estimatedTotalAmount
         );
     }
 
