@@ -1,21 +1,24 @@
 package com.carpick.domain.reservation.service.v2;
 
-import com.carpick.common.vo.Period;
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
 import com.carpick.domain.insurance.enums.InsuranceCode;
 import com.carpick.domain.insurance.mapper.InsuranceMapper;
 import com.carpick.domain.payment.dto.PaymentSummaryDtoV2;
-import com.carpick.domain.price.dto.PriceDisplayDTO;
-import com.carpick.domain.price.display.PriceCalculatorService;
-import com.carpick.domain.price.display.PriceSummaryService;
 import com.carpick.domain.price.dto.ReservationPriceSummaryRequestDto;
 import com.carpick.domain.price.dto.ReservationPriceSummaryResponseDto;
+import com.carpick.domain.price.entity.ReservationPriceDetail;
+import com.carpick.domain.price.longTerm.duration.LongRentDuration;
+import com.carpick.domain.price.longTerm.duration.LongRentDurationFactory;
 import com.carpick.domain.price.reservation.ReservationPriceSnapshotApplier;
 import com.carpick.domain.price.reservation.ReservationPriceSummaryService;
+import com.carpick.domain.price.service.ReservationPriceStatementService;
+import com.carpick.domain.price.shortTerm.duration.ShortRentDuration;
+import com.carpick.domain.price.shortTerm.duration.ShortRentDurationFactory;
 import com.carpick.domain.reservation.dtoV2.request.ReservationCreateRequestDtoV2;
 import com.carpick.domain.reservation.dtoV2.response.ReservationCreateResponseDtoV2;
 import com.carpick.domain.reservation.entity.Reservation;
 import com.carpick.domain.reservation.enums.PickupType;
+import com.carpick.domain.reservation.enums.RentType;
 import com.carpick.domain.reservation.enums.ReservationStatus;
 import com.carpick.domain.reservation.enums.ReturnTypes;
 import com.carpick.domain.reservation.mapper.ReservationCreateMapperV2;
@@ -35,33 +38,20 @@ import java.util.UUID;
 public class ReservationCreateServiceV2 {
 
     private final ReservationCreateMapperV2 reservationCreateMapper;
-
-    /**
-     * [의미]
-     * - Reservation 엔티티에는 insurance_id(FK)를 저장해야 하므로 보험 옵션 조회는 유지합니다.
-     * - 보험료 금액 계산은 Price 모듈(ReservationPriceSummaryService)에서 담당합니다.
-     */
     private final InsuranceMapper insuranceMapper;
 
-    /**
-     * [수정 포인트]
-     * - 기존 display용 PriceSummaryService/PriceCalculatorService/Period/PriceSnapshot 흐름을 제거하고,
-     *   "예약용 진짜 가격" 계산은 ReservationPriceSummaryService로 일원화합니다.
-     */
     private final ReservationPriceSummaryService reservationPriceSummaryService;
-
-    /**
-     * [수정 포인트]
-     * - 가격 DTO -> Reservation 스냅샷 컬럼 세팅 책임을 Applier로 분리합니다.
-     */
     private final ReservationPriceSnapshotApplier reservationPriceSnapshotApplier;
+
+    // [추가] 가격 명세서 저장 서비스
+    private final ReservationPriceStatementService reservationPriceStatementService;
 
     @Transactional
     public ReservationCreateResponseDtoV2 createReservation(
             ReservationCreateRequestDtoV2 request,
             Long userId
     ) {
-        // 0. 약관 동의 검증 (예약 생성 전 필수)
+        // 0. 약관 동의 검증
         if (!request.isAgreement()) {
             throw new IllegalArgumentException("약관에 동의해주세요.");
         }
@@ -75,37 +65,26 @@ public class ReservationCreateServiceV2 {
         );
 
         if (vehicleId == null) {
-            throw new IllegalStateException(
-                    "해당 기간에 예약 가능한 차량이 없습니다. specId=" + request.getSpecId()
-            );
+            throw new IllegalStateException("해당 기간에 예약 가능한 차량이 없습니다. specId=" + request.getSpecId());
         }
         log.info("[예약생성] 가용 차량 선택 완료. vehicleId={}", vehicleId);
 
-        // 2. 차량 재고 Row Lock 획득 (비관적 락)
+        // 2. 차량 재고 Row Lock
         reservationCreateMapper.lockVehicleInventory(vehicleId);
         log.info("[예약생성] 차량 락 획득 완료. vehicleId={}", vehicleId);
 
-        // 3. 예약 기간 겹침 재검증
+        // 3. 기간 겹침 재검증
         int overlapCount = reservationCreateMapper.countOverlappingReservations(
                 vehicleId,
                 request.getStartDateTime(),
                 request.getEndDateTime()
         );
-
         if (overlapCount > 0) {
-            throw new IllegalStateException(
-                    "해당 기간에 이미 예약이 존재합니다. vehicleId=" + vehicleId
-            );
+            throw new IllegalStateException("해당 기간에 이미 예약이 존재합니다. vehicleId=" + vehicleId);
         }
         log.info("[예약생성] 기간 겹침 검증 통과. overlapCount={}", overlapCount);
 
-        /**
-         * 4. 보험 옵션 조회 (insurance_id 저장 목적)
-         *
-         * [의미]
-         * - 보험 금액 계산은 Price 모듈이 담당하지만, Reservation에는 insurance_id(FK)를 저장해야 합니다.
-         * - request의 insuranceCode는 String이므로 DB 조회에는 String 그대로 사용합니다.
-         */
+        // 4. 보험 옵션 조회 (insurance_id 저장 목적)
         String insuranceCodeStr = (request.getInsuranceCode() == null || request.getInsuranceCode().isBlank())
                 ? "NONE"
                 : request.getInsuranceCode();
@@ -115,40 +94,40 @@ public class ReservationCreateServiceV2 {
             throw new IllegalArgumentException("유효하지 않은 보험 코드입니다. insuranceCode=" + insuranceCodeStr);
         }
 
-        /**
-         * 5. 예약용 "진짜 가격" 계산 (단기/장기 + 보험 + 쿠폰 + total)
-         *
-         * [수정 포인트]
-         * - 기존: PriceSummaryService(display) + Period + PriceCalculatorService로 직접 계산
-         * - 변경: ReservationPriceSummaryService로 가격 계산 책임을 일원화
-         *
-         * [주의]
-         * - request.insuranceCode는 String이므로 InsuranceCode enum으로 변환해서 전달합니다.
-         * - enum 매핑이 깨지면 valueOf에서 예외가 나므로, 값이 DB/프런트와 동일한지 확인하세요.
-         */
+        // 5. 예약용 가격 계산
         ReservationPriceSummaryRequestDto priceReq = new ReservationPriceSummaryRequestDto();
         priceReq.setSpecId(request.getSpecId());
         priceReq.setRentType(request.getRentType());
         priceReq.setStartDateTime(request.getStartDateTime());
         priceReq.setEndDateTime(request.getEndDateTime());
 
-        // 장기 months는 현재 ReservationCreateRequestDtoV2에 없으므로 null
-        // [의미] 장기 months는 LongRentDurationFactory가 start/end로 fallback 계산합니다.
-        priceReq.setMonths(null);
+        // [수정] request.getMonths()는 DTO에 없으므로 사용 금지
+        //        LONG이면 LongRentDurationFactory가 날짜로 months를 fallback 계산
+        if (request.getRentType() == RentType.LONG) {
+            LongRentDuration duration = LongRentDurationFactory.from(
+                    null, // [수정] request.getMonths() 제거
+                    request.getStartDateTime(),
+                    request.getEndDateTime()
+            );
+            // [수정] record라면 duration.months()가 getter
+            priceReq.setMonths(duration.months());
+        } else {
+            priceReq.setMonths(null);
+        }
 
-        // 보험코드: String -> Enum (null/blank면 NONE)
+        // 보험코드: String -> Enum
         InsuranceCode insuranceCodeEnum = (insuranceCodeStr == null || insuranceCodeStr.isBlank())
                 ? InsuranceCode.NONE
                 : InsuranceCode.valueOf(insuranceCodeStr);
         priceReq.setInsuranceCode(insuranceCodeEnum);
 
-        // 쿠폰은 MVP에서 미사용이면 null
+        // 쿠폰은 MVP 미사용
         priceReq.setCouponCode(null);
 
         ReservationPriceSummaryResponseDto priceRes = reservationPriceSummaryService.calculate(priceReq);
         log.info("[예약생성] 예약 가격 계산 완료. totalAmount={}", priceRes.getTotalAmount());
 
-        // 6. 예약 Entity 생성 및 INSERT
+        // 6. 예약 Entity 생성
         String reservationNo = generateReservationNo();
 
         Reservation reservation = buildReservation(
@@ -159,37 +138,97 @@ public class ReservationCreateServiceV2 {
                 insurance.getInsuranceId()
         );
 
-        /**
-         * 7. 스냅샷 세팅 (Applier)
-         *
-         * [수정 포인트]
-         * - 기존: ReservationCreateService 내부에서 snapshot 필드를 일일이 set
-         * - 변경: priceRes(DTO)를 Reservation 스냅샷 컬럼에 매핑하는 책임을 Applier로 분리
-         */
+        // [수정] Reservation 스냅샷은 reservation INSERT 전에 세팅해야 같이 들어감
         reservationPriceSnapshotApplier.apply(reservation, priceRes);
-
-        // 운영/DDL 기준 useYn 세팅
         reservation.setUseYn("Y");
 
+        // 7. 예약 INSERT (여기서 reservationId 생성)
         reservationCreateMapper.insertReservation(reservation);
         log.info("[예약생성] 예약 INSERT 완료. reservationId={}, reservationNo={}",
                 reservation.getReservationId(), reservationNo);
 
-        // 8. 응답 생성 (PaymentSummary는 priceRes 기반)
+        // [수정] 가격 명세서는 reservationId(FK)가 필요하므로 INSERT 이후 저장
+        ReservationPriceDetail detail = buildPriceDetail(request, priceReq, priceRes, reservation.getReservationId());
+        reservationPriceStatementService.save(detail);
+        log.info("[예약생성] 가격 명세서 저장 완료. reservationId={}", reservation.getReservationId());
+
+        // 8. 응답
         return buildResponse(reservation, request, priceRes);
+    }
+
+    /**
+     * [수정] appliedDays/appliedHours/insuranceAppliedDays 를 0 하드코딩하지 않고,
+     *       "계산 규칙이 만든 기간"을 저장합니다.
+     */
+    private ReservationPriceDetail buildPriceDetail(
+            ReservationCreateRequestDtoV2 request,
+            ReservationPriceSummaryRequestDto priceReq,
+            ReservationPriceSummaryResponseDto priceRes,
+            Long reservationId
+    ) {
+        ReservationPriceDetail d = new ReservationPriceDetail();
+
+        d.setReservationId(reservationId);
+
+        // 결과 금액
+        d.setReservationRentFee(priceRes.getRentFee());
+        d.setReservationInsuranceFee(priceRes.getInsuranceFee());
+        d.setReservationCouponDiscount(priceRes.getCouponDiscount());
+        d.setReservationTotalAmount(priceRes.getTotalAmount());
+
+        // 요금제 타입
+        d.setPriceType(request.getRentType() == null ? null : request.getRentType().name());
+
+        // 단가 스냅샷 (MVP: 계산 결과만 있으면 0으로 두고, 나중에 확장)
+        d.setAppliedDailyPrice(BigDecimal.ZERO);
+        d.setAppliedHourlyPrice(BigDecimal.ZERO);
+        d.setAppliedMonthlyPrice(BigDecimal.ZERO);
+
+        RentType rentType = (priceReq.getRentType() == null) ? RentType.SHORT : priceReq.getRentType();
+
+        if (rentType == RentType.SHORT) {
+            // [수정] ChronoUnit으로 대충 일수 내지 말고,
+            //        단기 계산 규칙이 만든 duration을 그대로 저장
+            ShortRentDuration duration = ShortRentDurationFactory.from(
+                    priceReq.getStartDateTime(),
+                    priceReq.getEndDateTime()
+            );
+
+            // [수정] daysPart()/hoursPart()는 long -> Integer로 변환 필요 (컴파일 에러 해결)
+            int appliedDays = Math.toIntExact(duration.daysPart());
+            int appliedHours = Math.toIntExact(duration.hoursPart());
+
+            d.setAppliedDays(appliedDays);
+            d.setAppliedHours(appliedHours);
+            d.setAppliedMonths(0);
+
+            // [수정] getInsuranceDays() 같은 메서드는 없음 -> 보험일수는 "올림" 규칙으로 직접 계산
+            // 정책: 하루(1440분) 기준으로 올림
+            long totalMinutes = duration.totalMinutes(); // record component 접근
+            int insuranceDays = (int) ((totalMinutes + 1440 - 1) / 1440); // ceil(totalMinutes/1440)
+            if (insuranceDays < 0) insuranceDays = 0;
+
+            d.setInsuranceAppliedDays(insuranceDays);
+
+        } else {
+            // LONG: months는 priceReq에 이미 결정되어 있음
+            Integer months = priceReq.getMonths();
+            d.setAppliedMonths(months == null ? 0 : months);
+
+            d.setAppliedDays(0);
+            d.setAppliedHours(0);
+
+            // 장기는 보험을 MVP로 계산하더라도 "보험일수 근거"는 의미가 애매해서 0 유지
+            d.setInsuranceAppliedDays(0);
+        }
+
+        return d;
     }
 
     private String generateReservationNo() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16).toUpperCase();
     }
 
-    /**
-     * Reservation 엔티티 생성 (스냅샷 금액 세팅은 여기서 하지 않음)
-     *
-     * [의미]
-     * - buildReservation은 "누가/언제/어디서/무엇을" 예약했는지의 메타데이터를 세팅한다.
-     * - "얼마를"은 ReservationPriceSnapshotApplier가 전담한다.
-     */
     private Reservation buildReservation(
             ReservationCreateRequestDtoV2 request,
             Long userId,
@@ -218,10 +257,9 @@ public class ReservationCreateServiceV2 {
         reservation.setDriverPhone(driver.getPhone());
         reservation.setDriverEmail(driver.getEmail());
 
-        // 비회원 비밀번호(현재 로직 유지)
         if (userId == null && driver.getPassword() != null) {
             reservation.setNonMemberPassword(driver.getPassword());
-            // TODO 운영 시 BCrypt 해시로 저장
+            // TODO BCrypt
         }
 
         // WHEN
@@ -261,9 +299,7 @@ public class ReservationCreateServiceV2 {
     }
 
     private LocalDate parseBirthdate(String birth) {
-        if (birth == null || birth.isBlank()) {
-            return null;
-        }
+        if (birth == null || birth.isBlank()) return null;
         try {
             String cleaned = birth.replace("-", "");
             return LocalDate.parse(cleaned, DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -273,12 +309,6 @@ public class ReservationCreateServiceV2 {
         }
     }
 
-    /**
-     * 응답 생성
-     *
-     * [수정 포인트]
-     * - 기존 snapshot(record) 기반 응답 -> priceRes(DTO) 기반 응답으로 변경
-     */
     private ReservationCreateResponseDtoV2 buildResponse(
             Reservation reservation,
             ReservationCreateRequestDtoV2 request,

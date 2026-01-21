@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS CAR_SPEC;
 
 /* 참고: USERS 테이블은 다른 담당자 관리이므로 DROP 하지 않음 (FK 에러 방지용) */
 DROP TABLE IF EXISTS  reviews;
-
+DROP TABLE IF EXISTS reservation_price_detail;
 
 /* ==================================================
    1. 기초 정보 테이블 (Master Data)
@@ -463,7 +463,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 
                                            agreement_yn CHAR(1) NOT NULL DEFAULT 'Y',
     /* STATUS */
-    /* ✅ 상태 확장 */
+    /* 상태 확장 */
     -- 예약 진행 상태 (예약의 라이프사이클)
                                            reservation_status ENUM(
                                                'PENDING',           -- 예약 생성 직후 상태 (결제 전 / 임시 저장 단계)
@@ -483,7 +483,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
 
                                            UNIQUE KEY uk_reservation_no (reservation_no),
                                            INDEX idx_res_vehicle_period (vehicle_id, reservation_status, start_date, end_date),
-    /* ✅ [추가] Users 테이블과 외래키 연결 */
+    /*  [추가] Users 테이블과 외래키 연결 */
                                            CONSTRAINT fk_res_user FOREIGN KEY (user_id) REFERENCES USERS(user_id),
 
                                            CONSTRAINT fk_res_vehicle FOREIGN KEY (vehicle_id) REFERENCES VEHICLE_INVENTORY(vehicle_id),
@@ -504,7 +504,7 @@ CREATE TABLE IF NOT EXISTS RESERVATION_STATUS_HISTORY (
                                                           history_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '이력 ID',
                                                           reservation_id BIGINT NOT NULL COMMENT '예약 ID (FK)',
 
-    /* ✅ prev/curr */
+    /*  prev/curr */
                                                           status_prev ENUM(
                                                               'PENDING',           -- 예약 생성 직후 상태 (결제 전 / 임시 저장 단계)
                                                               'CONFIRMED',         -- 결제 완료로 예약 확정 (차량이 예약됨)
@@ -812,6 +812,42 @@ CREATE TABLE IF NOT EXISTS SLOW_MOVING_INVENTORY (
                                                          FOREIGN KEY (vehicle_id) REFERENCES VEHICLE_INVENTORY(vehicle_id),
                                                      CONSTRAINT chk_slow_discount_rate CHECK (discount_rate BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='악성 재고 할인';
+
+CREATE TABLE reservation_price_detail (
+                                          reservation_price_detail_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '예약 가격 명세서 ID (PK)',
+                                          reservation_id BIGINT NOT NULL COMMENT '예약 ID (FK)',
+
+-- [1. 결과 금액]
+                                          reservation_rent_fee DECIMAL(10, 0) NOT NULL COMMENT '예약 최종 대여료 (기간 * 단가 계산 결과)',
+                                          reservation_insurance_fee DECIMAL(10, 0) NOT NULL COMMENT '예약 최종 보험료 (보험일수 * 보험료)',
+                                          reservation_coupon_discount DECIMAL(10, 0) DEFAULT 0 COMMENT '예약에 적용된 쿠폰 할인 금액',
+                                          reservation_total_amount DECIMAL(10, 0) NOT NULL COMMENT '예약 최종 결제 금액 (대여료 + 보험료 - 할인)',
+
+    -- [2. 계산 근거 (스냅샷)]
+                                          price_type VARCHAR(20) COMMENT '요금제 타입 (SHORT_TERM: 단기, LONG_TERM: 장기)',
+
+    -- 단가 저장 (값이 없으면 0 저장)
+                                          applied_daily_price DECIMAL(10, 0) DEFAULT 0 COMMENT '적용된 일 단위 기준 단가 (단기용)',
+                                          applied_hourly_price DECIMAL(10, 0) DEFAULT 0 COMMENT '적용된 시간 단위 기준 단가 (단기용, 일 단가/24)',
+                                          applied_monthly_price DECIMAL(10, 0) DEFAULT 0 COMMENT '적용된 월 단위 기준 단가 (장기용)',
+
+    -- 기간 저장
+                                          applied_days INT DEFAULT 0 COMMENT '적용된 대여 일수',
+                                          applied_hours INT DEFAULT 0 COMMENT '적용된 대여 잔여 시간',
+                                          applied_months INT DEFAULT 0 COMMENT '적용된 대여 개월 수',
+
+    -- 보험 근거
+                                          insurance_applied_days INT DEFAULT 0 COMMENT '보험료 산정 기준 일수 (시간은 올림 처리)',
+
+                                          created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '명세서 생성 일시',
+
+
+                                          CONSTRAINT uk_reservation_price_detail_reservation
+                                              UNIQUE (reservation_id),
+
+                                          CONSTRAINT fk_reservation_price_detail_reservation
+                                              FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id)
+);
 
 /* ==================================================
    (선택) "연장 1회만 허용"을 DB 레벨에서 강제하고 싶다면
