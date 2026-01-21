@@ -1,60 +1,95 @@
-// import { useNavigate } from "react-router-dom";
-
-const CarCard = ({ id, discount, discountRate, imageSrc, title, features, info, cost, price, day, onClick }) => {
-  // const navigate = useNavigate();
-  // const handleClickCar = (id) => {
-  //       navigate(`/cars/detail/${id}`);
-  //   };
+const CarCard = ({
+  id,
+  discount,
+  discountRate,
+  imageSrc,
+  title,
+  features,
+  info,
+  cost,
+  price,
+  day,
+  onClick,
+}) => {
+  const tags =
+    typeof features === "string"
+      ? features.split(",").map((s) => s.trim()).filter(Boolean)
+      : Array.isArray(features)
+        ? features
+        : [];
 
   return (
-    <div className="relative bg-white rounded-[18px] shadow-md mb-4 w-full sm:w-[98%] outline outline-transparent hover:outline-[3px] hover:outline-lime-300 transition-all duration-200 shadow-lg overflow-hidden" onClick={() => onClick(id)}>
-      {/* 차량 이미지 */}
-      <img
-        src={imageSrc}
-        alt={title}
-        className="w-full h-auto object-cover"
-        onError={(e) => {
-          e.currentTarget.src =
-            "https://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
-        }}
-      />
+    <div
+      className="
+      relative bg-white w-full h-[330px] rounded-[18px] mb-4
+      shadow-md overflow-hidden cursor-pointer transition-all duration-200
+      outline outline-transparent
+      hover:outline-[#C8FF48] hover:outline-[3px]
+      "
+      onClick={() => onClick?.(id)}
+    >
+      {/* 이미지 */}
+      <div className="relative w-full h-[170px] bg-gray-100">
+        <img
+          src={imageSrc}
+          alt={title}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src =
+              "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
+          }}
+        />
 
-      {/* 차량 정보 */}
-      <div className="p-3">
-        <div className="flex flex-row justify-between items-start">
-          <div>
-            <h3 className="text-base font-semibold mb-1">{title}</h3>
-            <p className="xx:mb-4 sm:mb-8 xx:text-sm sm:text-base flex flex-wrap gap-2 text-gray-400">
-              {Object.values(info).map((item, idx) => (
-                <span
-                  key={idx}
-                  className="py-1 text-[14px]"
-                >
-                  {item}
-                </span>
-              ))}
-            </p>
+        {discount && discountRate > 0 && (
+          <div className="absolute top-2 right-2 bg-brand text-white text-xs font-bold px-2 py-1 rounded-lg">
+            {discountRate}% 할인가
           </div>
-          {/* 할인 라벨 */}
-          {discount && (
-            <div className="absolute top-2 right-2 bg-brand text-white text-xs font-bold px-2 py-1 rounded-lg">
-              {discountRate}% 할인가
-            </div>
-          )}
+        )}
+      </div>
+
+      {/* 본문 */}
+      <div className="h-[160px] p-3 flex flex-col">
+        {/* TOP */}
+        <div className="min-w-0">
+          <h3 className="text-3 font-bold leading-tight truncate">
+            {title}
+          </h3>
+
+          <p className="mt-5px text-[12px] text-gray-400 leading-tight">
+            {Object.values(info).join(" · ")}
+          </p>
         </div>
-        <div className="xx:text-xs sm:text-sm text-gray-600 mb-2 space-y-1 space-x-2 text-right">
-          {features?.split(",").map((item, idx) => (
-            <button key={idx} className="rounded-4xl bg-gray-100 px-3 py-1">{item} {idx < features.split(",").length - 1 ? " · " : ""}</button>
-          ))}
-        </div>
 
+        {/* BOTTOM */}
+        <div className="mt-auto">
+          {/* 태그 */}
+          <div className="flex flex-wrap justify-end gap-1 max-h-[44px] overflow-hidden">
+            {tags.map((t) => (
+              <span
+                key={t}
+                className="
+                  text-[12px] bg-gray-100 text-gray-600
+                  px-2.5 py-1 rounded-full
+                "
+              >
+                {t}
+              </span>
+            ))}
+          </div>
 
-        <hr className="border-t-2 border-gray-200 mb-2" />
+          <hr className="border-t border-gray-200 my-2" />
 
-        {/* 가격 */}
-        <div className="flex flex-row justify-end items-center">
-          <p className="text-gray-400 text-[14px] line-through pr-2">{cost.toLocaleString()} 원</p>
-          <p className="font-bold text-brand text-2xl text-right">{!day && <span className="text-[16px] mr-2">월</span>}{price.toLocaleString()} 원</p>
+          {/* 가격 */}
+          <div className="flex justify-end items-baseline gap-2">
+            <span className="text-3 text-gray-400 line-through">
+              {Number(cost ?? 0).toLocaleString()}원
+            </span>
+
+            <span className="text-2xl font-bold text-brand">
+              {!day && <span className="text-3 mr-1">월</span>}
+              {Number(price ?? 0).toLocaleString()}원
+            </span>
+          </div>
         </div>
       </div>
     </div>

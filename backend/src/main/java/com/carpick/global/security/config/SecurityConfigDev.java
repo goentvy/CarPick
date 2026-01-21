@@ -71,6 +71,7 @@ public class SecurityConfigDev {
                                 "/api/reviews/latest",
                                 "/api/dropzones",
                                 "/api/price",
+                                "/api/rent/year/details",
 
                                 ("/api/guest/**"),
 

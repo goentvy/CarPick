@@ -268,7 +268,7 @@ const About = () => {
                         }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => navigate('/home')}
-                        className="bg-white text-blue-600 px-12 py-5 rounded-full font-bold text-xl shadow-2xl flex items-center gap-3 mx-auto"
+                        className="bg-white text-blue-600 px-12 py-5 rounded-full font-bold text-xl shadow-2xl flex items-center gap-3 mx-auto cursor-pointer"
                     >
                         <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                             지금 시작하기

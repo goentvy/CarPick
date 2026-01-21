@@ -140,22 +140,24 @@
 								            </textarea>
 								        </div>
 											    <!-- 답변 -->
-											    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
-											            class="btn btn-primary"
-											            th:if="${inquiry.status.name() == 'PENDING'}">
-											        등록
-											    </button>
+												<div class="d-flex justify-content-end mt-4">
+												    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
+												            class="btn btn-primary"
+												            th:if="${inquiry.status.name() == 'PENDING'}">
+												        등록
+												    </button>
 
-											    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
-											            class="btn btn-secondary"
-											            th:if="${inquiry.status.name() == 'ANSWERED'}">
-											        수정
-											    </button>
+												    <button th:formaction="@{/admin/inquiry/{id}/answer(id=${inquiry.id})}"
+												            class="btn btn-secondary ml-2"
+												            th:if="${inquiry.status.name() == 'ANSWERED'}">
+												        수정
+												    </button>
 
-												<a th:href="@{/admin/inquiry}"
-												   class="btn btn-outline-secondary ml-2">
-												    취소
-												</a>
+												    <a th:href="@{/admin/inquiry}"
+												       class="btn btn-outline-secondary ml-2">
+												        취소
+												    </a>
+												</div>
 										</div>
 								    </form>
 								</div>

@@ -2,11 +2,16 @@ package com.carpick.domain.reservation.service.v2;
 
 import com.carpick.common.vo.Period;
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
+import com.carpick.domain.insurance.enums.InsuranceCode;
 import com.carpick.domain.insurance.mapper.InsuranceMapper;
 import com.carpick.domain.payment.dto.PaymentSummaryDtoV2;
 import com.carpick.domain.price.dto.PriceDisplayDTO;
-import com.carpick.domain.price.service.PriceCalculatorService;
-import com.carpick.domain.price.service.PriceSummaryService;
+import com.carpick.domain.price.display.PriceCalculatorService;
+import com.carpick.domain.price.display.PriceSummaryService;
+import com.carpick.domain.price.dto.ReservationPriceSummaryRequestDto;
+import com.carpick.domain.price.dto.ReservationPriceSummaryResponseDto;
+import com.carpick.domain.price.reservation.ReservationPriceSnapshotApplier;
+import com.carpick.domain.price.reservation.ReservationPriceSummaryService;
 import com.carpick.domain.reservation.dtoV2.request.ReservationCreateRequestDtoV2;
 import com.carpick.domain.reservation.dtoV2.response.ReservationCreateResponseDtoV2;
 import com.carpick.domain.reservation.entity.Reservation;
@@ -30,16 +35,33 @@ import java.util.UUID;
 public class ReservationCreateServiceV2 {
 
     private final ReservationCreateMapperV2 reservationCreateMapper;
+
+    /**
+     * [의미]
+     * - Reservation 엔티티에는 insurance_id(FK)를 저장해야 하므로 보험 옵션 조회는 유지합니다.
+     * - 보험료 금액 계산은 Price 모듈(ReservationPriceSummaryService)에서 담당합니다.
+     */
     private final InsuranceMapper insuranceMapper;
-    private final PriceSummaryService priceSummaryService;
-    private final PriceCalculatorService priceCalculator;
+
+    /**
+     * [수정 포인트]
+     * - 기존 display용 PriceSummaryService/PriceCalculatorService/Period/PriceSnapshot 흐름을 제거하고,
+     *   "예약용 진짜 가격" 계산은 ReservationPriceSummaryService로 일원화합니다.
+     */
+    private final ReservationPriceSummaryService reservationPriceSummaryService;
+
+    /**
+     * [수정 포인트]
+     * - 가격 DTO -> Reservation 스냅샷 컬럼 세팅 책임을 Applier로 분리합니다.
+     */
+    private final ReservationPriceSnapshotApplier reservationPriceSnapshotApplier;
 
     @Transactional
     public ReservationCreateResponseDtoV2 createReservation(
             ReservationCreateRequestDtoV2 request,
             Long userId
     ) {
-        // 0. 약관 동의 검증
+        // 0. 약관 동의 검증 (예약 생성 전 필수)
         if (!request.isAgreement()) {
             throw new IllegalArgumentException("약관에 동의해주세요.");
         }
@@ -57,7 +79,6 @@ public class ReservationCreateServiceV2 {
                     "해당 기간에 예약 가능한 차량이 없습니다. specId=" + request.getSpecId()
             );
         }
-
         log.info("[예약생성] 가용 차량 선택 완료. vehicleId={}", vehicleId);
 
         // 2. 차량 재고 Row Lock 획득 (비관적 락)
@@ -78,35 +99,56 @@ public class ReservationCreateServiceV2 {
         }
         log.info("[예약생성] 기간 겹침 검증 통과. overlapCount={}", overlapCount);
 
-        // 4. 가격 계산 및 스냅샷 생성
-        Period period = Period.of(request.getStartDateTime(), request.getEndDateTime());
-
-        PriceDisplayDTO priceDisplay = priceSummaryService.calculateDisplayPrice(
-                request.getSpecId(),
-                request.getPickupBranchId(),
-                period,
-                null,  // couponCode
-                null,  // rentType (자동 판단)
-                null   // rentMonths
-        );
-
-        // (1) insuranceCode null/blank 방어 → NONE
-        String insuranceCode = (request.getInsuranceCode() == null || request.getInsuranceCode().isBlank())
+        /**
+         * 4. 보험 옵션 조회 (insurance_id 저장 목적)
+         *
+         * [의미]
+         * - 보험 금액 계산은 Price 모듈이 담당하지만, Reservation에는 insurance_id(FK)를 저장해야 합니다.
+         * - request의 insuranceCode는 String이므로 DB 조회에는 String 그대로 사용합니다.
+         */
+        String insuranceCodeStr = (request.getInsuranceCode() == null || request.getInsuranceCode().isBlank())
                 ? "NONE"
                 : request.getInsuranceCode();
 
-        InsuranceRawDto insurance = insuranceMapper.selectInsuranceByCodeV2(insuranceCode);
-
+        InsuranceRawDto insurance = insuranceMapper.selectInsuranceByCodeV2(insuranceCodeStr);
         if (insurance == null) {
-            throw new IllegalArgumentException(
-                    "유효하지 않은 보험 코드입니다. insuranceCode=" + insuranceCode
-            );
+            throw new IllegalArgumentException("유효하지 않은 보험 코드입니다. insuranceCode=" + insuranceCodeStr);
         }
 
-        PriceSnapshot snapshot = calculatePriceSnapshot(priceDisplay, insurance, period);
-        log.info("[예약생성] 가격 스냅샷 생성 완료. totalAmount={}", snapshot.totalAmount);
+        /**
+         * 5. 예약용 "진짜 가격" 계산 (단기/장기 + 보험 + 쿠폰 + total)
+         *
+         * [수정 포인트]
+         * - 기존: PriceSummaryService(display) + Period + PriceCalculatorService로 직접 계산
+         * - 변경: ReservationPriceSummaryService로 가격 계산 책임을 일원화
+         *
+         * [주의]
+         * - request.insuranceCode는 String이므로 InsuranceCode enum으로 변환해서 전달합니다.
+         * - enum 매핑이 깨지면 valueOf에서 예외가 나므로, 값이 DB/프런트와 동일한지 확인하세요.
+         */
+        ReservationPriceSummaryRequestDto priceReq = new ReservationPriceSummaryRequestDto();
+        priceReq.setSpecId(request.getSpecId());
+        priceReq.setRentType(request.getRentType());
+        priceReq.setStartDateTime(request.getStartDateTime());
+        priceReq.setEndDateTime(request.getEndDateTime());
 
-        // 5. 예약 Entity 생성 및 INSERT
+        // 장기 months는 현재 ReservationCreateRequestDtoV2에 없으므로 null
+        // [의미] 장기 months는 LongRentDurationFactory가 start/end로 fallback 계산합니다.
+        priceReq.setMonths(null);
+
+        // 보험코드: String -> Enum (null/blank면 NONE)
+        InsuranceCode insuranceCodeEnum = (insuranceCodeStr == null || insuranceCodeStr.isBlank())
+                ? InsuranceCode.NONE
+                : InsuranceCode.valueOf(insuranceCodeStr);
+        priceReq.setInsuranceCode(insuranceCodeEnum);
+
+        // 쿠폰은 MVP에서 미사용이면 null
+        priceReq.setCouponCode(null);
+
+        ReservationPriceSummaryResponseDto priceRes = reservationPriceSummaryService.calculate(priceReq);
+        log.info("[예약생성] 예약 가격 계산 완료. totalAmount={}", priceRes.getTotalAmount());
+
+        // 6. 예약 Entity 생성 및 INSERT
         String reservationNo = generateReservationNo();
 
         Reservation reservation = buildReservation(
@@ -114,72 +156,48 @@ public class ReservationCreateServiceV2 {
                 userId,
                 vehicleId,
                 reservationNo,
-                insurance.getInsuranceId(),
-                snapshot
+                insurance.getInsuranceId()
         );
 
-        // (4) useYn 세팅 (DDL/운영 기준)
+        /**
+         * 7. 스냅샷 세팅 (Applier)
+         *
+         * [수정 포인트]
+         * - 기존: ReservationCreateService 내부에서 snapshot 필드를 일일이 set
+         * - 변경: priceRes(DTO)를 Reservation 스냅샷 컬럼에 매핑하는 책임을 Applier로 분리
+         */
+        reservationPriceSnapshotApplier.apply(reservation, priceRes);
+
+        // 운영/DDL 기준 useYn 세팅
         reservation.setUseYn("Y");
 
         reservationCreateMapper.insertReservation(reservation);
         log.info("[예약생성] 예약 INSERT 완료. reservationId={}, reservationNo={}",
                 reservation.getReservationId(), reservationNo);
 
-        // 6. 응답 생성
-        return buildResponse(reservation, request, snapshot);
+        // 8. 응답 생성 (PaymentSummary는 priceRes 기반)
+        return buildResponse(reservation, request, priceRes);
     }
 
     private String generateReservationNo() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16).toUpperCase();
     }
 
-    private PriceSnapshot calculatePriceSnapshot(
-            PriceDisplayDTO priceDisplay,
-            InsuranceRawDto insurance,
-            Period period
-    ) {
-        // 기본 대여료 (일수 + 시간 요금)
-        BigDecimal baseRentFee = priceCalculator.calculateTotalAmount(
-                priceDisplay.getDisplayUnitPrice(),
-                period.getRentDays(),
-                period.getRentRemainHours()
-        );
-
-        // (5) 보험 extraDailyPrice null 가드
-        BigDecimal dailyInsurance = (insurance.getExtraDailyPrice() == null)
-                ? BigDecimal.ZERO
-                : insurance.getExtraDailyPrice();
-
-        int billingDays = (int) period.getRentDaysForBilling();
-        BigDecimal baseInsuranceFee = dailyInsurance.multiply(BigDecimal.valueOf(billingDays));
-
-        BigDecimal totalAmount = baseRentFee.add(baseInsuranceFee);
-
-        return new PriceSnapshot(
-                baseRentFee,
-                BigDecimal.ZERO,
-                baseInsuranceFee,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                totalAmount,
-                baseRentFee,
-                baseInsuranceFee
-        );
-    }
-
+    /**
+     * Reservation 엔티티 생성 (스냅샷 금액 세팅은 여기서 하지 않음)
+     *
+     * [의미]
+     * - buildReservation은 "누가/언제/어디서/무엇을" 예약했는지의 메타데이터를 세팅한다.
+     * - "얼마를"은 ReservationPriceSnapshotApplier가 전담한다.
+     */
     private Reservation buildReservation(
             ReservationCreateRequestDtoV2 request,
             Long userId,
             Long vehicleId,
             String reservationNo,
-            Long insuranceId,
-            PriceSnapshot snapshot
+            Long insuranceId
     ) {
         Reservation reservation = new Reservation();
-
         reservation.setReservationNo(reservationNo);
 
         // WHO
@@ -192,7 +210,6 @@ public class ReservationCreateServiceV2 {
         reservation.setDriverFirstName(driver.getFirstname());
 
         LocalDate birth = parseBirthdate(driver.getBirth());
-        // (6) birth 파싱 실패(null)면 DB NOT NULL이라 결국 터지므로 여기서 막기
         if (birth == null) {
             throw new IllegalArgumentException("생년월일 형식이 올바르지 않습니다. birth=" + driver.getBirth());
         }
@@ -201,27 +218,24 @@ public class ReservationCreateServiceV2 {
         reservation.setDriverPhone(driver.getPhone());
         reservation.setDriverEmail(driver.getEmail());
 
-        // 비회원 비밀번호
+        // 비회원 비밀번호(현재 로직 유지)
         if (userId == null && driver.getPassword() != null) {
             reservation.setNonMemberPassword(driver.getPassword());
-            // TODO: 운영 시 BCrypt 해시로 저장
-            // TODO: [보안] 추후 Spring Security 적용 시 암호화 필요 (BCrypt)
+            // TODO 운영 시 BCrypt 해시로 저장
         }
 
         // WHEN
         reservation.setStartDate(request.getStartDateTime());
         reservation.setEndDate(request.getEndDateTime());
 
-        // (2) pickupType null 방어
+        // WHERE & HOW
         PickupType pickupType = (request.getPickupType() != null) ? request.getPickupType() : PickupType.VISIT;
         reservation.setPickupType(pickupType);
         reservation.setPickupBranchId(request.getPickupBranchId());
 
-        // (2) returnType null 방어
         ReturnTypes returnType = (request.getReturnType() != null) ? request.getReturnType() : ReturnTypes.VISIT;
         reservation.setReturnType(returnType);
 
-        // (3) DROPZONE 분기 처리
         if (returnType == ReturnTypes.DROPZONE) {
             if (request.getDropzoneId() == null) {
                 throw new IllegalArgumentException("드롭존 반납이면 dropzoneId는 필수입니다.");
@@ -229,7 +243,6 @@ public class ReservationCreateServiceV2 {
             reservation.setReturnBranchId(null);
             reservation.setReturnDropzoneId(request.getDropzoneId());
         } else {
-            // VISIT
             Long returnBranchId = (request.getReturnBranchId() != null)
                     ? request.getReturnBranchId()
                     : request.getPickupBranchId();
@@ -237,25 +250,9 @@ public class ReservationCreateServiceV2 {
             reservation.setReturnDropzoneId(null);
         }
 
-        // WHAT & HOW MUCH
+        // WHAT
         reservation.setInsuranceId(insuranceId);
         reservation.setCouponId(null);
-
-        reservation.setBaseRentFeeSnapshot(snapshot.baseRentFee);
-        reservation.setRentDiscountAmountSnapshot(snapshot.rentDiscountAmount);
-
-        reservation.setBaseInsuranceFeeSnapshot(snapshot.baseInsuranceFee);
-        reservation.setInsuranceDiscountAmountSnapshot(snapshot.insuranceDiscountAmount);
-
-        reservation.setOptionFeeSnapshot(snapshot.optionFee);
-        reservation.setCouponDiscountSnapshot(snapshot.couponDiscount);
-
-        reservation.setMemberDiscountRateSnapshot(snapshot.memberDiscountRate);
-        reservation.setEventDiscountAmountSnapshot(snapshot.eventDiscountAmount);
-
-        reservation.setTotalAmountSnapshot(snapshot.totalAmount);
-        reservation.setAppliedRentFeeSnapshot(snapshot.appliedRentFee);
-        reservation.setAppliedInsuranceFeeSnapshot(snapshot.appliedInsuranceFee);
 
         reservation.setAgreementYn(request.isAgreement() ? "Y" : "N");
         reservation.setReservationStatus(ReservationStatus.PENDING);
@@ -276,10 +273,16 @@ public class ReservationCreateServiceV2 {
         }
     }
 
+    /**
+     * 응답 생성
+     *
+     * [수정 포인트]
+     * - 기존 snapshot(record) 기반 응답 -> priceRes(DTO) 기반 응답으로 변경
+     */
     private ReservationCreateResponseDtoV2 buildResponse(
             Reservation reservation,
             ReservationCreateRequestDtoV2 request,
-            PriceSnapshot snapshot
+            ReservationPriceSummaryResponseDto priceRes
     ) {
         ReservationCreateResponseDtoV2 response = new ReservationCreateResponseDtoV2();
 
@@ -289,29 +292,14 @@ public class ReservationCreateServiceV2 {
         response.setMessage("예약이 생성되었습니다. 결제를 진행해주세요.");
 
         PaymentSummaryDtoV2 paymentSummary = PaymentSummaryDtoV2.builder()
-                .basePrice(snapshot.baseRentFee.intValue())
-                .insuranceTotalPrice(snapshot.baseInsuranceFee.intValue())
-                .discountTotalPrice(0)
-                .finalTotalPrice(snapshot.totalAmount.intValue())
+                .basePrice(priceRes.getRentFee().intValue())
+                .insuranceTotalPrice(priceRes.getInsuranceFee().intValue())
+                .discountTotalPrice(priceRes.getCouponDiscount().intValue())
+                .finalTotalPrice(priceRes.getTotalAmount().intValue())
                 .currency("KRW")
                 .build();
 
         response.setPaymentSummary(paymentSummary);
-
         return response;
     }
-
-    private record PriceSnapshot(
-            BigDecimal baseRentFee,
-            BigDecimal rentDiscountAmount,
-            BigDecimal baseInsuranceFee,
-            BigDecimal insuranceDiscountAmount,
-            BigDecimal optionFee,
-            BigDecimal couponDiscount,
-            BigDecimal memberDiscountRate,
-            BigDecimal eventDiscountAmount,
-            BigDecimal totalAmount,
-            BigDecimal appliedRentFee,
-            BigDecimal appliedInsuranceFee
-    ) {}
 }
