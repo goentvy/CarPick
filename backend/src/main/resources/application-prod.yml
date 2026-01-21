@@ -17,6 +17,31 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-
+#Typehandler 추가
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.carpick.domain.**.entity
+  type-handlers-package: com.carpick.global.mybatis.handler
+
+
+
+
+logging:
+  level:
+    root: INFO
+    com.carpick: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+
+  #비밀번호찾기
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "carpick001@gmail.com"  # 아까 만든 공용 계정
+    password: ${MAIL_PASSWORD}        # 환경변수에서 가져옴
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
