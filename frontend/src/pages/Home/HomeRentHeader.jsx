@@ -73,7 +73,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       returnBranchName: pickupBranchName || "",
     });
 
-    const path = type === "short" ? "/day" : "/month";
+    const path = type === "short" ? "/day" : "/year";
     navigate(`${path}?${params.toString()}`);
   };
 

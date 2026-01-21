@@ -1,119 +1,160 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RentHeader from "./RentHeader";
+import axios from 'axios';
+import '../../styles/yearPage.css';
 
 const YearPage = () => {
   const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('http://localhost:8080/api/rent/year/details')
+      .then(res => {
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("데이터 로딩 실패:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="loading-container">데이터 로딩 중...</div>;
 
   return (
-    <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-[#F8F9FA] pb-20 mt-[59px] mx-auto font-sans text-left">
-      {/* 공통 헤더 (날짜/장소 선택기) */}
-      <RentHeader type="long" location="year" />
+    <div className="year-container">
+      <div className="content-wrapper">
+        {/* 톤앤매너를 맞춘 헤더 섹션 */}
+        <section className="guide-header-style">
+          <h2 className="guide-main-title">장기렌트</h2>
+        </section>
 
-      <div className="px-5 pt-8">
-        {/* 섹션 01: CarP!ck 장점 */}
-        <section className="mb-10">
-          <h2 className="text-[20px] font-bold text-gray-900 mb-4 flex items-center">
-            <span className="w-1 h-6 bg-brand mr-3 rounded-full"></span>
-            01. CarP!ck 장기렌트의 특별함
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { title: "Smart AI", desc: "라이프스타일 맞춤 추천" },
-              { title: "Fast Pick", desc: "대기 없는 즉시 인도" },
-              { title: "Simple UX", desc: "복잡한 서류 절차 생략" },
-              { title: "Free Start", desc: "초기 비용 부담 제로" }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <p className="text-brand font-bold text-[15px] mb-1">{item.title}</p>
-                <p className="text-gray-500 text-[12px] break-keep">{item.desc}</p>
-              </div>
-            ))}
+        {/* 섹션 01: 장점 (이용가이드 카드 스타일 적용) */}
+        <section className="guide-card">
+          <div className="guide-card-header">
+            <span className="step-badge">1</span>
+            <h3>CarP!ck의 장점</h3>
           </div>
-        </section>
 
-        {/* 섹션 02: 계약 조건 */}
-        <section className="mb-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-[18px] font-bold text-gray-900 mb-4">02. 유연한 계약 조건</h2>
-          <ul className="space-y-3 text-[14px] text-gray-600">
-            <li className="flex justify-between"><span>계약 기간</span><span className="font-semibold text-gray-800">12개월 ~ 60개월 선택 가능</span></li>
-            <li className="flex justify-between"><span>주행 거리</span><span className="font-semibold text-gray-800">연 1만 ~ 3만km (조절 가능)</span></li>
-            <li className="flex justify-between"><span>이용 대상</span><span className="font-semibold text-gray-800">만 21세 이상 운전면허 소지자</span></li>
-          </ul>
-        </section>
-
-        {/* 섹션 03: 보험 보상 한도 */}
-        <section className="mb-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-[18px] font-bold text-gray-900 mb-4">03. 든든한 보험 보상 한도</h2>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-brand flex-shrink-0">🛡️</div>
-              <div>
-                <p className="font-semibold text-[15px]">대인/대물/자손 완전 보장</p>
-                <p className="text-[13px] text-gray-500 mt-1">대인 무한, 대물 1억 원, 자손 1.5억 원 한도의 안심 보험 서비스를 기본 제공합니다.</p>
+          {/* 이미지 e85403 스타일의 장점 그리드 */}
+          <div className="advantage-icon-grid">
+            <div className="adv-card">
+              <div className="adv-icon-circle blue">
+                <i className="fa-solid fa-sack-dollar"></i>
               </div>
+              <h4>차량 운용비용 경제적</h4>
+              <p>렌트비용 전액 손비처리 및 법인세 절세효과</p>
+            </div>
+
+            <div className="adv-card">
+              <div className="adv-icon-circle purple">
+                <i className="fa-solid fa-screwdriver-wrench"></i>
+              </div>
+              <h4>차량 유지, 관리 편리성</h4>
+              <p>1:1 관리를 통해 점검 및 소모품 교체 서비스 제공</p>
+            </div>
+
+            <div className="adv-card">
+              <div className="adv-icon-circle light-blue">
+                <i className="fa-solid fa-shield-halved"></i>
+              </div>
+              <h4>보험료 부담 없음</h4>
+              <p>종합보험 가입비용 포함으로 추가 비용 부담 제로</p>
             </div>
           </div>
         </section>
 
-        {/* 섹션 04: 정비 서비스 */}
-        <section className="mb-10 bg-blue-50 p-6 rounded-2xl border border-blue-100">
-          <h2 className="text-[18px] font-bold text-blue-900 mb-2">04. 무상 정비 & 긴급 지원</h2>
-          <p className="text-[14px] text-blue-700 mb-4 leading-relaxed">
-            24시간 사고 접수 및 긴급 출동 서비스가 포함되어 있습니다. 소모품 교체부터 사고 수리까지 CarP!ck이 책임집니다.
-          </p>
-          <button 
-            onClick={() => navigate('/emergency')}
-            className="w-full py-3 bg-white text-blue-600 font-bold rounded-xl border border-blue-200 text-[14px] hover:bg-blue-100 transition-colors"
-          >
-            긴급 지원 서비스 자세히 보기 ➔
-          </button>
-        </section>
+        {/* 섹션 02: 계약 조건 */}
+        <InfoCard title="계약조건" badge="2" items={data.conditions} />
 
-        {/* 섹션 05: 차량 관리 서비스 */}
-        <section className="mb-10">
-          <h2 className="text-[18px] font-bold text-gray-900 mb-4">05. 투명한 차량 관리</h2>
-          <div className="bg-gray-800 text-white p-5 rounded-2xl">
-            <p className="text-[14px] leading-relaxed opacity-90">
-              “CarP!ck은 엄격한 차량 관리 기준을 준수합니다.”<br/><br/>
-              모든 장기렌트 차량은 출고 전 100여 가지 항목의 <span className="text-brand font-bold underline">Safety Inspection</span>을 통과하며, 이용 중에는 AI 모니터링을 통해 정비 주기를 미리 알려드립니다.
-            </p>
+        {/* 섹션 03: 보험보상 */}
+        <InfoCard title="보험보상한도" badge="3" items={data.insurance} />
+
+        {/* 섹션 04: 차량관리 서비스 */}
+        <section className="guide-card">
+          <div className="guide-card-header">
+            <div className="header-left">
+              <span className="step-badge">4</span>
+              <h3>차량관리 서비스</h3>
+            </div>
+            <button className="detail-link-btn" onClick={() => navigate('/emergency')}>
+              긴급지원서비스 ❯
+            </button>
           </div>
-        </section>
-
-        {/* 섹션 06: 이용 절차 */}
-        <section className="mb-10">
-          <h2 className="text-[18px] font-bold text-gray-900 mb-6">06. 이용 절차 (1-3분 픽업)</h2>
-          <div className="relative border-l-2 border-dashed border-gray-200 ml-3 pl-8 space-y-8">
-            {[
-              { step: "01", title: "방문 예약", desc: "온라인 상담 신청 후 지점 방문 일정 확정" },
-              { step: "02", title: "1:1 맞춤 컨설팅", desc: "AI 분석 데이터를 기반으로 최적 견적 설계" },
-              { step: "03", title: "계약 및 인도", desc: "Carpick Zone에서 대기 없이 즉시 차량 픽업" }
-            ].map((item, idx) => (
-              <div key={idx} className="relative">
-                <span className="absolute -left-[45px] top-0 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center text-[12px] font-bold shadow-md">
-                  {item.step}
-                </span>
-                <h4 className="font-bold text-[16px] text-gray-800">{item.title}</h4>
-                <p className="text-[13px] text-gray-500 mt-1">{item.desc}</p>
-              </div>
+          <div className="service-simple-grid">
+            {["대차 서비스", "Pick-UP 서비스", "긴급 서비스", "정기점검"].map((s, i) => (
+              <div key={i} className="service-mini-tag">{s}</div>
             ))}
           </div>
         </section>
 
-        {/* 최종 상담 유도 버튼 */}
-        <div className="mt-12 mb-10 text-center">
-          <p className="text-gray-400 text-[13px] mb-4">상담 신청 시 전문 카매니저가 30분 이내에 연락드립니다.</p>
-          <button 
-            className="w-full py-4 bg-brand text-white font-bold rounded-2xl text-[17px] shadow-lg shadow-blue-100 active:scale-[0.98] transition-transform"
-            onClick={() => alert('방문 상담 예약 페이지 준비 중입니다.')}
+        {/* 섹션 05: 이용절차 */}
+        <section className="guide-card">
+          <div className="guide-card-header">
+            <div className="header-left">
+              <span className="step-badge">5</span>
+              <h3>이용절차</h3>
+            </div>
+            <button className="detail-link-btn" onClick={() => navigate('/guide')}>
+              이용가이드  ❯
+            </button>
+          </div>
+          {/* 가로형 타임라인 컨테이너 */}
+          <div className="horizontal-process">
+            {[
+              { step: "1", title: "견적요청", desc: "홈페이지 또는 전화로 견적요청" },
+              { step: "2", title: "상담", desc: "영업사원과 상담 및 심사" },
+              { step: "3", title: "계약", desc: "구비서류 제출 및 계약서 작성" },
+              { step: "4", title: "차량인도", desc: "원하는 시간 및 장소로 인도" },
+              { step: "5", title: "차량이용", desc: "월 대여료 납입 및 서비스 이용" },
+              { step: "6", title: "계약종료", desc: "차량 반납 및 신차 재계약" }
+            ].map((item, i) => (
+              <div key={i} className="h-process-item">
+                <div className="h-step-circle">{item.step}</div>
+                <div className="h-step-info">
+                  <strong>{item.title}</strong>
+                  <p>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        <div className="bottom-sticky-area">
+          <button
+            className="main-consult-btn"
+            onClick={() => {
+              window.scrollTo(0, 0);
+              navigate('/home');
+            }}
           >
-            장기렌트 방문 상담 예약하기
+            지금 차량 예약하기 ❯
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+// 이용가이드 스타일의 카드 컴포넌트
+const InfoCard = ({ title, badge, items }) => (
+  <section className="guide-card">
+    <div className="guide-card-header">
+      <span className="step-badge">{badge}</span>
+      <h3>{title} </h3>
+    </div>
+    <div className="guide-list-container">
+      {items.map((item, idx) => (
+        <div key={idx} className="guide-list-item">
+          <span className="list-bullet">•</span>
+          <div className="list-content">
+            <span className="list-label">{item.label}</span>
+            <span className="list-value">{item.value}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+);
 
 export default YearPage;
