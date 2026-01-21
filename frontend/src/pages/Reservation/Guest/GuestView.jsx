@@ -28,7 +28,7 @@ const GuestView = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
-            <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg max-h-[90vh] overflow-hidden">
+            <div className="w-full max-w-md p-8 max-h-[90vh] overflow-hidden">
                 <ContentTopLogo
                     title="비회원 예약조회"
                     titleStyle="text-center mb-4 text-xl font-bold"
