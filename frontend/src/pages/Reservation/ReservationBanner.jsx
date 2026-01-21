@@ -31,28 +31,12 @@ const ReservationBanner = ({ formData }) => {
             <span className="bg-gray-100 px-3 py-1 rounded-4xl text-gray-400">유아 카시트 2개</span>
             <span className="bg-gray-100 px-3 py-1 rounded-4xl text-gray-400">넓은 트렁크</span>
           </div>
-          <hr className="border border-gray-200"/>
-          <div className="flex flex-row justify-end py-2">
-            <p className="text-gray-500">
-                <span className="xx:text-sm sm:text-xl font-semibold text-black">
-                  {formData.paymentSummary.carDailyPrice.toLocaleString() ?? "55,000"}/day
-                </span>
-            </p>
-          </div>
-          <hr className="border border-gray-200"/>
+
         </div>
 
-        {/* 총 금액 및 버튼 */}
-        { location.pathname === "/reservation" ? 
-          <span></span>
-        : 
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-col flex-1 text-sm text-gray-500 mb-2">
-              <span>총 이용 금액:</span>
-              <span className="xx:text-2xl text-4xl font-bold text-brand">128,000원</span>
-            </div>
-          </div>
-        }
+
+
+
       </div>
     </section>
   );

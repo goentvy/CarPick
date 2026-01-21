@@ -84,7 +84,7 @@ public class SecurityConfigProd {
 
         config.setAllowedOrigins(java.util.List.of(
             "http://3.236.8.244",
-            "http://3.236.8.244:5173"
+            "http://3.236.8.244:5137"
         ));
 
         config.setAllowedMethods(java.util.List.of(

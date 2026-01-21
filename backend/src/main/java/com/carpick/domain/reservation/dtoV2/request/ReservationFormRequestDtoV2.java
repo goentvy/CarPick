@@ -1,6 +1,7 @@
 package com.carpick.domain.reservation.dtoV2.request;
 
 import com.carpick.domain.reservation.enums.RentType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,15 +17,16 @@ public class ReservationFormRequestDtoV2 {
     private RentType rentType;
 
     @JsonProperty("startDateTime")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startAt;
 
     @JsonProperty("endDateTime")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endAt;
     // 예약 버튼 활성화 및 입력 검증용 (Form 단계)
     // 실제 저장은 ReservationCreate에서 처리
     private DriverInfoDtoV2 driverInfo;
+    private Integer months;
     @Data
     public static class DriverInfoDtoV2{
         private String lastname;

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import axios from "axios";
 import SpinVideo from "../../components/car/SpinVideo.jsx";
 import CarDetailMap from "../../components/car/CarDetailMap.jsx";
 import { getCarDetail } from "@/services/carApi.js";
+import { getBranchDetail } from "@/services/zoneApi.js";
 import { createGlobalStyle } from "styled-components";
 import StarRating from "../Home/StarRating.jsx";
 
@@ -60,7 +60,7 @@ function normalizeCards(cards) {
   return slots.map((type) => {
     const c = byType[type] ?? {};
     const hasValue = c.value !== undefined && c.value !== null;
-    const valueText = hasValue ? `${String(c.value)}${c.unit ?? ""}` : null;
+    const valueText = hasValue ? String(c.value) : null;
 
     let displayText = "정보 준비 중이에요.";
     if (valueText) {
@@ -81,19 +81,18 @@ function normalizeCards(cards) {
           displayText = `만 ${valueText}만 이용 가능해요.`;
           break;
         case "FUEL_EFF":
-          displayText = `연비는 약 ${valueText}예요.`;
+          displayText = `약 ${valueText}예요.`;
           break;
         default:
           break;
       }
     }
 
-    // icon 키가 BE에서 "fuel" 같은 소문자일 수도, "FUEL" 같은 값일 수도 있어서 방어
     const iconKey = c.icon ? String(c.icon).toLowerCase() : null;
 
     return {
       type,
-      iconKey, // fuel | year | seats | career | age | fuel_eff
+      iconKey,
       title: c.title,
       displayText,
     };
@@ -102,8 +101,18 @@ function normalizeCards(cards) {
 
 export default function CarDetailPage() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { specId } = useParams();
   const routerLocation = useLocation();
+
+  // ✅ query params
+  const searchParams = new URLSearchParams(routerLocation.search);
+  const pickupBranchId = searchParams.get("pickupBranchId");
+  const pickupLocation = searchParams.get("pickupLocation");
+  const dropoffLocation = searchParams.get("dropoffLocation") || pickupLocation;
+
+  // ✅ numeric
+  const specIdNum = Number(specId);
+  const pickupBranchIdNum = Number(pickupBranchId);
 
   const spinRef = useRef(null);
 
@@ -114,10 +123,30 @@ export default function CarDetailPage() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
-  // ✅ 추가: 지점 정보 state
+
   const [pickupBranch, setPickupBranch] = useState(null);
+
+  // ✅ cleanup toast timer
   useEffect(() => {
-    if (!id) return;
+    return () => window.clearTimeout(toastTimerRef.current);
+  }, []);
+
+  // ✅ 차량 상세
+  useEffect(() => {
+    // specId 검증
+    if (!Number.isFinite(specIdNum) || specIdNum <= 0) {
+      setErrorText("잘못된 차량 정보예요.");
+      return;
+    }
+
+    // 백엔드 DTO 검증상 pickupBranchId 필수
+    if (!Number.isFinite(pickupBranchIdNum) || pickupBranchIdNum <= 0) {
+      setErrorText("대여 지점이 선택되지 않았어요.");
+      setCar(null);
+      setReviews([]);
+      return;
+    }
+
     let mounted = true;
 
     (async () => {
@@ -125,17 +154,19 @@ export default function CarDetailPage() {
         setLoading(true);
         setErrorText("");
 
-        const res = await getCarDetail(id);
-        console.log("getCarDetail raw:", res);
-        console.log("res.data:", res?.data);
-
+        const res = await getCarDetail(specIdNum, pickupBranchIdNum);
         if (!mounted) return;
+
         setCar(res.data);
-        setReviews(res.data?.reviews ?? []);
+
+        // ✅ V2: reviewSection.reviews
+        setReviews(res.data?.reviewSection?.reviews ?? []);
       } catch (e) {
-        console.error("API error:", e);
-        console.error("status:", e?.response?.status);
-        console.error("data:", e?.response?.data);
+        if (import.meta.env.DEV) {
+          console.error("API error:", e);
+          console.error("status:", e?.response?.status);
+          console.error("data:", e?.response?.data);
+        }
 
         if (!mounted) return;
         setCar(null);
@@ -150,7 +181,40 @@ export default function CarDetailPage() {
     return () => {
       mounted = false;
     };
-  }, [id]);
+  }, [specIdNum, pickupBranchIdNum]);
+
+  // ✅ 지점 상세 (지도용)
+  useEffect(() => {
+    if (!Number.isFinite(pickupBranchIdNum) || pickupBranchIdNum <= 0) {
+      setPickupBranch(null);
+      return;
+    }
+
+    let mounted = true;
+
+    (async () => {
+      try {
+        const res = await getBranchDetail(pickupBranchIdNum);
+        if (!mounted) return;
+
+        const b = res?.data;
+        setPickupBranch({
+          branchId: b?.branchId,
+          branchName: b?.branchName,
+          address: b?.addressBasic ?? b?.address ?? "",
+          latitude: Number(b?.latitude),
+          longitude: Number(b?.longitude),
+        });
+      } catch (e) {
+        if (!mounted) return;
+        setPickupBranch(null);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [pickupBranchIdNum]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -182,17 +246,12 @@ export default function CarDetailPage() {
 
   const top = car?.topCarDetailDto;
   const cards = car?.carCardSectionDto?.cards ?? [];
-  const searchParams = new URLSearchParams(routerLocation.search);
-  const pickupLocation = searchParams.get('pickupLocation');
-  const dropoffLocation = searchParams.get('dropoffLocation') || pickupLocation;
-  const pickupBranchId = searchParams.get('pickupBranchId');  // ✅ 추가: branchId 파싱
   const uiCards = normalizeCards(cards);
 
   return (
     <div className="min-h-screen bg-white">
       <HideHeaderFooter />
 
-      {/* 640 컨테이너 */}
       <div className="mx-auto w-full max-w-[640px] pb-28">
         {/* Top App Bar */}
         <header className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-black/5">
@@ -219,7 +278,7 @@ export default function CarDetailPage() {
           </div>
         </header>
 
-        {/* Hero (360 영상) */}
+        {/* Hero */}
         <div className="relative bg-[#E9EAEE] overflow-hidden mt-1">
           <button
             type="button"
@@ -245,14 +304,14 @@ export default function CarDetailPage() {
 
           <SpinVideo
             ref={spinRef}
-            src="/assets/spin/car_spin_01.mp4"
+            src={top?.mainVideoUrl || "http://carpicka.mycafe24.com/car_spin_video/default_spin.mp4"}
             className="w-full"
             dragWidth={640}
           />
         </div>
 
         <section className="px-8 pt-4">
-          {/* Title  타이틀*/}
+          {/* Title */}
           <div className="mt-4">
             <h1 className="text-[20px] font-bold text-[#111] leading-snug">
               {top?.title ?? "차량 정보"}
@@ -270,17 +329,17 @@ export default function CarDetailPage() {
             )}
           </div>
 
-          {/* AI Summary Card: 실데이터 우선, 없으면 빈칸 */}
+          {/* ✅ AI Summary: 루트 car.aiSummary */}
           <div className="mt-4 rounded-3xl bg-[#EEF3FF] p-5">
             <div className="text-xs font-bold text-[#1D6BF3]">
               AI가 정리한 이 차량의 한 줄 요약
             </div>
             <p className="mt-2 text-sm text-[#1A1A1A] leading-snug">
-              {top?.aiSummary ?? "요약 정보를 준비 중이에요."}
+              {car?.aiSummary ?? "요약 정보를 준비 중이에요."}
             </p>
           </div>
 
-          {/* 차량정보 (6개 고정, 데이터 적용) */}
+          {/* 차량정보 */}
           <SectionTitle>차량정보</SectionTitle>
           <div className="grid grid-cols-3 gap-3">
             {uiCards.map((c) => {
@@ -311,7 +370,7 @@ export default function CarDetailPage() {
             따라 달라질 수 있어요.)
           </div>
 
-          {/* 후기 (임시 유지) */}
+          {/* 후기 */}
           <SectionTitle>
             {top?.title ?? "이 차량을"}
             <br />탄 사람들 이야기
@@ -333,7 +392,7 @@ export default function CarDetailPage() {
                         {review.period}
                       </div>
                     </div>
-                    {/*  StarRating 사용 */}
+
                     <div className="flex items-center">
                       <StarRating rating={Number(review.rating)} />
                       <span className="ml-2 text-sm font-medium text-[#1A1A1A]">
@@ -425,16 +484,19 @@ export default function CarDetailPage() {
       {/* Bottom Sticky CTA */}
       <footer className="fixed bottom-0 left-0 right-0 z-40">
         <div className="mx-auto max-w-[640px] bg-white border-t border-black/5 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-          <button className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition" onClick={() => {
-            if (!routerLocation.search) {
-              alert("예약 기간 정보가 없습니다. 다시 검색해주세요.");
-              navigate(-1); // 또는 navigate("/")
-              return;
-            }
+          <button
+            className="w-full h-12 rounded-2xl bg-[#0A56FF] text-white font-semibold active:scale-[0.98] transition"
+            onClick={() => {
+              if (!routerLocation.search) {
+                alert("예약 기간 정보가 없습니다. 다시 선택해주세요.");
+                navigate(-1);
+                return;
+              }
 
-            navigate(`/reservation/${id}${routerLocation.search}`);
-          }} >
-
+              // ✅ specId 기준
+              navigate(`/reservation/${specId}${routerLocation.search}`);
+            }}
+          >
             예약하기
           </button>
         </div>

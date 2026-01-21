@@ -1,10 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-/**
- * Kakao Maps SDK loader
- * - 이미 로드되어 있으면 재사용
- * - 실패/차단 상황에서 timeout 에러 제공
- */
+function ensureBounceCss() {
+  const id = "cp-bounce-css";
+  if (document.getElementById(id)) return;
+
+  const style = document.createElement("style");
+  style.id = id;
+  style.innerHTML = `
+    @keyframes cpBounce {
+      0%   { transform: translateY(0) scale(1.06); }
+      30%  { transform: translateY(-10px) scale(1.06); }
+      60%  { transform: translateY(2px) scale(1.06); }
+      100% { transform: translateY(0) scale(1.06); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cp-bounce { animation: none !important; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function loadKakaoSdk(appKey) {
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined") return reject(new Error("window unavailable"));
@@ -42,34 +57,57 @@ function loadKakaoSdk(appKey) {
   });
 }
 
-/** Branch / Drop 마커 HTML */
-function buildHtmlMarker({ kind, selected }) {
-  const isBranch = kind === "BRANCH";
+/** Branch / Drop 마커 */
+const TYPE_MARKER_SRC = {
+  BRANCH: "/markers/branch.svg",
+  DROP: "/markers/dropzone.svg",
+};
 
-  const bg = selected ? (isBranch ? "#0A56FF" : "#111") : "rgba(255,255,255,0.96)";
-  const color = selected ? "#fff" : "rgba(17,17,17,0.92)";
-  const dot = selected ? "#fff" : isBranch ? "#0A56FF" : "#111";
-  const label = isBranch ? "카픽존" : "드롭존";
+const CROWD_BADGE_SRC = {
+  FREE: "/badges/crowd_free.svg",
+  NORMAL: "/badges/crowd_normal.svg",
+  CROWDED: "/badges/crowd_crowded.svg",
+  FULL: "/badges/crowd_full.svg",
+};
+
+/** Branch / Drop 마커 HTML (SVG 타입 + 혼잡도 배지) */
+function buildHtmlMarker({ kind, selected, crowdStatus, crowdLabel, showCrowd }) {
+  const isDrop = kind === "DROP";
+
+  // ✅ 핵심: 드롭존은 혼잡도 ON이면 상태별 svg로 마커가 바뀜
+  const markerSrc = isDrop
+    ? (showCrowd ? (CROWD_BADGE_SRC[crowdStatus] ?? TYPE_MARKER_SRC.DROP) : TYPE_MARKER_SRC.DROP)
+    : TYPE_MARKER_SRC.BRANCH;
+
+  const isBranch = kind === "BRANCH";
+  const badgeHtml = "";
+
 
   return `
     <button type="button"
       style="
-        display:inline-flex;align-items:center;justify-content:center;
-        height:34px;padding:0 10px;border-radius:999px;
-        background:${bg};color:${color};
-        border:1px solid rgba(0,0,0,0.12);
-        box-shadow:0 10px 30px rgba(0,0,0,0.18);
-        backdrop-filter:blur(8px);
+        position:relative;
+        width:${selected ? 46 : 40}px;
+        height:${selected ? 46 : 40}px;
+        border:none;
+        background:transparent;
         cursor:pointer;
-        transform:${selected ? "scale(1.06)" : "scale(1)"};
-        transition:transform 150ms ease, background 150ms ease, color 150ms ease;
-        font-size:12px;font-weight:800;
-      ">
-      <span style="width:8px;height:8px;border-radius:999px;background:${dot};margin-right:6px;"></span>
-      ${label}
+        transform-origin:50% 100%;
+        ${selected ? "animation:cpBounce 520ms ease-out;" : ""}
+      "
+      aria-label="${isBranch ? "카픽존" : (crowdLabel ?? "드롭존")}"
+    >
+      ${badgeHtml}
+      <img
+        src="${markerSrc}"
+        alt=""
+        draggable="false"
+        style="width:100%;height:100%;display:block;"
+      />
     </button>
   `;
 }
+
 
 export default function ZoneMapKakao({
   items = [],
@@ -78,8 +116,14 @@ export default function ZoneMapKakao({
   onMapClick,
   center, // {lat,lng}
   myPos, // {lat,lng}
+  showCrowd,
 }) {
   const APP_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    ensureBounceCss();
+  }, []);
 
   const mapElRef = useRef(null);
   const mapRef = useRef(null);
@@ -242,7 +286,21 @@ export default function ZoneMapKakao({
       }
 
       const wrapper = document.createElement("div");
-      wrapper.innerHTML = buildHtmlMarker({ kind: it.kind, selected });
+      const rawStatus = it.crowdStatus ?? it.status;
+      const crowdStatus = String(rawStatus ?? "").toUpperCase().trim(); // ✅ 핵심
+      const crowdLabel = it.crowdLabel ?? it.label;
+
+      // ✅ 드롭존만 확인 로그 (2~3개만 찍혀도 원인 바로 나옴)
+      if (it.kind === "DROP") {
+        console.log("[DROP]", it.id, "raw=", rawStatus, "norm=", crowdStatus, "label=", crowdLabel);
+      }
+      wrapper.innerHTML = buildHtmlMarker({
+        kind: it.kind,
+        selected,
+        crowdStatus,
+        crowdLabel,
+        showCrowd,
+      });
       const btn = wrapper.firstElementChild;
 
       const handle = (e) => {
@@ -262,7 +320,7 @@ export default function ZoneMapKakao({
       overlay.setMap(map);
       store.set(it.id, overlay);
     });
-  }, [status, items, selectedId, onSelect]);
+  }, [status, items, selectedId, onSelect, showCrowd]);
 
   // UI
   if (!APP_KEY) {
@@ -288,7 +346,7 @@ export default function ZoneMapKakao({
     <div className="h-full w-full relative">
       <div ref={mapElRef} className="h-full w-full" />
       {status === "loading" && (
-        <div className="absolute inset-0 bg-white/60 grid place-items-center">
+        <div className="absolute inset-0 bg-white/60 grid place-items-center pointer-events-none">
           <div className="text-sm text-black/60">지도 불러오는 중…</div>
         </div>
       )}

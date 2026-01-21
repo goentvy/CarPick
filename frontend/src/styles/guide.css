@@ -61,7 +61,7 @@
 }
 
 .guide-step-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #212529;
   margin: 0;
@@ -113,7 +113,7 @@
   }
 
   .guide-step-title {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
 
@@ -168,7 +168,7 @@
 
 /* 텍스트 스타일 */
 .finish-text h3 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   color: #111827;
   letter-spacing: -0.5px;
@@ -190,7 +190,7 @@
   border: none;
   padding: 18px;
   border-radius: 18px;
-  font-size: 1.1rem;
+  font-size: 18px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -252,90 +252,6 @@
   font-size: 12px;
   color: #94a3b8;
   letter-spacing: -0.01em;
-}
-
-/* --- 모달 내부 텍스트 가독성 --- */
-/* 1. 모달 전체 배경 - 화면 전체를 덮도록 강제 */
-.modal-overlay {
-  position: fixed !important; /* 어떤 상황에서도 화면에 고정 */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7); /* 배경을 더 어둡게 해서 집중도 향상 */
-  display: flex;
-  justify-content: center;
-  align-items: center; /* 모바일 대응: 아래에서 위로 */
-  z-index: 9999 !important; /* 최상단으로 올리기 */
-  padding: 20px;
-}
-
-/* 2. 모달 몸체 */
-.modal-content {
-  width: 100%;
-  max-width: 540px;
-  background: #ffffff;
-  border-radius: 24px !important; 
-  overflow: hidden;
-  max-height: 70vh; /* 화면의 85%까지만 차지 */
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* 더 부드러운 애니메이션 */
-}
-
-/* 3. 모달 헤더 */
-.modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #f1f3f5;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  border-radius: 24px 24px 0 0;
-  position: sticky; /* 스크롤해도 헤더 고정 */
-  top: 0;
-}
-
-.modal-header h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1e27;
-}
-
-.modal-close-btn {
-  background: #f1f3f5;
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #495057;
-  transition: background 0.2s;
-}
-
-/* 4. 모달 본문 (글자 가독성 핵심) */
-.modal-body {
-  padding: 24px;
-  overflow-y: auto; /* 내용이 많으면 내부 스크롤 */
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: 10px;
-}
-
-.modal-body pre {
-  font-family: 'Pretendard', sans-serif !important;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #343a40;
-  white-space: pre-wrap; /* 줄바꿈 유지 */
-  word-break: break-all;
-  margin: 0;
 }
 
 /* 애니메이션 정의 */

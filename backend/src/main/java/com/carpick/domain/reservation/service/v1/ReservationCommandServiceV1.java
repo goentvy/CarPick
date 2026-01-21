@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.service;
+package com.carpick.domain.reservation.service.v1;
 
 import com.carpick.domain.inventory.enums.InventoryOperationalStatus;
 import com.carpick.domain.inventory.mapper.VehicleInventoryMapper;
@@ -25,11 +25,11 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationCommandService {
+public class ReservationCommandServiceV1 {
 
     private final ReservationMapper reservationMapper;
     private final ReservationStatusHistoryMapper historyMapper;
-    private final ReservationPriceService pricingService;
+    private final ReservationPriceServiceV1 pricingService;
     private  final VehicleInventoryMapper vehicleInventoryMapper;
 
     private static final DateTimeFormatter DATETIME_FORMATTER =
@@ -143,7 +143,7 @@ public class ReservationCommandService {
         r.setPickupBranchId(pickupBranchId); // ✅ 이제 절대 null 아님
         r.setPickupAddress(null);
 
-        r.setReturnType(isDelivery ? ReturnTypes.COLLECTION : ReturnTypes.VISIT);
+        r.setReturnType(isDelivery ? ReturnTypes.DROPZONE : ReturnTypes.VISIT);
         r.setReturnBranchId(returnBranchId); // ✅ 이제 절대 null 아님
         r.setReturnAddress(null);
 // =============================================================

@@ -7,11 +7,12 @@ import java.math.BigDecimal;
 
 @Data
 public class CarListItemDto {
+    private Long specId;                 //차종 스펙 / 상세 기준 (경진)
     private Long vehicleId;              // 차량 ID (상세 페이지 이동용)
 
     // 기본 정보
     private String displayNameShort;     // "캐스퍼" (카드용 짧은 모델명)
-    private String mainImageUrl;         // 썸네일 이미지
+    private String ImgUrl;         // 썸네일 이미지
 
     // 스펙 정보 (부제용)
     private Integer modelYear;           // 2025

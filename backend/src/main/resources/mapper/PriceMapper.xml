@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.price.mapper.PriceMapper">
+<!-- 역할 : 실제 판매가 조회-->
+<!--    서비스에서 사용 : 결재에서 최종 확인용-->
+    <sql id="priceColumns">
+        price_id,
+        car_spec_id,
+        daily_price,
+        monthly_price,
+        use_yn,
+        deleted_at,
+        version,
+        created_at,
+        updated_at
+    </sql>
+
+    <resultMap id="PriceResultMap" type="com.carpick.domain.price.entity.Price">
+        <id property="priceId" column="price_id"/>
+        <result property="carSpecId" column="car_spec_id"/>
+        <result property="dailyPrice" column="daily_price"/>
+        <result property="monthlyPrice" column="monthly_price"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="version" column="version"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findBySpecId" resultMap="PriceResultMap">
+        SELECT <include refid="priceColumns"/>
+        FROM PRICE
+        WHERE car_spec_id = #{specId}
+        AND use_yn = 'Y'
+        LIMIT 1
+    </select>
+
+    <select id="selectActiveUnitPriceByPriceType" resultType="java.math.BigDecimal">
+        SELECT
+            CASE
+                WHEN #{priceType} = 'DAILY' THEN daily_price
+                WHEN #{priceType} = 'MONTHLY' THEN monthly_price
+                END
+        FROM PRICE
+        WHERE car_spec_id = #{specId}
+          AND use_yn = 'Y'
+          AND deleted_at IS NULL
+            LIMIT 1
+    </select>
+
+
+
+</mapper>

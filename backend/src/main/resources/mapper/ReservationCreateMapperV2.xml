@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carpick.domain.reservation.mapper.ReservationCreateMapperV2">
+<!--예약 생성 시 차량 재고에 비관적 락을 걸어 동시성을 제어하고, 기간 겹침 검증 후 예약을 확정(CONFIRMED) 상태로 INSERT하는 매퍼.-->
+    <!-- [1] 예약 가능 실차 1대 선택 -->
+    <select id="selectAvailableVehicleIdForPeriod" resultType="Long">
+        <![CDATA[
+        SELECT vi.vehicle_id
+        FROM vehicle_inventory vi
+        WHERE vi.branch_id = #{pickupBranchId}
+          AND vi.spec_id = #{specId}
+          -- [수정 완료] DB 컬럼명 operational_status 적용
+          AND vi.operational_status = 'AVAILABLE'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM reservation r
+            WHERE r.vehicle_id = vi.vehicle_id
+              AND r.reservation_status IN ('CONFIRMED', 'ACTIVE')
+              AND r.start_date < #{endDate}
+              AND r.end_date > #{startDate}
+        )
+        ORDER BY vi.vehicle_id
+            LIMIT 1
+        ]]>
+    </select>
+
+    <!-- [2] 차량 재고 Row Lock 획득 (비관적 락) -->
+    <select id="lockVehicleInventory" resultType="Long">
+        <![CDATA[
+        SELECT vehicle_id
+        FROM vehicle_inventory
+        WHERE vehicle_id = #{vehicleId}
+            FOR UPDATE
+        ]]>
+    </select>
+
+    <!-- [3] 예약 기간 겹침 여부 검증 -->
+    <select id="countOverlappingReservations" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*)
+        FROM reservation
+        WHERE vehicle_id = #{vehicleId}
+          AND reservation_status IN ('CONFIRMED', 'ACTIVE')
+          AND start_date < #{endDate}
+          AND end_date > #{startDate}
+        ]]>
+    </select>
+
+    <insert id="insertReservation"
+            parameterType="com.carpick.domain.reservation.entity.Reservation"
+            useGeneratedKeys="true"
+            keyProperty="reservationId"
+            keyColumn="reservation_id">
+
+        INSERT INTO RESERVATION (
+            reservation_no,
+
+            user_id,
+            vehicle_id,
+
+            driver_last_name,
+            driver_first_name,
+            driver_birthdate,
+            driver_phone,
+            driver_email,
+
+            non_member_password,
+
+            start_date,
+            end_date,
+
+            pickup_type,
+            pickup_branch_id,
+            pickup_address,
+
+            return_type,
+            return_branch_id,
+            return_dropzone_id,
+            return_address,
+
+            insurance_id,
+            coupon_id,
+
+            base_rent_fee_snapshot,
+            rent_discount_amount_snapshot,
+
+            base_insurance_fee_snapshot,
+            insurance_discount_amount_snapshot,
+
+            option_fee_snapshot,
+            coupon_discount_snapshot,
+
+            member_discount_rate_snapshot,
+            event_discount_amount_snapshot,
+
+            total_amount_snapshot,
+
+            applied_rent_fee_snapshot,
+            applied_insurance_fee_snapshot,
+
+            agreement_yn,
+            reservation_status,
+
+            created_at
+        ) VALUES (
+                     #{reservationNo},
+
+                     #{userId},
+                     #{vehicleId},
+
+                     #{driverLastName},
+                     #{driverFirstName},
+                     #{driverBirthdate},
+                     #{driverPhone},
+                     #{driverEmail},
+
+                     #{nonMemberPassword},
+
+                     #{startDate},
+                     #{endDate},
+
+                     #{pickupType},
+                     #{pickupBranchId},
+                     #{pickupAddress},
+
+                     #{returnType},
+                     #{returnBranchId},
+                     #{returnDropzoneId},
+                     #{returnAddress},
+
+                     #{insuranceId},
+                     #{couponId},
+
+                     #{baseRentFeeSnapshot},
+                     #{rentDiscountAmountSnapshot},
+
+                     #{baseInsuranceFeeSnapshot},
+                     #{insuranceDiscountAmountSnapshot},
+
+                     #{optionFeeSnapshot},
+                     #{couponDiscountSnapshot},
+
+                     #{memberDiscountRateSnapshot},
+                     #{eventDiscountAmountSnapshot},
+
+                     #{totalAmountSnapshot},
+
+                     #{appliedRentFeeSnapshot},
+                     #{appliedInsuranceFeeSnapshot},
+
+                     #{agreementYn},
+                     #{reservationStatus},
+
+                     NOW()
+                 )
+
+</insert>
+
+
+</mapper>

@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.service;
+package com.carpick.domain.reservation.service.v1;
 
 import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
 import com.carpick.domain.car.service.CarService;
@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationPriceService {
+public class ReservationPriceServiceV1 {
     private final CarService carService;
     private final ReservationMapper reservationMapper;
 

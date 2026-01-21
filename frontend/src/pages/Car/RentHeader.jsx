@@ -3,10 +3,10 @@ import RentDateRangePicker from '../../components/common/RentDateRangePicker';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PickupLocationModal from '../../components/common/PickupLocationModal';
 
-// `calculateMonths`를 함수 선언식으로 변경
+// `calculateMonths` 함수
 function calculateMonths(start, end) {
   const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-  return months || 1; // 최소 1개월 보장
+  return months || 1;
 }
 
 const RentHeader = ({ type, location }) => {
@@ -14,42 +14,35 @@ const RentHeader = ({ type, location }) => {
   const locationObj = useLocation();
   const query = new URLSearchParams(locationObj.search);
 
-  // URL 쿼리에서 값 가져오기, 없으면 기본값
+  // 초기값 설정
   const initialRentType = query.get('rentType') || 'short';
   const initialPickupBranchName = query.get('pickupBranchName') || '서울역 KTX';
   const queryStartDate = query.get('startDate') ? new Date(query.get('startDate')) : null;
   const queryEndDate = query.get('endDate') ? new Date(query.get('endDate')) : null;
 
-  // dateRange를 URL값으로 초기화
   const initialDateRange = queryStartDate && queryEndDate
     ? {
-      startDate: queryStartDate,
-      endDate: queryEndDate,
-      months: calculateMonths(queryStartDate, queryEndDate), // 자동 계산
-    }
+        startDate: queryStartDate,
+        endDate: queryEndDate,
+        months: calculateMonths(queryStartDate, queryEndDate),
+      }
     : {
-      startDate: new Date(),
-      endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-      months: 1,
-    };
+        startDate: new Date(),
+        endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+        months: 1,
+      };
 
   const [rentType, setRentType] = useState(initialRentType);
   const [pickupBranchName, setPickupBranchName] = useState(query.get('pickupBranchName') || '픽업 장소 선택');
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState(initialDateRange);
-
   const [pickupBranchId, setPickupBranchId] = useState(query.get('pickupBranchId') || null);
-  const prevType = useRef(initialRentType);
-  const prevQueryDates = useRef({
-    start: queryStartDate,
-    end: queryEndDate
-  });
 
-  // type 변경 시 초기화
+  const prevType = useRef(initialRentType);
+
   useEffect(() => {
     const today = new Date();
-
     if (prevType.current !== type) {
       if (type === 'short') {
         setDateRange({
@@ -63,7 +56,7 @@ const RentHeader = ({ type, location }) => {
         setDateRange({
           startDate: today,
           endDate: nextMonth,
-          months: calculateMonths(today, nextMonth), // 자동 계산
+          months: calculateMonths(today, nextMonth),
         });
       }
       prevType.current = type;
@@ -71,15 +64,8 @@ const RentHeader = ({ type, location }) => {
   }, [type]);
 
   useEffect(() => {
-    if (showLocationPicker || showDatePicker) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = (showLocationPicker || showDatePicker) ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [showLocationPicker, showDatePicker]);
 
   const formatDate = (date) =>
@@ -90,10 +76,6 @@ const RentHeader = ({ type, location }) => {
       minute: '2-digit',
       weekday: 'short',
     });
-
-  const rentalHours = Math.round(
-    (dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60)
-  );
 
   const getDurationText = () => {
     if (!dateRange.startDate || !dateRange.endDate) return '';
@@ -106,48 +88,41 @@ const RentHeader = ({ type, location }) => {
 
   const getLongTermText = () => {
     if (!dateRange.startDate || !dateRange.endDate) return '';
+    const months = dateRange.months || 1;
     const diffMs = dateRange.endDate - dateRange.startDate;
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const months = dateRange.months || 1;
     return `${months}개월 (${days}일)`;
   };
 
-  // URL로 파라미터를 기반으로 페이지 이동
-  const handleSearch = (selection) => {
+  // ✅ 차량 찾기 버튼 클릭 시 이동 로직 (year로 수정)
+  const handleSearch = () => {
     const params = new URLSearchParams();
     params.set('pickupBranchName', pickupBranchName);
     params.set('pickupBranchId', pickupBranchId);
     params.set('rentType', rentType);
-    params.set('startDate', selection.startDate.toISOString());
-    params.set('endDate', selection.endDate.toISOString());
-    params.set('months', selection.months || 1);
+    params.set('startDate', dateRange.startDate.toISOString());
+    params.set('endDate', dateRange.endDate.toISOString());
+    params.set('months', dateRange.months || 1);
 
-    navigate(`/${selection.activeType <= 1 ? 'day' : 'month'}?${params.toString()}`);
+    // rentType이 long이면 /year로 이동
+    const targetPath = rentType === 'long' ? '/year' : '/day';
+    navigate(`${targetPath}?${params.toString()}`);
   };
 
   return (
     <section id="car-list" className="bg-brand text-center pt-7 pb-9 sm:pb-[37px] px-6 sm:px-[41px] rounded-b-[40px] sm:rounded-b-[60px] relative z-[999]">
       <div className="rentM bg-gray-50 rounded-[30px] xx:px-2.5 sm:px-3 relative z-0">
-        {/* 픽업 장소 */}
         <div className="rentM relative p-2">
           <div className="rentMBg flex items-center rounded-lg p-1.5 cursor-pointer bg-gray-100">
             <i className="fa-solid fa-magnifying-glass text-[20px] mr-3"></i>
             <div id="rentInfo" className="flex flex-col w-full break-keep relative">
-              <p
-                id="rentLoca"
-                className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold"
-                onClick={() => setShowLocationPicker(prev => !prev)}
-              >
+              <p className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold" onClick={() => setShowLocationPicker(prev => !prev)}>
                 {pickupBranchName}
               </p>
-              <p
-                id="rentTime"
-                className="flex justify-between text-gray-400 text-[16px] text-left"
-                onClick={() => setShowDatePicker(prev => !prev)}
-              >
-                <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
-                <span id="pickTime" className="text-[12px] text-gray-500">
-                  {type == 'short' ? getDurationText() : getLongTermText()}
+              <p className="flex justify-between text-gray-400 text-[16px] text-left" onClick={() => setShowDatePicker(prev => !prev)}>
+                <span>{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
+                <span className="text-[12px] text-gray-500">
+                  {type === 'short' ? getDurationText() : getLongTermText()}
                 </span>
               </p>
             </div>
@@ -175,7 +150,6 @@ const RentHeader = ({ type, location }) => {
                     endDate: selection.endDate,
                     months: selection.months || 1,
                   });
-
                   setRentType(selection.activeType);
                   setShowDatePicker(false);
 
@@ -188,16 +162,12 @@ const RentHeader = ({ type, location }) => {
                     months: selection.months || 1,
                   });
 
-                  navigate(
-                    selection.activeType === 'short'
-                      ? `/day?${params.toString()}`
-                      : `/month?${params.toString()}`
-                  );
+                  // ✅ 날짜 선택 즉시 이동 경로 (year로 수정)
+                  const targetPath = selection.activeType === 'long' ? '/year' : '/day';
+                  navigate(`${targetPath}?${params.toString()}`);
                 }}
                 onClose={() => setShowDatePicker(false)}
-                onTabChange={(tab) => {
-                  setRentType(tab); // 타입만 변경
-                }}
+                onTabChange={(tab) => setRentType(tab)}
                 type={rentType}
                 location={location}
               />
@@ -205,12 +175,8 @@ const RentHeader = ({ type, location }) => {
           )}
         </div>
 
-        {/* 차량 찾기 버튼 */}
         <div className="py-3">
-          <button
-            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
-            onClick={handleSearch}
-          >
+          <button className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]" onClick={handleSearch}>
             차량 찾기
           </button>
         </div>

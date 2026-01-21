@@ -3,6 +3,7 @@ package com.carpick.global.security.filter;
 import com.carpick.domain.userinfo.entity.UserInfo;
 import com.carpick.domain.userinfo.mapper.UserInfoMapper;
 import com.carpick.global.exception.AuthenticationException;
+import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.details.CustomUserDetails;
 import com.carpick.global.security.jwt.JwtProvider;
 import jakarta.servlet.FilterChain;
@@ -10,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,8 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.carpick.global.exception.enums.ErrorCode.AUTH_USER_NOT_FOUND;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -26,11 +27,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserInfoMapper userInfoMapper;
 
+    /**
+     * ✅ JWT 필터 제외 경로
+     * - OAuth 로그인
+     * - 콜백
+     * - CORS preflight
+     * - 업로드
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/admin/upload")
-            || "OPTIONS".equalsIgnoreCase(request.getMethod());
+        String method = request.getMethod();
+
+        boolean skip =
+                "OPTIONS".equalsIgnoreCase(method)
+                        || path.startsWith("/admin/upload")
+                        || path.startsWith("/upload")
+                        || path.startsWith("/api/auth/login/")
+                        || path.startsWith("/api/auth/oauth/");
+
+        if (skip) {
+            log.debug("[JWT-FILTER-SKIP] {} {}", method, path);
+        }
+
+        return skip;
     }
 
     @Override
@@ -43,54 +63,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-
-        // 1. OPTIONS 요청(CORS 사전 검사) 처리
-        if ("OPTIONS".equalsIgnoreCase(method)) {
-
-            response.setStatus(HttpServletResponse.SC_OK);
-            return;
-        }
+        log.debug("[JWT-FILTER-ENTER] {} {}", method, uri);
 
         try {
-            // 2. 토큰 추출
+            // 1️⃣ JWT 추출
             String token = jwtProvider.resolveToken(request);
 
-
-            // 3. 토큰이 없는 경우 (회원가입, 로그인 등)
+            // 2️⃣ 토큰 없는 요청 → 비인증 접근 허용
             if (token == null) {
-
+                log.debug("[JWT-NONE] {} {}", method, uri);
                 filterChain.doFilter(request, response);
-
                 return;
             }
 
-            // 4. 토큰 유효성 검증
+            // 3️⃣ 토큰 검증
             try {
                 jwtProvider.validateToken(token);
-
             } catch (Exception e) {
-
-                throw new AuthenticationException(AUTH_USER_NOT_FOUND);
+                log.warn("[JWT-INVALID] {}", e.getMessage());
+                throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
             }
 
-            // 5. 유저 정보 조회 및 탈퇴 확인
+            // 4️⃣ 사용자 조회
             Long userId = jwtProvider.getUserId(token);
             UserInfo user = userInfoMapper.findById(userId);
 
             if (user == null) {
-
-                throw new AuthenticationException(AUTH_USER_NOT_FOUND);
+                log.warn("[JWT-USER-NOT-FOUND] userId={}", userId);
+                throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
             }
 
             if (user.getDeletedAt() != null) {
-
+                log.warn("[JWT-DELETED-USER] userId={}", userId);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-
                 return;
             }
 
-            // 6. 인증 객체 생성 및 등록
+            // 5️⃣ SecurityContext 등록
             CustomUserDetails userDetails = new CustomUserDetails(
                     user.getUserId(),
                     user.getEmail(),
@@ -107,18 +116,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            log.debug("[JWT-AUTH-SUCCESS] userId={}", userId);
 
-            // 7. 다음 필터로 진행
+            // 6️⃣ 다음 필터
             filterChain.doFilter(request, response);
 
-
         } catch (AuthenticationException e) {
-
             SecurityContextHolder.clearContext();
+            log.warn("[JWT-AUTH-FAIL] {} {}", method, uri);
             throw e;
-        } catch (Exception e) {
 
-            e.printStackTrace(); // 어디서 터졌는지 추적 로그 출력
+        } catch (Exception e) {
+            log.error("[JWT-FILTER-ERROR] {} {}", method, uri, e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
