@@ -91,6 +91,7 @@ createRoot(document.getElementById('root')).render(
 
           {/* 차량 목록 */}
           <Route path="day" element={<CarDayList />} />
+          <Route path="month" element={<CarMonthList />} />
           <Route path="year" element={<YearPage />} />
           <Route path="cars/detail/:specId" element={<CarDetailPage />} />
 
