@@ -36,7 +36,10 @@
     <!-- ===================== -->
     <!-- SELECT -->
     <!-- ===================== -->
-
+    <select id="existsByEmail" resultType="int">
+        SELECT COUNT(*) FROM users
+        WHERE email = #{email} AND deleted_at IS NULL
+    </select>
     <select id="findByEmail" resultMap="UserResultMap">
         SELECT *
         FROM users
