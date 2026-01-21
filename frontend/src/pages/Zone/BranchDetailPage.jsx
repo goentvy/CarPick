@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getBranchDetail } from "@/services/zoneApi.js";
 import { getCarList } from "@/services/carApi.js";
 // import PickupCarCard from "@/components/car/PickupCarCard.jsx"; // 상태 데이터 들어갈 경우 사용
-import CarCard from "@/pages/car/CarCard.jsx";
+import CarCard from "@/pages/Car/CarCard.jsx";
 
 import ZoneMapKakao from "@/components/zone/ZoneMapKakao.jsx";
 import { getOpenLabel } from "@/components/zone/utils/zoneFormat.js";
