@@ -18,6 +18,7 @@
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
         <result property="birth" column="birth"/>
+
         <!-- ✅ enum ↔ DB 변환 -->
         <result property="gender"
                 column="gender"
