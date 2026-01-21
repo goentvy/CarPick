@@ -464,7 +464,7 @@ function MyLicense() {
                             면허 정보 삭제
                         </h3>
                         <p className="text-sm text-[#333333] mb-5 leading-relaxed">
-                            <strong>{licenseToDelete.name}</strong>님의ㅜㅜ 면허 정보를<br />
+                            <strong>{licenseToDelete.name}</strong>님의 면허 정보를<br />
                             삭제하시겠습니까?
                         </p>
                         <div className="flex gap-2">
