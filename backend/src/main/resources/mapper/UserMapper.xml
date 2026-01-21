@@ -136,5 +136,13 @@
         AND deleted_at IS NULL
     </update>
 
+    <update id="updateAccessToken">
+        UPDATE users
+        SET accesstoken = #{accessToken},
+        updated_at = NOW()
+        WHERE user_id = #{userId}
+        AND deleted_at IS NULL
+    </update>
+
 
 </mapper>
