@@ -18,7 +18,6 @@
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
         <result property="birth" column="birth"/>
-
         <!-- ✅ enum ↔ DB 변환 -->
         <result property="gender"
                 column="gender"
@@ -135,5 +134,14 @@
         WHERE user_id = #{userId}
         AND deleted_at IS NULL
     </update>
+
+    <update id="updateAccessToken">
+        UPDATE users
+        SET accesstoken = #{accessToken},
+        updated_at = NOW()
+        WHERE user_id = #{userId}
+        AND deleted_at IS NULL
+    </update>
+
 
 </mapper>
