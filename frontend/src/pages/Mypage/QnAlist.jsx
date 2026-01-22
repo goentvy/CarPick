@@ -27,19 +27,19 @@ const getStatusMeta = (status) => {
 
 function QnAlist() {
     const navigate = useNavigate();
-    const { accessToken } = useUserStore();  // ✅ MyLicense와 동일! userId 불필요
+    const { accessToken } = useUserStore();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const contentMinHeight = "calc(100vh - 60px)";
+    const contentMinHeight = `calc(100vh - 60px + 80px)`;
 
     useEffect(() => {
         if (accessToken) {
-            fetchMyInquiries();  // ✅ MyLicense와 동일 패턴
+            fetchMyInquiries();
         } else {
             setItems([]);
             setLoading(false);
         }
-    }, [accessToken]);  // ✅ accessToken만 의존성
+    }, [accessToken]);
 
     const fetchMyInquiries = async () => {
         try {
