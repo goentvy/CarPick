@@ -218,7 +218,7 @@ function Header() {
         <Link to="/aipick"
           className="btn btn_aipick"
         >
-          <span>AI<br />실시간<br />상담</span>
+          <span>✦AI</span><br />상담
         </Link>
       </div>
     </>
