@@ -92,7 +92,6 @@
 
 .intro_container .checkbox_container {
   height: 50vh;
-  min-height: 220px;
   overflow: auto;
   width: 99%;
 }
@@ -209,6 +208,10 @@
     top: -1px;
   }
 
+  .intro_container .title .pass {
+    bottom: 10px;
+  }
+
   .intro_container .checkbox_container .checkbox_list {
     padding: 0 20px;
   }
@@ -226,17 +229,31 @@
 
 @media (max-height: 830px) {
   .intro_container .checkbox_container {
-    height: 40vh;
+    height: 55vh;
   }
 }
-@media (max-height: 612px) {
+@media (max-height: 750px) {
   .intro_container .checkbox_container {
-    height: 30vh;
+    height: 52vh;
   }
 }
-
-@media (max-width: 400px) {
-  .intro_container .title .pass {
-    bottom: 10px;
+@media (max-height: 700px) {
+  .intro_container .checkbox_container {
+    height: 48vh;
+  }
+}
+@media (max-height: 640px) {
+  .intro_container .checkbox_container {
+    height: 42vh;
+  }
+}
+@media (max-height: 570px) {
+  .intro_container .checkbox_container {
+    height: 41vh;
+  }
+}
+@media (max-height: 550px) {
+  .intro_container .checkbox_container {
+    height: 35vh;
   }
 }

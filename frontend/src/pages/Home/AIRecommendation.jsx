@@ -8,7 +8,7 @@ const AIRecommendation = ({ content }) => {
       <p className="text-lime-300 xx:text-xs sm:text-sm mb-3 cursor-default">✦ AI RECOMMENDATION</p>
 
       {/* 추천 문구 */}
-      <p className="xx:text-base sm:text-xl font-bold leading-relaxed mb-2 cursor-default">
+      <p className="xx:text-base sm:text-xl font-bold leading-relaxed mb-2 cursor-default break-keep">
         {content}
       </p>
 

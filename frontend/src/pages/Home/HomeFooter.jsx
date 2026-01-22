@@ -20,7 +20,7 @@ const HomeFooter = () => {
 
         {/* 저작권 */}
         <p className="mt-2 text-gray-400">
-          Copyright©2026 CAR PICK. All Rights Reserved.
+          © Carpick 2026. All right reserved.
         </p>
       </div>
     </footer>

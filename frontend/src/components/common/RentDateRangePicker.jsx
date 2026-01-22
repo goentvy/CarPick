@@ -177,7 +177,7 @@ const RentDateRangePicker = ({
           className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm cursor-pointer ${activeTab === 'long' ? 'bg-blue-500 text-white' : 'text-black-500'
             }`}
         >
-          장기렌트
+          월 렌트
         </button>
       </div>
 

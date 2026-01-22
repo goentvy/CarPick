@@ -102,11 +102,11 @@ function Header() {
               </li>
 
               <li className={`gnb-item ${location.pathname.includes("day") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/day" className="gnb-link">단기렌트</Link>
+                <Link to="/day" className="gnb-link">단기·월 렌트</Link>
               </li>
 
-              <li className={`gnb-item ${location.pathname.includes("month") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/month" className="gnb-link">장기렌트</Link>
+              <li className={`gnb-item ${location.pathname.includes("year") ? "active" : ""}`} onClick={closeMenu}>
+                <Link to="/year" className="gnb-link">장기렌트</Link>
               </li>
 
               {/* 카픽존 */}
@@ -116,14 +116,9 @@ function Header() {
                 </div>
               </li>
 
-                <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
-                    {isLoggedIn ?
-                        <Link to="/mypage/reservations" className="gnb-link">예약조회</Link>
-                        :
-                        <Link to="/guest/view" className="gnb-link">예약조회</Link>
-                    }
-                </li>
-
+              {/* <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
+                <Link to="/guest/view" className="gnb-link">예약조회</Link>
+              </li> */}
 
               <li className={`gnb-item ${location.pathname.includes("event") ? "active" : ""}`} onClick={closeMenu}>
                 <Link to="/event/list" className="gnb-link">이벤트</Link>

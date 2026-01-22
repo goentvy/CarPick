@@ -74,9 +74,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       returnBranchName: pickupBranchName || "",
     });
 
-    const path = type === "short" ? "/day" : "/month";
-
-
+    const path = "/day";
     navigate(`${path}?${params.toString()}`);
   };
 
@@ -131,11 +129,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       returnBranchName: pickupBranchName || "",
     });
 
-    const path =
-      type === "short"
-        ? "/day"
-        : m >= 12 ? "/year" : "/month";
-
+    const path = "/day";
     navigate(`${path}?${params.toString()}`);
   };
 
@@ -172,7 +166,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
                 : 'text-gray-400 hover:bg-blue-400 hover:text-gray-700'
                 }`}
             >
-              {type === 'short' ? '단기 렌트' : '장기 렌트'}
+              {type === 'short' ? '단기 렌트' : '월 렌트'}
             </button>
           ))}
         </div>
