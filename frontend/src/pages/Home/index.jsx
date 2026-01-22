@@ -99,7 +99,7 @@ const Home = () => {
 
       {/* AI 추천 차량 */}
       <div className="xx:p-2 sm:p-6">
-        <div className="xx:text-[18px] sm:text-2xl font-bold mt-2">AI 추천차량</div>
+        <div className="text-[20px] font-bold mt-2">AI 추천차량</div>
         <AIRecommendation content={reason} />
 
         <div className="my-8">
@@ -135,11 +135,11 @@ const Home = () => {
         </div>
 
         {/* 카픽존 찾기 */}
-        <h2 className="xx:text-[18px] sm:text-2xl font-bold mb-2">카픽존 찾기</h2>
+        <h2 className="text-[20px] font-bold mb-2">카픽존 찾기</h2>
         <CarPickZone />
 
         {/* 고객 후기 */}
-        <h2 className="xx:text-[18px] sm:text-2xl font-bold xx:mb-2 sm:mb-4">고객후기</h2>
+        <h2 className="text-[20px] font-bold xx:mb-2 sm:mb-4">고객후기</h2>
         <CustomerReview />
       </div>
 

@@ -41,7 +41,7 @@ const About = () => {
         const style = document.createElement('style');
         style.id = 'hide-layout-style';
         style.innerHTML = `
-            header, nav, footer, [class*="Header"], [class*="Navbar"], [class*="Footer"], #footer, .common-footer { 
+            header, nav, footer, [class*="Header"], [class*="Navbar"], [class*="Footer"], #footer, .common-footer, .fixed { 
                 display: none !important; 
             }
             body { padding: 0 !important; margin: 0; overflow: hidden; }
@@ -103,7 +103,7 @@ const About = () => {
                     </p>
                 </motion.div>
             </section>
-            
+
             {/* 03. Our Values (이 섹션만 수정됨) */}
             <section className="relative min-h-screen flex flex-col items-center justify-center py-20 px-6 overflow-hidden snap-start bg-[#030712] bg-gradient-to-br from-[#0f172a] via-[#030712] to-black">
                 <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none"></div>

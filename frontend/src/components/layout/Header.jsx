@@ -213,6 +213,14 @@ function Header() {
           </div>
         </div>
       </aside>
+
+      <div className="fixed">
+        <Link to="/aipick"
+          className="btn btn_aipick"
+        >
+          <span>✦AI</span><br />상담
+        </Link>
+      </div>
     </>
   );
 }

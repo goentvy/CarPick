@@ -12,7 +12,7 @@ function Aipick() {
   const [pickupLocation, setPickupLocation] = useState('서울역 KTX');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPickupModal, setShowPickupModal] = useState(false);
-  const [selectedCarType, setSelectedCarType] = useState(null);
+  const [selectedlinkURL, setSelectedlinkURL] = useState(null);
 
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -25,12 +25,12 @@ function Aipick() {
     {
       type: "q",
       className: "msg topm main",
-      text: "1년 이상 장기 렌트를 원하시나요?"
+      text: "여행의 시작, 카픽과 함께 가볍게 준비해볼까요?"
     },
     {
       type: "a",
       className: "main a1",
-      text: "안녕하세요. 카픽 AI 상담원 입니다. 장기 렌트에 대해 궁금한 점을 물어보세요!"
+      text: "안녕하세요! 여행의 시작을 가장 가볍게 만드는 카픽 AI 상담원입니다. 렌트카, 이용 방법, 차량 추천까지 무엇이든 편하게 물어보세요."
     }
   ]);
 
@@ -77,12 +77,12 @@ function Aipick() {
           type: "a",
           className: "main a1",
           text: data.replyMessage,
-          carType: data.carType ?? null
+          linkURL: data.linkURL ?? null
         }
       ]);
 
-      if (data.carType) {
-        setSelectedCarType(data.carType);
+      if (data.linkURL) {
+        setSelectedlinkURL(data.linkURL);
       }
 
     } catch {
@@ -108,13 +108,13 @@ function Aipick() {
               {/* 1️⃣ replyMessage만 출력 */}
               <p className="chatText">{item.text}</p>
 
-              {/* 2️⃣ carType이 있을 때만 버튼 표시 */}
-              {item.type === "a" && item.carType && (
+              {/* 2️⃣ linkURL이 있을 때만 버튼 표시 */}
+              {item.type === "a" && item.linkURL && (
                 <button
                   className="btn btn-recommend"
-                  onClick={() => setShowPickupModal((prev) => !prev)}
+                  onClick={() => navigate(item.linkURL)}
                 >
-                  추천차량 보러가기
+                  바로가기
                 </button>
               )}
             </div>
@@ -192,44 +192,6 @@ function Aipick() {
             </div>
           </div>
         </section>
-      )}
-
-      {/* 픽업 장소 모달 */}
-      {showPickupModal && (
-        <PickupLocationModal
-          onClose={() => setShowPickupModal(false)}
-          onSelect={(loc) => {
-            setPickupLocation(loc);
-            setShowPickupModal(false);
-            setShowDatePicker(true); // 장소 선택 후 달력 모달 활성화
-          }}
-        />
-      )}
-
-      {/* 달력 모달 */}
-      {showDatePicker && (
-        <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
-          <RentDateRangePicker
-            onChange={(selection) => {
-              setDateRange({
-                startDate: selection.startDate,
-                endDate: selection.endDate,
-              });
-              setShowDatePicker(false); // 달력 모달 닫기
-
-              const params = new URLSearchParams({
-                pickupLocation,
-                startDate: selection.startDate.toISOString(),
-                endDate: selection.endDate.toISOString(),
-                CarType: selectedCarType
-              });
-              navigate(`/day?${params.toString()}`);
-            }}
-            type="short"
-            location="aipick"
-            onClose={() => setShowDatePicker(false)}
-          />
-        </div>
       )}
     </>
 

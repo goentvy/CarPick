@@ -5,7 +5,7 @@ import styles from "../../styles/Intro.module.css";
 import { createGlobalStyle } from "styled-components";
 
 const HideHeaderFooter = createGlobalStyle`
-  #head, #footer {
+  #head, #footer, .fixed {
     display: none !important;
   }
 `;

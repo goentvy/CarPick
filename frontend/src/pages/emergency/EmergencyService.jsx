@@ -58,7 +58,6 @@ const EmergencyService = () => {
               <h3>도움이 필요하신가요?</h3>
               <p>365일 24시간 연중무휴 사고 접수 및 긴급출동 서비스를 이용하실 수 있습니다.</p>
             </div>
-
             <a href="tel:1588-1234" className="contact-button">
               <i className="fa fa-phone-alt"></i> 1588 - 1234
             </a>

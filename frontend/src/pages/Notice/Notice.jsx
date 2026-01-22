@@ -44,11 +44,13 @@ export default function Notice() {
   const handleClickNotice = (id) => {
     // 상세 페이지로 이동 시 현재 정보를 쿼리 스트링으로 전달
     navigate(`/notice/${id}?page=${page}&keyword=${activeKeyword}`);
-  };  
+  };
 
   return (
     <div className="notice-container">
-      <h2 className="notice-title">공지사항 📢</h2>
+      <div className="notice-list-header">
+        <h2 className="notice-title">공지사항</h2>
+      </div>
 
       {/* 검색 */}
       <div className="search-container">

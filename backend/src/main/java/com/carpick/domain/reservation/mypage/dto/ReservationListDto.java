@@ -12,6 +12,8 @@ public class ReservationListDto {
     // 예약 기본 정보
     private Long reservationId;
     private String reservationNo;
+    // 지점 정보
+    private Long branchId;
 
     // 차량 정보 (CAR_SPEC JOIN)
     private String brand;
