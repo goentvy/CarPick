@@ -41,7 +41,7 @@ const About = () => {
         const style = document.createElement('style');
         style.id = 'hide-layout-style';
         style.innerHTML = `
-            header, nav, footer, [class*="Header"], [class*="Navbar"], [class*="Footer"], #footer, .common-footer, .fixed { 
+            header, nav, footer, [class*="Header"], [class*="Navbar"], [class*="Footer"], #footer, .common-footer, .fixedAI { 
                 display: none !important; 
             }
             body { padding: 0 !important; margin: 0; overflow: hidden; }

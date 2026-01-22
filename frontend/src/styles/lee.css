@@ -33,20 +33,21 @@
 
 .event-row {
   width: 100%;
-  padding: 0;
+  padding: 0 20px;
   margin: 67px auto;
 }
 .event-row .title {
-  padding: 20px 15px;
-  height: 67px;
-  border-bottom: 1px solid var(--gray-300);
+  padding: 40px 0px 15px;
+  border-bottom: 2px solid #3b82f6;
+  margin-bottom: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .event-row .title h2 {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1e27;
 }
 
 .eventWrap {
@@ -65,7 +66,10 @@
 }
 
 .event-view-top.title {
-  padding: 0 15px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .event-view-top .btn-list {
   background: var(--gray-200);
