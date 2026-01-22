@@ -23,7 +23,7 @@
 }
 
 .guide-main-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #1a1e27;
   margin: 0;
@@ -96,7 +96,7 @@
 }
 
 .guide-card-header h3 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #2d3748;
 }
@@ -486,7 +486,7 @@
 }
 
 .contact-text h3 {
-  font-size: 32px !important;
+  font-size: 24px !important;
   font-weight: 800;
   margin-bottom: 8px;
   color: #ffffff;
@@ -503,6 +503,18 @@
   color: #ffffff !important;
 }
 
+/* 기본적으로 숨김 (데스크탑) */
+.ai-chat-snackbar {
+  display: none;
+}
+
+/* 기본적으로 숨김 (모바일) */
+.desktop-estimate-btn-container {
+  display: none;
+  margin-top: 30px;
+  justify-content: center;
+}
+
 /* 💻 1. 데스크톱 환경 (641px 이상): 버튼을 텍스트로 표시 */
 @media (min-width: 641px) {
   .contact-section {
@@ -510,7 +522,7 @@
   }
 
   .contact-text h3 {
-    font-size: 28px !important;
+    font-size: 24px !important;
   }
 
   .contact-button {
@@ -529,6 +541,54 @@
     padding: 0 !important;
     text-decoration: none !important;
     white-space: nowrap;
+  }
+
+  .desktop-estimate-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    padding-bottom: 20px;
+  }
+
+  .desktop-estimate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* 요청하신 고정 사이즈 */
+    width: 160px;
+    height: 48px;
+    
+    background-color: #2D2F33;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+    transition: all 0.2s ease;
+    
+    /* [수정] 글자 절대 줄바꿈 방지 */
+    white-space: nowrap; 
+    overflow: hidden;
+  }
+
+  .desktop-estimate-btn:hover {
+    background-color: #1557b0;
+    transform: translateY(-1px);
+  }
+
+  /* [수정] 로봇 이모지: 네온색 포인트 */
+  .desktop-estimate-btn i.fa-robot {
+    font-size: 20px;
+    color: #c6ff35; /* 네온 민트/그린 계열 */
+    filter: drop-shadow(0 0 5px rgba(198, 255, 53, 0.7));
+  }
+
+  .desktop-estimate-btn span {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.5px; /* 글자가 꽉 차 보일 경우 자간 살짝 조절 */
   }
 }
 
@@ -571,7 +631,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 22px !important;
+    font-size: 20px !important;
     font-weight: 900;
     
     /* [핵심] 텍스트 그라데이션 및 글로우 */
@@ -593,5 +653,101 @@
   .contact-button:active {
     transform: scale(0.97);
     background-color: #f8f9fa !important;
+  }
+
+  .ai-chat-snackbar {
+    display: block;
+    position: fixed;
+    bottom: 80px; /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 0 20px;
+    background: transparent;
+  }
+
+  .ai-snackbar-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .ai-estimate-button {
+    width: 100%;
+    max-width: 230px;
+    height: 56px;
+    /* 기본 배경색 #2D2F33에 살짝 밝은 톤을 섞은 그라데이션으로 고급스러움 강조 */
+    background: linear-gradient(135deg, #2d2f33 0%, #3d4045 50%, #2d2f33 100%);
+    border: none;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 8px 0 6px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); /* 깊이감 있는 그림자 */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  /* 버튼 내부 광택 레이어 (이미지의 사선 느낌 재현) */
+  .ai-estimate-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 사선으로 지나가는 은은한 흰색 그라데이션 */
+    background: linear-gradient(110deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 60%);
+    pointer-events: none;
+  }
+
+  .button-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 2;
+  }
+
+  /* 네온 아이콘 배경 (#C6FF35) */
+  .icon-circle {
+    width: 44px;
+    height: 44px;
+    background-color: #c6ff35;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #2d2f33;
+    font-size: 20px;
+    /* 강력한 네온 발광 효과 */
+    box-shadow: 0 0 15px rgba(198, 255, 53, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+
+  .button-text {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
+    margin-right: 20px;
+    white-space: nowrap;
+  }
+
+  .arrow-icon {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 16px;
+    margin-right: 8px;
+    z-index: 2;
+  }
+
+  /* 클릭 애니메이션 */
+  .ai-estimate-button:active {
+    transform: scale(0.97);
+    filter: brightness(1.1);
   }
 }
