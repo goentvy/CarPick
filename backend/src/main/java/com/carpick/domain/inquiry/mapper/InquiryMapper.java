@@ -20,10 +20,16 @@ public interface InquiryMapper {
 	List<AdminInquiryListResponse> findAdminPage(
 		    @Param("offset") int offset,
 		    @Param("limit") int limit,
-		    @Param("search") String search
+		    @Param("search") String search,
+		    @Param("status") String status,
+		    @Param("category") String category
 		);
 
-	int countAdminInquiries(@Param("search") String search);
+	int countAdminInquiries(
+			@Param("search") String search,
+			@Param("status") String status,
+		    @Param("category") String category
+		    );
 
 	// 관리자 - 상세 조회
 	AdminInquiryDetailResponse findDetailForAdmin(@Param("id") Long id);

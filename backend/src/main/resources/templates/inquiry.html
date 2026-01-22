@@ -15,10 +15,6 @@
 	<link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
 
-	<!-- amchart css (CDN) -->
-	<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css"
-		media="all" />
-
 	<!-- Others CSS -->
 	<link rel="stylesheet" th:href="@{/assets/css/typography.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
@@ -27,6 +23,80 @@
 
 	<!-- JS -->
 	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+	
+	<style>
+	/* 필터 버튼을 버튼처럼 안 보이게 */
+	.filter-btn {
+	    background: none;
+	    border: none;
+	    padding: 0 4px;
+	    font-size: 12px;
+	    color: #aaa;
+	    cursor: pointer;
+	    box-shadow: none;
+	}
+
+	.filter-btn:hover {
+	    color: #333;
+	}
+
+	/* 드롭다운 메뉴도 작게 */
+	.dropdown-menu {
+	    min-width: 110px;
+	    font-size: 13px;
+	    padding: 4px 0;
+	}
+
+	.dropdown-item {
+	    padding: 4px 12px;
+	}
+	
+	.table-responsive {
+	    overflow: visible !important;
+	}
+	/* 선택된 필터 항목 표시 */
+	.dropdown-item.active,
+	.dropdown-item.active:hover {
+	    background-color: #f1f1f1;
+	    color: #333;
+	    font-weight: 500;
+		}
+		.fixed-table {
+		    table-layout: fixed;
+		    width: 100%;
+		}
+
+		/* 헤더는 드롭다운 때문에 overflow 허용 */
+		.fixed-table th {
+		    white-space: nowrap;
+		    overflow: visible !important;
+		    position: relative;
+		}
+
+		/* 바디(td)는 말줄임표 유지 */
+		.fixed-table td {
+		    white-space: nowrap;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		}
+		.card,
+		.card-body,
+		.single-table {
+		    overflow: visible !important;
+		}
+
+		/* 드롭다운이 테이블 위로 뜨도록 */
+		.dropdown {
+		    position: relative;
+		}
+
+		/* 다른 요소보다 항상 위로 오게 */
+		.dropdown-menu {
+		    z-index: 9999;
+		}
+	</style>
+	
+	
 
 </head>
 
@@ -71,8 +141,20 @@
 							<div class="search-btn">
 								<button type="submit" class="btn btn-light mb-3"><i class="ti-search"></i></button>
 							</div>
+							<a href="/admin/inquiry"
+							   class="btn btn-light btn-sm"
+							   style="margin-left:6px;"
+							   title="필터 초기화">
+							    <i class="fa fa-refresh"></i>
+							</a>
 						</div>
 					</div>
+				</form>
+				<form id="filterForm" method="get" th:action="@{/admin/inquiry}">
+				    <input type="hidden" name="search" th:value="${search}">
+				    <input type="hidden" name="category" id="categoryInput" th:value="${category}">
+				    <input type="hidden" name="status" id="statusInput" th:value="${status}">
+					<input type="hidden" name="page" id="pageInput" value="0">
 				</form>
 				<div class="row mb-4">
 					<!-- basic table start -->
@@ -82,18 +164,75 @@
 								<h4 class="header-title">일대일문의 관리</h4>
 								<div class="single-table">
 									<div class="table-responsive">
-										<table class="table text-center">
+										<table class="table text-center fixed-table">
 											<thead class="text-uppercase">
 												<tr>
 													<th scope="col">NO</th>
 													<th scope="col">이메일</th>
-													<th scope="col">문의유형</th>
+													<th scope="col">
+													    문의유형
+													    <div class="dropdown d-inline">
+													        <button class="filter-btn dropdown-toggle"
+													                type="button" data-toggle="dropdown">
+													            ▼
+													        </button>
+
+													        <div class="dropdown-menu">
+													            <a class="dropdown-item"
+													               th:classappend="${category == null or category == ''} ? 'active' : ''"
+													               href="#" onclick="setCategory('')">전체</a>
+
+													            <a class="dropdown-item"
+													               th:classappend="${category == 'reservation'} ? 'active' : ''"
+													               href="#" onclick="setCategory('reservation')">예약문의</a>
+
+													            <a class="dropdown-item"
+													               th:classappend="${category == 'payment'} ? 'active' : ''"
+													               href="#" onclick="setCategory('payment')">결제문의</a>
+
+													            <a class="dropdown-item"
+													               th:classappend="${category == 'cancel'} ? 'active' : ''"
+													               href="#" onclick="setCategory('cancel')">취소/환불</a>
+
+													            <a class="dropdown-item"
+													               th:classappend="${category == 'etc'} ? 'active' : ''"
+													               href="#" onclick="setCategory('etc')">기타</a>
+													        </div>
+													    </div>
+													</th>
 													<th scope="col">문의제목</th>
-													<th scope="col">답변상태</th>
+													<th scope="col">
+													    답변상태
+													    <div class="dropdown d-inline">
+													        <button class="filter-btn dropdown-toggle"
+													                type="button" data-toggle="dropdown">
+													            ▼
+													        </button>
+
+													        <div class="dropdown-menu">
+													            <a class="dropdown-item"
+													               th:classappend="${status == null or status == ''} ? 'active' : ''"
+													               href="#" onclick="setStatus('')">전체</a>
+
+													            <a class="dropdown-item"
+													               th:classappend="${status == 'PENDING'} ? 'active' : ''"
+													               href="#" onclick="setStatus('PENDING')">답변전</a>
+
+													            <a class="dropdown-item"
+													               th:classappend="${status == 'ANSWERED'} ? 'active' : ''"
+													               href="#" onclick="setStatus('ANSWERED')">답변완료</a>
+													        </div>
+													    </div>
+													</th>
 													<th scope="col">관리</th>
 												</tr>
 											</thead>
 											<tbody>
+												<tr th:if="${#lists.isEmpty(inquiries)}">
+													<td colspan="6" class="text-center text-muted" style="padding: 30px;">
+													    조회된 문의가 없습니다.
+													</td>
+												</tr>
 												<tr th:each="inquiry : ${inquiries}">
 													<td th:text="${inquiry.id}"></td>
 													<td th:text="${inquiry.userEmail}"></td>
@@ -155,9 +294,13 @@
 
 						<!-- Previous -->
 						<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-							<a class="page-link" th:href="${currentPage > 0}
-				                   ? @{/admin/inquiry(page=${currentPage - 1}, search=${search})}
-				                   : '#'" tabindex="-1">
+							<a class="page-link"
+							   th:href="${currentPage > 0}
+							       ? @{/admin/inquiry(page=${currentPage - 1},
+							                          search=${search},
+							                          category=${category},
+							                          status=${status})}
+							       : '#'" tabindex="-1">
 								Previous
 							</a>
 						</li>
@@ -165,20 +308,29 @@
 						<!-- Page numbers -->
 						<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
 							th:classappend="${i == currentPage} ? 'active' : ''">
-							<a class="page-link" th:href="@{/admin/inquiry(page=${i}, search=${search})}"
-								th:text="${i + 1}" th:style="${i == currentPage}
-				                   ? 'background-color: #e3f2fd; color: #1976d2; border-color: #bbdefb;'
-				                   : ''">
+							<a class="page-link"
+							   th:href="@{/admin/inquiry(page=${i},
+							                             search=${search},
+							                             category=${category},
+							                             status=${status})}"
+							   th:text="${i + 1}"
+							   th:style="${i == currentPage}
+							       ? 'background-color: #e3f2fd; color: #1976d2; border-color: #bbdefb;'
+							       : ''">
 							</a>
 						</li>
 
 						<!-- Next -->
 						<li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
-							<a class="page-link" th:href="${currentPage < totalPages - 1}
-				                   ? @{/admin/inquiry(page=${currentPage + 1}, search=${search})}
-				                   : '#'">
-								Next
-							</a>
+							<a class="page-link"
+							   th:href="${currentPage < totalPages - 1}
+							       ? @{/admin/inquiry(page=${currentPage + 1},
+							                          search=${search},
+							                          category=${category},
+							                          status=${status})}
+							       : '#'">
+								   Next
+								      </a>
 						</li>
 
 					</ul>
@@ -202,32 +354,22 @@
 		<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
 		<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
 
-		<!-- start chart js (CDN) -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-
-		<!-- start highcharts js (CDN) -->
-		<script src="https://code.highcharts.com/highcharts.js"></script>
-
-		<!-- start zingchart js (CDN) -->
-		<script src="https://cdn.zingchart.com/zingchart.min.js"></script>
-		<script>
-			zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
-			ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];
-		</script>
-
-		<!-- all line chart activation -->
-		<script th:src="@{/assets/js/line-chart.js}"></script>
-
-		<!-- all bar chart activation -->
-		<script th:src="@{/assets/js/bar-chart.js}"></script>
-
-		<!-- all pie chart -->
-		<script th:src="@{/assets/js/pie-chart.js}"></script>
-
 		<!-- others plugins -->
 		<script th:src="@{/assets/js/plugins.js}"></script>
 		<script th:src="@{/assets/js/scripts.js}"></script>
+		<script>
+		function setCategory(value) {
+		    document.getElementById("categoryInput").value = value;
+			document.getElementById("pageInput").value = 0;
+		    document.getElementById("filterForm").submit();
+		}
 
+		function setStatus(value) {
+		    document.getElementById("statusInput").value = value;
+			document.getElementById("pageInput").value = 0;
+		    document.getElementById("filterForm").submit();
+		}
+		</script>
 </body>
 
 </html>
