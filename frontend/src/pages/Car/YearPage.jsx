@@ -8,6 +8,32 @@ const YearPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 섹션 4를 위한 상태 추가
+  const [activeService, setActiveService] = useState(null);
+
+  const managementServices = [
+    {
+      title: "대차 서비스",
+      img: "/images/sub/rent/anotherKey.png",
+      desc: "수리 기간 동안 고객님의 일상은 멈추지 마세요. 내 차처럼 편안하고 깨끗한 대차 차량을 즉시 준비해 드립니다."
+    },
+    {
+      title: "Pick-UP 서비스",
+      img: "/images/sub/rent/pickup.png",
+      desc: "계신 곳 어디든 저희가 직접 찾아갑니다. 바쁜 일상 속 서비스 센터 방문의 번거로움 없이 완벽한 정비를 경험해 보세요."
+    },
+    {
+      title: "긴급 서비스",
+      img: "/images/sub/rent/emergency.png",
+      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요. 고객님이 계신 곳으로 가장 빠르게 달려가겠습니다."
+    },
+    {
+      title: "정기점검",
+      img: "/images/sub/rent/regularInspection.png",
+      desc: "더 오래, 더 안전하게. 보이지 않는 곳까지 꼼꼼하게 살피는 전문가의 진단으로 당신의 완벽한 드라이빙을 약속합니다."
+    }
+  ];
+
   useEffect(() => {
     axios.get('http://localhost:8080/api/rent/year/details')
       .then(res => {
@@ -82,9 +108,25 @@ const YearPage = () => {
               긴급지원서비스 ❯
             </button>
           </div>
-          <div className="service-simple-grid">
-            {["대차 서비스", "Pick-UP 서비스", "긴급 서비스", "정기점검"].map((s, i) => (
-              <div key={i} className="service-mini-tag">{s}</div>
+
+          <div className="service-accordion-grid">
+            {managementServices.map((s, i) => (
+              <div key={i} className="service-item-wrapper">
+                <div
+                  className={`service-mini-tag ${activeService === i ? 'active' : ''}`}
+                  onClick={() => setActiveService(activeService === i ? null : i)}
+                >
+                  {s.title}
+                </div>
+
+                {/* 선택된 경우 펼쳐지는 상세 영역 */}
+                <div className={`service-detail-content ${activeService === i ? 'show' : ''}`}>
+                  <div className="detail-inner">
+                    <img src={s.img} alt={s.title} className="service-img" />
+                    <p className="service-desc-text">{s.desc}</p>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </section>
