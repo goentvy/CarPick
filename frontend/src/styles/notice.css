@@ -2,8 +2,8 @@
 .notice-container-detail {
   max-width: 640px;
   width: 100%;
-  margin: 0 auto;
-  padding: 80px 16px 80px;
+  margin: 0 auto 30px;
+  padding: 80px 20px 30px;
   /* 상단(헤더) / 좌우 / 하단(페이지네이션) */
   font-family: "Noto Sans KR", sans-serif;
 }
@@ -11,12 +11,23 @@
 .notice-list-header {
   position: relative;
   width: 100%;
-  height: auto;
+  /* 텍스트와 선 사이의 안쪽 여백 */
+  padding-bottom: 15px; 
+  /* CarP!ck 스타일 블루 라인 */
+  border-bottom: 2px solid #3b82f6; 
+  /* 선(Border)과 검색창 사이의 바깥 여백 */
+  margin-bottom:15px; 
+  text-align: left;
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  padding: 20px 0;
+}
+
+.notice-title {
+  font-size: 24px; 
+  font-weight: 700;
+  color: #1a1e27;
+  margin: 0;
+  line-height: 1; /* 라인과의 간격 조절을 위해 높이 최소화 */
 }
 
 .notice-logo {
@@ -27,23 +38,14 @@
   cursor: pointer;
 }
 
-.notice-title {
-  font-size: 24px;
-  font-weight: 800;
-  margin: 5px 0 15px;
-  text-align: center;
-}
-
 .search-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 16px;
-  background-color: #fdfdfd;
-  border-radius: 8px;
-  flex-direction: column;
+  width: 100%;           /* 부모 너비에 맞춤 */
+  margin: 0 0 10px 0;    /* 양쪽 마진 제거, 하단 마진만 유지 */
+  padding: 10px 0;       /* 좌우 패딩을 0으로 설정하여 여백 제거 */
+  background-color: transparent; /* 배경색이 필요 없다면 투명하게 */
 }
 
 .search-input-wrapper {
@@ -140,7 +142,7 @@
 
 .notice-table thead {
   background-color: white;
-  border-top: 2px solid #333;
+  border-top: 1px solid #979797;
   border-bottom: 1px solid #ccc;
 }
 

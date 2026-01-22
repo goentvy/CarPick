@@ -201,7 +201,7 @@
     padding: 25px 40px 25px !important;
     /* 내부 여백 최적화 */
     border-radius: 20px;
-    margin: 20px auto 20px !important;
+    margin: 20px auto 80px !important;
     /* 상단 마진 20px로 고정 */
     max-width: 680px;
     /* 상단 카드들과 너비 통일 */
