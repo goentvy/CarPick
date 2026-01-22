@@ -59,23 +59,26 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       alert("픽업 장소를 선택해주세요.");
       return;
     }
-    const returnBranchId = pickupBranchId; // ✅ MVP 기본값: 반납=픽업
+
+    const isLong = type === "long";
+    const m = isLong ? (dateRange.months ?? 1) : undefined;
 
     const params = new URLSearchParams({
-      pickupBranchId: String(pickupBranchId), // 수정: 의미 정확
-      returnBranchId: String(returnBranchId), // ✅ 추가
+      pickupBranchId: String(pickupBranchId),
+      returnBranchId: String(pickupBranchId),
       rentType: type,
       startDate: formatKST(dateRange.startDate),
       endDate: formatKST(dateRange.endDate),
-      // 수정(선택): 표시용으로 지점명도 같이 넘기고 싶으면 아래 주석 해제
+      ...(isLong ? { months: String(m) } : {}),
       pickupBranchName: pickupBranchName || "",
-      // (선택) 반납 지점명도 표시용으로 넣고 싶으면:
       returnBranchName: pickupBranchName || "",
     });
 
-    const path = type === "short" ? "/day" : "/year";
+    const path = "/day";
     navigate(`${path}?${params.toString()}`);
   };
+
+
 
   const handleRentTypeChange = (type) => {
     const now = new Date();
@@ -109,11 +112,11 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
     setRentType(type);
   };
 
-  const handleSearchWithDates = (type, startDate, endDate) => {
-    if (!pickupBranchId) {
-      alert("픽업 장소를 선택해주세요.");
-      return;
-    }
+  const handleSearchWithDates = (type, startDate, endDate, months) => {
+    if (!pickupBranchId) return alert("픽업 장소를 선택해주세요.");
+
+    const isLong = type === "long";
+    const m = isLong ? Number(months ?? 1) : 0;
 
     const params = new URLSearchParams({
       pickupBranchId: String(pickupBranchId),
@@ -121,13 +124,15 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       rentType: type,
       startDate: formatKST(startDate),
       endDate: formatKST(endDate),
+      ...(isLong ? { months: String(m) } : {}),
       pickupBranchName: pickupBranchName || "",
       returnBranchName: pickupBranchName || "",
     });
 
-    const path = type === "short" ? "/day" : "/month";
+    const path = "/day";
     navigate(`${path}?${params.toString()}`);
   };
+
 
 
   // 수정 (단순화)
@@ -156,12 +161,12 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
             <button
               key={type}
               onClick={() => handleRentTypeChange(type)}
-              className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm ${rentType === type
+              className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm cursor-pointer ${rentType === type
                 ? 'bg-brand text-white shadow-md'
                 : 'text-gray-400 hover:bg-blue-400 hover:text-gray-700'
                 }`}
             >
-              {type === 'short' ? '단기 렌트' : '장기 렌트'}
+              {type === 'short' ? '단기 렌트' : '월 렌트'}
             </button>
           ))}
         </div>
@@ -229,6 +234,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
               <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
                 <RentDateRangePicker
                   onChange={(selection) => {
+
                     setDateRange({
                       startDate: selection.startDate,
                       endDate: selection.endDate
@@ -274,13 +280,14 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
               <div className="absolute left-0 top-full mt-2 z-50 bg-white border rounded-xl shadow-lg w-full">
                 <RentDateRangePicker
                   onChange={(selection) => {
+                    const m = selection.months ?? 1;
                     setDateRange({
                       startDate: selection.startDate,
                       endDate: selection.endDate,
-                      months: selection.months ?? 1
+                      months: m,
                     });
                     setShowDatePicker(false); // 달력 모달 닫기
-                    handleSearchWithDates('long', selection.startDate, selection.endDate);
+                    handleSearchWithDates('long', selection.startDate, selection.endDate, m);
                   }}
                   onClose={() => setShowDatePicker(false)}
                   type="long"
@@ -296,7 +303,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
         {/* 차량 찾기 버튼 */}
         <div className="py-3">
           <button
-            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
+            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px] cursor-pointer"
             onClick={() => handleSearch(rentType)}>
             차량 찾기
           </button>

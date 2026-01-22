@@ -469,6 +469,9 @@ body {
 }
 
 @media (hover: none) and (pointer: coarse) {
+  #home {
+    margin-bottom: 60px;
+  }
   #footer {
     display: block;
   }

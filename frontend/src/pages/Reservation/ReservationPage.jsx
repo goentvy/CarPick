@@ -91,6 +91,8 @@ const ReservationPage = () => {
     useEffect(() => {
         const startDateTime = searchParams.get("startDate");
         const endDateTime = searchParams.get("endDate");
+        const monthsParam = Number(searchParams.get("months")); // ✅ 추가
+        const months = Number.isFinite(monthsParam) && monthsParam > 0 ? monthsParam : 1;
 
         if (!startDateTime || !endDateTime) {
             alert("예약 기간 정보가 없습니다. 다시 검색해주세요.");
@@ -103,19 +105,17 @@ const ReservationPage = () => {
         // 백엔드 DTO에 추가할 계획이 없다면 body에는 넣지 마세요.
         // const returnBranchId = Number(searchParams.get("returnBranchId"));
 
-        const rentTypeRaw = searchParams.get("rentType"); // "short" or "long" 일 가능성
-        const rentType =
-            (rentTypeRaw ? rentTypeRaw.toUpperCase() : "SHORT"); //  Enum 맞춤: SHORT/LONG
-
+        const rentTypeRaw = (searchParams.get("rentType") || "").toLowerCase();
+        const rentType = rentTypeRaw === "long" ? "LONG" : "SHORT";
         //  (수정 3) 백엔드가 기대하는 @RequestBody(JSON) 형태로 보내기
         // ReservationFormRequestDtoV2에 맞춘 body
         const body = {
             specId,
             pickupBranchId,
             rentType,
-            startDateTime, //  DTO의 @JsonProperty("startDateTime")
-            endDateTime,   //  DTO의 @JsonProperty("endDateTime")
-            // driverInfo는 Form 단계에서 굳이 안 보내도 되지만 DTO가 필수 검증 걸려있으면 빈 값이라도 맞춰줍니다.
+            startDateTime,
+            endDateTime,
+            ...(rentType === "LONG" ? { months } : {}), // ✅ 핵심
             driverInfo: {
                 lastname: "",
                 firstname: "",
@@ -124,6 +124,7 @@ const ReservationPage = () => {
                 birth: "",
             },
         };
+
         api.post("/reservation/form", body)
             .then(res => {
                 setFormData(res.data);

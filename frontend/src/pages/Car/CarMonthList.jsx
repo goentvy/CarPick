@@ -1,156 +1,138 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import RentHeader from "./RentHeader";
 import CarCard from "./CarCard";
-import PickupFilterModal from '../../components/common/PickupFilterModal';
+import PickupFilterModal from "../../components/common/PickupFilterModal";
 
-const CarList = () => {
+const CarMonthList = () => {
+    console.log("✅ RENDER: CarMonthList", window.location.href);
+
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [ShowFilter, setShowFilter] = useState(false);
 
-    // 필터 상태
-    const [selectedLevel, setSelectedLevel] = useState([]);
-    const [selectedFuel, setSelectedFuel] = useState([]);
-    const [selectedPerson, setSelectedPerson] = useState([]);
+    const navigate = useNavigate();
+    const routerLocation = useLocation();
 
-    const [yearRange, setYearRange] = useState([2010, new Date().getFullYear()]);
-    const [priceRange, setPriceRange] = useState([10000, 1000000]);
-
-    // 필터 적용 시 호출
-    const handleApplyFilter = (level, fuel, person) => {
-        setSelectedLevel(level);
-        setSelectedFuel(fuel);
-        setSelectedPerson(person);
-        setShowFilter(false); // 모달 닫기
+    // ✅ 날짜 포맷 보정: "yyyy-MM-dd HH:mm" 또는 "yyyy-MM-ddTHH:mm" => 초 붙이기
+    const ensureSeconds = (s) => {
+        if (!s) return "";
+        if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}$/.test(s)) return `${s}:00`;
+        return s;
     };
 
-    // 필터 초기화
-    const handleResetFilter = () => {
-        setSelectedLevel([]);
-        setSelectedFuel([]);
-        setSelectedPerson([]);
-        setYearRange([2010, new Date().getFullYear()]);
-        setPriceRange([10000, 1000000]);
-    };
+    // ✅ 서버에 보낼 params를 "정규화" 해서 만들기 (불필요 키 제거 + 키 이름 맞추기)
+    const normalizedParams = useMemo(() => {
+        const raw = Object.fromEntries(new URLSearchParams(routerLocation.search));
+
+        // 1) pickupBranchId 보정
+        if (!raw.pickupBranchId && raw.branchId) raw.pickupBranchId = raw.branchId;
+
+        // 2) returnBranchId 기본값
+        if (!raw.returnBranchId && raw.pickupBranchId) raw.returnBranchId = raw.pickupBranchId;
+
+        // 3) rentType 보정 (Swagger: SHORT, LONG)
+        const rentType = raw.rentType ? String(raw.rentType).toUpperCase() : "LONG";
+
+        // 4) 날짜 키 변환 (Swagger: startDateTime/endDateTime)
+        const startDateTime = ensureSeconds(raw.startDateTime || raw.startDate || "");
+        const endDateTime = ensureSeconds(raw.endDateTime || raw.endDate || "");
+
+        // 5) 서버가 요구하는 키만 보내기 (pickupBranchId는 필수)
+        const params = {
+            pickupBranchId: raw.pickupBranchId ? String(raw.pickupBranchId) : "",
+            returnBranchId: raw.returnBranchId ? String(raw.returnBranchId) : "",
+            startDateTime,
+            endDateTime,
+            rentType,
+        };
+
+        return params;
+    }, [routerLocation.search]);
 
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`)
-        .then((res) => {
-            setCars(res.data);
-        })
-        .catch((err) => console.error("차량 리스트 불러오기 실패:", err))
-        .finally(() => setLoading(false));
-    }, []);
+        // ✅ 필수값 체크 (백엔드가 pickupBranchId required)
+        if (!normalizedParams.pickupBranchId) {
+            console.error("[CarMonthList] pickupBranchId 누락. API 호출 중단", {
+                search: routerLocation.search,
+                normalizedParams,
+            });
+            setCars([]);
+            setLoading(false);
+            return;
+        }
 
-    const handleClickCar = (id) => {
-        navigate(`/cars/detail/${id}`);
+        setLoading(true);
+
+        // ✅ 가장 확실한 방식: URL에 쿼리를 직접 붙여서 요청 (params 누락 문제를 원천 차단)
+        const qs = new URLSearchParams(normalizedParams).toString();
+        const url = `${import.meta.env.VITE_API_BASE_URL}/api/cars?${qs}`;
+
+        console.log("[CarMonthList] GET", url);
+
+        let cancelled = false;
+
+        axios
+            .get(url)
+            .then((res) => {
+                if (cancelled) return;
+                setCars(res.data ?? []);
+            })
+            .catch((err) => {
+                if (cancelled) return;
+                console.error("[CarMonthList] 차량 리스트 불러오기 실패:", err);
+                setCars([]);
+            })
+            .finally(() => {
+                if (cancelled) return;
+                setLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [normalizedParams, routerLocation.search]);
+
+    const handleClickCar = (specId) => {
+        // ✅ 단기처럼 쿼리 유지해서 상세로 넘김 (branch/time 컨텍스트 유지)
+        navigate(`/cars/detail/${specId}${routerLocation.search}`);
     };
 
     if (loading) return <p>Loading...</p>;
 
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
-            {/* 대여장소, 일정 검색 */}
             <RentHeader type="long" location="month" />
 
-            {/* 필터 버튼 */}
-            <div className="overflow-x-auto max-w-[90%] w-full mx-auto">
-                <div className="w-max flex items-center whitespace-nowrap">
-                    <button 
-                    className="btn flex items-center rounded-[50px] px-4 py-1.5 cursor-pointer font-bold bg-blue-50 mt-[14px] max-w-[150px]"
-                    onClick={() => setShowFilter((prev) => !prev)}
-                    >
-                    <img src="/images/common/car_filter-solid.svg" className="pr-2"/>필터
-                    </button>
-
-                    <div className="keyword flex flex-wrap gap-2 mt-[14px] ml-2">
-                        {[
-                        ...selectedLevel,
-                        ...selectedFuel,
-                        ...selectedPerson
-                        ].map((item) => (
-                        <span key={item} className="bg-blue-50 px-4 py-1.5 rounded-full font-bold">
-                            {item}
-                        </span>
-                        ))}
-                    </div>
-
-                    {ShowFilter && (
-                    <PickupFilterModal
-                        onClose={() => setShowFilter(false)}
-                        selectedLevel={selectedLevel}
-                        setSelectedLevel={setSelectedLevel}
-                        selectedFuel={selectedFuel}
-                        setSelectedFuel={setSelectedFuel}
-                        selectedPerson={selectedPerson}
-                        setSelectedPerson={setSelectedPerson}
-                        yearRange={yearRange}
-                        setYearRange={setYearRange}
-                        priceRange={priceRange}
-                        setPriceRange={setPriceRange}
-                        onApply={handleApplyFilter}
-                        onReset={handleResetFilter}
-                    />
-                    )}
-                </div>
-            </div>
-
-            {/* 차량수 */}
-            <div className="max-w-[90%] w-full flex justify-between items-center mx-auto mt-[30px]">
-                <h4 className="font-bold">총 <span>13</span>대</h4>
-                <select className="bg-blue-50 px-2 py-1 rounded-[50px] font-bold">
-                    <option>AI추천순</option>
-                    <option>낮은가격순</option>
-                    <option>차종류순</option>
-                    <option>신차순</option>
-                </select>
-            </div>
-
-            {/* 차량목록 */}
-           {cars.length === 0 ? (
+            {cars.length === 0 ? (
                 <div className="text-center min-h-[200px] mt-20 space-y-4">
-                    <img src="/images/common/filterNull.svg" className="mx-auto" alt="차량 없음"/>
+                    <img src="/images/common/filterNull.svg" className="mx-auto" alt="차량 없음" />
                     <h3 className="text-[24px] font-bold mb-[8px]">
                         필터 조건에서는 함께 떠날 차를 찾지 못했어요.
                     </h3>
-                    <p className="text-[20px] text-gray-400 font-medium mb-[42px]">
-                        필터를 조금만 넓히면 더 빠르게 픽할 수 있어요.
+                    <p className="text-[16px] text-gray-400 font-medium">
+                        대여 지점/기간을 다시 확인해 주세요.
                     </p>
-                    <button
-                        type="button"
-                        className="bg-blue-50 px-4 py-2 rounded-[50px] border border-blue-500 font-bold"
-                        onClick={handleResetFilter}
-                    >
-                        필터 초기화
-                    </button>
                 </div>
-                ) : (
-                <div className="xx:p-2 sm:p-6 flex xx:flex-col xs:flex-row justify-between gap-2 flex-wrap">
-                {cars.map((car) => (
-                    <div key={car.vehicleId} className="w-full sm:w-[49%]">
+            ) : (
+                <div className="mt-4 px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {cars.map((car) => (
                         <CarCard
-                            id={car.vehicleId}
-                            discount={car.discountRate !== null}
-                            discountRate={car.discountRate || 0}
-                            imageSrc={car.mainImageUrl || "/images/common/carList.png"}
+                            key={car.specId}
+                            id={car.specId}
                             title={car.displayNameShort}
-                            info={{
-                            year: car.modelYear,
-                            seat: car.seatingCapacity+"인승",
-                            }}
-                            features={car.driveLabels} // "가솔린,SUV,패밀리카"
+                            info={{ year: car.modelYear, seat: car.seatingCapacity + "인승" }}
+                            features={car.driveLabels}
                             cost={car.originalPrice}
                             price={car.finalPrice}
-                            day={false} // 단기면 true, 장기면 false
-                            onClick={() => handleClickCar(car.vehicleId)}
+                            day={false}
+                            onClick={() => handleClickCar(car.specId)}
                         />
-                    </div>
-                ))}
-            </div>
-           )}
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
-export default CarList;
+
+export default CarMonthList;

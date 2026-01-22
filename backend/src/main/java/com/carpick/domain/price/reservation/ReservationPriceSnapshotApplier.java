@@ -44,14 +44,13 @@ public void apply(Reservation reservation, ReservationPriceSummaryResponseDto pr
     reservation.setAppliedRentFeeSnapshot(rentFee);
     reservation.setAppliedInsuranceFeeSnapshot(insuranceFee);
 
-    // =========================
-    // (확장 포인트) 지금은 미사용
-    // =========================
-    // reservation.setRentDiscountAmountSnapshot(...);
-    // reservation.setInsuranceDiscountAmountSnapshot(...);
-    // reservation.setOptionFeeSnapshot(...);
-    // reservation.setMemberDiscountRateSnapshot(...);
-    // reservation.setEventDiscountAmountSnapshot(...);
+    // 5) 할인/옵션 관련 스냅샷 (MVP: 전부 0으로 명시)
+    reservation.setRentDiscountAmountSnapshot(BigDecimal.ZERO);
+    reservation.setInsuranceDiscountAmountSnapshot(BigDecimal.ZERO);
+    reservation.setOptionFeeSnapshot(BigDecimal.ZERO);
+    reservation.setMemberDiscountRateSnapshot(BigDecimal.ZERO);
+    reservation.setEventDiscountAmountSnapshot(BigDecimal.ZERO);
+
 }
 
     private BigDecimal nvl(BigDecimal v) {

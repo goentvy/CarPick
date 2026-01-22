@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 const Modal = ({ children, onClose }) => {
   return createPortal(
     <div
-      className="fixed inset-0 xx:bg-white xs:bg-black/15 flex justify-center items-center z-9999"
+      className="fixed inset-0 xx:bg-white xs:bg-black/15 flex justify-center z-9999"
       onClick={onClose} // ✅ 바깥 클릭 시 닫기
     >
       <div
