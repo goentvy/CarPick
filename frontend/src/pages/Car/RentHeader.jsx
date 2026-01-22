@@ -50,14 +50,14 @@ const RentHeader = ({ type, location }) => {
   useEffect(() => {
     const today = new Date();
 
-    if (prevType.current !== type) {
-      if (type === 'short') {
+    if (prevType.current !== rentType) {
+      if (rentType === 'short') {
         setDateRange({
           startDate: today,
           endDate: new Date(today.getTime() + 24 * 60 * 60 * 1000),
           months: 1,
         });
-      } else if (type === 'long') {
+      } else if (rentType === 'long') {
         const nextMonth = new Date(today);
         nextMonth.setMonth(today.getMonth() + 1);
         setDateRange({
@@ -66,9 +66,9 @@ const RentHeader = ({ type, location }) => {
           months: calculateMonths(today, nextMonth), // 자동 계산
         });
       }
-      prevType.current = type;
+      prevType.current = rentType;
     }
-  }, [type]);
+  }, [rentType]);
 
   useEffect(() => {
     if (showLocationPicker || showDatePicker) {
@@ -122,7 +122,7 @@ const RentHeader = ({ type, location }) => {
     params.set('endDate', selection.endDate.toISOString());
     params.set('months', selection.months || 1);
 
-    navigate(`/${selection.activeType <= 1 ? 'day' : 'month'}?${params.toString()}`);
+    navigate(`/day?${params.toString()}`);
   };
 
   return (
@@ -147,7 +147,7 @@ const RentHeader = ({ type, location }) => {
               >
                 <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
                 <span id="pickTime" className="text-[12px] text-gray-500">
-                  {type == 'short' ? getDurationText() : getLongTermText()}
+                  {rentType == 'short' ? getDurationText() : getLongTermText()}
                 </span>
               </p>
             </div>
@@ -188,11 +188,7 @@ const RentHeader = ({ type, location }) => {
                     months: selection.months || 1,
                   });
 
-                  navigate(
-                    selection.activeType === 'short'
-                      ? `/day?${params.toString()}`
-                      : `/month?${params.toString()}`
-                  );
+                  navigate(`/day?${params.toString()}`);
                 }}
                 onClose={() => setShowDatePicker(false)}
                 onTabChange={(tab) => {

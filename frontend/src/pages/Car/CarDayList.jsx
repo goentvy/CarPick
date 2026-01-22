@@ -4,6 +4,7 @@ import axios from "axios";
 import RentHeader from "./RentHeader";
 import CarCard from "./CarCard";
 import PickupFilterModal from "../../components/common/PickupFilterModal";
+import { set } from "react-hook-form";
 
 const CarList = () => {
     const [cars, setCars] = useState([]);
@@ -14,6 +15,8 @@ const CarList = () => {
 
     const navigate = useNavigate();
     const routerLocation = useLocation();
+    const query = new URLSearchParams(routerLocation);
+    const type = query.get("rentType");
     const [ShowFilter, setShowFilter] = useState(false);
 
     // 필터 상태
@@ -180,7 +183,7 @@ const CarList = () => {
 
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
-            <RentHeader type="short" location="day" />
+            <RentHeader type={type} location="day" />
 
             <div className="overflow-x-auto max-w-[90%] w-full mx-auto">
                 <div className="w-max flex items-center whitespace-nowrap">

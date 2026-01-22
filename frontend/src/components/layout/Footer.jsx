@@ -23,7 +23,7 @@ const Footer = () => {
                         className={`btn btn_car ${location.pathname.includes("day") ? "active" : ""
                             }`}
                     >
-                        <span>단기렌트</span>
+                        <span>단기·월 렌트</span>
                     </Link>
                     <Link to="/month"
                         className={`btn btn_cal ${location.pathname.includes("month") ? "active" : ""
