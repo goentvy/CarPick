@@ -23,10 +23,10 @@ export default function InquiryPage() {
         return (
             <div className="page-wrapper">
                 <div className="inquiry-container guest">
-                    <ContentTopLogo
-                        title="일대일 문의하기"
-                        titleStyle={"text-center mb-6 text-xl font-bold"}
-                    />
+
+                    <section className="guide-header-style">
+                        <h2 className="guide-main-title">일대일 문의하기</h2>
+                    </section>
 
                     <p className="guest-desc">로그인 후 이용해주세요.</p>
 
@@ -91,10 +91,10 @@ export default function InquiryPage() {
     return (
         <div className="page-wrapper">
             <div className="inquiry-container">
-                <ContentTopLogo
-                    title="일대일 문의하기"
-                    titleStyle={"text-center mb-6 text-xl font-bold"}
-                />
+
+                <section className="guide-header-style">
+                    <h2 className="guide-main-title">일대일 문의하기</h2>
+                </section>
 
                 <form onSubmit={handleSubmit}>
                     <div>

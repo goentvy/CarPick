@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ContentTopLogo from "../../components/common/ContentTopLogo";
 import "../../styles/faq.css";
 
 export default function Faq() {
@@ -54,20 +53,30 @@ export default function Faq() {
         <div className="page-wrapper">
             <div className="faq-container">
 
-                <ContentTopLogo
-                    title="자주 묻는 질문"
-                    titleStyle="text-center mb-6 text-xl font-bold"
-                />
 
+                <section className="faq-header">
+                    <h2 className="faq-title">자주 묻는 질문</h2>
+                </section>
                 {/* 검색 */}
-                <div className="faq-search-wrapper">
-                    <input
-                        className="faq-search"
-                        placeholder="검색어를 입력하세요"
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                    />
-                    <button className="faq-search-btn">🔍</button>
+                <div className="faq-search-container">
+                    <div className="faq-search-input-wrapper">
+                        <button
+                            className="search-icon"
+                            onClick={() => setPage(0)}   // 버튼 눌렀을 때도 검색 트리거
+                        >
+                            <i className="fa-solid fa-magnifying-glass"></i>
+                        </button>
+
+                        <input
+                            className="search-input"
+                            placeholder="검색어를 입력하세요"
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") setPage(0);   // 엔터로도 검색되게
+                            }}
+                        />
+                    </div>
                 </div>
 
                 {/* 카테고리 */}

@@ -7,9 +7,10 @@ export default function InquirySuccess() {
   return (
     <div className="page-wrapper">
       <div className="inquiry-container">
-        <h2>문의가 등록되었습니다</h2>
 
         <p style={{ textAlign: "center", margin: "20px 0" }}>
+          문의가 등록되었습니다.
+          <br />
           빠른 시일 내에 답변드리겠습니다.
         </p>
 
