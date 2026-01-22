@@ -2,11 +2,7 @@ import { Link } from "react-router-dom";
 
 const HomeFooter = () => {
   return (
-<<<<<<< HEAD
     <footer className="bg-gray-100 text-gray-600 text-xs py-6 mb-5 ">
-=======
-    <footer className="bg-gray-100 text-gray-600 text-xs py-6 rounded-t-4xl">
->>>>>>> origin/dev
       <div className="max-w-[640px] mx-auto px-6">
         {/* 링크 */}
         <div className="flex gap-4 mb-2 text-[13px] font-medium">
