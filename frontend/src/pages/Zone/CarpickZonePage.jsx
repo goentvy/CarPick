@@ -9,7 +9,7 @@ import ZoneBottomSheetDrop from "../../components/zone/sheet/ZoneBottomSheetDrop
 import { useZoneMap } from "@/hooks/useZoneMap";
 import { useMyLocation } from "@/hooks/useMyLocation.js";
 import { useZoneSelection } from "@/hooks/useZoneSelection.js";
-// import { useBranchDetail } from "@/hooks/useBranchDetail";
+import { useBranchDetail } from "@/hooks/useBranchDetail";
 import { useNavigate } from "react-router-dom";
 import { Images } from "lucide-react";
 
