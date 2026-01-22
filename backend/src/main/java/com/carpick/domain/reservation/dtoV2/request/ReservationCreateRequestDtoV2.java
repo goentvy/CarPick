@@ -50,6 +50,8 @@ public class ReservationCreateRequestDtoV2 {
      * 4. 운전자 정보 (Who - 필수!)
      * ========================== */
     private DriverInfoDtoV2 driverInfo; // 비회원은 이게 곧 신분증입니다.
+    // LONG 전용 (개월 수)
+    private Integer months;
 
     private boolean agreement; // 약관 동의 여부
 

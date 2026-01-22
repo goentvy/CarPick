@@ -8,6 +8,8 @@ function MyLicense() {
     const { accessToken } = useUserStore();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [licenseToDelete, setLicenseToDelete] = useState(null);
     const [modalStep, setModalStep] = useState("form");
     const [result, setResult] = useState("");
     const [loading, setLoading] = useState(false);
@@ -72,7 +74,7 @@ function MyLicense() {
                             id: item.id,
                             name: item.driverName,
                             birthday: item.birthday,
-                            licenseNumber: formatted, //  하이픈 포함
+                            licenseNumber: formatted, // 하이픈 포함
                             serialNumber: item.serialNumber,
                         };
                     }
@@ -161,7 +163,7 @@ function MyLicense() {
             const resultData = await response.json();
 
             if (response.ok && resultData.success) {
-                //  새로 등록된 면허도 하이픈 포맷으로 표시
+                // 새로 등록된 면허도 하이픈 포맷으로 표시
                 const formattedLicenseNumber = [
                     data.licenseNumber.slice(0, 2),
                     data.licenseNumber.slice(2, 4),
@@ -173,7 +175,7 @@ function MyLicense() {
                     id: resultData.data.id,
                     name: resultData.data.driverName,
                     birthday: resultData.data.birthday,
-                    licenseNumber: formattedLicenseNumber, //  하이픈 포함
+                    licenseNumber: formattedLicenseNumber, // 하이픈 포함
                     serialNumber: resultData.data.serialNumber,
                 };
                 setLicenses((prev) => [newLicense, ...prev]);
@@ -194,13 +196,20 @@ function MyLicense() {
         }
     };
 
+    // 삭제 모달 열기
+    const openDeleteModal = (licenseId, licenseName) => {
+        setLicenseToDelete({ id: licenseId, name: licenseName });
+        setDeleteModalOpen(true);
+    };
+
+    // 실제 삭제 실행
     const deleteLicense = async (licenseId) => {
-        if (!confirm("이 면허 정보를 삭제하시겠습니까?")) return;
         if (!accessToken) {
             alert("로그인이 필요합니다.");
             return;
         }
 
+        setLoading(true);
         try {
             const response = await fetch(`/api/licenses/${licenseId}`, {
                 method: "DELETE",
@@ -215,13 +224,16 @@ function MyLicense() {
                     setHasLicense(newLicenses.length > 0);
                     return newLicenses;
                 });
-                alert("면허 정보가 삭제되었습니다.");
+                setResult("면허 정보가 삭제되었습니다.");
             } else {
-                alert("삭제에 실패했습니다.");
+                setResult("삭제에 실패했습니다.");
             }
         } catch (error) {
             console.error("삭제 오류:", error);
-            alert("네트워크 오류");
+            setResult("네트워크 오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
+            setDeleteModalOpen(false);
         }
     };
 
@@ -275,7 +287,7 @@ function MyLicense() {
                                 </p>
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">면허번호</span>
-                                    <span>{license.licenseNumber}</span> {/*  하이픈 표시 */}
+                                    <span>{license.licenseNumber}</span>
                                 </p>
                                 <p className="flex items-center">
                                     <span className="w-16 text-[#666666]">일련번호</span>
@@ -287,8 +299,8 @@ function MyLicense() {
 
                             <div className="mt-3 flex justify-end gap-2 text-xs">
                                 <button
-                                    onClick={() => deleteLicense(license.id)}
-                                    className="px-3 py-1.5 rounded-full border border-[#FF4B4B] text-[#FF4B4B] font-medium"
+                                    onClick={() => openDeleteModal(license.id, license.name)}
+                                    className="px-3 py-1.5 rounded-full border border-[#FF4B4B] text-[#FF4B4B] font-medium hover:bg-[#FF4B4B] hover:text-white transition-colors"
                                 >
                                     삭제하기
                                 </button>
@@ -308,13 +320,14 @@ function MyLicense() {
                 {!hasLicense && (
                     <button
                         onClick={openModal}
-                        className="w-full h-11 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#215FCC]"
+                        className="w-full h-11 rounded-xl bg-[#2C7FFF] text-white text-sm font-medium shadow-sm hover:bg-[#215FCC] transition-colors"
                     >
                         운전 면허 추가하기
                     </button>
                 )}
             </div>
 
+            {/* 등록 모달 */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50">
                     <div className="w-[90%] max-w-md rounded-2xl bg-white px-5 py-6">
@@ -366,7 +379,7 @@ function MyLicense() {
                                         <input
                                             id="licenseNumber"
                                             placeholder="면허번호 (예: 11-90-123456-00)"
-                                            maxLength={15} // 12자리 + 3하이픈
+                                            maxLength={15}
                                             className={`w-full rounded-lg border px-3 py-2 text-sm font-mono tracking-wider ${
                                                 errors.license ? "border-[#dc3545]" : "border-[#dddddd]"
                                             }`}
@@ -439,6 +452,39 @@ function MyLicense() {
                                 </button>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* 삭제 확인 모달 */}
+            {deleteModalOpen && licenseToDelete && (
+                <div className="fixed inset-0 z-[1001] flex items-center justify-center bg-black/50">
+                    <div className="w-[90%] max-w-sm rounded-2xl bg-white px-5 py-6">
+                        <h3 className="text-base font-semibold text-[#1A1A1A] mb-2">
+                            면허 정보 삭제
+                        </h3>
+                        <p className="text-sm text-[#333333] mb-5 leading-relaxed">
+                            <strong>{licenseToDelete.name}</strong>님의 면허 정보를<br />
+                            삭제하시겠습니까?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => deleteLicense(licenseToDelete.id)}
+                                disabled={loading}
+                                className={`flex-1 h-11 rounded-xl text-sm font-medium text-white ${
+                                    loading ? "bg-[#6c757d]" : "bg-[#FF4B4B]"
+                                }`}
+                            >
+                                {loading ? "삭제 중..." : "삭제하기"}
+                            </button>
+                            <button
+                                onClick={() => setDeleteModalOpen(false)}
+                                disabled={loading}
+                                className="flex-1 h-11 rounded-xl bg-[#e5e5e5] text-sm font-medium text-[#333333]"
+                            >
+                                취소
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
