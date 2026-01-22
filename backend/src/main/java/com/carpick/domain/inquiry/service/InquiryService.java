@@ -49,10 +49,12 @@ public class InquiryService {
 	public AdminInquiryPageResponse getInquiryPage(
 		    int page,
 		    int pageSize,
-		    String search
+		    String search,
+		    String status,
+		    String category
 		) {
 		    int totalCount =
-		        inquiryMapper.countAdminInquiries(search);
+		        inquiryMapper.countAdminInquiries(search, status, category);
 
 		    int totalPages = totalCount == 0 ? 1 :
 		        (int) Math.ceil((double) totalCount / pageSize);
@@ -61,7 +63,7 @@ public class InquiryService {
 		    int offset = page * pageSize;
 
 		    List<AdminInquiryListResponse> inquiries =
-		        inquiryMapper.findAdminPage(offset, pageSize, search);
+		        inquiryMapper.findAdminPage(offset, pageSize, search, status, category);
 
 		    return new AdminInquiryPageResponse(
 		        inquiries,

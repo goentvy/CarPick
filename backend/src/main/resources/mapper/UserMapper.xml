@@ -62,6 +62,15 @@
         AND deleted_at IS NULL
     </select>
 
+    <select id="findDeletedByProvider"
+            resultMap="UserResultMap">
+        SELECT *
+        FROM users
+        WHERE provider = #{provider}
+        AND provider_id = #{providerId}
+        AND deleted_at IS NOT NULL
+    </select>
+
     <!-- ===================== -->
     <!-- INSERT -->
     <!-- ===================== -->
