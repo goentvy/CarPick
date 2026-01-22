@@ -17,38 +17,25 @@ const RentDateRangePicker = ({
   const [activeTab, setActiveTab] = useState(type);
 
   // range 상태 (단기/장기 날짜)
-  const defaultRange = useMemo(
-    () => [
-      {
-        startDate: new Date(),
-        endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-        key: 'selection',
-      },
-    ],
-    []
-  );
-
-  const [range, setRange] = useState([
+  const shortDefaultRange = useMemo(() => [
     {
-      startDate: initialRange?.startDate || new Date(),
-      endDate:
-        initialRange?.endDate ||
-        new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
       key: 'selection',
     },
-  ]);
+  ], []);
 
-  useEffect(() => {
-    if (initialRange) {
-      setRange([
-        {
-          startDate: initialRange.startDate,
-          endDate: initialRange.endDate,
-          key: 'selection',
-        },
-      ]);
-    }
-  }, [initialRange]);
+  const longDefaultRange = useMemo(() => [
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    },
+  ], []);
+
+
+  const [shortRange, setShortRange] = useState(shortDefaultRange);
+  const [longRange, setLongRange] = useState(longDefaultRange);
 
   // 단기 렌트 시간
   const [startHour, setStartHour] = useState(10);
@@ -58,6 +45,9 @@ const RentDateRangePicker = ({
   const [selectedMonths, setSelectedMonths] = useState(
     initialRange?.months || 1
   );
+
+  const [showLongCalendar, setShowLongCalendar] = useState(false);
+
 
   const monthOptions = [
     { months: 1, days: 30 },
@@ -76,8 +66,8 @@ const RentDateRangePicker = ({
 
   // 단기 렌트 이용 시간 텍스트
   const getDurationText = () => {
-    const start = new Date(range[0].startDate);
-    const end = new Date(range[0].endDate);
+    const start = new Date(shortRange[0].startDate);
+    const end = new Date(shortRange[0].endDate);
     start.setHours(startHour, 0, 0, 0);
     end.setHours(endHour, 0, 0, 0);
 
@@ -91,8 +81,8 @@ const RentDateRangePicker = ({
 
   // 장기 렌트 텍스트
   const getLongTermText = () => {
-    const start = new Date(range[0].startDate);
-    const end = new Date(range[0].endDate);
+    const start = new Date(longRange[0].startDate);
+    const end = new Date(longRange[0].endDate);
     const diffMs = end - start;
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     return `${selectedMonths}개월 (${days}일)`;
@@ -119,8 +109,9 @@ const RentDateRangePicker = ({
 
   // 단기렌트 확인
   const handleConfirm = () => {
-    const startDate = new Date(range[0].startDate);
-    const endDate = new Date(range[0].endDate);
+    const startDate = new Date(shortRange[0].startDate);
+    const endDate = new Date(shortRange[0].endDate);
+
     startDate.setHours(startHour, 0, 0, 0);
     endDate.setHours(endHour, 0, 0, 0);
 
@@ -130,7 +121,7 @@ const RentDateRangePicker = ({
 
   // 장기렌트 확인
   const handleLongTermConfirm = () => {
-    const startDate = new Date(range[0].startDate);
+    const startDate = new Date(longRange[0].startDate);
     startDate.setHours(startHour, 0, 0, 0);
     const endDate = calculateLongTermEndDate(startDate, selectedMonths);
 
@@ -154,7 +145,7 @@ const RentDateRangePicker = ({
 
   // 초기화
   const handleReset = () => {
-    setRange(defaultRange);
+    setShortRange(shortDefaultRange);
     setStartHour(10);
     setEndHour(10);
   };
@@ -175,7 +166,7 @@ const RentDateRangePicker = ({
         <button
           type="button"
           onClick={() => handleTabClick('short')}
-          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm ${activeTab === 'short' ? 'bg-blue-500 text-white' : 'text-black-500'
+          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm cursor-pointer ${activeTab === 'short' ? 'bg-blue-500 text-white' : 'text-black-500'
             }`}
         >
           단기렌트
@@ -183,10 +174,10 @@ const RentDateRangePicker = ({
         <button
           type="button"
           onClick={() => handleTabClick('long')}
-          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm ${activeTab === 'long' ? 'bg-blue-500 text-white' : 'text-black-500'
+          className={`flex rounded-full w-[50%] py-1 justify-center cursor-pointer text-sm cursor-pointer ${activeTab === 'long' ? 'bg-blue-500 text-white' : 'text-black-500'
             }`}
         >
-          장기렌트
+          월 렌트
         </button>
       </div>
 
@@ -198,8 +189,8 @@ const RentDateRangePicker = ({
               <i className="fa-regular fa-calendar text-blue-500"></i>
               <div className="flex flex-col pl-2">
                 <p className="text-sm font-semibold">
-                  {formatDate(range[0].startDate)} {startHour.toString().padStart(2, '0')}:00 ~{' '}
-                  {formatDate(range[0].endDate)} {endHour.toString().padStart(2, '0')}:00
+                  {formatDate(shortRange[0].startDate)} {startHour.toString().padStart(2, '0')}:00 ~{' '}
+                  {formatDate(shortRange[0].endDate)} {endHour.toString().padStart(2, '0')}:00
                 </p>
                 <p className="text-xs text-gray-500">
                   도착 시간에 맞춰 카픽이 차량을 준비해 드려요
@@ -241,8 +232,8 @@ const RentDateRangePicker = ({
             <div className="flex justify-center mt-3">
               <DateRange
                 locale={ko}
-                ranges={range}
-                onChange={handleChange}
+                ranges={shortRange}
+                onChange={(item) => setShortRange([item.selection])}
                 months={2}
                 direction="vertical"
                 showDateDisplay={false}
@@ -276,15 +267,37 @@ const RentDateRangePicker = ({
           <div className="mx-auto w-full max-w-[528px] text-center">
             <div className="flex flex-col mt-3 mb-2">
               <label className="text-sm mb-1 text-left">대여 시작 날짜 선택</label>
-              <div className="startDay flex bg-blue-50 rounded-full px-4 py-2 items-center text-left">
+              <div
+                className="startDay flex bg-blue-50 rounded-full px-4 py-2 items-center text-left cursor-pointer"
+                onClick={() => setShowLongCalendar(true)}
+              >
                 <i className="fa-regular fa-calendar text-blue-500"></i>
                 <div className="flex flex-col pl-2">
                   <p className="text-sm font-semibold">
-                    {formatDate(range[0].startDate)} {startHour.toString().padStart(2, '0')}:00
+                    {formatDate(longRange[0].startDate)} {startHour.toString().padStart(2, '0')}:00
                   </p>
                 </div>
               </div>
             </div>
+
+            {showLongCalendar && (
+              <div className="flex justify-center mt-3">
+                <DateRange
+                  locale={ko}
+                  ranges={longRange}
+                  onChange={(item) => {
+                    setLongRange([item.selection]);
+                    setShowLongCalendar(false); // 날짜 선택 후 닫기
+                  }}
+                  months={1}
+                  direction="vertical"
+                  showDateDisplay={false}
+                  minDate={new Date()}
+                  rangeColors={['#3b82f6']}
+                  moveRangeOnFirstSelection={false}
+                />
+              </div>
+            )}
 
             <div className="dateCalendar flex flex-wrap max-w-[528px] w-full mx-auto justify-between m-4 border-b border-t border-gray-300 py-4">
               {monthOptions.map(({ months, days }) => {
@@ -294,8 +307,8 @@ const RentDateRangePicker = ({
                     key={months}
                     onClick={() => setSelectedMonths(months)}
                     className={`cursor-pointer w-[49%] text-center rounded-full text-sm py-1 mb-2 border ${isSelected
-                        ? 'bg-blue-500 text-white border-blue-500'
-                        : 'bg-blue-50 border-gray-200'
+                      ? 'bg-blue-500 text-white border-blue-500'
+                      : 'bg-blue-50 border-gray-200'
                       }`}
                   >
                     {months}개월
@@ -311,13 +324,13 @@ const RentDateRangePicker = ({
                   setSelectedMonths(1);
                   setRange(defaultRange);
                 }}
-                className="w-1/2 mr-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-200 rounded-full hover:bg-gray-300"
+                className="w-1/2 mr-2 px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-200 rounded-full hover:bg-gray-300 cursor-pointer"
               >
                 초기화
               </button>
               <button
                 onClick={handleLongTermConfirm}
-                className="w-1/2 ml-2 px-4 py-2 text-sm font-semibold text-white bg-brand rounded-full hover:bg-blue-600"
+                className="w-1/2 ml-2 px-4 py-2 text-sm font-semibold text-white bg-brand rounded-full hover:bg-blue-600 cursor-pointer"
               >
                 {selectedMonths ? `${selectedMonths}개월` : '0개월'}
               </button>

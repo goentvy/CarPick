@@ -19,17 +19,11 @@ const Footer = () => {
         <div id="footer">
             <div className="inner">
                 <div className="btns">
-                    <Link to="/about"
-                        className={`btn btn_ai ${location.pathname.includes("about") ? "active" : ""
-                            }`}
-                    >
-                        <span>회사소개</span>
-                    </Link>
                     <Link to="/day"
                         className={`btn btn_car ${location.pathname.includes("day") ? "active" : ""
                             }`}
                     >
-                        <span>단기렌트</span>
+                        <span>단기·월 렌트</span>
                     </Link>
                     <Link to="/month"
                         className={`btn btn_cal ${location.pathname.includes("month") ? "active" : ""
@@ -37,6 +31,12 @@ const Footer = () => {
                         onClick={handleMyPageClick}
                     >
                         <span>장기렌트</span>
+                    </Link>
+                    <Link to="/zone"
+                        className={`btn btn_ai ${location.pathname.includes("zone") ? "active" : ""
+                            }`}
+                    >
+                        <span>카픽존</span>
                     </Link>
                     <button
                         className={`btn btn_my ${location.pathname.includes("my") ? "active" : ""

@@ -22,15 +22,15 @@ const RentHeader = ({ type, location }) => {
 
   const initialDateRange = queryStartDate && queryEndDate
     ? {
-        startDate: queryStartDate,
-        endDate: queryEndDate,
-        months: calculateMonths(queryStartDate, queryEndDate),
-      }
+      startDate: queryStartDate,
+      endDate: queryEndDate,
+      months: calculateMonths(queryStartDate, queryEndDate),
+    }
     : {
-        startDate: new Date(),
-        endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-        months: 1,
-      };
+      startDate: new Date(),
+      endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+      months: 1,
+    };
 
   const [rentType, setRentType] = useState(initialRentType);
   const [pickupBranchName, setPickupBranchName] = useState(query.get('pickupBranchName') || '픽업 장소 선택');
@@ -43,14 +43,15 @@ const RentHeader = ({ type, location }) => {
 
   useEffect(() => {
     const today = new Date();
-    if (prevType.current !== type) {
-      if (type === 'short') {
+
+    if (prevType.current !== rentType) {
+      if (rentType === 'short') {
         setDateRange({
           startDate: today,
           endDate: new Date(today.getTime() + 24 * 60 * 60 * 1000),
           months: 1,
         });
-      } else if (type === 'long') {
+      } else if (rentType === 'long') {
         const nextMonth = new Date(today);
         nextMonth.setMonth(today.getMonth() + 1);
         setDateRange({
@@ -59,9 +60,9 @@ const RentHeader = ({ type, location }) => {
           months: calculateMonths(today, nextMonth),
         });
       }
-      prevType.current = type;
+      prevType.current = rentType;
     }
-  }, [type]);
+  }, [rentType]);
 
   useEffect(() => {
     document.body.style.overflow = (showLocationPicker || showDatePicker) ? "hidden" : "";
@@ -104,9 +105,7 @@ const RentHeader = ({ type, location }) => {
     params.set('endDate', dateRange.endDate.toISOString());
     params.set('months', dateRange.months || 1);
 
-    // rentType이 long이면 /year로 이동
-    const targetPath = rentType === 'long' ? '/year' : '/day';
-    navigate(`${targetPath}?${params.toString()}`);
+    navigate(`/day?${params.toString()}`);
   };
 
   return (
@@ -119,10 +118,14 @@ const RentHeader = ({ type, location }) => {
               <p className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold" onClick={() => setShowLocationPicker(prev => !prev)}>
                 {pickupBranchName}
               </p>
-              <p className="flex justify-between text-gray-400 text-[16px] text-left" onClick={() => setShowDatePicker(prev => !prev)}>
-                <span>{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
-                <span className="text-[12px] text-gray-500">
-                  {type === 'short' ? getDurationText() : getLongTermText()}
+              <p
+                id="rentTime"
+                className="flex justify-between text-gray-400 text-[16px] text-left"
+                onClick={() => setShowDatePicker(prev => !prev)}
+              >
+                <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
+                <span id="pickTime" className="text-[12px] text-gray-500">
+                  {rentType == 'short' ? getDurationText() : getLongTermText()}
                 </span>
               </p>
             </div>
@@ -162,9 +165,7 @@ const RentHeader = ({ type, location }) => {
                     months: selection.months || 1,
                   });
 
-                  // ✅ 날짜 선택 즉시 이동 경로 (year로 수정)
-                  const targetPath = selection.activeType === 'long' ? '/year' : '/day';
-                  navigate(`${targetPath}?${params.toString()}`);
+                  navigate(`/day?${params.toString()}`);
                 }}
                 onClose={() => setShowDatePicker(false)}
                 onTabChange={(tab) => setRentType(tab)}

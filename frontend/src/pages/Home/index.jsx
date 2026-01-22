@@ -54,14 +54,14 @@ const Home = () => {
     if (savedSegment && savedReason) {
       return { segment: savedSegment, reason: savedReason };
     }
-      const random = getRandomSegment();
+    const random = getRandomSegment();
 
-      // 최초 진입 시 스토리지에도 저장 (선택)
-      localStorage.setItem('recommendedSegment', random.key);
-      localStorage.setItem('recommendedReason', random.reason);
+    // 최초 진입 시 스토리지에도 저장 (선택)
+    localStorage.setItem('recommendedSegment', random.key);
+    localStorage.setItem('recommendedReason', random.reason);
 
-      return { segment: random.key, reason: random.reason };
-    
+    return { segment: random.key, reason: random.reason };
+
   };
 
 
@@ -89,7 +89,7 @@ const Home = () => {
   }, [segment]);
 
   return (
-    <div className="flex flex-col w-full max-w-[640px] justify-center min-h-screen bg-white pb-10 mt-[60px] mx-auto">
+    <div id="home" className="flex flex-col w-full max-w-[640px] justify-center min-h-screen bg-white mt-[60px] mx-auto">
       {/* Promo */}
       <HomeRentHeader
         showPickupModal={showPickupModal}
