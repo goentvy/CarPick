@@ -157,22 +157,85 @@
 .list-label { font-size: 14px; font-weight: 700; color: #4a5568; }
 .list-value { font-size: 14px; color: #718096; line-height: 1.6; }
 
-/* 6. [섹션 04] 차량관리 서비스 그리드 */
-.service-simple-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* 6. [섹션 04] 차량관리 서비스 (아코디언 스타일) */
+.service-accordion-grid {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+}
+
+.service-item-wrapper {
+  width: 100%;
 }
 
 .service-mini-tag {
   background: #f1f5f9;
   padding: 15px;
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: #4a5568;
   text-align: center;
   border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 활성화되었을 때 색상 변경 (KaPick Blue 테마 적용) */
+.service-mini-tag.active {
+  background-color: #1D6BF3;
+  color: #ffffff;
+  border-color: #1D6BF3;
+}
+
+/* 상세 내용 컨테이너 */
+.service-detail-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  opacity: 0;
+}
+
+/* 클릭하여 활성화 시 보이기 */
+.service-detail-content.show {
+  max-height: 400px; /* 이미지와 텍스트가 넉넉히 들어갈 높이 */
+  opacity: 1;
+  margin-top: 10px;
+}
+
+.detail-inner {
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.service-img {
+  width: 90%;           /* 너비를 약간 줄여서 여백 생성 */
+  max-width: 400px;     /* 너무 커지는 것 방지 */
+  height: auto;         /* 높이는 비율에 맞게 자동으로 */
+  aspect-ratio: 16 / 9; /* 이미지 비율 고정 (전체가 다 보이게 함) */
+  object-fit: contain;  /* 이미지 전체가 잘리지 않고 다 나오도록 설정 */
+  border-radius: 8px;
+  margin: 0 auto 15px;  /* 가로 중앙 정렬 및 하단 마진 */
+  display: block;       /* 중앙 정렬을 위한 블록화 */
+  background-color: #fcfcfc; /* 이미지 배경 여백 처리 */
+}
+
+.service-desc-text {
+  font-size: 13px;
+  color: #718096;
+  line-height: 1.6;
+  word-break: keep-all;
+  margin: 0;
+}
+
+/* 모바일 대응: 이미지가 너무 크지 않게 조절 */
+@media (max-width: 640px) {
+  .service-img {
+    height: 150px;
+  }
 }
 
 /* 7. [섹션 05] 이용절차 타임라인 - 점선 보정 포함 */

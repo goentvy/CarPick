@@ -74,9 +74,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       returnBranchName: pickupBranchName || "",
     });
 
-    const path = type === "short" ? "/day" : "/month";
-
-
+    const path = "/day";
     navigate(`${path}?${params.toString()}`);
   };
 
@@ -131,11 +129,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
       returnBranchName: pickupBranchName || "",
     });
 
-    const path =
-      type === "short"
-        ? "/day"
-        : m >= 12 ? "/year" : "/month";
-
+    const path = "/day";
     navigate(`${path}?${params.toString()}`);
   };
 
@@ -167,12 +161,12 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
             <button
               key={type}
               onClick={() => handleRentTypeChange(type)}
-              className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm ${rentType === type
+              className={`flex-1 px-6 py-2 rounded-full font-semibold transition text-sm cursor-pointer ${rentType === type
                 ? 'bg-brand text-white shadow-md'
                 : 'text-gray-400 hover:bg-blue-400 hover:text-gray-700'
                 }`}
             >
-              {type === 'short' ? '단기 렌트' : '장기 렌트'}
+              {type === 'short' ? '단기 렌트' : '월 렌트'}
             </button>
           ))}
         </div>
@@ -309,7 +303,7 @@ const HomeRentHeader = ({ showPickupModal, setShowPickupModal, selectedCar }) =>
         {/* 차량 찾기 버튼 */}
         <div className="py-3">
           <button
-            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]"
+            className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px] cursor-pointer"
             onClick={() => handleSearch(rentType)}>
             차량 찾기
           </button>

@@ -89,7 +89,7 @@ const Home = () => {
   }, [segment]);
 
   return (
-    <div className="flex flex-col w-full max-w-[640px] justify-center min-h-screen bg-white pb-10 mt-[60px] mx-auto">
+    <div id="home" className="flex flex-col w-full max-w-[640px] justify-center min-h-screen bg-white mt-[60px] mx-auto">
       {/* Promo */}
       <HomeRentHeader
         showPickupModal={showPickupModal}

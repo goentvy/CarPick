@@ -31,16 +31,21 @@ public class AdminInquiryController {
 	public String list(
 	    @RequestParam(defaultValue = "0") int page,
 	    @RequestParam(required = false) String search,
+	    @RequestParam(required = false) String status,
+	    @RequestParam(required = false) String category,
 	    Model model
 	) {
 	    AdminInquiryPageResponse inquiryPage =
-	        inquiryService.getInquiryPage(page, PAGE_SIZE, search);
+	        inquiryService.getInquiryPage(page, PAGE_SIZE, search, status, category);
 
 	    model.addAttribute("inquiries", inquiryPage.getInquiries());
 	    model.addAttribute("currentPage", inquiryPage.getCurrentPage());
 	    model.addAttribute("totalPages", inquiryPage.getTotalPages());
 	    model.addAttribute("totalCount", inquiryPage.getTotalCount());
-	    model.addAttribute("search", search); // ⭐ 중요
+	    
+	    model.addAttribute("search", search);
+	    model.addAttribute("status", status);
+	    model.addAttribute("category", category);
 
 	    return "inquiry";
 	}
