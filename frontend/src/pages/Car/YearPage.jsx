@@ -35,7 +35,7 @@ const YearPage = () => {
   ];
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/rent/year/details')
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/rent/year/details`)
       .then(res => {
         setData(res.data);
         setLoading(false);
