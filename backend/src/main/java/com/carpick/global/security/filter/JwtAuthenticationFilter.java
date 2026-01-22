@@ -6,6 +6,10 @@ import com.carpick.global.exception.AuthenticationException;
 import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.details.CustomUserDetails;
 import com.carpick.global.security.jwt.JwtProvider;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,29 +32,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserInfoMapper userInfoMapper;
 
     /**
-     * ✅ JWT 필터 제외 경로
-     * - OAuth 로그인
-     * - 콜백
-     * - CORS preflight
-     * - 업로드
+     * ✅ JWT 필터 제외 대상 (운영 기준)
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        boolean skip =
-                "OPTIONS".equalsIgnoreCase(method)
-                        || path.startsWith("/admin/upload")
-                        || path.startsWith("/upload")
-                        || path.startsWith("/api/auth/login/")
-                        || path.startsWith("/api/auth/oauth/");
-
-        if (skip) {
-            log.debug("[JWT-FILTER-SKIP] {} {}", method, path);
-        }
-
-        return skip;
+        return "OPTIONS".equalsIgnoreCase(method)
+                || path.startsWith("/api/auth")
+                || path.startsWith("/upload")
+                || path.startsWith("/admin/upload");
     }
 
     @Override
@@ -63,40 +55,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-        log.debug("[JWT-FILTER-ENTER] {} {}", method, uri);
+        log.debug("[JWT-FILTER] {} {}", method, uri);
+
+        // 1️⃣ JWT 추출
+        String token = jwtProvider.resolveToken(request);
+
+        // 2️⃣ 토큰 없음 → 공개 API 또는 비인증 요청
+        if (token == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
-            // 1️⃣ JWT 추출
-            String token = jwtProvider.resolveToken(request);
-
-            // 2️⃣ 토큰 없는 요청 → 비인증 접근 허용
-            if (token == null) {
-                log.debug("[JWT-NONE] {} {}", method, uri);
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             // 3️⃣ 토큰 검증
-            try {
-                jwtProvider.validateToken(token);
-            } catch (Exception e) {
-                log.warn("[JWT-INVALID] {}", e.getMessage());
-                throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
-            }
+            jwtProvider.validateToken(token);
 
             // 4️⃣ 사용자 조회
             Long userId = jwtProvider.getUserId(token);
             UserInfo user = userInfoMapper.findById(userId);
 
             if (user == null) {
-                log.warn("[JWT-USER-NOT-FOUND] userId={}", userId);
                 throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
             }
 
             if (user.getDeletedAt() != null) {
-                log.warn("[JWT-DELETED-USER] userId={}", userId);
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                throw new AuthenticationException(ErrorCode.AUTH_CREDENTIALS_EXPIRED);
             }
 
             // 5️⃣ SecurityContext 등록
@@ -118,17 +101,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             log.debug("[JWT-AUTH-SUCCESS] userId={}", userId);
 
-            // 6️⃣ 다음 필터
             filterChain.doFilter(request, response);
 
         } catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
-            log.warn("[JWT-AUTH-FAIL] {} {}", method, uri);
+            log.warn("[JWT-AUTH-FAIL] {} {} {}", method, uri, e.getErrorCode().name());
             throw e;
 
+        } catch (ExpiredJwtException e) {
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_EXPIRED);
+
+        } catch (SignatureException e) {
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_SIGNATURE_INVALID);
+
+        } catch (MalformedJwtException e) {
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_MALFORMED);
+
+        } catch (UnsupportedJwtException e) {
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_UNSUPPORTED);
+
         } catch (Exception e) {
-            log.error("[JWT-FILTER-ERROR] {} {}", method, uri, e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            log.error("[JWT-UNKNOWN-ERROR] {} {}", method, uri, e);
+            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
     }
 }

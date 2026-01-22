@@ -7,6 +7,8 @@ import PickupFilterModal from "../../components/common/PickupFilterModal";
 import { set } from "react-hook-form";
 
 const CarList = () => {
+    console.log("✅ RENDER: CarDayList", window.location.href);
+
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(true);
 

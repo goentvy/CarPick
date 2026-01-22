@@ -23,7 +23,7 @@ public interface InquiryMapper {
 		    @Param("search") String search
 		);
 
-		int countAdminInquiries(@Param("search") String search);
+	int countAdminInquiries(@Param("search") String search);
 
 	// 관리자 - 상세 조회
 	AdminInquiryDetailResponse findDetailForAdmin(@Param("id") Long id);

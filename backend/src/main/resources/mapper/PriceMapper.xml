@@ -37,4 +37,19 @@
         LIMIT 1
     </select>
 
+    <select id="selectActiveUnitPriceByPriceType" resultType="java.math.BigDecimal">
+        SELECT
+            CASE
+                WHEN #{priceType} = 'DAILY' THEN daily_price
+                WHEN #{priceType} = 'MONTHLY' THEN monthly_price
+                END
+        FROM PRICE
+        WHERE car_spec_id = #{specId}
+          AND use_yn = 'Y'
+          AND deleted_at IS NULL
+            LIMIT 1
+    </select>
+
+
+
 </mapper>

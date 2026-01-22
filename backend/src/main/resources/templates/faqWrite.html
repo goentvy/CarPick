@@ -133,14 +133,17 @@
 												     th:errors="*{answer}">
 												</div>
 											</div>
-											<button type="submit" class="btn btn-primary"
-											        th:text="${faq == null ? '등록' : '수정'}">
-											</button>
+											<div class="d-flex justify-content-end mt-4">
+											    <button type="submit"
+											            class="btn btn-primary"
+											            th:text="${faq == null ? '등록' : '수정'}">
+											    </button>
 
-											<a th:href="@{/admin/faq}"
-											   class="btn btn-outline-secondary ml-2">
-											  취소
-											</a>
+											    <a th:href="@{/admin/faq}"
+											       class="btn btn-outline-secondary ml-2">
+											        취소
+											    </a>
+											</div>
 										</div>
 									</div>
 								</div>

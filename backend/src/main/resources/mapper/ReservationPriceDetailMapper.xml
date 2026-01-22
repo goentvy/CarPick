@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.price.mapper.ReservationPriceDetailMapper">
+
+    <!--
+        예약 가격 명세서 저장
+        - 예약 확정 시점에 계산된 가격 결과 + 근거 스냅샷을 저장
+        - reservation_id 는 UNIQUE 제약으로 예약당 1건만 허용
+        - created_at 은 DB DEFAULT(CURRENT_TIMESTAMP)에 위임
+    -->
+    <insert id="insertPriceDetail"
+            parameterType="com.carpick.domain.price.entity.ReservationPriceDetail"
+            useGeneratedKeys="true"
+            keyProperty="reservationPriceDetailId">
+
+        INSERT INTO reservation_price_detail (
+            reservation_id,
+
+            reservation_rent_fee,
+            reservation_insurance_fee,
+            reservation_coupon_discount,
+            reservation_total_amount,
+
+            price_type,
+
+            applied_daily_price,
+            applied_hourly_price,
+            applied_monthly_price,
+
+            applied_days,
+            applied_hours,
+            applied_months,
+
+            insurance_applied_days
+        ) VALUES (
+                     #{reservationId},
+
+                     #{reservationRentFee},
+                     #{reservationInsuranceFee},
+                     #{reservationCouponDiscount},
+                     #{reservationTotalAmount},
+
+                     #{priceType},
+
+                     #{appliedDailyPrice},
+                     #{appliedHourlyPrice},
+                     #{appliedMonthlyPrice},
+
+                     #{appliedDays},
+                     #{appliedHours},
+                     #{appliedMonths},
+
+                     #{insuranceAppliedDays}
+                 )
+    </insert>
+
+    <!--
+        예약 ID 기준 가격 명세서 조회
+        - 가격 명세서는 예약에 종속되므로 reservation_id 기준 조회
+        - UNIQUE 제약이 있으므로 1건만 반환됨
+    -->
+    <select id="findStatementByReservationId"
+            parameterType="java.lang.Long"
+            resultType="com.carpick.domain.price.dto.ReservationPriceStatementResponseDto">
+
+        SELECT
+            reservation_rent_fee        AS rentFee,
+            reservation_insurance_fee   AS insuranceFee,
+            reservation_coupon_discount AS couponDiscount,
+            reservation_total_amount    AS totalAmount,
+
+            price_type                  AS priceType,
+
+            applied_daily_price         AS appliedDailyPrice,
+            applied_hourly_price        AS appliedHourlyPrice,
+            applied_monthly_price       AS appliedMonthlyPrice,
+
+            applied_days                AS appliedDays,
+            applied_hours               AS appliedHours,
+            applied_months              AS appliedMonths,
+
+            insurance_applied_days      AS insuranceAppliedDays
+
+        FROM reservation_price_detail
+        WHERE reservation_id = #{reservationId}
+    </select>
+
+</mapper>

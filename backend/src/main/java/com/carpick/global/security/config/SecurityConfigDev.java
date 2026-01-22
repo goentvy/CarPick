@@ -71,7 +71,8 @@ public class SecurityConfigDev {
                                 "/api/reviews/latest",
                                 "/api/dropzones",
                                 "/api/price",
-
+                                "/api/rent/year/details",
+                                "/api/v2/reservations/price",
                                 ("/api/guest/**"),
 
                         // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
