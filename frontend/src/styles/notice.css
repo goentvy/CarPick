@@ -23,7 +23,7 @@
 }
 
 .notice-title {
-  font-size: 24px; 
+  font-size: 20px; 
   font-weight: 700;
   color: #1a1e27;
   margin: 0;
@@ -871,3 +871,25 @@
   font-size: 0.9em; /* 크기를 살짝 줄이면 더 차분해 보입니다. */
   vertical-align: middle;
 }
+
+
+/* 화면이 작아져도 페이지네이션 버튼 사이즈 유지 */
+.pagination {
+    flex-wrap: nowrap !important; /* 무조건 한 줄 유지 */
+    gap: 4px;                    /* 버튼 사이 간격 축소 */
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 2. 이전/다음 버튼 사이즈 축소 및 텍스트 숨기기 처리 */
+  .pagination-btn {
+    min-width: 40px;      /* 숫자 버튼과 비슷한 너비로 고정 */
+    height: 40px;         /* 높이 통일 */
+    padding: 0;           /* 패딩 제거 */
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
