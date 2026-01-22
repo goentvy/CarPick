@@ -677,27 +677,41 @@ CREATE TABLE IF NOT EXISTS RESERVATION_EXTENSION (
                                                              ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS reviews (
-                                         `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '리뷰 고유 ID',
-                                         `reservation_id` bigint(20) NOT NULL COMMENT '예약 ID (1:1 매핑)',
-                                         `user_id` bigint(20) NOT NULL COMMENT '작성자 ID',
-                                         `spec_id` bigint(20) DEFAULT NULL COMMENT '차량 스펙 ID (CAR_SPEC 참조)',
-                                         `car_name` varchar(100) NOT NULL COMMENT '리뷰 작성 당시 차종명 (스냅샷)',
-                                         `rating` decimal(3,2) NOT NULL COMMENT '별점 0.5~5.0',
-                                         `content` text NOT NULL COMMENT '리뷰 내용',
-                                         `period` varchar(50) NOT NULL COMMENT '대여 기간 (YYYY.MM.DD ~ YYYY.MM.DD)',
-                                         `created_at` datetime NOT NULL DEFAULT current_timestamp() COMMENT '작성일',
-                                         `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '수정일',
-                                         PRIMARY KEY (`id`),
-                                         UNIQUE KEY `reservation_id` (`reservation_id`),
-                                         KEY `idx_user_reviews` (`user_id`),
-                                         KEY `idx_spec_reviews` (`spec_id`),
-                                         KEY `idx_reservation` (`reservation_id`),
-                                         CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-                                         CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`spec_id`) REFERENCES `car_spec` (`spec_id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='차량 이용 후기';
+CREATE TABLE reviews (
+                         id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '리뷰 고유 ID',
+
+                         reservation_id BIGINT NOT NULL UNIQUE COMMENT '예약 ID (1:1 매핑)',
+                         user_id BIGINT NOT NULL COMMENT '작성자 ID',
+                         spec_id BIGINT NULL COMMENT '차량 스펙 ID (CAR_SPEC 참조)',
+
+                         car_name VARCHAR(100) NOT NULL COMMENT '리뷰 작성 당시 차종명 (스냅샷)',
+
+                         rating DECIMAL(3,2) NOT NULL COMMENT '별점 0.5~5.0',
+                         content TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '리뷰 내용',
+                         period   VARCHAR(50) NOT NULL COMMENT '대여 기간 (YYYY.MM.DD ~ YYYY.MM.DD)',
+
+                         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
+                         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+
+    -- 인덱스 (검색 성능 최적화)
+                         INDEX idx_user_reviews (user_id),
+                         INDEX idx_spec_reviews (spec_id),
+                         INDEX idx_reservation (reservation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='차량 이용 후기';
 
 
+# 이벤트
+CREATE TABLE IF NOT EXISTS `event` (
+                                       `id` int(11) NOT NULL AUTO_INCREMENT,
+                                       `title` varchar(255) NOT NULL,
+                                       `content` text DEFAULT NULL,
+                                       `startDate` varchar(50) DEFAULT NULL,
+                                       `endDate` varchar(50) DEFAULT NULL,
+                                       `thumbnail` varchar(255) DEFAULT NULL,
+                                       `created_at` datetime DEFAULT current_timestamp(),
+                                       `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                                       PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /* [확장] 성수기/비수기 기간 관리 (지점 단위 포함) */
 CREATE TABLE IF NOT EXISTS SEASON_PERIOD (
                                              season_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '시즌 기간 ID',

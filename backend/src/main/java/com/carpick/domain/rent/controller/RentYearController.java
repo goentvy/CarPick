@@ -8,7 +8,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/rent/year")
-@CrossOrigin(origins = "http://localhost:5173") // 프론트엔드 포트 허용
+@CrossOrigin(origins = {
+	    "http://localhost:5173",
+	    "http://3.236.8.244"
+	}) // 프론트엔드 포트 허용
 public class RentYearController {
 
     @GetMapping("/details")

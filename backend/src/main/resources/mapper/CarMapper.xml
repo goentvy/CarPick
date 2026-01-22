@@ -47,8 +47,11 @@
                  INNER JOIN CAR_SPEC cs ON cs.spec_id = vi.spec_id
                  LEFT JOIN PRICE_POLICY pp
                            ON pp.spec_id = cs.spec_id
+                               AND pp.branch_id = vi.branch_id
                                AND pp.is_active = TRUE
-                               AND pp.unit_type = 'DAILY'
+                               AND pp.price_type = 'DAILY'
+                               AND pp.use_yn = 'Y'
+
         WHERE vi.operational_status = 'AVAILABLE'
           AND vi.use_yn = 'Y'
           AND cs.use_yn = 'Y'
@@ -69,7 +72,13 @@
             pp.discount_rate    AS discountRate
         FROM VEHICLE_INVENTORY vi
                  INNER JOIN CAR_SPEC cs ON cs.spec_id = vi.spec_id
-                 LEFT JOIN PRICE_POLICY pp ON pp.spec_id = cs.spec_id AND pp.is_active = TRUE
+                 LEFT JOIN PRICE_POLICY pp
+                           ON pp.spec_id = cs.spec_id
+                               AND pp.branch_id = vi.branch_id
+                               AND pp.is_active = TRUE
+                               AND pp.price_type = 'DAILY'
+                               AND pp.use_yn = 'Y'
+
         WHERE vi.operational_status = 'AVAILABLE'
           AND vi.use_yn = 'Y'
           AND cs.use_yn = 'Y'
@@ -110,9 +119,10 @@
                  /* 가격정책이 있어야 branch를 알 수 있으니 PRICE_POLICY를 기준으로 조인 */
                  LEFT JOIN PRICE_POLICY pp
                            ON pp.spec_id = cs.spec_id
-                               AND pp.unit_type = 'DAILY'
+                               AND pp.price_type = 'DAILY'
                                AND pp.is_active = TRUE
                                AND pp.use_yn = 'Y'
+
                  LEFT JOIN BRANCH b
                            ON b.branch_id = pp.branch_id
 
@@ -166,7 +176,7 @@
             resultType="com.carpick.domain.car.dto.carListPage.CarListItemDto">
 
         SELECT
-            /* 🔑 대표 실차 ID (상세/예약 연결용: 가장 빠른 번호 1개) */
+            /*  대표 실차 ID (상세/예약 연결용: 가장 빠른 번호 1개) */
             MIN(vi.vehicle_id)           AS vehicleId,
 
             /* 차종(스펙) 정보 */
