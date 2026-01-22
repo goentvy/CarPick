@@ -1,8 +1,8 @@
-package com.carpick.domain.reservation.controller;
+package com.carpick.domain.member.controller;
 
-import com.carpick.domain.reservation.dto.request.ReservationChangeRequestDto;
-import com.carpick.domain.reservation.dto.response.ReservationChangeResponseDto;
-import com.carpick.domain.reservation.service.ReservationChangeService;
+import com.carpick.domain.member.dto.ReservationChangeRequestDto;
+import com.carpick.domain.member.dto.ReservationChangeResponseDto;
+import com.carpick.domain.member.service.ReservationChangeService;
 import com.carpick.global.security.details.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
