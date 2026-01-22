@@ -1,13 +1,13 @@
 /* ============================================================
-   CarP!ck 장기렌트 서비스 안내 최종 스타일 (KaPick Blue 테마)
+   CarP!ck 장기렌트 서비스 안내 최종 스타일 
    ============================================================ */
 
 /* 1. 전체 배경 및 컨테이너 */
 .year-container {
-  max-width: 640px; 
+  max-width: 640px;
   margin: 0 auto;
   /* 하단 패딩을 100px로 늘려 탭 바 가려짐 방지 및 가이드 페이지와 통일 */
-  padding: 100px 20px 0 !important; 
+  padding: 80px 20px 60px !important;
   font-family: 'Pretendard', sans-serif;
   background-color: #f8f9fa;
   min-height: 100vh;
@@ -18,12 +18,12 @@
 .guide-header-style {
   padding-bottom: 15px;
   border-bottom: 2px solid #3b82f6;
-  margin: 0 0 40px;
+  margin: 0 0 30px;
   text-align: left;
 }
 
 .guide-main-title {
-  font-size: 24px; 
+  font-size: 24px;
   font-weight: 700;
   color: #1a1e27;
   margin: 0;
@@ -42,7 +42,7 @@
 .guide-card {
   background: #fff;
   margin: 0 0 24px;
-  padding: 28px;
+  padding: 20px;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -70,7 +70,7 @@
   background: none;
   border: none;
   color: #1D6BF3;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   padding: 4px 8px;
@@ -85,8 +85,8 @@
 .step-badge {
   background: #1D6BF3;
   color: #fff;
-  min-width: 24px;
-  height: 24px;
+  min-width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,20 +96,73 @@
 }
 
 .guide-card-header h3 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #2d3748;
 }
 
 /* 4. [섹션 01] 장점 그리드 레이아웃 */
 .advantage-icon-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  display: flex;
+  /* grid 대신 flex 사용 */
+  flex-direction: column;
+  gap: 40px;
+  /* 각 장점 사이의 간격 */
   text-align: center;
 }
 
-.adv-card {
+/* 4. [섹션 01] 장점 이미지 박스 - 텍스트 제외 이미지에만 음영 적용 */
+.adv-img-box {
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto 15px;
+  position: relative;
+  /* 부드러운 곡률 적용 */
+  border-radius: 24px;
+  /* 1. 이미지 배경색 차이를 지워주는 부드러운 외부 광채(Glow)와 그림자 */
+  box-shadow: 0 0 40px 10px rgba(255, 255, 255, 1), 0 12px 24px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.adv-img-box img {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* 2. 이미지 가장자리를 투명하게 페이딩하여 카드 배경과 완전 합성 */
+  mask-image: radial-gradient(circle at center, black 60%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 60%, rgba(0, 0, 0, 0) 100%);
+  transition: transform 0.3s ease;
+}
+
+/* 호버 시 혹은 활성화 시 살짝 더 고급스럽게 음영 강조 (선택 사항) */
+/* .adv-card:hover .adv-img-box {
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  box-shadow: 0 15px 30px rgba(29, 107, 243, 0.1);
+} */
+
+.adv-card h4 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1D6BF3;
+  margin-top: 10px;
+  /* 이미지와의 간격 */
+  margin-bottom: 8px;
+  word-break: keep-all;
+}
+
+.adv-card p {
+  font-size: 14.5px;
+  color: #4a5568;
+  line-height: 1.6;
+  padding: 0 15px;
+  margin: 0;
+  white-space: pre-wrap
+}
+
+/* 이모지 원형 배경 */
+/* .adv-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -131,8 +184,8 @@
 .adv-icon-circle.purple { background-color: #faf5ff; color: #805ad5; }
 .adv-icon-circle.teal { background-color: #e6fffa; color: #319795; }
 
-.adv-card h4 { font-size: 14px; font-weight: 700; color: #2d3748; margin-bottom: 8px; word-break: keep-all; }
-.adv-card p { font-size: 12px; color: #718096; line-height: 1.5; word-break: keep-all; }
+.adv-card h4 { font-size: 16px; font-weight: 700; color: #2d3748; margin-bottom: 8px; word-break: keep-all; }
+.adv-card p { font-size: 14px; color: #718096; line-height: 1.5; word-break: keep-all; } */
 
 /* 5. [섹션 02~03] 리스트 콘텐츠 */
 .guide-list-container {
@@ -153,11 +206,26 @@
   line-height: 1;
 }
 
-.list-content { display: flex; flex-direction: column; gap: 6px; text-align: left; }
-.list-label { font-size: 14px; font-weight: 700; color: #4a5568; }
-.list-value { font-size: 14px; color: #718096; line-height: 1.6; }
+.list-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
 
-/* 6. [섹션 04] 차량관리 서비스 (아코디언 스타일) */
+.list-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a5568;
+}
+
+.list-value {
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.6;
+}
+
+/* [섹션 04] 차량관리 서비스 (아코디언 스타일) */
 .service-accordion-grid {
   display: flex;
   flex-direction: column;
@@ -174,7 +242,7 @@
   border-radius: 10px;
   font-size: 14px;
   font-weight: 700;
-  color: #4a5568;
+  color: #2D2F33;
   text-align: center;
   border: 1px solid #e2e8f0;
   cursor: pointer;
@@ -198,44 +266,45 @@
 
 /* 클릭하여 활성화 시 보이기 */
 .service-detail-content.show {
-  max-height: 400px; /* 이미지와 텍스트가 넉넉히 들어갈 높이 */
+  max-height: 1000px;
+  /* 이미지와 텍스트가 넉넉히 들어갈 높이 */
   opacity: 1;
   margin-top: 10px;
 }
 
 .detail-inner {
-  padding: 16px;
+  padding: 0;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
 }
 
 .service-img {
-  width: 90%;           /* 너비를 약간 줄여서 여백 생성 */
-  max-width: 400px;     /* 너무 커지는 것 방지 */
-  height: auto;         /* 높이는 비율에 맞게 자동으로 */
-  aspect-ratio: 16 / 9; /* 이미지 비율 고정 (전체가 다 보이게 함) */
-  object-fit: contain;  /* 이미지 전체가 잘리지 않고 다 나오도록 설정 */
-  border-radius: 8px;
-  margin: 0 auto 15px;  /* 가로 중앙 정렬 및 하단 마진 */
-  display: block;       /* 중앙 정렬을 위한 블록화 */
-  background-color: #fcfcfc; /* 이미지 배경 여백 처리 */
+  width: 100%;
+  /* 가로를 꽉 채움 */
+  height: auto;
+  /* 원본 비율 유지 (고정 높이 제거) */
+  display: block;
+  /* 하단 미세 여백 제거 */
+  object-fit: initial;
+  /* 원본 그대로 렌더링 */
+  border-radius: 0;
+  /* detail-inner에서 곡률을 제어하므로 0으로 설정 */
 }
 
 .service-desc-text {
-  font-size: 13px;
-  color: #718096;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b4d4f;
   line-height: 1.6;
   word-break: keep-all;
+  padding: 16px;
   margin: 0;
-}
-
-/* 모바일 대응: 이미지가 너무 크지 않게 조절 */
-@media (max-width: 640px) {
-  .service-img {
-    height: 150px;
-  }
+  border-top: 1px solid #f1f5f9;
+  white-space: pre-wrap;
+  text-align: center;
 }
 
 /* 7. [섹션 05] 이용절차 타임라인 - 점선 보정 포함 */
@@ -295,77 +364,234 @@
   word-break: keep-all;
 }
 
-/* 8. 하단 버튼 영역 (스크롤 흐름에 포함) */
-.bottom-action-area,
-.bottom-sticky-area {
+.advantage-icon-grid {
+  display: flex !important;
+  flex-direction: column;
+  gap: 48px;
+  /* 항목 간 간격 확대 */
+  text-align: center;
+  /* 텍스트 중앙 정렬 */
+}
+
+.adv-card {
+  flex-direction: column;
+  /* 가로(row)에서 세로(column)로 변경 */
+  align-items: center;
+  /* 이미지와 텍스트 중앙 정렬 */
+  gap: 16px;
   width: 100%;
-  max-width: 680px; 
-  margin: 16px auto 0; /* 섹션 카드 마진과 일치 */
-  box-sizing: border-box;
-  padding: 0 20px 80px; /* 좌우 20px 패딩으로 카드와 정렬 일치 */
-  background-color: transparent; /* 페이지 배경색 노출 */
+}
+
+.adv-img-box {
+  max-width: 200px;
+  /* 모바일에서 이미지 크기 최적화 */
+  margin: 0 auto;
+  /* 박스 자체를 중앙으로 */
+}
+
+/* 텍스트 영역 정렬 보정 */
+.adv-card h4 {
+  font-size: 18px;
+  /* 제목 크기 살짝 확대 */
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.adv-card p {
+  font-size: 14px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 280px;
+  /* 줄바꿈이 예쁘게 되도록 너비 제한 */
+}
+
+/* 이용절차: 세로 타임라인으로 강제 전환 */
+.horizontal-process {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  padding-left: 10px;
+  text-align: left;
+}
+
+.h-process-item {
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 20px !important;
+  padding-bottom: 35px;
+  width: 100%;
+}
+
+.h-process-item:last-child {
+  padding-bottom: 0;
+}
+
+/* 가로 점선 제거 및 세로 점선 생성 */
+.h-process-item::after {
+  display: none !important;
+}
+
+/* 기존 가로 점선 제거 */
+
+.h-process-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: 16px;
+  width: 0;
+  height: calc(100% - 32px);
+  border-left: 2px dotted #e2e8f0;
+  z-index: 0;
+}
+
+.h-step-info {
+  padding-top: 2px;
+  text-align: left;
+}
+
+.h-step-info strong {
+  font-size: 18px;
+  color: #1D6BF3;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.h-step-info p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ============================================================
+   푸터 컨택트 섹션 (상담 연결) 최종본
+   ============================================================ */
+
+/* [공통] 섹션 배경 및 레이아웃 */
+.contact-section {
+  background-color: #1D6BF3 !important;
+  border-radius: 20px;
+  color: #ffffff;
+  padding: 30px 24px !important;
+  box-shadow: 0 10px 30px rgba(29, 107, 243, 0.15);
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 680px;
+}
+
+.contact-container {
   display: flex;
-  justify-content: center; 
   align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px;
 }
 
-.main-consult-btn {
-  width: 220px;
-  background-color: #1D6BF3;
-  color: #fff;
-  height: 48px;
-  border-radius: 24px;
-  font-size: 16px;
-  font-weight: 700;
-  border: none;
-  box-shadow: 0 4px 12px rgba(29, 107, 243, 0.2);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.contact-text h3 {
+  font-size: 32px !important;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
 }
 
-.main-consult-btn:active {
-  transform: scale(0.98);
-  background-color: #1656c7;
+/* 클래스명이 없는 일반 p 태그 대응 */
+.contact-text p {
+  font-size: 14px !important;
+  line-height: 1.6;
+  opacity: 0.9;
+  word-break: keep-all;
+  margin: 0;
+  color: #ffffff !important;
 }
 
-/* 9. 모바일 반응형 (640px 이하) */
+/* 💻 1. 데스크톱 환경 (641px 이상): 버튼을 텍스트로 표시 */
+@media (min-width: 641px) {
+  .contact-section {
+    margin: 20px 0 !important;
+  }
+
+  .contact-text h3 {
+    font-size: 28px !important;
+  }
+
+  .contact-button {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    font-weight: 800;
+    pointer-events: none;
+    /* 클릭 비활성화 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0 !important;
+    text-decoration: none !important;
+    white-space: nowrap;
+  }
+}
+
+/* 📱 2. 모바일 환경 (640px 이하): 캡슐형 버튼 표시 */
 @media (max-width: 640px) {
-  .horizontal-process {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px 12px;
+  .year-container {
+    padding: 80px 20px 60px !important;
+    /* 좌우 여백 약간 축소 */
+  }
+  .contact-section {
+    /* 요청하신 대로 내부 패딩을 10px로 줄여 박스 높이 최소화 */
+    padding: 10px !important; 
+    border-radius: 20px;
+    background-color: #1D6BF3 !important;
+    max-width: 95%; /* 좌우 여백 확보 */
+  }
+  .contact-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px; /* 텍스트와 버튼 사이 간격 축소 */
+  }
+  /* 1. 버튼 배경: 순수 흰색 캡슐 유지 */
+  .contact-button {
+    background-color: #ffffff !important;
+    width: 100% !important;
+    max-width: 280px;
+    margin: 10px 0 10px !important; /* 하단 탭바 여백 확보 */
+    padding: 14px 0 !important;
+    border-radius: 50px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none !important;
+    box-shadow: 0 4px 15px rgba(29, 107, 243, 0.15);
+    transition: all 0.2s ease;
   }
 
-  /* 2열일 때 점선 제어 */
-  .h-process-item::after { display: none; }
-  .h-process-item:not(:nth-child(2n))::after {
-    display: block;
-    width: calc(100% - 40px);
+  /* 2. 텍스트/아이콘 그라데이션 영역 (bg-clip-text 효과) */
+  .button-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px !important;
+    font-weight: 900;
+    
+    /* [핵심] 텍스트 그라데이션 및 글로우 */
+    background: linear-gradient(to right, #2563eb, #60a5fa); /* blue-600 to blue-400 */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* 이미지 8e14fd.png 느낌의 은은한 광채 */
+    filter: drop-shadow(0 0 1px rgba(37, 99, 235, 0.2));
   }
 
-  .h-process-item:nth-child(odd)::after {
-    display: block !important;
-    content: '';
-    position: absolute;
-    top: 16px;
-    left: calc(50% + 20px);
-    width: calc(100% - 35px);
-    border-top: 2px dotted #e2e8f0;
+  /* 3. 아이콘 색상 보정 */
+  .button-content-wrapper i {
+    font-size: 18px;
+    /* 부모의 그라데이션 속성을 그대로 상속받음 */
+    -webkit-text-fill-color: transparent;
   }
 
-  .bottom-action-area {
-    padding: 0 16px 30px; /* 모바일 카드 마진 16px와 일치 */
-  }
-
-  .main-consult-btn {
-    height: 52px;
-    font-size: 15px;
-  }
-
-  .guide-card {
-    margin: 12px 16px;
-    padding: 24px 16px;
+  .contact-button:active {
+    transform: scale(0.97);
+    background-color: #f8f9fa !important;
   }
 }
