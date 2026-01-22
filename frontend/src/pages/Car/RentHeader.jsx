@@ -1,85 +1,110 @@
-import { useState, useEffect, useRef } from 'react';
-import RentDateRangePicker from '../../components/common/RentDateRangePicker';
-import { useNavigate, useLocation } from 'react-router-dom';
-import PickupLocationModal from '../../components/common/PickupLocationModal';
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import RentDateRangePicker from "../../components/common/RentDateRangePicker";
+import PickupLocationModal from "../../components/common/PickupLocationModal";
 
-// `calculateMonths` 함수
 function calculateMonths(start, end) {
-  const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  const months =
+    (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
   return months || 1;
 }
 
-const RentHeader = ({ type, location }) => {
+function safeDate(v) {
+  if (!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+const DEFAULT_BRANCH_NAME = "픽업 장소 선택";
+
+const RentHeader = ({ type }) => {
   const navigate = useNavigate();
   const locationObj = useLocation();
-  const query = new URLSearchParams(locationObj.search);
+  const query = useMemo(() => new URLSearchParams(locationObj.search), [locationObj.search]);
 
-  // 초기값 설정
-  const initialRentType = query.get('rentType') || 'short';
-  const initialPickupBranchName = query.get('pickupBranchName') || '서울역 KTX';
-  const queryStartDate = query.get('startDate') ? new Date(query.get('startDate')) : null;
-  const queryEndDate = query.get('endDate') ? new Date(query.get('endDate')) : null;
+  // ✅ URL 기반 초기값
+  const initialRentType = query.get("rentType") || type || "short";
 
-  const initialDateRange = queryStartDate && queryEndDate
-    ? {
-      startDate: queryStartDate,
-      endDate: queryEndDate,
-      months: calculateMonths(queryStartDate, queryEndDate),
-    }
-    : {
-      startDate: new Date(),
-      endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-      months: 1,
-    };
+  const queryStartDate = safeDate(query.get("startDate"));
+  const queryEndDate = safeDate(query.get("endDate"));
+
+  const initialDateRange =
+    queryStartDate && queryEndDate
+      ? {
+        startDate: queryStartDate,
+        endDate: queryEndDate,
+        months: calculateMonths(queryStartDate, queryEndDate),
+      }
+      : (() => {
+        const today = new Date();
+        const end =
+          initialRentType === "long"
+            ? new Date(new Date(today).setMonth(today.getMonth() + 1))
+            : new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+        return {
+          startDate: today,
+          endDate: end,
+          months: initialRentType === "long" ? calculateMonths(today, end) : 1,
+        };
+      })();
 
   const [rentType, setRentType] = useState(initialRentType);
-  const [pickupBranchName, setPickupBranchName] = useState(query.get('pickupBranchName') || '픽업 장소 선택');
+  const [pickupBranchName, setPickupBranchName] = useState(
+    query.get("pickupBranchName") || DEFAULT_BRANCH_NAME
+  );
+  const [pickupBranchId, setPickupBranchId] = useState(query.get("pickupBranchId") || "");
+
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRange, setDateRange] = useState(initialDateRange);
-  const [pickupBranchId, setPickupBranchId] = useState(query.get('pickupBranchId') || null);
 
-  const prevType = useRef(initialRentType);
-
+  // ✅ type prop이 바뀌면 rentType도 같이 맞춰서 “기준 1개”로 유지
+  const prevType = useRef(type);
   useEffect(() => {
+    if (!type) return;
+    if (prevType.current === type) return;
+
     const today = new Date();
-
-    if (prevType.current !== rentType) {
-      if (rentType === 'short') {
-        setDateRange({
-          startDate: today,
-          endDate: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-          months: 1,
-        });
-      } else if (rentType === 'long') {
-        const nextMonth = new Date(today);
-        nextMonth.setMonth(today.getMonth() + 1);
-        setDateRange({
-          startDate: today,
-          endDate: nextMonth,
-          months: calculateMonths(today, nextMonth),
-        });
-      }
-      prevType.current = rentType;
+    if (type === "short") {
+      setRentType("short");
+      setDateRange({
+        startDate: today,
+        endDate: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        months: 1,
+      });
+    } else if (type === "long") {
+      const nextMonth = new Date(today);
+      nextMonth.setMonth(today.getMonth() + 1);
+      setRentType("long");
+      setDateRange({
+        startDate: today,
+        endDate: nextMonth,
+        months: calculateMonths(today, nextMonth),
+      });
     }
-  }, [rentType]);
+
+    prevType.current = type;
+  }, [type]);
 
   useEffect(() => {
-    document.body.style.overflow = (showLocationPicker || showDatePicker) ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    document.body.style.overflow = showLocationPicker || showDatePicker ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [showLocationPicker, showDatePicker]);
 
   const formatDate = (date) =>
-    date.toLocaleDateString('ko-KR', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      weekday: 'short',
+    date.toLocaleString("ko-KR", {
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
   const getDurationText = () => {
-    if (!dateRange.startDate || !dateRange.endDate) return '';
+    if (!dateRange.startDate || !dateRange.endDate) return "";
     const diffMs = dateRange.endDate - dateRange.startDate;
     const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
     const days = Math.floor(totalHours / 24);
@@ -88,44 +113,83 @@ const RentHeader = ({ type, location }) => {
   };
 
   const getLongTermText = () => {
-    if (!dateRange.startDate || !dateRange.endDate) return '';
+    if (!dateRange.startDate || !dateRange.endDate) return "";
     const months = dateRange.months || 1;
     const diffMs = dateRange.endDate - dateRange.startDate;
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     return `${months}개월 (${days}일)`;
   };
 
-  // ✅ 차량 찾기 버튼 클릭 시 이동 로직 (year로 수정)
-  const handleSearch = () => {
+  const buildParams = ({ activeType, startDate, endDate, months }) => {
     const params = new URLSearchParams();
-    params.set('pickupBranchName', pickupBranchName);
-    params.set('pickupBranchId', pickupBranchId);
-    params.set('rentType', rentType);
-    params.set('startDate', dateRange.startDate.toISOString());
-    params.set('endDate', dateRange.endDate.toISOString());
-    params.set('months', dateRange.months || 1);
 
-    navigate(`/day?${params.toString()}`);
+    // ✅ null/빈값 안전 처리
+    if (pickupBranchName) params.set("pickupBranchName", pickupBranchName);
+    if (pickupBranchId) params.set("pickupBranchId", String(pickupBranchId));
+
+    params.set("rentType", activeType);
+    params.set("startDate", startDate.toISOString());
+    params.set("endDate", endDate.toISOString());
+    params.set("months", String(months || 1));
+    return params;
+  };
+
+  const go = (activeType, nextRange) => {
+    const targetPath = activeType === "long" ? "/year" : "/day";
+    const params = buildParams({
+      activeType,
+      startDate: nextRange.startDate,
+      endDate: nextRange.endDate,
+      months: nextRange.months,
+    });
+    navigate(`${targetPath}?${params.toString()}`);
+  };
+
+  const handleSearch = () => {
+    go(rentType, dateRange);
   };
 
   return (
-    <section id="car-list" className="bg-brand text-center pt-7 pb-9 sm:pb-[37px] px-6 sm:px-[41px] rounded-b-[40px] sm:rounded-b-[60px] relative z-[999]">
-      <div className="rentM bg-gray-50 rounded-[30px] xx:px-2.5 sm:px-3 relative z-0">
-        <div className="rentM relative p-2">
-          <div className="rentMBg flex items-center rounded-lg p-1.5 cursor-pointer bg-gray-100">
-            <i className="fa-solid fa-magnifying-glass text-[20px] mr-3"></i>
-            <div id="rentInfo" className="flex flex-col w-full break-keep relative">
-              <p className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold" onClick={() => setShowLocationPicker(prev => !prev)}>
+    <section className="bg-brand text-center pt-7 pb-9 sm:pb-[37px] px-6 sm:px-[41px] rounded-b-[40px] sm:rounded-b-[60px] relative z-[999]">
+      <div className="bg-gray-50 rounded-[28px] relative z-0">
+        <div className="relative p-2">
+          <div className="flex items-center rounded-[20px] p-1.5 cursor-pointer bg-gray-100">
+            <i className="fa-solid fa-magnifying-glass text-[20px] mr-3 self-center max-[500px]:self-start max-[500px]:mt-0.5 "></i>
+            <div className="flex flex-col w-full break-keep relative">
+              <p
+                className="text-left text-gray-800 tracking-tighter text-[16px] font-semibold"
+                onClick={() => setShowLocationPicker((prev) => !prev)}
+              >
                 {pickupBranchName}
               </p>
+
               <p
-                id="rentTime"
-                className="flex justify-between text-gray-400 text-[16px] text-left"
-                onClick={() => setShowDatePicker(prev => !prev)}
+                className="flex items-end justify-between text-gray-400 text-[16px] text-left"
+                onClick={() => setShowDatePicker((prev) => !prev)}
               >
-                <span id="pickDay">{formatDate(dateRange.startDate)} &gt; {formatDate(dateRange.endDate)}</span>
-                <span id="pickTime" className="text-[12px] text-gray-500">
-                  {rentType == 'short' ? getDurationText() : getLongTermText()}
+                <span className="min-w-0 flex-1 max-[500px]:text-[14px]">
+                  {/* startDate */}
+                  <span className="whitespace-nowrap">
+                    {formatDate(dateRange.startDate)}
+                  </span>
+
+                  {/* > + endDate 묶음 */}
+                  <span className="inline max-[500px]:block">
+
+                    <span className="mx-1 whitespace-nowrap max-[500px]:hidden">
+                      &gt;
+                    </span>
+
+                    {/* endDate는 내려감 */}
+                    <span className="whitespace-nowrap">
+                      {formatDate(dateRange.endDate)}
+                    </span>
+                  </span>
+                </span>
+
+                {/* 총 이용시간은 항상 아래 맞춤 */}
+                <span className="shrink-0 whitespace-nowrap text-[12px] text-gray-500 h-5">
+                  {rentType === "short" ? getDurationText() : getLongTermText()}
                 </span>
               </p>
             </div>
@@ -135,8 +199,8 @@ const RentHeader = ({ type, location }) => {
             <PickupLocationModal
               onClose={() => setShowLocationPicker(false)}
               onSelect={(branchId, branchName) => {
-                setPickupBranchName(branchName);
-                setPickupBranchId(branchId);
+                setPickupBranchName(branchName || DEFAULT_BRANCH_NAME);
+                setPickupBranchId(branchId ? String(branchId) : "");
                 setShowLocationPicker(false);
                 setShowDatePicker(true);
               }}
@@ -147,39 +211,25 @@ const RentHeader = ({ type, location }) => {
             <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-xl shadow-lg w-full">
               <RentDateRangePicker
                 initialRange={dateRange}
+                type={rentType}
                 onChange={(selection) => {
-                  setDateRange({
+                  const nextRange = {
                     startDate: selection.startDate,
                     endDate: selection.endDate,
                     months: selection.months || 1,
-                  });
+                  };
+                  setDateRange(nextRange);
                   setRentType(selection.activeType);
                   setShowDatePicker(false);
 
-                  const params = new URLSearchParams({
-                    pickupBranchName,
-                    pickupBranchId,
-                    rentType: selection.activeType,
-                    startDate: selection.startDate.toISOString(),
-                    endDate: selection.endDate.toISOString(),
-                    months: selection.months || 1,
-                  });
-
-                  navigate(`/day?${params.toString()}`);
+                  // ✅ 날짜 선택 즉시 이동
+                  go(selection.activeType, nextRange);
                 }}
                 onClose={() => setShowDatePicker(false)}
                 onTabChange={(tab) => setRentType(tab)}
-                type={rentType}
-                location={location}
               />
             </div>
           )}
-        </div>
-
-        <div className="py-3">
-          <button className="w-full bg-brand text-white font-bold py-2.5 hover:bg-blue-600 rounded-[50px]" onClick={handleSearch}>
-            차량 찾기
-          </button>
         </div>
       </div>
     </section>

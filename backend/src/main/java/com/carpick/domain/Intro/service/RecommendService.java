@@ -29,14 +29,12 @@ public class RecommendService {
     		    아래 사용자가 선택한 정보들을 보고 가장 적합한 차종을 하나만 추천해줘.
 
     		    차종 후보:
-    		    - 경차
-    		    - 소형
-    		    - 준중형
-    		    - 중형
-    		    - 대형
-    		    - SUV
-    		    - RV
-    		    - 밴
+    		    - 경차(LIGHT)
+    		    - 소형(LIGHT)
+    		    - 준중형(COMPACT)
+    		    - 중형(MID)
+    		    - SUV(SUV)
+    		    - RV(RV)
 
     		    사용자가 선택한 정보:
     		    %s
@@ -74,7 +72,7 @@ public class RecommendService {
 
     		    **출력 JSON 형식으로만 응답해줘, 다른 텍스트는 쓰지 마:** 
     		    {{
-    		      "segment": "추천된 차종",
+    		      "segment": "추천된 차종의 영문값",
     		      "reason": "상황 설명\\n제안\\n이유"
     		    }}
     		    """.formatted(String.join(", ", options));

@@ -12,9 +12,11 @@ export default function ZoneBottomSheetBranch({
   onClose,
   zone,
   onHeightChange,
+  onDetail,
 }) {
   const show = Boolean(open && zone);
   const sheetRef = useRef(null);
+
 
   // ✅ 실제 높이(px) 측정 → 부모 전달(지도 y보정용)
   useEffect(() => {
@@ -68,12 +70,27 @@ export default function ZoneBottomSheetBranch({
         ].join(" ")}
       >
         {/* ✅ grabber(스샷에 있는 회색 바) */}
-        <div className="w-full pt-3 pb-2 flex justify-center">
-          <div className="w-10 h-1 rounded-full bg-black/10" />
-        </div>
-
-        {/* ✅ 30%는 스크롤 없음 */}
         <div className="h-[calc(100%-20px)] overflow-hidden pb-3">
+          {/* ✅ Grabber → 상세 페이지 이동 */}
+          <div className="w-full pt-3 pb-2 flex justify-center">
+            <button
+              type="button"
+              aria-label="카픽존 상세 페이지로 이동"
+              onClick={onDetail}
+              className="w-14 h-6 flex items-center justify-center group"
+            >
+              <div
+                className="
+          w-10 h-1 rounded-full bg-black/20
+          transition-all duration-200
+          group-hover:w-12
+          group-hover:bg-black/40
+        "
+              />
+            </button>
+          </div>
+
+          {/* ✅ 기존 헤더 그대로 */}
           <ZoneSheetHeader
             kind="BRANCH"
             name={zone?.name}

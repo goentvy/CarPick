@@ -121,11 +121,16 @@ const CarMonthList = () => {
                             key={car.specId}
                             id={car.specId}
                             title={car.displayNameShort}
-                            info={{ year: car.modelYear, seat: car.seatingCapacity + "인승" }}
+                            info={{ year: car.modelYear, seat: `${car.seatingCapacity}인승` }}
                             features={car.driveLabels}
                             cost={car.originalPrice}
                             price={car.finalPrice}
                             day={false}
+                            imageSrc={
+                                car.imgUrl ||
+                                car.mainImageUrl ||
+                                "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
+                            }
                             onClick={() => handleClickCar(car.specId)}
                         />
                     ))}

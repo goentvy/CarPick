@@ -61,6 +61,13 @@ keyProperty="id">
                 OR u.email LIKE CONCAT('%', #{search}, '%')
             )
         </if>
+         <if test="status != null and status != ''">
+            AND i.status = #{status}
+        </if>
+
+        <if test="category != null and category != ''">
+            AND i.category = #{category}
+        </if>
     </where>
     ORDER BY i.created_at DESC
     LIMIT #{limit} OFFSET #{offset}
@@ -76,6 +83,13 @@ keyProperty="id">
                 i.title LIKE CONCAT('%', #{search}, '%')
                 OR u.email LIKE CONCAT('%', #{search}, '%')
             )
+        </if>
+         <if test="status != null and status != ''">
+            AND i.status = #{status}
+        </if>
+
+        <if test="category != null and category != ''">
+            AND i.category = #{category}
         </if>
     </where>
 </select>

@@ -15,17 +15,17 @@ const YearPage = () => {
     {
       title: "대차 서비스",
       img: "/images/sub/rent/anotherKey.png",
-      desc: "수리 기간 동안 고객님의 일상은 멈추지 마세요. 내 차처럼 편안하고 깨끗한 대차 차량을 즉시 준비해 드립니다."
+      desc: "수리 기간 동안 고객님의 일상은 멈추지 마세요. \n내 차처럼 편안하고 깨끗한 대차 차량을 즉시 준비해 드립니다."
     },
     {
       title: "Pick-UP 서비스",
       img: "/images/sub/rent/pickup.png",
-      desc: "계신 곳 어디든 저희가 직접 찾아갑니다. 바쁜 일상 속 서비스 센터 방문의 번거로움 없이 완벽한 정비를 경험해 보세요."
+      desc: "계신 곳 어디든 저희가 직접 찾아갑니다. \n바쁜 일상 속 서비스 센터 방문의 번거로움 없이 완벽한 정비를 경험해 보세요."
     },
     {
       title: "긴급 서비스",
       img: "/images/sub/rent/emergency.png",
-      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요. 고객님이 계신 곳으로 가장 빠르게 달려가겠습니다."
+      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요.\n고객님이 계신 곳으로 가장 빠르게 달려가겠습니다.\n(*우측상단 긴급지원서비스 페이지 참고*)"
     },
     {
       title: "정기점검",
@@ -35,7 +35,7 @@ const YearPage = () => {
   ];
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/rent/year/details')
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/rent/year/details`)
       .then(res => {
         setData(res.data);
         setLoading(false);
@@ -56,37 +56,41 @@ const YearPage = () => {
           <h2 className="guide-main-title">장기렌트</h2>
         </section>
 
-        {/* 섹션 01: 장점 (이용가이드 카드 스타일 적용) */}
+        {/* 섹션 01: 장점 */}
         <section className="guide-card">
           <div className="guide-card-header">
-            <span className="step-badge">1</span>
-            <h3>CarP!ck의 장점</h3>
+            <div className="header-left">
+              <span className="step-badge">1</span>
+              <h3>CarP!ck의 장점</h3>
+            </div>
           </div>
 
-          {/* 이미지 e85403 스타일의 장점 그리드 */}
           <div className="advantage-icon-grid">
+            {/* 장점 1 */}
             <div className="adv-card">
-              <div className="adv-icon-circle blue">
-                <i className="fa-solid fa-sack-dollar"></i>
+              <div className="adv-img-box">
+                <img src="/images/sub/rent/price.png" alt="합리적 가격" />
               </div>
-              <h4>차량 운용비용 경제적</h4>
-              <p>렌트비용 전액 손비처리 및 법인세 절세효과</p>
+              <h4>합리적인 가격의 기준</h4>
+              <p>데이터 기반 최저가 비교로 유통 거품을 뺀 <br />정직한 견적과 절세 효과 제공</p>
             </div>
 
+            {/* 장점 2 */}
             <div className="adv-card">
-              <div className="adv-icon-circle purple">
-                <i className="fa-solid fa-screwdriver-wrench"></i>
+              <div className="adv-img-box">
+                <img src="/images/sub/rent/care.png" alt="1:1 맞춤 케어" />
               </div>
-              <h4>차량 유지, 관리 편리성</h4>
-              <p>1:1 관리를 통해 점검 및 소모품 교체 서비스 제공</p>
+              <h4>1:1 맞춤 케어</h4>
+              <p>전문 매니저가 차량 선정부터 서류 심사까지 모든 번거로운 과정 밀착 지원</p>
             </div>
 
+            {/* 장점 3 */}
             <div className="adv-card">
-              <div className="adv-icon-circle light-blue">
-                <i className="fa-solid fa-shield-halved"></i>
+              <div className="adv-img-box">
+                <img src="/images/sub/rent/repair.png" alt="차량 관리" />
               </div>
-              <h4>보험료 부담 없음</h4>
-              <p>종합보험 가입비용 포함으로 추가 비용 부담 제로</p>
+              <h4>신뢰 기반 차량 관리</h4>
+              <p>정기 점검부터 사고 시 대차까지 모든 차량 <br />유지관리 전 과정 지원</p>
             </div>
           </div>
         </section>
@@ -162,17 +166,21 @@ const YearPage = () => {
             ))}
           </div>
         </section>
-        <div className="bottom-sticky-area">
-          <button
-            className="main-consult-btn"
-            onClick={() => {
-              window.scrollTo(0, 0);
-              navigate('/home');
-            }}
-          >
-            지금 차량 예약하기 ❯
-          </button>
-        </div>
+
+        {/* 장기렌트 상담 버튼 */}
+        <section className="contact-section">
+          <div className="contact-container">
+            <div className="contact-text">
+              <h3>도움이 필요하신가요?</h3>
+              <p>장기렌트 문의, 365일 24시간 언제든 상담 가능합니다.</p>
+            </div>
+            <a href="tel:1588-1234" className="contact-button">
+              <span className="button-content-wrapper">
+                <i className="fa fa-phone-alt"></i> 1588 - 5678
+              </span>
+            </a>
+          </div>
+        </section>
       </div>
     </div>
   );
