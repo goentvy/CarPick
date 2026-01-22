@@ -43,14 +43,9 @@ const RentHeader = ({ type, location }) => {
 
   useEffect(() => {
     const today = new Date();
-<<<<<<< HEAD
 
     if (prevType.current !== rentType) {
       if (rentType === 'short') {
-=======
-    if (prevType.current !== type) {
-      if (type === 'short') {
->>>>>>> 52c1aa23bbe3a3d1d15a1bb66633357966de4500
         setDateRange({
           startDate: today,
           endDate: new Date(today.getTime() + 24 * 60 * 60 * 1000),
@@ -110,13 +105,7 @@ const RentHeader = ({ type, location }) => {
     params.set('endDate', dateRange.endDate.toISOString());
     params.set('months', dateRange.months || 1);
 
-<<<<<<< HEAD
     navigate(`/day?${params.toString()}`);
-=======
-    // rentType이 long이면 /year로 이동
-    const targetPath = rentType === 'long' ? '/year' : '/day';
-    navigate(`${targetPath}?${params.toString()}`);
->>>>>>> 52c1aa23bbe3a3d1d15a1bb66633357966de4500
   };
 
   return (
@@ -176,13 +165,7 @@ const RentHeader = ({ type, location }) => {
                     months: selection.months || 1,
                   });
 
-<<<<<<< HEAD
                   navigate(`/day?${params.toString()}`);
-=======
-                  // ✅ 날짜 선택 즉시 이동 경로 (year로 수정)
-                  const targetPath = selection.activeType === 'long' ? '/year' : '/day';
-                  navigate(`${targetPath}?${params.toString()}`);
->>>>>>> 52c1aa23bbe3a3d1d15a1bb66633357966de4500
                 }}
                 onClose={() => setShowDatePicker(false)}
                 onTabChange={(tab) => setRentType(tab)}
