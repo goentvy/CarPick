@@ -6,6 +6,8 @@ import CarCard from "./CarCard";
 import PickupFilterModal from "../../components/common/PickupFilterModal";
 
 const CarList = () => {
+    console.log("✅ RENDER: CarDayList", window.location.href);
+
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(true);
 

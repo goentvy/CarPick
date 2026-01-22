@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/EmergencyService.css';
+import '../../styles/emergencyService.css';
 
 const EmergencyService = () => {
   const [guideList, setGuideList] = useState([]);

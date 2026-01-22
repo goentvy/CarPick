@@ -7,12 +7,14 @@ import com.carpick.domain.auth.dto.signup.SignupRequest;
 import com.carpick.domain.auth.dto.signup.SignupResponse;
 import com.carpick.domain.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -33,15 +35,25 @@ public class AuthController {
     }
 
     @GetMapping("/check-email")
-    public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam("email") String email) {
-        // 1. 서비스에서 중복 여부 확인
-        boolean isDuplicate = authService.checkEmailDuplicate(email);
+    public ResponseEntity<Map<String, Boolean>> checkEmail(
+            @RequestParam("email") String email) {
 
-        // 2. JSON 형태로 응답하기 위해 Map 생성 ({ "isDuplicate": true/false })
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("isDuplicate", isDuplicate);
+        log.info("[CHECK-EMAIL] 요청 시작 email={}", email);
 
-        // 3. 200 OK 상태코드와 함께 반환
-        return ResponseEntity.ok(response);
+        try {
+            boolean isDuplicate = authService.checkEmailDuplicate(email);
+
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("isDuplicate", isDuplicate);
+
+            log.info("[CHECK-EMAIL] 성공 email={}, isDuplicate={}", email, isDuplicate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("[CHECK-EMAIL] 실패 email={}", email, e);
+            throw e; // 반드시 다시 던져라 (그래야 500 유지)
+        }
     }
+
 }
