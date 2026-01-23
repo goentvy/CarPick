@@ -586,7 +586,6 @@
     transform: translateY(-1px);
   }
 
-  /* [수정] 로봇 이모지: 네온색 포인트 */
   .desktop-estimate-btn i.fa-robot {
     font-size: 20px;
     color: #c6ff35; /* 네온 민트/그린 계열 */
@@ -678,6 +677,7 @@
     display: flex;
     justify-content: center;
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .ai-estimate-button {
@@ -685,7 +685,7 @@
     max-width: 180px;
     height: 35px;
     /* 기본 배경색 #2D2F33에 살짝 밝은 톤을 섞은 그라데이션으로 고급스러움 강조 */
-    background: linear-gradient(135deg, #2d2f33 0%, #3d4045 50%, #2d2f33 100%);
+    background: #1D6BF3;
     border: none;
     border-radius: 30px;
     display: flex;
@@ -723,15 +723,14 @@
   .icon-circle {
     width: 28px;
     height: 28px;
-    background-color: #c6ff35;
+    background-color: #1D6BF3;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #2d2f33;
+    color: #ffffff;
     font-size: 20px;
-    /* 강력한 네온 발광 효과 */
-    box-shadow: 0 0 15px rgba(198, 255, 53, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.5);
+    
   }
 
   .button-text {
@@ -740,7 +739,6 @@
     font-weight: 700;
     text-align: center;
     letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     letter-spacing: 0.5px;
     margin-right: 20px;
     white-space: nowrap;
