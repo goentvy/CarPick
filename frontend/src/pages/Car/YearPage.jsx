@@ -179,7 +179,7 @@ const YearPage = () => {
           </div>
           {/* 추가된 데스크탑용 빠른 견적문의 버튼 (641px 이상 노출) */}
           <div className="desktop-estimate-btn-container">
-            <button className="desktop-estimate-btn" onClick={() => navigate('/aipick')}>
+            <button className="desktop-estimate-btn" onClick={() => navigate('/cs/inquiry')}>
               <i className="fas fa-comment-dots"></i>
               <span>빠른 견적문의</span>
               <i className="fa fa-chevron-right"></i>
