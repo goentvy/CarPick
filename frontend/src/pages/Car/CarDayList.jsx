@@ -154,8 +154,8 @@ const CarList = () => {
                         // [유지] 정가(취소선) = 단가 * 일수, 최종가 = 총액
                         return {
                             ...car,
-                            originalPrice: basePriceNum * rentDaysNum,
-                            finalPrice: totalNum,
+                            baseTotalAmount: Number(p.baseTotalAmount ?? 0),  //  추가
+                            finalPrice: Number(p.estimatedTotalAmount ?? 0),
                             discountRate: p.discountRate ?? 0,
                         };
                     })
@@ -261,7 +261,7 @@ const CarList = () => {
                         <CarCard
                             key={car.specId}
                             id={car.specId}
-                            discount={car.discountRate !== null}
+                            discount={car.discountRate > 0}
                             discountRate={car.discountRate || 0}
                             imageSrc={
                                 car.imgUrl ||
@@ -273,7 +273,7 @@ const CarList = () => {
                                 seat: car.seatingCapacity + "인승",
                             }}
                             features={car.driveLabels}
-                            cost={car.originalPrice}
+                            baseTotalAmount={car.baseTotalAmount}        // ✅ 변경: cost → baseTotalAmount
                             price={car.finalPrice}
                             day={true}
                             onClick={handleClickCar}

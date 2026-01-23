@@ -88,6 +88,9 @@ public class PriceSummaryService {
         } else {
             basePrice = displayUnitPrice;
         }
+        log.info("[PRICE][DISPLAY] rentType={}, monthlyUnitPrice={}, rentMonths={}, period={}",
+                safeRentType, displayUnitPrice, rentMonths, period);
+
 // =====================================================
 // [5-0] RentType별 입력 정책 고정 (선택지 A)
 //   - LONG: rentMonths만 신뢰, period는 계산에 사용하지 않음(무시/참고용)
@@ -110,6 +113,7 @@ public class PriceSummaryService {
             calcMonths = null; //  단기는 months 무시
         }
 
+
         // =====================================================
         // [5] 총액(estimatedTotalAmount) + 과금일수(rentDays) 계산
         //   - 단기/장기 분기는 Resolver + TermRentCalculator가 담당
@@ -118,7 +122,18 @@ public class PriceSummaryService {
 
         BigDecimal estimatedTotalAmount = termCalc.calculateTotalAmount(displayUnitPrice, calcPeriod, calcMonths);
         long billingDays = termCalc.getBillingDays(calcPeriod, calcMonths);
-
+// =====================================================
+// [5-1] 정가 총액 계산 (취소선 표시용)
+//   - 할인율이 있으면: 할인 총액을 역산
+//   - 할인율이 없으면: 할인 총액 = 정가 총액
+// =====================================================
+        BigDecimal baseTotalAmount;
+        if (discountRate > 0) {
+            baseTotalAmount = displayCalculator.reverseBasePriceFromDiscountedPrice(
+                    estimatedTotalAmount, discountRate);
+        } else {
+            baseTotalAmount = estimatedTotalAmount;
+        }
 
         // =====================================================
         // [6] DTO 리턴
@@ -129,8 +144,10 @@ public class PriceSummaryService {
                 discountRate,
                 priceType,
                 safeRentType,
+
                 billingDays,
-                estimatedTotalAmount
+                estimatedTotalAmount,
+                baseTotalAmount
         );
     }
 

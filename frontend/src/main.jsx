@@ -137,7 +137,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="favorites" element={<Favorites />} />
             <Route path="license" element={<MyLicense />} />
             <Route path="changeHistory" element={<ChangeHistoryPage />} />
-            {/* ✅ 예약 내역 */}
+            {/*  예약 내역 */}
             <Route path="reservations" element={<ReservationsList />} />
             <Route path="reservations/:reservationId/change" element={<ReservationChangeDetail />} />
             <Route path="reservations/:reservationId" element={<ReservationDetail />} />

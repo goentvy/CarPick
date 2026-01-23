@@ -123,7 +123,7 @@ INSERT INTO PRICE_POLICY (
     base_price, discount_rate,
     valid_from, valid_to, is_active, use_yn
 )
-VALUES (1, 1, 'DAILY', 100000, 50, NOW(), '2099-12-31', TRUE, 'Y');
+VALUES (1, 1, 'DAILY', null, 50, NOW(), '2099-12-31', TRUE, 'Y');
 
 
 INSERT INTO faq (category, question, answer) VALUES
@@ -135,4 +135,11 @@ INSERT INTO faq (category, question, answer) VALUES
                                                  ('short','단기렌트 대여 조건은 무엇인가요?','단기렌트 이용 조건은 상품 및 차량 종류에 따라 다를 수 있습니다.'),
                                                  ('etc','고객센터 운영시간은 어떻게 되나요?','고객센터는 정해진 운영 시간 내에 상담이 가능합니다.');
 
+
+INSERT INTO PRICE_POLICY (
+    spec_id, branch_id, price_type,
+    base_price, discount_rate,
+    valid_from, valid_to, is_active, use_yn
+)
+VALUES (null, 1, 'MONTHLY', null, 50, NOW(), '2099-12-31', TRUE, 'Y');
 
