@@ -6,6 +6,7 @@ const CarCard = ({
   title,
   features,
   info,
+  baseTotalAmount,
   cost,
   price,
   day,
@@ -17,6 +18,8 @@ const CarCard = ({
       : Array.isArray(features)
         ? features
         : [];
+  // 취소선 표시 여부: 할인이 있고, 정가 총액이 실제 가격보다 클 때만
+  const showStrikethrough = discountRate > 0 && baseTotalAmount > price;
 
   return (
     <div
@@ -81,9 +84,13 @@ const CarCard = ({
 
           {/* 가격 */}
           <div className="flex justify-end items-baseline gap-2">
+            {/* 취소선 가격: 할인이 있을 때만 표시 */}
+
             <span className="text-3 text-gray-400 line-through">
-              {Number(cost ?? 0).toLocaleString()}원
+              {Number(baseTotalAmount).toLocaleString()}원
             </span>
+
+
 
             <span className="text-2xl font-bold text-brand">
               {!day && <span className="text-3 mr-1">월</span>}
