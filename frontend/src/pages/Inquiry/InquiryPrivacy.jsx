@@ -3,16 +3,15 @@ import ContentTopLogo from "../../components/common/ContentTopLogo";
 import "../../styles/inquiry.css";
 
 export default function InquiryPrivacy() {
-    const navigate = useNavigate();
-    
-    return (
+  const navigate = useNavigate();
+
+  return (
     <div className="page-wrapper">
       <div className="inquiry-container privacy">
 
-        <ContentTopLogo
-          title="개인정보처리방침"
-          titleStyle="text-center mb-6 text-xl font-bold"
-        />
+        <section className="guide-header-style">
+          <h2 className="guide-main-title">개인정보처리방침</h2>
+        </section>
 
         <div className="privacy-content">
           <p>
@@ -53,7 +52,7 @@ export default function InquiryPrivacy() {
           className="btn-secondary back-btn"
           onClick={() => navigate("/cs/inquiry")}
         >
-            돌아가기
+          돌아가기
         </button>
 
       </div>

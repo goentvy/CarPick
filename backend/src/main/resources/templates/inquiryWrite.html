@@ -78,7 +78,8 @@
 								        <div class="form-group">
 								            <label>문의카테고리</label>
 								            <input class="form-control"
-								                   th:value="${inquiry.category == 'reservation' ? '예약문의' : 
+								                   th:value="${inquiry.category == 'longterm' ? '장기렌트' : 
+															inquiry.category == 'reservation' ? '예약문의' : 
 								                            inquiry.category == 'payment' ? '결제문의' : 
 								                            inquiry.category == 'cancel' ? '취소/환불' : 
 								                            inquiry.category == 'etc' ? '기타' : inquiry.category}"

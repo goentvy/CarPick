@@ -181,7 +181,11 @@
 													            <a class="dropdown-item"
 													               th:classappend="${category == null or category == ''} ? 'active' : ''"
 													               href="#" onclick="setCategory('')">전체</a>
-
+																   
+																<a class="dropdown-item"
+																   th:classappend="${category == 'longterm'} ? 'active' : ''"
+																   href="#" onclick="setCategory('longterm')">장기렌트</a>
+																   
 													            <a class="dropdown-item"
 													               th:classappend="${category == 'reservation'} ? 'active' : ''"
 													               href="#" onclick="setCategory('reservation')">예약문의</a>
@@ -238,6 +242,7 @@
 													<td th:text="${inquiry.userEmail}"></td>
 													<td>
 														<span th:switch="${inquiry.category}">
+															<span th:case="'longterm'">장기렌트</span>
 															<span th:case="'reservation'">예약문의</span>
 															<span th:case="'payment'">결제문의</span>
 															<span th:case="'cancel'">취소/환불</span>
