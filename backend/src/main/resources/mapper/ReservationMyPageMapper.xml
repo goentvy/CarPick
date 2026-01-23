@@ -15,8 +15,6 @@
             r.reservation_id        AS reservationId,
             r.reservation_no        AS reservationNo,
 
-            r.pickup_branch_id      AS branchId,
-
             cs.brand                AS brand,
             cs.display_name_short   AS displayNameShort,
 
@@ -72,7 +70,6 @@
 
             r.return_type                        AS returnType,
             r.return_branch_id                   AS returnBranchId,
-            r.pickup_branch_id                   AS branchId,
             r.return_address                     AS returnAddress,
 
             r.base_rent_fee_snapshot             AS baseRentFeeSnapshot,

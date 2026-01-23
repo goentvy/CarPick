@@ -117,7 +117,9 @@ public class SecurityConfigDev {
                 "http://3.236.8.244:5173",
                 "http://3.236.8.244:8080",
                 "http://localhost:5174",
-                "http://localhost:5175"
+                "http://localhost:5175",
+                "https://carpick.p-e.kr",
+                "https://admin.carpick.p-e.kr"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
