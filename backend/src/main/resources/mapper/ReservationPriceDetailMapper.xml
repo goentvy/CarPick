@@ -5,12 +5,6 @@
 
 <mapper namespace="com.carpick.domain.price.mapper.ReservationPriceDetailMapper">
 
-    <!--
-        예약 가격 명세서 저장
-        - 예약 확정 시점에 계산된 가격 결과 + 근거 스냅샷을 저장
-        - reservation_id 는 UNIQUE 제약으로 예약당 1건만 허용
-        - created_at 은 DB DEFAULT(CURRENT_TIMESTAMP)에 위임
-    -->
     <insert id="insertPriceDetail"
             parameterType="com.carpick.domain.price.entity.ReservationPriceDetail"
             useGeneratedKeys="true"
@@ -55,13 +49,25 @@
 
                      #{insuranceAppliedDays}
                  )
+            ON DUPLICATE KEY UPDATE
+                                 reservation_rent_fee        = #{reservationRentFee},
+                                 reservation_insurance_fee   = #{reservationInsuranceFee},
+                                 reservation_coupon_discount = #{reservationCouponDiscount},
+                                 reservation_total_amount    = #{reservationTotalAmount},
+
+                                 price_type                  = #{priceType},
+
+                                 applied_daily_price         = #{appliedDailyPrice},
+                                 applied_hourly_price        = #{appliedHourlyPrice},
+                                 applied_monthly_price       = #{appliedMonthlyPrice},
+
+                                 applied_days                = #{appliedDays},
+                                 applied_hours               = #{appliedHours},
+                                 applied_months              = #{appliedMonths},
+
+                                 insurance_applied_days      = #{insuranceAppliedDays}
     </insert>
 
-    <!--
-        예약 ID 기준 가격 명세서 조회
-        - 가격 명세서는 예약에 종속되므로 reservation_id 기준 조회
-        - UNIQUE 제약이 있으므로 1건만 반환됨
-    -->
     <select id="findStatementByReservationId"
             parameterType="java.lang.Long"
             resultType="com.carpick.domain.price.dto.ReservationPriceStatementResponseDto">
