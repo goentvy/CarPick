@@ -214,7 +214,7 @@ function Header() {
         </div>
       </aside>
 
-      <div className="fixed">
+      <div className="fixedAI">
         <Link to="/aipick"
           className="btn btn_aipick"
         >

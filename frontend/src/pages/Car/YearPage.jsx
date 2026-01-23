@@ -165,7 +165,30 @@ const YearPage = () => {
               </div>
             ))}
           </div>
+          {/* 추가된 데스크탑용 빠른 견적문의 버튼 (641px 이상 노출) */}
+          <div className="desktop-estimate-btn-container">
+            <button className="desktop-estimate-btn" onClick={() => navigate('/aipick')}>
+              <i className="fa fa-robot"></i>
+              <span>빠른 견적문의</span>
+              <i className="fa fa-chevron-right"></i>
+            </button>
+          </div>
         </section>
+
+        {/* 모바일 전용 AI 견적 스낵바 */}
+        <div className="ai-chat-snackbar">
+          <div className="ai-snackbar-container">
+            <button className="ai-estimate-button" onClick={() => navigate('/aipick')}>
+              <div className="button-inner">
+                <span className="icon-circle">
+                  <i className="fa fa-robot"></i>
+                </span>
+                <span className="button-text">빠른 견적문의</span>
+              </div>
+              <i className="fa fa-chevron-right arrow-icon"></i>
+            </button>
+          </div>
+        </div>
 
         {/* 장기렌트 상담 버튼 */}
         <section className="contact-section">

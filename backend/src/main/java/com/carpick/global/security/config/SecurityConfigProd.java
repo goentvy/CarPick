@@ -94,6 +94,9 @@ public class SecurityConfigProd {
         config.setAllowedHeaders(java.util.List.of("*"));
         config.setAllowCredentials(true);
 
+
+        config.addExposedHeader("Access-Control-Allow-Private-Network");
+
         var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 

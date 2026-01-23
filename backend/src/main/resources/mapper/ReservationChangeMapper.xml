@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.domain.member.mapper.ReservationChangeMapper">
+
+    <insert id="insertReservationHistory">
+        INSERT INTO reservation_history (
+            reservation_id,
+            action_type,
+            old_start_date,
+            old_end_date,
+            old_car_name,
+            old_price,
+            new_start_date,
+            new_end_date,
+            new_car_name,
+            new_price,
+            price_difference,
+            user_id,
+            created_at
+        ) VALUES (
+                     #{reservationId},
+                     #{actionType},
+                     #{oldStartDate},
+                     #{oldEndDate},
+                     #{oldCarName},
+                     #{oldPrice},
+                     #{newStartDate},
+                     #{newEndDate},
+                     #{newCarName},
+                     #{newPrice},
+                     #{priceDifference},
+                     #{userId},
+                     NOW()
+                 )
+    </insert>
+
+    <update id="updateReservation">
+        UPDATE reservation
+        SET
+            car_id = #{carId},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            total_amount_snapshot = #{totalAmount},
+            updated_at = NOW()
+        WHERE reservation_id = #{reservationId}
+    </update>
+
+</mapper>
