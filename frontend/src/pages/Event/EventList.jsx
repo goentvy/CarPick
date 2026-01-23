@@ -14,7 +14,7 @@ export default function EventSection() {
   // 이벤트 리스트 불러오기
   const fetchEvents = () => {
     setLoading(true);
-    const url = showEnded ? "http://3.236.8.244:8080/api/event/ended" : "http://3.236.8.244:8080/api/event"; // 스위치 상태에 따라 URL 변경
+    const url = showEnded ? "https://admin.carpick.p-e.kr/api/event/ended" : "https://admin.carpick.p-e.kr/api/event"; // 스위치 상태에 따라 URL 변경
     axios
       .get(url)
       .then((res) => {
