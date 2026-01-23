@@ -65,7 +65,7 @@ export default function Intro() {
 
     try {
       // 서버 요청
-      const res = await fetch(`http://3.236.8.244:8080/api/recommend-cars`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/recommend-cars`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ options: selected }),

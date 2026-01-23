@@ -30,7 +30,7 @@ function Guide() {
   };
 
   useEffect(() => {
-    fetch("/api/guide")
+    fetch("https://admin.carpick.p-e.kr/api/guide")
       .then((res) => {
         if (!res.ok) throw new Error("API Error");
         return res.json();
