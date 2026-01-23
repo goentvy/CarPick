@@ -178,10 +178,10 @@ const YearPage = () => {
         {/* 모바일 전용 AI 견적 스낵바 */}
         <div className="ai-chat-snackbar">
           <div className="ai-snackbar-container">
-            <button className="ai-estimate-button" onClick={() => navigate('/aipick')}>
+            <button className="ai-estimate-button" onClick={() => navigate('/cs/inquiry')}>
               <div className="button-inner">
                 <span className="icon-circle">
-                  <i className="fa fa-robot"></i>
+                  <i className="fas fa-comment-dots"></i> {/* 로봇 대신 말풍선 적용 */}
                 </span>
                 <span className="button-text">빠른 견적문의</span>
               </div>

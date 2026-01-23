@@ -346,7 +346,7 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
-  z-index: 1;
+  position: relative;
   box-shadow: 0 4px 8px rgba(29, 107, 243, 0.2);
 }
 
@@ -658,7 +658,7 @@
   .ai-chat-snackbar {
     display: block;
     position: fixed;
-    bottom: 80px; /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
+    bottom: 65px; /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
     left: 0;
     right: 0;
     z-index: 9999;
@@ -674,8 +674,8 @@
 
   .ai-estimate-button {
     width: 100%;
-    max-width: 230px;
-    height: 56px;
+    max-width: 180px;
+    height: 35px;
     /* 기본 배경색 #2D2F33에 살짝 밝은 톤을 섞은 그라데이션으로 고급스러움 강조 */
     background: linear-gradient(135deg, #2d2f33 0%, #3d4045 50%, #2d2f33 100%);
     border: none;
@@ -713,8 +713,8 @@
 
   /* 네온 아이콘 배경 (#C6FF35) */
   .icon-circle {
-    width: 44px;
-    height: 44px;
+    width: 28px;
+    height: 28px;
     background-color: #c6ff35;
     border-radius: 50%;
     display: flex;
@@ -728,7 +728,7 @@
 
   .button-text {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     text-align: center;
     letter-spacing: -0.5px;
@@ -740,8 +740,7 @@
 
   .arrow-icon {
     color: rgba(255, 255, 255, 0.3);
-    font-size: 16px;
-    margin-right: 8px;
+    font-size: 14px;
     z-index: 2;
   }
 
