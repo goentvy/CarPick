@@ -6,7 +6,6 @@
 .year-container {
   max-width: 640px;
   margin: 0 auto;
-  /* 하단 패딩을 100px로 늘려 탭 바 가려짐 방지 및 가이드 페이지와 통일 */
   padding: 80px 20px 60px !important;
   font-family: 'Pretendard', sans-serif;
   background-color: #f8f9fa;
@@ -36,6 +35,14 @@
   font-size: 12px;
   color: #1D6BF3;
   line-height: 1.5;
+}
+
+.sub-text {
+  color: #a5a4a4;
+  /* 연한 회색 */
+  font-size: 0.9em;
+  /* 약간 작게 하면 더 자연스러워요 */
+  margin-top: 4px;
 }
 
 /* 3. 카드 공통 레이아웃 및 헤더 버튼 추가 */
@@ -346,7 +353,7 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
-  z-index: 1;
+  position: relative;
   box-shadow: 0 4px 8px rgba(29, 107, 243, 0.2);
 }
 
@@ -486,8 +493,8 @@
 }
 
 .contact-text h3 {
-  font-size: 24px !important;
-  font-weight: 800;
+  font-size: 20px !important;
+  font-weight: 700;
   margin-bottom: 8px;
   color: #ffffff;
   letter-spacing: -0.5px;
@@ -522,7 +529,8 @@
   }
 
   .contact-text h3 {
-    font-size: 24px !important;
+    font-size: 20px !important;
+    font-weight: 700;
   }
 
   .contact-button {
@@ -531,7 +539,7 @@
     box-shadow: none !important;
     color: #ffffff !important;
     font-size: 22px !important;
-    font-weight: 800;
+    font-weight: 700;
     pointer-events: none;
     /* 클릭 비활성화 */
     display: flex;
@@ -545,9 +553,8 @@
 
   .desktop-estimate-btn-container {
     display: flex;
-    justify-content: center;
+    justify-content: right;
     margin-top: 24px;
-    padding-bottom: 20px;
   }
 
   .desktop-estimate-btn {
@@ -555,22 +562,27 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    
+
     /* 요청하신 고정 사이즈 */
     width: 160px;
-    height: 48px;
-    
-    background-color: #2D2F33;
+    height: 40px;
+
+    /* [수정] 그러데이션 효과 적용 (왼쪽 하단에서 오른쪽 상단 방향) */
+    background: linear-gradient(135deg, #1D6BF3 0%, #4A90E2 100%);
     color: #ffffff;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
-    transition: all 0.2s ease;
-    
+
+    /* [수정] 그러데이션에 맞춰 그림자 색상도 조금 더 풍부하게 변경 */
+    box-shadow: 0 4px 15px rgba(29, 107, 243, 0.3);
+    transition: all 0.3s ease;
+
     /* [수정] 글자 절대 줄바꿈 방지 */
-    white-space: nowrap; 
+    white-space: nowrap;
     overflow: hidden;
+    font-weight: 600;
+    /* 글자가 좀 더 잘 보이도록 두께 추가 */
   }
 
   .desktop-estimate-btn:hover {
@@ -578,18 +590,20 @@
     transform: translateY(-1px);
   }
 
-  /* [수정] 로봇 이모지: 네온색 포인트 */
   .desktop-estimate-btn i.fa-robot {
     font-size: 20px;
-    color: #c6ff35; /* 네온 민트/그린 계열 */
+    color: #c6ff35;
+    /* 네온 민트/그린 계열 */
     filter: drop-shadow(0 0 5px rgba(198, 255, 53, 0.7));
   }
 
   .desktop-estimate-btn span {
     font-size: 14px;
     font-weight: 600;
-    letter-spacing: -0.5px; /* 글자가 꽉 차 보일 경우 자간 살짝 조절 */
+    letter-spacing: -0.5px;
+    /* 글자가 꽉 차 보일 경우 자간 살짝 조절 */
   }
+  
 }
 
 /* 📱 2. 모바일 환경 (640px 이하): 캡슐형 버튼 표시 */
@@ -598,24 +612,30 @@
     padding: 80px 20px 60px !important;
     /* 좌우 여백 약간 축소 */
   }
+
   .contact-section {
     /* 요청하신 대로 내부 패딩을 10px로 줄여 박스 높이 최소화 */
-    padding: 10px !important; 
+    padding: 10px !important;
     border-radius: 20px;
     background-color: #1D6BF3 !important;
-    max-width: 95%; /* 좌우 여백 확보 */
+    max-width: 95%;
+    /* 좌우 여백 확보 */
   }
+
   .contact-container {
     flex-direction: column;
     text-align: center;
-    gap: 8px; /* 텍스트와 버튼 사이 간격 축소 */
+    gap: 8px;
+    /* 텍스트와 버튼 사이 간격 축소 */
   }
+
   /* 1. 버튼 배경: 순수 흰색 캡슐 유지 */
   .contact-button {
     background-color: #ffffff !important;
     width: 100% !important;
     max-width: 280px;
-    margin: 10px 0 10px !important; /* 하단 탭바 여백 확보 */
+    margin: 10px 0 10px !important;
+    /* 하단 탭바 여백 확보 */
     padding: 14px 0 !important;
     border-radius: 50px !important;
     display: flex;
@@ -633,12 +653,13 @@
     gap: 12px;
     font-size: 20px !important;
     font-weight: 900;
-    
+
     /* [핵심] 텍스트 그라데이션 및 글로우 */
-    background: linear-gradient(to right, #2563eb, #60a5fa); /* blue-600 to blue-400 */
+    background: linear-gradient(to right, #2563eb, #60a5fa);
+    /* blue-600 to blue-400 */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    
+
     /* 이미지 8e14fd.png 느낌의 은은한 광채 */
     filter: drop-shadow(0 0 1px rgba(37, 99, 235, 0.2));
   }
@@ -658,7 +679,8 @@
   .ai-chat-snackbar {
     display: block;
     position: fixed;
-    bottom: 80px; /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
+    bottom: 65px;
+    /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
     left: 0;
     right: 0;
     z-index: 9999;
@@ -670,38 +692,78 @@
     display: flex;
     justify-content: center;
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .ai-estimate-button {
     width: 100%;
-    max-width: 230px;
-    height: 56px;
-    /* 기본 배경색 #2D2F33에 살짝 밝은 톤을 섞은 그라데이션으로 고급스러움 강조 */
-    background: linear-gradient(135deg, #2d2f33 0%, #3d4045 50%, #2d2f33 100%);
-    border: none;
+    max-width: 180px;
+    height: 35px;
+
+    /* 1. 배경: 깊이감 있는 블루 그라데이션 */
+    background: linear-gradient(180deg, #1D6BF3 0%, #1146A1 100%);
+
+    /* 2. 테두리: 요청하신 #C6FF35 색상 1px */
+    border: 1px solid #1D6BF3;
     border-radius: 30px;
+
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0 8px 0 6px;
-    cursor: pointer;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); /* 깊이감 있는 그림자 */
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    /* 빛줄기가 밖으로 나가지 않게 */
+
+    /* 3. 글로우 효과: 네온 그린 광채 */
+    box-shadow:
+      0 0 12px rgba(29, 107, 243, 0.6),
+      /* 외부 파란색 광채 (#1D6BF3) */
+      inset 0 0 6px rgba(29, 107, 243, 0.3),
+      /* 내부 파란색 미세 광채 */
+      0 4px 15px rgba(0, 0, 0, 0.4);
+    /* 버튼 무게감을 위한 바닥 그림자 */
   }
 
-  /* 버튼 내부 광택 레이어 (이미지의 사선 느낌 재현) */
+  /* 4. 반짝이는 빛줄기 레이어 (애니메이션 핵심) */
   .ai-estimate-button::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
+    left: -150%;
+    /* 시작 위치 */
     width: 100%;
     height: 100%;
-    /* 사선으로 지나가는 은은한 흰색 그라데이션 */
-    background: linear-gradient(110deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 60%);
+    /* 사선 모양의 강한 흰색 빛 */
+    background: linear-gradient(110deg,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 70%);
+    /* 3초마다 무한 반복 실행 */
+    animation: shine-loop 3s infinite linear;
     pointer-events: none;
+  }
+
+  /* 5. 빛줄기가 왼쪽에서 오른쪽으로 지나가는 애니메이션 정의 */
+  @keyframes shine-loop {
+    0% {
+      left: -150%;
+    }
+
+    30% {
+      left: 150%;
+    }
+
+    100% {
+      left: 150%;
+      /* 도착 후 잠시 대기하는 느낌을 위해 */
+    }
+  }
+
+  /* 아이콘과 텍스트가 빛줄기에 가려지지 않도록 z-index 조절 (필요시) */
+  .button-inner {
+    position: relative;
+    z-index: 2;
   }
 
   .button-inner {
@@ -712,27 +774,14 @@
   }
 
   /* 네온 아이콘 배경 (#C6FF35) */
-  .icon-circle {
-    width: 44px;
-    height: 44px;
-    background-color: #c6ff35;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #2d2f33;
-    font-size: 20px;
-    /* 강력한 네온 발광 효과 */
-    box-shadow: 0 0 15px rgba(198, 255, 53, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.5);
-  }
+
 
   .button-text {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     text-align: center;
     letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     letter-spacing: 0.5px;
     margin-right: 20px;
     white-space: nowrap;
@@ -740,8 +789,7 @@
 
   .arrow-icon {
     color: rgba(255, 255, 255, 0.3);
-    font-size: 16px;
-    margin-right: 8px;
+    font-size: 14px;
     z-index: 2;
   }
 
@@ -749,5 +797,9 @@
   .ai-estimate-button:active {
     transform: scale(0.97);
     filter: brightness(1.1);
+  }
+  .fa-comment-dots::before {
+    font-size: 14px;
+    color: #ffffff;
   }
 }

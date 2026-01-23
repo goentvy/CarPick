@@ -65,9 +65,6 @@ export default function Notice() {
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button className="search-icon" onClick={handleSearch}>
-            <i className="fa-solid fa-magnifying-glass"></i>
-          </button>
         </div>
       </div>
 

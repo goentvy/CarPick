@@ -25,7 +25,7 @@ const YearPage = () => {
     {
       title: "긴급 서비스",
       img: "/images/sub/rent/emergency.png",
-      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요.\n고객님이 계신 곳으로 가장 빠르게 달려가겠습니다.\n(*우측상단 긴급지원서비스 페이지 참고*)"
+      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요.\n고객님이 계신 곳으로 가장 빠르게 달려가겠습니다.\n<span class='sub-text'>(*우측상단 긴급지원서비스 페이지 참고*)</span>"
     },
     {
       title: "정기점검",
@@ -127,7 +127,19 @@ const YearPage = () => {
                 <div className={`service-detail-content ${activeService === i ? 'show' : ''}`}>
                   <div className="detail-inner">
                     <img src={s.img} alt={s.title} className="service-img" />
-                    <p className="service-desc-text">{s.desc}</p>
+                    <p className="service-desc-text">
+                      {s.desc.split('\n').map((line, index) => (
+                        <React.Fragment key={index}>
+                          {/* <span> 태그가 포함되어 있는지 확인하여 분기 처리 */}
+                          {line.includes('<span') ? (
+                            <span dangerouslySetInnerHTML={{ __html: line }} />
+                          ) : (
+                            line
+                          )}
+                          <br />
+                        </React.Fragment>
+                      ))}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -167,8 +179,8 @@ const YearPage = () => {
           </div>
           {/* 추가된 데스크탑용 빠른 견적문의 버튼 (641px 이상 노출) */}
           <div className="desktop-estimate-btn-container">
-            <button className="desktop-estimate-btn" onClick={() => navigate('/aipick')}>
-              <i className="fa fa-robot"></i>
+            <button className="desktop-estimate-btn" onClick={() => navigate('/cs/inquiry')}>
+              <i className="fas fa-comment-dots"></i>
               <span>빠른 견적문의</span>
               <i className="fa fa-chevron-right"></i>
             </button>
@@ -178,10 +190,10 @@ const YearPage = () => {
         {/* 모바일 전용 AI 견적 스낵바 */}
         <div className="ai-chat-snackbar">
           <div className="ai-snackbar-container">
-            <button className="ai-estimate-button" onClick={() => navigate('/aipick')}>
+            <button className="ai-estimate-button" onClick={() => navigate('/cs/inquiry')}>
               <div className="button-inner">
                 <span className="icon-circle">
-                  <i className="fa fa-robot"></i>
+                  <i className="fas fa-comment-dots"></i> {/* 로봇 대신 말풍선 적용 */}
                 </span>
                 <span className="button-text">빠른 견적문의</span>
               </div>
