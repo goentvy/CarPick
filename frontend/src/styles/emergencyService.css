@@ -2,7 +2,7 @@
   max-width: 640px; 
   margin: 0 auto;
   /* 하단 패딩을 100px로 늘려 탭 바 가려짐 방지 및 가이드 페이지와 통일 */
-  padding: 100px 20px 0 !important; 
+  padding: 100px 20px 60px !important; 
   font-family: 'Pretendard', sans-serif;
   background-color: #f8f9fa;
   min-height: 100vh;
@@ -190,6 +190,10 @@
 
 
 @media (min-width: 641px) {
+
+  .emergency-container {
+    padding: 80px 20px 50px !important; 
+  }
 
   /* 1. 하단 푸터 섹션: 배경색 통일 및 마진 조정 */
   .contact-section {
