@@ -230,10 +230,6 @@ const AgreementSection = ({ isLoggedIn }) => {
             <ul className="space-y-2">
                 <li><Link to="/agree1">서비스 이용약관</Link></li>
                 <li><Link to="/agree2">개인정보 수집 이용 동의</Link></li>
-                <li><Link to="">개인정보 제3자 제공 동의</Link></li>
-                <li><Link to="">이용 안내</Link></li>
-                <li><Link to="">취소 안내</Link></li>
-                <li><Link to="">자동차 대여 표준 약관</Link></li>
             </ul>
 
             {/* 결제 동의 문구 */}

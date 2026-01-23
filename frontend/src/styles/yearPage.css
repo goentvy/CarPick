@@ -6,7 +6,6 @@
 .year-container {
   max-width: 640px;
   margin: 0 auto;
-  /* 하단 패딩을 100px로 늘려 탭 바 가려짐 방지 및 가이드 페이지와 통일 */
   padding: 80px 20px 60px !important;
   font-family: 'Pretendard', sans-serif;
   background-color: #f8f9fa;
@@ -36,6 +35,12 @@
   font-size: 12px;
   color: #1D6BF3;
   line-height: 1.5;
+}
+
+.sub-text {
+  color: #a5a4a4; /* 연한 회색 */
+  font-size: 0.9em; /* 약간 작게 하면 더 자연스러워요 */
+  margin-top: 4px;
 }
 
 /* 3. 카드 공통 레이아웃 및 헤더 버튼 추가 */
@@ -346,7 +351,7 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
-  z-index: 1;
+  position: relative;
   box-shadow: 0 4px 8px rgba(29, 107, 243, 0.2);
 }
 
@@ -545,9 +550,8 @@
 
   .desktop-estimate-btn-container {
     display: flex;
-    justify-content: center;
+    justify-content: right;
     margin-top: 24px;
-    padding-bottom: 20px;
   }
 
   .desktop-estimate-btn {
@@ -560,17 +564,21 @@
     width: 160px;
     height: 48px;
     
-    background-color: #2D2F33;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
-    transition: all 0.2s ease;
-    
-    /* [수정] 글자 절대 줄바꿈 방지 */
-    white-space: nowrap; 
-    overflow: hidden;
+    /* [수정] 그러데이션 효과 적용 (왼쪽 하단에서 오른쪽 상단 방향) */
+  background: linear-gradient(135deg, #1D6BF3 0%, #4A90E2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  
+  /* [수정] 그러데이션에 맞춰 그림자 색상도 조금 더 풍부하게 변경 */
+  box-shadow: 0 4px 15px rgba(29, 107, 243, 0.3);
+  transition: all 0.3s ease;
+  
+  /* [수정] 글자 절대 줄바꿈 방지 */
+  white-space: nowrap; 
+  overflow: hidden;
+  font-weight: 600; /* 글자가 좀 더 잘 보이도록 두께 추가 */
   }
 
   .desktop-estimate-btn:hover {
@@ -578,7 +586,6 @@
     transform: translateY(-1px);
   }
 
-  /* [수정] 로봇 이모지: 네온색 포인트 */
   .desktop-estimate-btn i.fa-robot {
     font-size: 20px;
     color: #c6ff35; /* 네온 민트/그린 계열 */
@@ -658,7 +665,7 @@
   .ai-chat-snackbar {
     display: block;
     position: fixed;
-    bottom: 80px; /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
+    bottom: 65px; /* 푸터 네비게이션바 바로 위에 위치하도록 조정 */
     left: 0;
     right: 0;
     z-index: 9999;
@@ -670,14 +677,15 @@
     display: flex;
     justify-content: center;
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .ai-estimate-button {
     width: 100%;
-    max-width: 230px;
-    height: 56px;
+    max-width: 180px;
+    height: 35px;
     /* 기본 배경색 #2D2F33에 살짝 밝은 톤을 섞은 그라데이션으로 고급스러움 강조 */
-    background: linear-gradient(135deg, #2d2f33 0%, #3d4045 50%, #2d2f33 100%);
+    background: #1D6BF3;
     border: none;
     border-radius: 30px;
     display: flex;
@@ -713,26 +721,24 @@
 
   /* 네온 아이콘 배경 (#C6FF35) */
   .icon-circle {
-    width: 44px;
-    height: 44px;
-    background-color: #c6ff35;
+    width: 28px;
+    height: 28px;
+    background-color: #1D6BF3;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #2d2f33;
+    color: #ffffff;
     font-size: 20px;
-    /* 강력한 네온 발광 효과 */
-    box-shadow: 0 0 15px rgba(198, 255, 53, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.5);
+    
   }
 
   .button-text {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     text-align: center;
     letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     letter-spacing: 0.5px;
     margin-right: 20px;
     white-space: nowrap;
@@ -740,8 +746,7 @@
 
   .arrow-icon {
     color: rgba(255, 255, 255, 0.3);
-    font-size: 16px;
-    margin-right: 8px;
+    font-size: 14px;
     z-index: 2;
   }
 
