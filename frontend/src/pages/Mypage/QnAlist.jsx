@@ -72,6 +72,7 @@ function QnAlist() {
     };
 
     const formatCategory = (c) => {
+        if (c === "longterm") return "장기렌트";
         if (c === "reservation") return "예약 문의";
         if (c === "payment") return "결제 문의";
         if (c === "cancel") return "취소/환불";

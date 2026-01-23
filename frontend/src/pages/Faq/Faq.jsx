@@ -52,8 +52,7 @@ export default function Faq() {
     return (
         <div className="page-wrapper">
             <div className="faq-container">
-
-
+                {/* 헤더 */}
                 <section className="faq-header">
                     <h2 className="faq-title">자주 묻는 질문</h2>
                 </section>

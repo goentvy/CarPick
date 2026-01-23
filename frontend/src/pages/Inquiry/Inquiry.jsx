@@ -24,8 +24,8 @@ export default function InquiryPage() {
             <div className="page-wrapper">
                 <div className="inquiry-container guest">
 
-                    <section className="guide-header-style">
-                        <h2 className="guide-main-title">일대일 문의하기</h2>
+                    <section className="inquiry-header">
+                        <h2 className="inquiry-title">일대일 문의하기</h2>
                     </section>
 
                     <p className="guest-desc">로그인 후 이용해주세요.</p>
@@ -92,8 +92,8 @@ export default function InquiryPage() {
         <div className="page-wrapper">
             <div className="inquiry-container">
 
-                <section className="guide-header-style">
-                    <h2 className="guide-main-title">일대일 문의하기</h2>
+                <section className="inquiry-header">
+                    <h2 className="inquiry-title">일대일 문의하기</h2>
                 </section>
 
                 <form onSubmit={handleSubmit}>
@@ -105,6 +105,7 @@ export default function InquiryPage() {
                             required
                         >
                             <option value="">선택하세요</option>
+                            <option value="longterm">장기렌트</option>
                             <option value="reservation">예약문의</option>
                             <option value="payment">결제문의</option>
                             <option value="cancel">취소/환불</option>
@@ -122,27 +123,33 @@ export default function InquiryPage() {
                         />
                     </div>
 
-                    <div>
-                        <label>문의 내용: </label>
-                        <textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            required
-                        />
-                    </div>
+                    <label>문의 내용:</label>
+                    <textarea
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        required
+                    />
+                    {category === "longterm" && (
+                        <small style={{ display: "block", marginTop: "4px", color: "#6b7280", lineHeight: "1.4" }}>
+                            예) 희망 차량 / 옵션 / 계약 기간 / 성함 / 연락처 / 기타 요청사항
+                        </small>
+                    )}
 
                     <button type="submit">제출</button>
                     <button type="button" onClick={handleCancel}>
                         취소
                     </button>
                 </form>
-
                 <p className="privacy-note">
                     문의 접수 시 개인정보는{" "}
                     <Link to="/cs/inquiry/privacy" className="link">
                         개인정보처리방침
                     </Link>
                     에 따라 처리됩니다.
+                </p>
+                <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "10px", lineHeight: "1.4", textAlign: "center" }}>
+                    작성해주신 문의는 확인되는 대로 24시간 내에 안내드리며,
+                    <br />문의 내용에 따라 조금 더 소요될 수 있는 점 양해 부탁드립니다.
                 </p>
             </div>
         </div>
