@@ -5,6 +5,13 @@ import PickupLocationModal from '../../components/common/PickupLocationModal';
 import agreeText from "../../components/txt/agree1.txt?raw";
 import useUserStore from "../../store/useUserStore";
 import "../../styles/lee.css";
+import { createGlobalStyle } from "styled-components";
+
+const HideHeaderFooter = createGlobalStyle`
+  .fixedAI {
+    display: none !important;
+  }
+`;
 
 function Aipick() {
   const navigate = useNavigate();
@@ -99,6 +106,7 @@ function Aipick() {
 
   return (
     <>
+      <HideHeaderFooter />
       <section id="chatAi">
         <div className="chatContent" id="chatHistory">
           {chatHistory.map((item, index) => (

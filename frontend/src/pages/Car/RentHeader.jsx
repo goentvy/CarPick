@@ -135,7 +135,7 @@ const RentHeader = ({ type }) => {
   };
 
   const go = (activeType, nextRange) => {
-    const targetPath = activeType === "long" ? "/year" : "/day";
+    const targetPath = activeType === "long" ? "/day" : "/day";
     const params = buildParams({
       activeType,
       startDate: nextRange.startDate,
