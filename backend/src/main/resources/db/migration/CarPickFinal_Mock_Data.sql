@@ -79,16 +79,16 @@ INSERT INTO CAR_SPEC (
 
 
 INSERT INTO PRICE (car_spec_id, daily_price, monthly_price, use_yn, created_at, updated_at) VALUES
-                                                                                                (1,50000,0,'Y',NOW(),NOW()),
-                                                                                                (2,65000,0,'Y',NOW(),NOW()),
-                                                                                                (3,52000,0,'Y',NOW(),NOW()),
-                                                                                                (4,68000,0,'Y',NOW(),NOW()),
-                                                                                                (5,55000,0,'Y',NOW(),NOW()),
-                                                                                                (6,85000,0,'Y',NOW(),NOW()),
-                                                                                                (7,70000,0,'Y',NOW(),NOW()),
-                                                                                                (8,90000,0,'Y',NOW(),NOW()),
-                                                                                                (9,60000,0,'Y',NOW(),NOW()),
-                                                                                                (10,95000,0,'Y',NOW(),NOW());
+                                                                                                (1,50000,10000,'Y',NOW(),NOW()),
+                                                                                                (2,65000,20000,'Y',NOW(),NOW()),
+                                                                                                (3,52000,30000,'Y',NOW(),NOW()),
+                                                                                                (4,68000,40000,'Y',NOW(),NOW()),
+                                                                                                (5,55000,50000,'Y',NOW(),NOW()),
+                                                                                                (6,85000,50000,'Y',NOW(),NOW()),
+                                                                                                (7,70000,54000,'Y',NOW(),NOW()),
+                                                                                                (8,90000,78000,'Y',NOW(),NOW()),
+                                                                                                (9,60000,80000,'Y',NOW(),NOW()),
+                                                                                                (10,95000,40000,'Y',NOW(),NOW());
 
 
 INSERT INTO VEHICLE_INVENTORY (
