@@ -550,9 +550,8 @@
 
   .desktop-estimate-btn-container {
     display: flex;
-    justify-content: center;
+    justify-content: right;
     margin-top: 24px;
-    padding-bottom: 20px;
   }
 
   .desktop-estimate-btn {
@@ -565,17 +564,21 @@
     width: 160px;
     height: 48px;
     
-    background-color: #2D2F33;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
-    transition: all 0.2s ease;
-    
-    /* [수정] 글자 절대 줄바꿈 방지 */
-    white-space: nowrap; 
-    overflow: hidden;
+    /* [수정] 그러데이션 효과 적용 (왼쪽 하단에서 오른쪽 상단 방향) */
+  background: linear-gradient(135deg, #1D6BF3 0%, #4A90E2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  
+  /* [수정] 그러데이션에 맞춰 그림자 색상도 조금 더 풍부하게 변경 */
+  box-shadow: 0 4px 15px rgba(29, 107, 243, 0.3);
+  transition: all 0.3s ease;
+  
+  /* [수정] 글자 절대 줄바꿈 방지 */
+  white-space: nowrap; 
+  overflow: hidden;
+  font-weight: 600; /* 글자가 좀 더 잘 보이도록 두께 추가 */
   }
 
   .desktop-estimate-btn:hover {
