@@ -37,6 +37,12 @@
   line-height: 1.5;
 }
 
+.sub-text {
+  color: #a5a4a4; /* 연한 회색 */
+  font-size: 0.9em; /* 약간 작게 하면 더 자연스러워요 */
+  margin-top: 4px;
+}
+
 /* 3. 카드 공통 레이아웃 및 헤더 버튼 추가 */
 .guide-card {
   background: #fff;

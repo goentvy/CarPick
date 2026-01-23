@@ -25,7 +25,7 @@ const YearPage = () => {
     {
       title: "긴급 서비스",
       img: "/images/sub/rent/emergency.png",
-      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요.\n고객님이 계신 곳으로 가장 빠르게 달려가겠습니다.\n(*우측상단 긴급지원서비스 페이지 참고*)"
+      desc: "365일 24시간, 예상치 못한 상황에서도 당황하지 마세요.\n고객님이 계신 곳으로 가장 빠르게 달려가겠습니다.\n<span class='sub-text'>(*우측상단 긴급지원서비스 페이지 참고*)</span>"
     },
     {
       title: "정기점검",
@@ -127,7 +127,19 @@ const YearPage = () => {
                 <div className={`service-detail-content ${activeService === i ? 'show' : ''}`}>
                   <div className="detail-inner">
                     <img src={s.img} alt={s.title} className="service-img" />
-                    <p className="service-desc-text">{s.desc}</p>
+                    <p className="service-desc-text">
+                      {s.desc.split('\n').map((line, index) => (
+                        <React.Fragment key={index}>
+                          {/* <span> 태그가 포함되어 있는지 확인하여 분기 처리 */}
+                          {line.includes('<span') ? (
+                            <span dangerouslySetInnerHTML={{ __html: line }} />
+                          ) : (
+                            line
+                          )}
+                          <br />
+                        </React.Fragment>
+                      ))}
+                    </p>
                   </div>
                 </div>
               </div>
