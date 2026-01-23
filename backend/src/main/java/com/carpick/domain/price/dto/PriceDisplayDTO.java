@@ -17,8 +17,8 @@ public class PriceDisplayDTO {
     @Builder.Default
     private String currency = "KRW";        // 기본값 설정 (Lombok 기능)                // "KRW"
     // [추가된 필드들]
-
-    private RentType rentType;         // SHORT (화면 표시용
+    private BigDecimal baseTotalAmount;      // 추가: 정가 총액 (취소선용)
+    private RentType rentType;
     // 기간이 있는 화면(day/예약진입 등)에서만 채움
     private BigDecimal estimatedTotalAmount; // displayUnitPrice * rentDays
     private Long rentDays;
@@ -30,7 +30,8 @@ public static PriceDisplayDTO ofWithPeriod(
         PriceType priceType,
         RentType rentType,
         long rentDays,
-        BigDecimal estimatedTotalAmount
+        BigDecimal estimatedTotalAmount,
+        BigDecimal baseTotalAmount
 ) {
 
 
@@ -42,6 +43,7 @@ public static PriceDisplayDTO ofWithPeriod(
             .discountRate(discountRate)
             .currency("KRW")
             .estimatedTotalAmount(estimatedTotalAmount)
+            .baseTotalAmount(baseTotalAmount)
             .rentDays(rentDays)
             .build();
 }
@@ -61,6 +63,7 @@ public static PriceDisplayDTO ofUnitPrice(
             .discountRate(discountRate)
             .currency("KRW")
             .estimatedTotalAmount(null)
+            .baseTotalAmount(null)
             .rentDays(null)
             .build();
 }

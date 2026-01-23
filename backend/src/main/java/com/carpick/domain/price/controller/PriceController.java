@@ -42,7 +42,7 @@ public class PriceController {
             @RequestParam String startDate,
             @RequestParam String endDate,
             @RequestParam(defaultValue = "SHORT") RentType rentType,
-            @RequestParam(required = false) Integer rentMonths
+            @RequestParam(name = "months", required = false) Integer rentMonths
     ) {
         log.info("가격 조회 요청. specId={}, branchId={}, rentType={}, startDate={}, endDate={}, rentMonths={}",
                 specId, branchId, rentType, startDate, endDate, rentMonths);

@@ -123,7 +123,7 @@ INSERT INTO PRICE_POLICY (
     base_price, discount_rate,
     valid_from, valid_to, is_active, use_yn
 )
-VALUES (1, 1, 'DAILY', 100000, 50, NOW(), '2099-12-31', TRUE, 'Y');
+VALUES (1, 1, 'DAILY', null, 50, NOW(), '2099-12-31', TRUE, 'Y');
 
 
 INSERT INTO faq (category, question, answer) VALUES

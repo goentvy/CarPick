@@ -5,12 +5,14 @@ import com.carpick.domain.price.calculator.TermRentCalculator;
 import com.carpick.domain.price.longTerm.duration.LongRentDuration;
 import com.carpick.domain.reservation.enums.RentType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LongTermRentCalculator implements TermRentCalculator {
 
     private final LongRentChargeCalculator longRentChargeCalculator;
@@ -22,6 +24,10 @@ public class LongTermRentCalculator implements TermRentCalculator {
 
     @Override
     public BigDecimal calculateTotalAmount(BigDecimal displayUnitPrice, Period period, Integer rentMonths) {
+
+        log.info("[LONG_TERM] calcTotalAmount input: displayUnitPrice={}, rentMonths={}, period={}",
+                displayUnitPrice, rentMonths, period);
+
         if (displayUnitPrice == null) {
             throw new IllegalArgumentException("장기 렌트는 월 단가(displayUnitPrice)가 필수입니다.");
         }
@@ -30,7 +36,13 @@ public class LongTermRentCalculator implements TermRentCalculator {
         }
 
         LongRentDuration duration = new LongRentDuration(rentMonths); // record compact constructor 검증 활용
-        return longRentChargeCalculator.calculate(displayUnitPrice, duration);
+        log.info("[LONG_TERM] before chargeCalc: monthlyUnitPrice={}, months={}",
+                displayUnitPrice, duration.months());
+        BigDecimal total = longRentChargeCalculator.calculate(displayUnitPrice, duration);
+
+        log.info("[LONG_TERM] result: totalAmount={}", total);
+
+        return total;
     }
 
     @Override

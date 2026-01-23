@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS PRICE_POLICY (
                                             branch_id BIGINT NOT NULL  COMMENT '지점 ID (NULL=전국)',
                                             price_type ENUM('DAILY', 'MONTHLY') NOT NULL COMMENT '가격 단위',
 
-    base_price DECIMAL(15, 2) NOT NULL DEFAULT 0 COMMENT '정가(할인 전)',
+    base_price DECIMAL(15, 2) NULL DEFAULT 0 COMMENT '정가(할인 전)',
 
     discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '기본 할인율(0~100)',
 
