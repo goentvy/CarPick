@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.dto;
+package com.carpick.domain.reservation.dtoV1;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

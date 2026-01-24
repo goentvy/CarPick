@@ -1,79 +1,27 @@
 import InsuranceDetailModal from "./InsuranceDetailModal";
 import useReservationStore from "../../store/useReservationStore";
 import { useState } from "react";
-import api from "../../services/api";
 
 const ReservationInsurance = ({ options }) => {
   const [showModal, setShowModal] = useState(false);
 
   const insurance = useReservationStore((s) => s.insurance);
-  const setInsuranceCode = useReservationStore((s) => s.setInsuranceCode);
-  const setInsuranceDailyPrice = useReservationStore((s) => s.setInsuranceDailyPrice);
-  const setInsuranceSummary = useReservationStore((s) => s.setInsuranceSummary);
+  const priceLoading = useReservationStore((s) => s.priceLoading);
+  const priceError = useReservationStore((s) => s.priceError);
 
-  // ✅ 1번 전략의 핵심: payment.summary를 직접 갱신
-  const setPaymentSummary = useReservationStore((s) => s.setPaymentSummary);
-
-  const rentalPeriod = useReservationStore((s) => s.rentalPeriod);
-  const rentType = useReservationStore((s) => s.rentType);
-  const months = useReservationStore((s) => s.months);
-  const getCreatePayload = useReservationStore((s) => s.getCreatePayload);
+  // store가 보험 선택 + price API 호출 + payment.summary 갱신까지 책임
+  const selectInsuranceAndRefreshPrice = useReservationStore(
+    (s) => s.selectInsuranceAndRefreshPrice
+  );
 
   const selectedOption = insurance?.code || "NONE";
 
-  const handleInsuranceChange = async (code, price) => {
-    // 1) 즉시 UI 반영(선택 표시용)
-    setInsuranceCode(code);
-    setInsuranceDailyPrice(price);
-
+  const handleInsuranceChange = async (code, extraDailyPrice) => {
     try {
-      const startDate = rentalPeriod?.startDateTime;
-      const endDate = rentalPeriod?.endDateTime;
-
-      const createPayload = getCreatePayload?.(); // 이벤트에서 1번 호출
-      const specId = Number(createPayload?.carId ?? createPayload?.specId);
-      const finalRentType = String(rentType || createPayload?.rentType || "SHORT").toUpperCase();
-
-      if (!specId || Number.isNaN(specId)) {
-        console.error("specId 누락:", { specId, createPayload });
-        return;
-      }
-      if (!startDate || !endDate) {
-        console.error("기간 누락:", { startDate, endDate, rentalPeriod });
-        return;
-      }
-
-      // ✅ v2 가격 API 호출
-      const res = await api.get("/v2/reservations/price", {
-        params: {
-          specId,
-          rentType: finalRentType,
-          startDate,
-          endDate,
-          months: finalRentType === "LONG" ? months : undefined,
-          insuranceCode: code,
-        },
-      });
-
-      console.log("✅ PRICE res:", res.data);
-
-      // ✅ 서버 응답 원본도 저장(선택)
-      setInsuranceSummary(res.data);
-
-      // ✅✅✅ (핵심) payment.summary를 서버값으로 “즉시 덮어쓰기”
-      setPaymentSummary?.({
-        rentFee: res.data?.rentFee ?? 0,
-        insuranceFee: res.data?.insuranceFee ?? 0,
-        couponDiscount: res.data?.couponDiscount ?? 0,
-        totalPrice: res.data?.totalAmount ?? 0, // totalAmount -> totalPrice
-      });
-
+      await selectInsuranceAndRefreshPrice(code, extraDailyPrice);
     } catch (err) {
-      console.error("❌ 가격 재계산 실패:", {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data,
-      });
+      // store가 priceError를 세팅하므로 여기서는 최소 로그만
+      console.error("가격 재계산 실패:", err);
     }
   };
 
@@ -84,10 +32,21 @@ const ReservationInsurance = ({ options }) => {
         상대방과 나를 보호하는 종합보험이 포함되어 있어요.
       </p>
 
+      {/* 선택: 로딩/에러 UI */}
+      {priceLoading && (
+        <div className="text-sm text-gray-500">가격을 다시 계산 중입니다...</div>
+      )}
+      {!!priceError && (
+        <div className="text-sm text-red-500">
+          가격 재계산에 실패했습니다. 잠시 후 다시 시도해주세요.
+        </div>
+      )}
+
       <ul className="xx:space-y-3 sm:space-y-4">
         {options.map((option) => (
           <li
-            key={option.code}
+            key={String(option.code)}
+            //  여기 백틱(`) 추가했습니다!
             className={`border rounded-lg p-4 cursor-pointer transition ${selectedOption === option.code
               ? "border-blue-500 bg-blue-50"
               : "border-gray-300"
@@ -100,7 +59,7 @@ const ReservationInsurance = ({ options }) => {
                 <p className="text-sm text-gray-500">{option.desc}</p>
               </div>
               <div className="text-brand font-bold">
-                +{option.extraDailyPrice.toLocaleString()}원
+                +{Number(option.extraDailyPrice ?? 0).toLocaleString()}원
               </div>
             </div>
           </li>

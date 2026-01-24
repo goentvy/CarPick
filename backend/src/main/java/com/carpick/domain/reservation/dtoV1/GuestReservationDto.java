@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.dto;
+package com.carpick.domain.reservation.dtoV1;
 
 import com.carpick.domain.reservation.entity.Reservation;
 import com.fasterxml.jackson.annotation.JsonProperty;
