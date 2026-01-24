@@ -1,6 +1,6 @@
 package com.carpick.domain.reservation.service;
 
-import com.carpick.domain.reservation.dto.ReservationDto;
+import com.carpick.domain.reservation.dtoV1.ReservationDto;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

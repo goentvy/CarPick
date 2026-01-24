@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class ShotrInsuranceCalculatorService {
+public class ShortInsuranceCalculatorService {
     private static final long MINUTES_PER_DAY = 24L * 60;
 
     private final InsuranceMapper insuranceMapper;

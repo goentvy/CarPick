@@ -4,7 +4,7 @@ package com.carpick.reservation;
 import com.carpick.domain.auth.service.OAuthService;
 import com.carpick.domain.inventory.enums.InventoryOperationalStatus;
 import com.carpick.domain.inventory.mapper.VehicleInventoryMapper;
-import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
+import com.carpick.domain.reservation.dtoV1.request.ReservationCreateRequestDto;
 import com.carpick.domain.reservation.mapper.ReservationMapper;
 import com.carpick.domain.reservation.service.v1.ReservationCommandServiceV1;
 import org.junit.jupiter.api.Test;
