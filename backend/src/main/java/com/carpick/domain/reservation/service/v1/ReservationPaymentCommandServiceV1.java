@@ -1,8 +1,8 @@
 package com.carpick.domain.reservation.service.v1;
 
 
-import com.carpick.domain.reservation.dto.request.ReservationPaymentRequestDto;
-import com.carpick.domain.reservation.dto.response.ReservationPayResponseDto;
+import com.carpick.domain.reservation.dtoV1.request.ReservationPaymentRequestDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationPayResponseDto;
 import com.carpick.domain.reservation.mypage.enums.ActorType;
 import com.carpick.domain.reservation.enums.ReservationStatus;
 import com.carpick.domain.reservation.mapper.ReservationMapper;

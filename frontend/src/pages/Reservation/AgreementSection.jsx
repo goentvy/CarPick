@@ -133,7 +133,7 @@ const AgreementSection = ({ isLoggedIn }) => {
                 return;
             }
 
-            // ✅✅✅ (MVP 핵심) create 직전 서버 가격 확정 → 버튼/표시 totalPrice 동기화
+            // (MVP 핵심) create 직전 서버 가격 확정 → 버튼/표시 totalPrice 동기화
             // - startDate/endDate 로 호출
             const priceRes = await api.get("/v2/reservations/price", {
                 params: {
@@ -147,11 +147,11 @@ const AgreementSection = ({ isLoggedIn }) => {
                 },
             });
             console.log({ urlMonthsRaw, finalMonths })
-            console.log("✅ PRICE res:", priceRes.data);
+            console.log(" PRICE res:", priceRes.data);
 
             const serverTotal = priceRes.data?.totalAmount ?? 0;
 
-            // ✅ 버튼 표시용 totalPrice를 서버값으로 덮어쓰기 (MVP)
+            // 버튼 표시용 totalPrice를 서버값으로 덮어쓰기 (MVP)
             useReservationStore.getState().setPaymentSummary?.({
                 totalPrice: serverTotal,
             });

@@ -1,7 +1,7 @@
 package com.carpick.domain.reservation.controller;
 
-import com.carpick.domain.reservation.dto.CancelRequest;
-import com.carpick.domain.reservation.dto.GuestReservationDto;
+import com.carpick.domain.reservation.dtoV1.CancelRequest;
+import com.carpick.domain.reservation.dtoV1.GuestReservationDto;
 import com.carpick.domain.reservation.entity.Reservation;
 import com.carpick.domain.reservation.mapper.ReservationMapper;
 import com.carpick.domain.reservation.service.GuestReservationService;

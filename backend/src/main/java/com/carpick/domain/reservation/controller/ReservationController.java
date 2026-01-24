@@ -1,12 +1,5 @@
 package com.carpick.domain.reservation.controller;
 
-import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
-import com.carpick.domain.reservation.dto.request.ReservationPaymentRequestDto;
-import com.carpick.domain.reservation.dto.request.ReservationPriceRequestDto;
-import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
-import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
-import com.carpick.domain.reservation.dto.response.ReservationPayResponseDto;
-import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
 import com.carpick.domain.reservation.dtoV2.request.ReservationCreateRequestDtoV2;
 import com.carpick.domain.reservation.dtoV2.request.ReservationFormRequestDtoV2;
 import com.carpick.domain.reservation.dtoV2.request.ReservationPaymentRequestDtoV2;
@@ -14,9 +7,6 @@ import com.carpick.domain.reservation.dtoV2.response.ReservationCreateResponseDt
 import com.carpick.domain.reservation.dtoV2.response.ReservationFormResponseDtoV2;
 import com.carpick.domain.reservation.dtoV2.response.ReservationPaymentResponseDtoV2;
 import com.carpick.domain.reservation.entity.Reservation;
-import com.carpick.domain.reservation.service.v1.ReservationCommandServiceV1;
-import com.carpick.domain.reservation.service.v1.ReservationPaymentCommandServiceV1;
-import com.carpick.domain.reservation.service.v1.ReservationUiServiceV1;
 import com.carpick.domain.reservation.service.v2.ReservationCreateServiceV2;
 import com.carpick.domain.reservation.service.v2.ReservationFormServiceV2;
 import com.carpick.domain.reservation.service.v2.ReservationPaymentServiceV2;
@@ -25,7 +15,6 @@ import com.carpick.global.security.details.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,14 +29,6 @@ import java.util.Map;
 @Slf4j
 public class ReservationController {
 
-
-
-    private final ReservationUiServiceV1 reservationUiServiceV1;
-    private final ReservationCommandServiceV1 reservationCommandServiceV1;
-
-    // ▼▼▼ [핵심] 이 줄이 없어서 에러가 났던 겁니다. 추가해주세요! ▼▼▼
-    private final ReservationPaymentCommandServiceV1 paymentServiceV1;
-
     private final ReservationFormServiceV2 formServiceV2;
     private final ReservationCreateServiceV2 createServiceV2;
     private final ReservationPaymentServiceV2 paymentServiceV2;
@@ -55,10 +36,22 @@ public class ReservationController {
 
     /**
      * (1) 예약 폼 데이터 조회
-     * GET /api/v2/reservation/form?specId=1&pickupBranchId=2&startDateTime=...&endDateTime=...&rentType=SHORT
      *
-     * ※ 현재 DTO가 @RequestBody 기반이면 @PostMapping으로 바꾸는 게 제일 깔끔합니다.
-     *    하지만 "경로만 수정"이 목표면, 프런트 호출 방식에 맞춰 아래 둘 중 하나로 고정하세요.
+     * 목적:
+     * - 예약 페이지(UI)를 구성하기 위한 "초기 데이터"를 내려준다.
+     *   (차량 요약, 지점 정보, 보험 옵션, 기본 결제요약 등)
+     *
+     * 핵심 원칙(중요):
+     * - 이 응답은 '화면 렌더링 편의'를 위한 데이터이며,
+     *   가격의 진실(source of truth)은 /api/v2/reservations/price(Price API) 또는
+     *   ReservationPriceSummaryService 계산 결과에 있다.
+     *
+     * 책임:
+     * - Controller: 요청을 받아 Service 호출 후 응답만 반환 (비즈니스 로직 금지)
+     * - Service(FormServiceV2): 차량/지점/보험옵션 조회 + 기본 결제요약 조립
+     *
+     * 호출 시점:
+     * - "차량 상세 → 예약하기"로 진입할 때 최초 1회
      */
     @PostMapping("/form")
     public ResponseEntity<ReservationFormResponseDtoV2> getForm(
@@ -69,7 +62,21 @@ public class ReservationController {
 
     /**
      * (2) 예약 생성 (회원/비회원 모두 가능)
-     * POST /api/reservation/create
+     *
+     * 목적:
+     * - 사용자가 입력을 완료하고 "예약하기"를 누르는 순간,
+     *   예약 엔티티를 생성하고 가격 스냅샷(결제 기준)을 확정한다.
+     *
+     * 핵심 원칙(가장 중요):
+     * - 프런트가 계산한 금액/합계는 신뢰하지 않는다.
+     * - 서버에서 ReservationPriceSummaryService로 "가격을 재계산"하고,
+     *   그 결과를 Reservation 스냅샷으로 저장한다.
+     *
+     * 호출 시점:
+     * - 예약 정보 입력(운전자/보험/약관 등) 완료 후 "예약 생성" 단계
+     *
+     * 반환값:
+     * - reservationNo (이후 결제 API에서 필수)
      */
     @PostMapping("/create")
     public ResponseEntity<ReservationCreateResponseDtoV2> create(
@@ -77,13 +84,17 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         log.info("[create] insuranceCode={}, rentType={}", request.getInsuranceCode(), request.getRentType());
-        log.info("[create] uri=/api/v2/reservation/create insuranceCode={}, rentType={}",
+        log.info("[create] uri=/api/reservation/create insuranceCode={}, rentType={}",
                 request.getInsuranceCode(), request.getRentType());
-
+        // 회원이면 userId 세팅, 비회원이면 null
         Long userId = (userDetails != null) ? userDetails.getUserId() : null;
+        // 생성 성공 시 응답 반환
+        // (권장: 생성 API는 보통 201 Created가 더 REST스럽지만, 현재는 200 OK로 통일되어 있음)
         return ResponseEntity.ok(createServiceV2.createReservation(request, userId));
     }
-
+    // (3) 결제 처리 / (4) 예약 조회 등도 같은 철학으로 이어짐:
+    // - 결제는 반드시 create에서 확정된 reservationNo + 스냅샷 금액 기준으로 처리
+    // - 조회는 readServiceV2에서 화면 표시용 DTO로 조립
     /**
      * (3) 결제 처리 (회원/비회원 모두 가능하게 열어두는 버전)
      * POST /api/v2/reservation/pay
@@ -117,55 +128,7 @@ public class ReservationController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @PostMapping("/v1/pay")
-    public ResponseEntity<ReservationPayResponseDto> processPaymentV1(
-            @Valid @RequestBody ReservationPaymentRequestDto request,
-    @AuthenticationPrincipal CustomUserDetails userDetails ) {
-        if(userDetails == null){
-            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        }
-        Long userId = userDetails.getUserId(); // 로그인 유저로 수정
-
-        // ✅ 방금 만드신 Service의 pay 메서드 호출!
-        ReservationPayResponseDto response = paymentServiceV1.pay(request, userId);
-
-        return ResponseEntity.ok(response);
-    }
-
-
-    /**
-     * 예약 페이지 초기 데이터 내려주기
-     * 예: GET /api/v1/reservation/form?carId=1
-     */
-    @GetMapping("/v1/form")
-    public ReservationFormResponseDto getFormV1(@RequestParam("carId") Long carId){
-        return reservationUiServiceV1.getForm(carId);
-
-    }
-    /**
-     * 보험 선택 시 가격 재계산
-     * 예: POST /api//v1/reservation/price?carId=1
-     * Body: { "insuranceCode": "FULL" }
-     */
-    @PostMapping("/v1/price")
-    public ReservationPriceResponseDto calcPriceV1(@RequestParam("carId") Long carId
-            , @RequestBody(required = false) ReservationPriceRequestDto req){
-        return reservationUiServiceV1.calcPrice(carId, req);
-    }
-    @PostMapping("/v1/create")
-    public ResponseEntity<ReservationCreateResponseDto> createV1(
-            @RequestBody @Valid ReservationCreateRequestDto req,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        if(userDetails == null){
-            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
-        }
-        Long userId = userDetails.getUserId(); // 유저 아이디 연동
-        ReservationCreateResponseDto response = reservationCommandServiceV1.createReservation(req, userId);
-        return ResponseEntity.ok(response);
-    }
     @PostMapping("/{reservationId}/cancel")
     public ResponseEntity<Map<String, Object>> cancelReservation(
             @PathVariable Long reservationId,

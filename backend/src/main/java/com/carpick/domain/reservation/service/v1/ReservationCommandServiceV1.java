@@ -2,9 +2,9 @@ package com.carpick.domain.reservation.service.v1;
 
 import com.carpick.domain.inventory.enums.InventoryOperationalStatus;
 import com.carpick.domain.inventory.mapper.VehicleInventoryMapper;
-import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
-import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
-import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
+import com.carpick.domain.reservation.dtoV1.request.ReservationCreateRequestDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationCreateResponseDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationPriceResponseDto;
 import com.carpick.domain.reservation.entity.Reservation;
 import com.carpick.domain.reservation.mypage.enums.ActorType;
 import com.carpick.domain.reservation.enums.PickupType;

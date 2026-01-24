@@ -23,6 +23,9 @@ import com.carpick.domain.reservation.dtoV2.response.ReservationFormResponseDtoV
 import com.carpick.domain.reservation.enums.PickupType;
 import com.carpick.domain.reservation.enums.RentType;
 import com.carpick.domain.reservation.enums.ReturnTypes;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -95,29 +98,47 @@ public class ReservationFormServiceV2 {
                 request.getMonths(),
                 period
         );
-
+        RentType rentType = safeRentType(request.getRentType());
         // 6) 응답
-        return new ReservationFormResponseDtoV2(
-                carSummary,
-                insuranceOptions,
-                paymentSummary,
-                pickupLocation,
-                returnLocation
-        );
+        return ReservationFormResponseDtoV2.builder()
+                .rentType(rentType)
+                .car(carSummary)
+                .insuranceOptions(insuranceOptions)
+                .paymentSummary(paymentSummary)
+                .pickupLocation(pickupLocation)
+                .returnLocation(returnLocation)
+                .startDateTime(request.getStartAt().toString())
+                .endDateTime(request.getEndAt().toString())
+                .rentalDays((rentType == RentType.SHORT) ? (int) period.getRentDaysForBilling() : null)
+                .rentalMonths((rentType == RentType.LONG) ? request.getMonths() : null)
+                .build();
+
     }
+
 
     /**
      * [보험 변경] 보험 선택 시 가격 재계산
      */
+    // NOTE: 현재 프런트에서는 LONG 보험 UI를 숨겨서 본 메서드를 호출하지 않을 수 있음.
+//       단기 보험 선택(또는 향후 UI 복구) 시 재사용 예정이며, LONG 과금 방지 안전장치 포함.
+
     public PaymentSummaryDtoV2 recalculateWithInsurance(
             ReservationFormRequestDtoV2 request,
             String insuranceCode
     ) {
         validateFormRequest(request);
 
-        Period period = Period.of(request.getStartAt(), request.getEndAt());
         RentType rentType = safeRentType(request.getRentType());
-        InsuranceCode codeEnum = parseInsuranceCode(insuranceCode);
+        Period period = Period.of(request.getStartAt(), request.getEndAt());
+
+        //  [추가된 안전장치] 장기 렌트는 무조건 NONE으로 고정
+        // 사용자가 API로 "FULL"을 보내도 무시하고 "NONE"으로 처리함
+        InsuranceCode codeEnum;
+        if (rentType == RentType.LONG) {
+            codeEnum = InsuranceCode.NONE;
+        } else {
+            codeEnum = parseInsuranceCode(insuranceCode);
+        }
 
         ReservationPriceSummaryResponseDto priceRes = reservationPriceSummaryService.calculate(
                 toPriceSummaryRequest(request, codeEnum)
@@ -285,11 +306,13 @@ public class ReservationFormServiceV2 {
         return rawList.stream()
                 .map(raw -> {
                     InsuranceOptionDtoV2 dto = new InsuranceOptionDtoV2();
-                    dto.setCode(raw.getInsuranceCode());
+                    dto.setCode(parseInsuranceCode(raw.getInsuranceCode()));  // 기존 메서드 재사용
                     dto.setLabel(raw.getLabel());
                     dto.setSummaryLabel(raw.getSummaryLabel());
                     dto.setExtraDailyPrice(raw.getExtraDailyPrice().intValue());
-                    dto.setDesc(getInsuranceDesc(raw.getInsuranceCode()));
+                    dto.setDesc(raw.getInsuranceCode() != null
+                            ? parseInsuranceCode(raw.getInsuranceCode()).getDescription()
+                            : "");
                     dto.setDefault(raw.getIsDefault());
                     return dto;
                 })

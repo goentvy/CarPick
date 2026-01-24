@@ -8,15 +8,11 @@ import com.carpick.domain.price.calculator.TermRentCalculatorResolver;
 import com.carpick.domain.price.discount.DiscountPolicyService;
 import com.carpick.domain.price.dto.ReservationPriceSummaryRequestDto;
 import com.carpick.domain.price.dto.ReservationPriceSummaryResponseDto;
-import com.carpick.domain.price.longTerm.duration.LongRentDuration;
-import com.carpick.domain.price.longTerm.duration.LongRentDurationFactory;
 import com.carpick.domain.price.longTerm.policy.LongPricePolicyReader;
-import com.carpick.domain.price.longTerm.rent.LongRentChargeCalculator;
 import com.carpick.domain.price.shortTerm.duration.ShortRentDuration;
 import com.carpick.domain.price.shortTerm.duration.ShortRentDurationFactory;
-import com.carpick.domain.price.shortTerm.insurance.ShotrInsuranceCalculatorService;
+import com.carpick.domain.price.shortTerm.insurance.ShortInsuranceCalculatorService;
 import com.carpick.domain.price.shortTerm.policy.ShortPricePolicyReader;
-import com.carpick.domain.price.shortTerm.rent.ShortRentChargeCalculator;
 import com.carpick.domain.reservation.enums.RentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,7 +40,7 @@ public class ReservationPriceSummaryService {
 private final ShortPricePolicyReader shortPricePolicyReader;
     private final LongPricePolicyReader longPricePolicyReader;
 
-    private final ShotrInsuranceCalculatorService shortInsuranceCalculator;
+    private final ShortInsuranceCalculatorService shortInsuranceCalculator;
     private final DiscountPolicyService discountPolicyService;
 
     //  우리가 만든 라우터(Resolver) 주입
@@ -110,13 +106,21 @@ private final ShortPricePolicyReader shortPricePolicyReader;
         BigDecimal rentFee = rentCalculator.calculateTotalAmount(unitPrice, period, months);
 
         // ----------------------------
-        // 3) 보험료 계산 (MVP: 단기 보험 계산기 재사용)
+        // 3) 보험료 계산
+        // - SHORT만 단기 보험 계산기 사용
+        // - LONG은 보험 미적용 정책: 보험코드는 NONE으로 정규화, 보험료는 0원 고정
         // ----------------------------
-        ShortRentDuration insuranceDuration =
-                ShortRentDurationFactory.from(req.getStartDateTime(), req.getEndDateTime());
+        BigDecimal insuranceFee = BigDecimal.ZERO;
 
-        BigDecimal insuranceFee = shortInsuranceCalculator.calculate(insuranceCode, insuranceDuration);
-
+        if (rentType == RentType.SHORT) {
+            ShortRentDuration insuranceDuration =
+                    ShortRentDurationFactory.from(req.getStartDateTime(), req.getEndDateTime());
+            insuranceFee = shortInsuranceCalculator.calculate(insuranceCode, insuranceDuration);
+        } else {
+            // 장기 렌트는 보험 정책 미적용 (데이터 정합성을 위해 NONE 처리)
+            insuranceCode = InsuranceCode.NONE;
+            // insuranceFee는 초기값(BigDecimal.ZERO) 유지
+        }
         // ----------------------------
         // 4) 쿠폰 할인
         // ----------------------------
