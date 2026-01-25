@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.carpick.admin.pricePolicyAdmin.mapper.PricePolicyAdminMapper">
+
+    <!-- =========================
+         ResultMap
+         ========================= -->
+    <resultMap id="PricePolicyRowMap" type="com.carpick.admin.pricePolicyAdmin.dto.PricePolicyRowDto">
+        <id property="pricePolicyId" column="price_policy_id"/>
+
+        <result property="branchId" column="branch_id"/>
+        <result property="specId" column="spec_id"/>
+        <result property="priceType" column="price_type"/>
+
+        <result property="discountRate" column="discount_rate"/>
+
+        <result property="validFrom" column="valid_from"/>
+        <result property="validTo" column="valid_to"/>
+
+        <result property="isActive" column="is_active"/>
+        <result property="useYn" column="use_yn"/>
+        <result property="deletedAt" column="deleted_at"/>
+
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+        <!-- 화면 표시용 -->
+        <result property="branchName" column="branch_name"/>
+        <result property="specName" column="spec_name"/>
+    </resultMap>
+
+    <!-- =========================
+         조회
+         ========================= -->
+
+    <!-- 관리자 가격 정책 목록 조회 -->
+    <select id="findAllByBranchAndPriceType" resultMap="PricePolicyRowMap">
+        SELECT
+            pp.price_policy_id,
+            pp.branch_id,
+            pp.spec_id,
+            pp.price_type,
+            pp.discount_rate,
+            pp.valid_from,
+            pp.valid_to,
+            pp.is_active,
+            pp.use_yn,
+            pp.deleted_at,
+            pp.created_at,
+            pp.updated_at,
+            b.branch_name,
+            cs.model_name AS spec_name
+        FROM price_policy pp
+                 JOIN branch b ON b.branch_id = pp.branch_id
+                 LEFT JOIN car_spec cs ON cs.spec_id = pp.spec_id
+        WHERE pp.branch_id = #{branchId}
+          AND pp.price_type = #{priceType}
+          AND pp.deleted_at IS NULL
+        ORDER BY
+            pp.spec_id IS NOT NULL DESC,
+            pp.created_at DESC
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="findById" resultMap="PricePolicyRowMap">
+        SELECT
+            pp.price_policy_id,
+            pp.branch_id,
+            pp.spec_id,
+            pp.price_type,
+            pp.discount_rate,
+            pp.valid_from,
+            pp.valid_to,
+            pp.is_active,
+            pp.use_yn,
+            pp.deleted_at,
+            pp.created_at,
+            pp.updated_at,
+            b.branch_name,
+            cs.model_name AS spec_name
+        FROM price_policy pp
+                 JOIN branch b ON b.branch_id = pp.branch_id
+                 LEFT JOIN car_spec cs ON cs.spec_id = pp.spec_id
+        WHERE pp.price_policy_id = #{pricePolicyId}
+          AND pp.deleted_at IS NULL
+    </select>
+
+    <!-- =========================
+         생성 / 수정
+         ========================= -->
+
+    <!-- 신규 등록 -->
+    <insert id="insert" parameterType="com.carpick.admin.pricePolicyAdmin.dto.PricePolicyRowDto"
+            useGeneratedKeys="true" keyProperty="pricePolicyId">
+        INSERT INTO price_policy (
+            branch_id,
+            spec_id,
+            price_type,
+            discount_rate,
+            valid_from,
+            valid_to,
+            is_active,
+            use_yn
+        ) VALUES (
+                     #{branchId},
+                     #{specId},
+                     #{priceType},
+                     #{discountRate},
+                     #{validFrom},
+                     #{validTo},
+                     #{isActive},
+                     #{useYn}
+                 )
+    </insert>
+
+    <!-- 인라인 수정 -->
+    <update id="update" parameterType="com.carpick.admin.pricePolicyAdmin.dto.PricePolicyRowDto">
+        UPDATE price_policy
+        SET
+            branch_id = #{branchId},
+            spec_id = #{specId},
+            price_type = #{priceType},
+            discount_rate = #{discountRate},
+            valid_from = #{validFrom},
+            valid_to = #{validTo},
+            is_active = #{isActive},
+            use_yn = #{useYn},
+            updated_at = NOW()
+        WHERE price_policy_id = #{pricePolicyId}
+    </update>
+
+    <!-- =========================
+         상태 변경
+         ========================= -->
+
+    <update id="updateActiveStatus">
+        UPDATE price_policy
+        SET is_active = #{isActive},
+            updated_at = NOW()
+        WHERE price_policy_id = #{pricePolicyId}
+    </update>
+
+    <update id="updateUseYn">
+        UPDATE price_policy
+        SET use_yn = #{useYn},
+            updated_at = NOW()
+        WHERE price_policy_id = #{pricePolicyId}
+    </update>
+
+    <!-- =========================
+         배타 적용 처리
+         ========================= -->
+
+    <!-- 지점 전체 정책 ON → 차종별 OFF -->
+    <update id="deactivateSpecPolicies">
+        UPDATE price_policy
+        SET is_active = 0,
+            updated_at = NOW()
+        WHERE branch_id = #{branchId}
+          AND price_type = #{priceType}
+          AND spec_id IS NOT NULL
+          AND deleted_at IS NULL
+    </update>
+
+    <!-- 차종별 정책 ON → 지점 전체 OFF -->
+    <update id="deactivateBranchWidePolicies">
+        UPDATE price_policy
+        SET is_active = 0,
+            updated_at = NOW()
+        WHERE branch_id = #{branchId}
+          AND price_type = #{priceType}
+          AND spec_id IS NULL
+          AND deleted_at IS NULL
+    </update>
+<!--정책 단건 조회 (고유 키 기준)-->
+    <select id="findByKey" resultMap="PricePolicyRowMap">
+        SELECT
+        pp.price_policy_id,
+        pp.branch_id,
+        pp.spec_id,
+        pp.price_type,
+        pp.discount_rate,
+        pp.valid_from,
+        pp.valid_to,
+        pp.is_active,
+        pp.use_yn,
+        pp.deleted_at,
+        pp.created_at,
+        pp.updated_at,
+        b.branch_name,
+        cs.model_name AS spec_name
+        FROM price_policy pp
+        JOIN branch b ON b.branch_id = pp.branch_id
+        LEFT JOIN car_spec cs ON cs.spec_id = pp.spec_id
+        WHERE pp.branch_id = #{branchId}
+        AND pp.price_type = #{priceType}
+        AND pp.deleted_at IS NULL
+        <choose>
+            <when test="specId == null">
+                AND pp.spec_id IS NULL
+            </when>
+            <otherwise>
+                AND pp.spec_id = #{specId}
+            </otherwise>
+        </choose>
+        LIMIT 1
+    </select>
+<!--기본값으로 신규 정책 생성 (자동 보강용) -->
+    <select id="insertDefault" resultMap="PricePolicyRowMap">
+        SELECT
+        pp.price_policy_id,
+        pp.branch_id,
+        pp.spec_id,
+        pp.price_type,
+        pp.discount_rate,
+        pp.valid_from,
+        pp.valid_to,
+        pp.is_active,
+        pp.use_yn,
+        pp.deleted_at,
+        pp.created_at,
+        pp.updated_at,
+        b.branch_name,
+        cs.model_name AS spec_name
+        FROM price_policy pp
+        JOIN branch b ON b.branch_id = pp.branch_id
+        LEFT JOIN car_spec cs ON cs.spec_id = pp.spec_id
+        WHERE pp.branch_id = #{branchId}
+        AND pp.price_type = #{priceType}
+        AND pp.deleted_at IS NULL
+        <choose>
+            <when test="specId == null">
+                AND pp.spec_id IS NULL
+            </when>
+            <otherwise>
+                AND pp.spec_id = #{specId}
+            </otherwise>
+        </choose>
+        LIMIT 1
+    </select>
+
+    <!-- =========================
+         삭제
+         ========================= -->
+
+    <!-- 논리 삭제 -->
+    <update id="softDelete">
+        UPDATE price_policy
+        SET deleted_at = NOW(),
+            is_active = 0,
+            updated_at = NOW()
+        WHERE price_policy_id = #{pricePolicyId}
+    </update>
+
+</mapper>

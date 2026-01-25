@@ -24,7 +24,7 @@
         <!-- 조인용 필드 -->
         <result column="model_name"     property="modelName"/>
         <result column="brand"          property="brand"/>
-        <result column="main_image_url" property="mainImageUrl"/>
+
         <result column="fuel_type"      property="fuelType"
                 javaType="com.carpick.domain.car.enums.FuelType"/>
         <result column="branch_name"    property="branchName"/>
@@ -91,7 +91,7 @@
             v.updated_at,
             s.model_name,
             s.brand,
-            s.main_image_url,
+
             s.fuel_type,
             b.branch_name
         FROM vehicle_inventory v
@@ -118,7 +118,7 @@
             v.updated_at,
             s.model_name,
             s.brand,
-            s.main_image_url,
+
             s.fuel_type,
             b.branch_name
         FROM vehicle_inventory v

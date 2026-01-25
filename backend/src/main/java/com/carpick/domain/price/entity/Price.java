@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Price {
     private Long priceId;
-    private Long carSpecId;
+    private Long specId;
 
     private BigDecimal dailyPrice;    // 일일 판매가
     private BigDecimal monthlyPrice;  // 월간 판매가

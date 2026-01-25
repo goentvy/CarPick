@@ -100,13 +100,11 @@ const HomeRentHeader = ({
 
     const params = new URLSearchParams({
       pickupBranchId: String(pickupBranchId),
-      returnBranchId: String(pickupBranchId),
       rentType: type,
       startDate: formatKST(dateRange.startDate),
       endDate: formatKST(dateRange.endDate),
       ...(isLong ? { months: String(m) } : {}),
       pickupBranchName: pickupBranchName || "",
-      returnBranchName: pickupBranchName || "",
     });
 
     navigate(`/day?${params.toString()}`);
@@ -148,18 +146,15 @@ const HomeRentHeader = ({
 
     const params = new URLSearchParams({
       pickupBranchId: String(pickupBranchId),
-      returnBranchId: String(pickupBranchId),
       rentType: type,
       startDate: formatKST(startDate),
       endDate: formatKST(endDate),
       ...(isLong ? { months: String(m) } : {}),
       pickupBranchName: pickupBranchName || "",
-      returnBranchName: pickupBranchName || "",
     });
 
     navigate(`/day?${params.toString()}`);
   };
-
   // ✅ 선택 처리 (primitive로만 관리)
   const handleSelectBranch = (branchId, branchName) => {
     const idNum = Number(branchId);

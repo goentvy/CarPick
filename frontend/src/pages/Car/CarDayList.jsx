@@ -51,7 +51,6 @@ const CarList = () => {
 
         if (!params.get("pickupBranchId")) {
             params.set("pickupBranchId", "1");
-            if (!params.get("returnBranchId")) params.set("returnBranchId", "1");
             if (!params.get("rentType")) params.set("rentType", "SHORT");
 
             // 날짜 없으면 오늘~내일
@@ -118,7 +117,7 @@ const CarList = () => {
 
         // pickupBranchId 보정
         if (!params.pickupBranchId && params.branchId) params.pickupBranchId = params.branchId;
-        if (!params.returnBranchId && params.pickupBranchId) params.returnBranchId = params.pickupBranchId;
+
 
         // rentType 보정
         params.rentType = params.rentType ? String(params.rentType).toUpperCase() : "SHORT";
@@ -137,6 +136,8 @@ const CarList = () => {
 
         const run = async () => {
             try {
+                delete params.returnBranchId;
+                delete params.returnBranchName;
                 // ✅ cars API는 기존대로 보내도 됨 (백에서 startDateTime/endDateTime optional)
                 console.log("[CarList] GET /api/cars params =", params);
                 const carRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`, { params });

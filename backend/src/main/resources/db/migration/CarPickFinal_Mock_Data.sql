@@ -78,7 +78,7 @@ INSERT INTO CAR_SPEC (
       ('TESLA','Tesla Model Y','BLACK','테슬라','IMPORT',2023,'전기차 특유의 가속력과 넓은 실내 공간을 갖춘 수입 EV SUV입니다.','ELECTRIC','AUTO',FALSE,'오토파일럿,네비게이션,후방카메라,블루투스,OTA업데이트',25,2,5,'SUV 트렁크/프렁크','전비 5~6km/kWh','http://carpicka.mycafe24.com/car_spin_video/car_suv_modelY_black_spin.mp4','http://carpicka.mycafe24.com/car_thumbnail/car_suv_modelY_black_thumb.png','테슬라,전기차,SUV,수입,오토파일럿,EV','전기,EV,SUV,패밀리','Y',NULL);
 
 
-INSERT INTO PRICE (car_spec_id, daily_price, monthly_price, use_yn, created_at, updated_at) VALUES
+INSERT INTO PRICE (spec_id, daily_price, monthly_price, use_yn, created_at, updated_at) VALUES
                                                                                                 (1,50000,10000,'Y',NOW(),NOW()),
                                                                                                 (2,65000,20000,'Y',NOW(),NOW()),
                                                                                                 (3,52000,30000,'Y',NOW(),NOW()),

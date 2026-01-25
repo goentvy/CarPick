@@ -27,7 +27,7 @@
         <result property="driverBirthdate"  column="driver_birthdate"/>
         <result property="driverPhone"      column="driver_phone"/>
         <result property="driverEmail"      column="driver_email"/>
-        <result property="driverLicenseNo"  column="driver_license_no"/>
+
 
         <!-- 4️⃣ 차량(VEHICLE_INVENTORY + CAR_SPEC) -->
         <result property="vehicleId"        column="vehicle_id"/>
@@ -183,7 +183,7 @@
             r.driver_birthdate,
             r.driver_phone,
             r.driver_email,
-            r.driver_license_no,
+
 
             /* 4️⃣ 차량(VEHICLE_INVENTORY + CAR_SPEC) */
             r.vehicle_id,
