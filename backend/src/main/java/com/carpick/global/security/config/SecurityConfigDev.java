@@ -45,6 +45,8 @@ public class SecurityConfigDev {
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ 관리자 페이지는 ADMIN만 접근 가능
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                 		.requestMatchers(
             		        "/admin/upload/**",
             		        "/upload/**"

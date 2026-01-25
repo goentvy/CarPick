@@ -51,11 +51,16 @@ const Login = () => {
       const [, data] = await Promise.all([minTime, loginRequest]);
 
       if (data.success) {
+        // ✅ JWT를 쿠키에도 저장 (관리자 페이지 이동용)
+        document.cookie = `accessToken=${data.accessToken}; path=/`;
         useUserStore.getState().login({
           user: {
             email: data.email,
             name: data.name,
             membershipGrade: data.membershipGrade,
+
+            // ✅ 관리자 분기 핵심 데이터 추가
+            role: data.role
           },
           accessToken: data.accessToken,
         });
