@@ -237,12 +237,7 @@ function ReservationsList() {
                                         <span className="font-bold text-[15px]">
                                             {formatDate(item.startDate)} 예약
                                         </span>
-                                        <button
-                                            onClick={() => navigate(`/Mypage/Reservations/${item.reservationId}`)}
-                                            className="text-sm text-[#1D6BF3] hover:underline"
-                                        >
-                                            예약 상세보기 &gt;
-                                        </button>
+
                                     </div>
 
                                     <div className="p-4 flex">
@@ -269,7 +264,7 @@ function ReservationsList() {
 
                                         <div className="flex flex-col gap-2 ml-4">
                                             <button
-                                                onClick={() => navigate(`/Mypage/ReservationsList/${item.reservationId}`)}
+                                                onClick={() => navigate(`/Mypage/Reservations/${item.reservationId}`)}
                                                 className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition"
                                             >
                                                 상세보기
@@ -303,11 +298,10 @@ function ReservationsList() {
                                                 <button
                                                     onClick={(e) => handleReviewClick(e, item)}
                                                     disabled={isReviewed}
-                                                    className={`px-4 py-2 text-sm rounded-lg transition font-medium shadow-sm ${
-                                                        isReviewed
-                                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                            : 'bg-[#2C7FFF] text-white hover:bg-[#1E5BBF]'
-                                                    }`}
+                                                    className={`px-4 py-2 text-sm rounded-lg transition font-medium shadow-sm ${isReviewed
+                                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                        : 'bg-[#2C7FFF] text-white hover:bg-[#1E5BBF]'
+                                                        }`}
                                                 >
                                                     {isReviewed ? '리뷰작성됨' : '리뷰작성'}
                                                 </button>
@@ -323,7 +317,7 @@ function ReservationsList() {
 
             {editingReview && (
                 <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-[1000] p-4 animate-in fade-in zoom-in duration-200"
-                     style={{ backdropFilter: 'blur(4px)' }}>
+                    style={{ backdropFilter: 'blur(4px)' }}>
                     <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl border border-white/50">
                         <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">리뷰 작성</h3>
 
@@ -342,11 +336,11 @@ function ReservationsList() {
                                     return (
                                         <div key={starIndex} className="relative w-[56px] h-[56px]">
                                             <button type="button" onClick={() => handleStarClick(starIndex, 0)}
-                                                    className="absolute left-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
+                                                className="absolute left-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
                                             <button type="button" onClick={() => handleStarClick(starIndex, 1)}
-                                                    className="absolute right-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
+                                                className="absolute right-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
                                             <img src={starSrc} alt="" width={56} height={56}
-                                                 className="w-full h-full object-contain hover:scale-[1.08] transition-all cursor-pointer" />
+                                                className="w-full h-full object-contain hover:scale-[1.08] transition-all cursor-pointer" />
                                         </div>
                                     );
                                 })}
@@ -449,11 +443,10 @@ function ReservationsList() {
                                     <button
                                         onClick={handleModalConfirm}
                                         disabled={isProcessing || !cancelReason}
-                                        className={`px-6 py-2 text-sm text-white font-medium rounded-xl shadow-sm border-2 transition-all flex-1 flex items-center justify-center ${
-                                            !cancelReason
-                                                ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
-                                                : 'bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                        className={`px-6 py-2 text-sm text-white font-medium rounded-xl shadow-sm border-2 transition-all flex-1 flex items-center justify-center ${!cancelReason
+                                            ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
+                                            : 'bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600'
+                                            } disabled:opacity-50 disabled:cursor-not-allowed`}
                                     >
                                         {isProcessing ? (
                                             <>

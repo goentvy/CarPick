@@ -22,8 +22,7 @@
         <result property="seatingCapacity" column="seating_capacity"/>
         <result property="trunkCapacity" column="trunk_capacity"/>
         <result property="fuelEfficiency" column="fuel_efficiency"/>
-        <result property="mainImageUrl" column="main_image_url"/>
-        <result property="imgUrl" column="img_url"/>
+
         <result property="aiKeywords" column="ai_keywords"/>
         <result property="driveLabels" column="drive_labels"/>
         <result property="useYn" column="use_yn"/>
@@ -36,7 +35,7 @@
         fuel_type, transmission_type,
         min_driver_age, min_license_years,
         car_options, seating_capacity, trunk_capacity, fuel_efficiency,
-        main_image_url, img_url, ai_keywords, drive_labels,
+         ai_keywords, drive_labels,
         use_yn, updated_at
     </sql>
 
@@ -46,7 +45,7 @@
         fuel_type, transmission_type,
         min_driver_age, min_license_years,
         car_options, seating_capacity, trunk_capacity, fuel_efficiency,
-        main_image_url, img_url, ai_keywords, drive_labels,
+        ai_keywords, drive_labels,
         use_yn
     </sql>
 
@@ -56,7 +55,7 @@
         #{fuelType}, #{transmissionType},
         #{minDriverAge}, #{minLicenseYears},
         #{carOptions}, #{seatingCapacity}, #{trunkCapacity}, #{fuelEfficiency},
-        #{mainImageUrl}, #{imgUrl}, #{aiKeywords}, #{driveLabels},
+       #{aiKeywords}, #{driveLabels},
         'Y'
     </sql>
 
@@ -97,8 +96,7 @@
             car_options = #{carOptions}, seating_capacity = #{seatingCapacity},
             trunk_capacity = #{trunkCapacity},
             fuel_efficiency = #{fuelEfficiency},
-            main_image_url = #{mainImageUrl},
-            img_url = #{imgUrl},
+
             ai_keywords = #{aiKeywords},
             drive_labels = #{driveLabels}
         WHERE spec_id = #{specId} AND use_yn = 'Y'

@@ -43,19 +43,13 @@ public class AdminCarSpecService {
      * 📝 차량 스펙 등록 (파일 업로드 포함)
      * 파라미터에 MultipartFile 2개가 추가되었습니다.
      */
-    public void addCarSpec(AdminCarSpecDto dto, MultipartFile mainImage, MultipartFile rotatableImage) {
+    public void addCarSpec(AdminCarSpecDto dto) {
 
         // 1. 필수값/기본값 검증
         validateRequiredFields(dto);
         normalizeFields(dto);
 
-        // 2. 이미지 파일 저장 로직 수행
-        // 모델명(폴더명)을 기준으로 저장합니다.
-        try {
-            saveCarImages(dto, mainImage, rotatableImage);
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 저장 중 오류가 발생했습니다: " + e.getMessage());
-        }
+
 
         // 3. 중복 확인 및 DB 저장 (기존 로직 동일)
         AdminCarSpecDto deleted = carSpecMapper.selectDeletedByName(
@@ -74,23 +68,13 @@ public class AdminCarSpecService {
     /**
      * 🛠 차량 스펙 수정 (파일 업로드 포함)
      */
-    public void updateCarSpec(AdminCarSpecDto dto, MultipartFile mainImage, MultipartFile rotatableImage) {
+    public void updateCarSpec(AdminCarSpecDto dto) {
         if (dto.getSpecId() == null) throw new IllegalArgumentException("수정하려면 specId가 필요합니다.");
 
         validateRequiredFields(dto);
         normalizeFields(dto);
 
-        // 이미지 파일이 새로 들어왔을 때만 덮어쓰기 수행
-        try {
-            saveCarImages(dto, mainImage, rotatableImage);
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 수정 중 오류가 발생했습니다: " + e.getMessage());
-        }
 
-        int updated = carSpecMapper.update(dto);
-        if (updated == 0) {
-            throw new IllegalStateException("수정할 데이터를 찾을 수 없습니다.");
-        }
     }
 
     /** 🚫 삭제 */
@@ -110,39 +94,7 @@ public class AdminCarSpecService {
     // ======================================================================
     //  📸 [핵심] 파일 저장 로직 (여기가 새로 추가된 부분입니다)
     // ======================================================================
-    private void saveCarImages(AdminCarSpecDto dto, MultipartFile mainImage, MultipartFile rotatableImage) throws IOException {
-        String modelFolder = dto.getModelName(); // 예: avante_cn7
 
-        // 1. 폴더 경로 생성: .../assets/images/cars/avante_cn7/
-        String uploadPath = UPLOAD_ROOT_DIR + modelFolder + "/";
-        File dir = new File(uploadPath);
-        if (!dir.exists()) {
-            dir.mkdirs(); // 폴더가 없으면 생성
-        }
-
-        // 2. 메인 이미지(JPG) 저장
-        if (mainImage != null && !mainImage.isEmpty()) {
-            // 파일명을 고정할지, 원본명을 쓸지 결정 (여기선 덮어쓰기 편하게 고정 이름 사용 권장)
-            // 예: front.jpg 로 저장
-            String fileName = "front.jpg";
-            Path filePath = Paths.get(uploadPath + fileName);
-            mainImage.transferTo(filePath.toFile());
-
-            // DB에 저장할 웹 경로 (Web WebPath) 설정
-            // HTML에서 <img src="/assets/images/cars/avante_cn7/front.jpg"> 로 접근 가능하게
-            dto.setMainImageUrl("/assets/images/cars/" + modelFolder + "/" + fileName);
-        }
-
-        // 3. 360도 이미지(WEBP) 저장
-        if (rotatableImage != null && !rotatableImage.isEmpty()) {
-            String fileName = "360.webp"; // 혹은 view_360.webp
-            Path filePath = Paths.get(uploadPath + fileName);
-            rotatableImage.transferTo(filePath.toFile());
-
-            // 필요하다면 DTO의 다른 필드에 경로 저장 (여기선 예시로 imgUrl 사용)
-            dto.setImgUrl("/assets/images/cars/" + modelFolder + "/" + fileName);
-        }
-    }
 
 
     // ======================================================================

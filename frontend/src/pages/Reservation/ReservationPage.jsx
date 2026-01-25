@@ -88,10 +88,11 @@ const ReservationPage = () => {
     });
 
     // 데이터 초기 셋팅
+    // 데이터 초기 셋팅
     useEffect(() => {
         const startDateTime = searchParams.get("startDate");
         const endDateTime = searchParams.get("endDate");
-        const monthsParam = Number(searchParams.get("months")); // ✅ 추가
+        const monthsParam = Number(searchParams.get("months"));
         const months = Number.isFinite(monthsParam) && monthsParam > 0 ? monthsParam : 1;
 
         if (!startDateTime || !endDateTime) {
@@ -99,23 +100,18 @@ const ReservationPage = () => {
             navigate("/");
             return;
         }
-        //  (수정 2) pickupBranchId / returnBranchId / rentType을 URL에서 같이 꺼내서 body 구성
-        const pickupBranchId = Number(searchParams.get("pickupBranchId"));
-        // returnBranchId는 FormRequestDtoV2에 없으므로 일단 프런트 store용으로만 쓰거나,
-        // 백엔드 DTO에 추가할 계획이 없다면 body에는 넣지 마세요.
-        // const returnBranchId = Number(searchParams.get("returnBranchId"));
 
-        const rentTypeRaw = (searchParams.get("rentType") || "").toLowerCase();
-        const rentType = rentTypeRaw === "long" ? "LONG" : "SHORT";
-        //  (수정 3) 백엔드가 기대하는 @RequestBody(JSON) 형태로 보내기
-        // ReservationFormRequestDtoV2에 맞춘 body
+        const pickupBranchId = Number(searchParams.get("pickupBranchId"));
+        const rentTypeParam = (searchParams.get("rentType") || "").toUpperCase();
+        const rentType = rentTypeParam === "LONG" || rentTypeParam === "MONTH" ? "LONG" : "SHORT";
+
         const body = {
             specId,
             pickupBranchId,
             rentType,
             startDateTime,
             endDateTime,
-            ...(rentType === "LONG" ? { months } : {}), //  핵심
+            ...(rentType === "LONG" ? { months } : {}),
             driverInfo: {
                 lastname: "",
                 firstname: "",
@@ -126,35 +122,64 @@ const ReservationPage = () => {
         };
 
         api.post("/reservation/form", body)
-            .then(res => {
-                setFormData(res.data);
-                setVehicle({
-                    specId: res.data.car?.specId,   // specId로 세팅
-                    vehicleId: res.data.car?.specId, // vehicleId도 같이 (create용)
-                    title: res.data.car?.title,
-
-                });
-
-                //예약 완료 페이지
+            .then(async (res) => {
                 const store = useReservationStore.getState();
+
+                setFormData(res.data);
+
+                // rentType/months: 예약 페이지 진입 시점에 고정
+                store.setRentType(rentType);
+                store.setMonths(rentType === "LONG" ? months : null);
+
+                // 완료페이지 표시용
                 store.setPickupBranchName(decodeURIComponent(searchParams.get("pickupBranchName") || ""));
-                store.setStartDate(startDateTime.split(' ')[0] || "");
-                store.setEndDate(endDateTime.split(' ')[0] || "");
+                store.setStartDate(startDateTime.split(" ")[0] || "");
+                store.setEndDate(endDateTime.split(" ")[0] || "");
 
+                // 차량
+                setVehicle({
+                    specId: res.data.car?.specId,
+                    vehicleId: res.data.car?.specId,
+                    title: res.data.car?.title,
+                });
 
+                // 픽업/반납 + 기본 returnType
                 setPickupReturn({
-                    method: "visit", // 기본값 (방문)
-                    pickupBranch: res.data.pickupLocation,   // 수정 (기존: 1)
-                    dropoffBranch: res.data.returnLocation//  수정 (기존: 1)
+                    pickupType: "VISIT",
+                    pickupBranch: res.data.pickupLocation,
+                    dropoffBranch: res.data.returnLocation,
+                    returnType: "VISIT",
+                    dropzoneId: null,
                 });
 
+                // 기간
+                setRentalPeriod({ startDateTime, endDateTime });
 
-                setRentalPeriod({
-                    startDateTime,
-                    endDateTime,
-                });
+                // ✅ 가격 API 호출 추가
+                try {
+                    const priceRes = await api.get("/v2/reservations/price", {
+                        params: {
+                            specId,
+                            rentType,
+                            startDate: startDateTime,
+                            endDate: endDateTime,
+                            insuranceCode: "NONE",
+                            ...(rentType === "LONG" ? { months } : {}),
+                        }
+                    });
+
+                    // ✅ 스토어에 가격 정보 저장
+                    store.setPaymentSummary({
+                        rentFee: priceRes.data.rentFee,
+                        insuranceFee: priceRes.data.insuranceFee,
+                        totalAmount: priceRes.data.totalAmount,
+                    });
+                } catch (priceErr) {
+                    console.error("가격 조회 실패:", priceErr);
+                }
             })
-            .catch(err => console.error("예약 폼 데이터 불러오기 실패:", err));
+            .catch((err) => console.error("예약 폼 데이터 불러오기 실패:", err));
+
     }, [searchParams, setVehicle, setPickupReturn, setRentalPeriod, navigate, specId]);
 
     const isShort = formData?.rentType === "SHORT";
@@ -165,7 +190,13 @@ const ReservationPage = () => {
                 {formData && (
                     <>
                         <ReservationBanner formData={formData} />
-                        <PickupReturnSection pickup={formData.pickupLocation} dropoff={formData.returnLocation} />
+                        <PickupReturnSection
+                            pickup={formData.pickupLocation}
+                            dropoff={formData.returnLocation}
+                            startDateTime={searchParams.get("startDate")}
+                            endDateTime={searchParams.get("endDate")}
+                        />
+
                         <DriverInfoSection />
 
                         {isShort && <ReservationInsurance options={formData.insuranceOptions} />}

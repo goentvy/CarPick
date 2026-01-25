@@ -26,7 +26,7 @@ public class ReservationDetailDto {
     private LocalDate driverBirthdate;
     private String driverPhone;
     private String driverEmail;
-    private String driverLicenseNo;
+
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
