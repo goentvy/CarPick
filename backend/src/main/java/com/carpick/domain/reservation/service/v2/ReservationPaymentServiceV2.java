@@ -1,5 +1,6 @@
 package com.carpick.domain.reservation.service.v2;
 
+import com.carpick.domain.inventory.mapper.VehicleInventoryMapper;
 import com.carpick.domain.payment.enums.PayStatus;
 import com.carpick.domain.payment.vo.PaymentVerificationVo;
 import com.carpick.domain.reservation.dtoV2.request.ReservationPaymentRequestDtoV2;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ReservationPaymentServiceV2 {
     private final ReservationPaymentMapperV2 paymentMapper;
-
+    private final VehicleInventoryMapper vehicleInventoryMapper;
     /**
      * 결제 처리 메인
      *
@@ -136,6 +137,15 @@ public class ReservationPaymentServiceV2 {
             log.info("[멱등처리] 이미 처리된 예약. reservationNo={}", reservationNo);
             return buildSuccessResponse(reservationNo);
         }
+
+        // ============================================================
+        // 4-1) 차량 상태 변경 (AVAILABLE -> RESERVED) ★ 추가
+        // ============================================================
+        vehicleInventoryMapper.updateOperationalStatus(
+                verification.getVehicleId(),  // PaymentVerificationVo에 vehicleId 필요
+                "RESERVED"
+        );
+
 
         log.info("[결제완료] 예약 확정 완료. reservationNo={}, reservationId={}",
                 reservationNo, verification.getReservationId());

@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
 public class AdminPriceDto {
     // =====  식별자 (PK/FK) =====
     private Long priceId;           // [PRICE 테이블] PK - 장기 요금 수정 시 사용
-    private Long pricePolicyId;     // [PRICE_POLICY 테이블] PK - 단기 요금/할인율 수정 시 사용
-    private Long carSpecId;         // [CAR_SPEC 테이블] FK - 차종 식별 ID
+
+    private Long specId;         // [CAR_SPEC 테이블] FK - 차종 식별 ID
 
     // =====  조인용 필드 (차종 정보) =====
     private String brand;           // 브랜드 (현대, 기아 등)
@@ -28,18 +28,11 @@ public class AdminPriceDto {
 
     // =====  낙관적 락 (Optimistic Lock)  =====
     private Integer version;
-    // =====  할인 정책 (PRICE_POLICY) =====
-    private Integer discountRate;   // 적용 할인율 (0~100 정수값)
 
-    // =====  단기 가격 정보 (PRICE / 계산 결과) =====
     private BigDecimal dailyPrice;          // 1일 대여료 원가
-    private BigDecimal finalDailyPrice;     // [계산 필드] 할인율이 적용된 1일 최종 금액
 
-    // =====  장기 가격 정보 (PRICE / 계산 결과) =====
+
     private BigDecimal monthlyPrice;             // 1개월 대여료 원가
-
-
-    private BigDecimal finalMonthlyPrice;        // [계산 필드] 할인 적용된 1개월 최종금액
 
 
     // =====  운영 및 상태 관리 =====

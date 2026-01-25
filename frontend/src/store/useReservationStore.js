@@ -51,9 +51,13 @@ const useReservationStore = create(
              * 대여/반납 방식 및 지점 정보
              */
             pickupReturn: {
-                method: "visit",
+                pickupType: "VISIT",   // enum과 동일
+                returnType: "VISIT",   //  enum과 동일 (VISIT / DROPZONE)
                 pickupBranch: null,
                 dropoffBranch: null,
+
+                //  A안 핵심: 선택된 dropzoneId만 저장
+                dropzoneId: null,
             },
 
             /**
@@ -116,6 +120,32 @@ const useReservationStore = create(
             // 2. 기본 액션(Actions)
             // =================================================
             setReservationNo: (reservationNo) => set({ reservationNo }),
+            setReturnType: (returnType) =>
+                set((state) => ({
+                    pickupReturn: {
+                        ...state.pickupReturn,
+                        returnType: String(returnType || "VISIT").toUpperCase(),
+                        // returnType이 VISIT이면 드롭존 선택값은 무조건 제거 (안전)
+                        dropzoneId: String(returnType || "VISIT").toUpperCase() === "VISIT"
+                            ? null
+                            : state.pickupReturn.dropzoneId,
+                    },
+                })),
+
+            setDropzoneId: (dropzoneId) =>
+                set((state) => ({
+                    pickupReturn: {
+                        ...state.pickupReturn,
+                        // dropzone을 선택하면 반납 타입은 DROPZONE이 자연스럽습니다.
+                        returnType: "DROPZONE",
+                        dropzoneId: dropzoneId ?? null,
+                    },
+                })),
+
+            resetDropzone: () =>
+                set((state) => ({
+                    pickupReturn: { ...state.pickupReturn, dropzoneId: null, returnType: "VISIT" },
+                })),
 
             setPickupBranchName: (name) => set({ pickupBranchName: name }),
             setStartDate: (date) => set({ startDate: date }),
@@ -140,7 +170,23 @@ const useReservationStore = create(
                 set((state) => ({ insurance: { ...state.insurance, summary } })),
 
             setPickupReturn: (info) =>
-                set((state) => ({ pickupReturn: { ...state.pickupReturn, ...info } })),
+                set((state) => {
+                    const next = { ...state.pickupReturn, ...info };
+
+                    const prevReturnBranchId = state.pickupReturn.dropoffBranch?.branchId ?? null;
+                    const nextReturnBranchId = next.dropoffBranch?.branchId ?? null;
+
+                    // ✅ 반납 지점이 바뀌면 드롭존 선택값 초기화
+                    const returnBranchChanged = prevReturnBranchId !== nextReturnBranchId;
+
+                    return {
+                        pickupReturn: {
+                            ...next,
+                            dropzoneId: returnBranchChanged ? null : next.dropzoneId,
+                            returnType: returnBranchChanged ? "VISIT" : next.returnType,
+                        },
+                    };
+                }),
 
             setVehicle: (vehicle) =>
                 set((state) => ({ vehicle: { ...state.vehicle, ...vehicle } })), // 변경: 병합 업데이트로 안전성 강화
@@ -301,7 +347,7 @@ const useReservationStore = create(
              * 2) initFromFormResponse(formRes)
              * 3) refreshPriceSummary() (또는 formRes에 이미 summary가 있으면 생략 가능)
              */
-            initFromFormResponse: (formRes) => { // 추가
+            initFromFormResponse: (formRes) => {
                 if (!formRes) return;
 
                 const rentType = String(formRes.rentType ?? "SHORT").toUpperCase();
@@ -316,14 +362,9 @@ const useReservationStore = create(
                 // 차량
                 const specId = formRes.car?.specId ?? null;
 
-                // 보험 기본값(default=true 찾기)
-                const defaultOption =
-                    (formRes.insuranceOptions || []).find((o) => o?.default === true) ||
-                    (formRes.insuranceOptions || [])[0] ||
-                    null;
-
-                const insuranceCode = String(defaultOption?.code ?? "NONE").toUpperCase();
-                const dailyPrice = Number(defaultOption?.extraDailyPrice ?? 0);
+                // ✅ 보험 초기값: 무조건 NONE으로 고정
+                const insuranceCode = "NONE";
+                const dailyPrice = 0;
 
                 set((state) => ({
                     rentType,
@@ -338,13 +379,13 @@ const useReservationStore = create(
                     },
                     insurance: {
                         ...state.insurance,
-                        code: rentType === "LONG" ? "NONE" : insuranceCode,
-                        dailyPrice,
+                        code: insuranceCode,     //  SHORT/LONG 상관없이 NONE
+                        dailyPrice: dailyPrice,  //  0
+                        summary: null,           // (선택) 이전 계산값 남아있으면 꼬일 수 있어 초기화 추천
                     },
-                    // formRes.paymentSummary를 그대로 쓰고 싶다면 여기서 매핑 가능
-                    // 단, 파이널 기준은 refreshPriceSummary()를 호출하여 서버 계산값으로 덮어쓰는 것을 권장
                 }));
             },
+
 
             // =================================================
             // 5. Payload Builders (백엔드 요청용)
@@ -357,38 +398,51 @@ const useReservationStore = create(
             getCreatePayload: () => {
                 const state = get();
 
-                if (!state.rentalPeriod?.startDateTime || !state.rentalPeriod?.endDateTime) {
-                    throw new Error("rentalPeriod missing (startDateTime/endDateTime)");
-                }
-                if (!state.vehicle.vehicleId && !state.vehicle.specId) {
-                    // 프로젝트마다 create가 요구하는 키가 다를 수 있어 방어만 둡니다.
-                    // 실제 create가 vehicleId를 요구하면 vehicle.vehicleId를 반드시 세팅해야 합니다.
-                }
+                const specId = state.vehicle.specId;
+                if (!specId) throw new Error("specId가 없습니다. vehicle.specId를 먼저 세팅하세요.");
+
+                const startDateTime = state.rentalPeriod?.startDateTime;
+                const endDateTime = state.rentalPeriod?.endDateTime;
+                if (!startDateTime || !endDateTime) throw new Error("기간(startDateTime/endDateTime)이 없습니다.");
+
+                const rentType = String(state.rentType ?? "SHORT").toUpperCase();
+
+                const pickupBranchId = state.pickupReturn.pickupBranch?.branchId ?? null;
+                const returnBranchId = state.pickupReturn.dropoffBranch?.branchId ?? null;
+
+                const pickupType = String(state.pickupReturn.pickupType ?? "VISIT").toUpperCase();
+
+                //  returnType은 enum (VISIT / DROPZONE)
+                const returnType = String(state.pickupReturn.returnType ?? "VISIT").toUpperCase();
+                const dropzoneId = state.pickupReturn.dropzoneId ?? null;
+
+                // 서버 스펙: dropzoneId는 선택(= returnType이 DROPZONE일 때만 의미)
+                const safeDropzoneId = returnType === "DROPZONE" ? dropzoneId : null;
+
+                // LONG months 처리
+                const months = rentType === "LONG" ? Number(state.months ?? 0) : 0;
 
                 return {
-                    // 주의: create가 carId/vehicleId 중 무엇을 받는지에 맞춰 매핑하세요.
-                    // 현재 기존 코드는 carId에 vehicle.id를 넣고 있었으므로,
-                    // 여기서는 vehicleId를 우선 사용하고 없으면 specId로 fallback합니다.
-                    carId: state.vehicle.vehicleId ?? state.vehicle.specId,
+                    specId,
+                    startDateTime,
+                    endDateTime,
+                    rentType,
 
-                    rentType: String(state.rentType ?? "SHORT").toUpperCase(),
+                    pickupBranchId,
+                    pickupType,
 
-                    startDateTime: state.rentalPeriod.startDateTime,
-                    endDateTime: state.rentalPeriod.endDateTime,
+                    returnBranchId,
+                    returnType,
 
-                    // LONG이면 months 포함(백이 받는 필드명에 맞추세요)
-                    months: String(state.rentType ?? "SHORT").toUpperCase() === "LONG" ? state.months : null,
+                    dropzoneId: safeDropzoneId,
 
-                    method: state.pickupReturn.method,
-                    pickUpBranchId: state.pickupReturn.pickupBranch?.branchId ?? null,
-                    returnBranchId: state.pickupReturn.dropoffBranch?.branchId ?? null,
-
-                    insuranceCode: state.insurance.code,
-
+                    insuranceCode: String(state.insurance.code ?? "NONE").toUpperCase(),
                     driverInfo: state.driverInfo,
-                    agreement: state.payment.agreement,
+                    months,
+                    agreement: Boolean(state.payment.agreement),
                 };
             },
+
 
             getPayPayload: () => {
                 const state = get();
@@ -426,7 +480,13 @@ const useReservationStore = create(
                         birth: "",
                     },
                     insurance: { code: "NONE", dailyPrice: 0, summary: null },
-                    pickupReturn: { method: "visit", pickupBranch: null, dropoffBranch: null },
+                    pickupReturn: {
+                        pickupType: "VISIT",
+                        returnType: "VISIT",
+                        pickupBranch: null,
+                        dropoffBranch: null,
+                        dropzoneId: null,
+                    },
                     rentalPeriod: { startDateTime: null, endDateTime: null },
                     rentType: "SHORT",
                     months: null,

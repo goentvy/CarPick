@@ -29,8 +29,6 @@ const CarMonthList = () => {
         // 1) pickupBranchId 보정
         if (!raw.pickupBranchId && raw.branchId) raw.pickupBranchId = raw.branchId;
 
-        // 2) returnBranchId 기본값
-        if (!raw.returnBranchId && raw.pickupBranchId) raw.returnBranchId = raw.pickupBranchId;
 
         // 3) rentType 보정
         const rentType = raw.rentType ? String(raw.rentType).toUpperCase() : "LONG";
@@ -44,7 +42,6 @@ const CarMonthList = () => {
 
         return {
             pickupBranchId: raw.pickupBranchId ? String(raw.pickupBranchId) : "",
-            returnBranchId: raw.returnBranchId ? String(raw.returnBranchId) : "",
             startDate,
             endDate,
             rentType,
@@ -76,10 +73,10 @@ const CarMonthList = () => {
 
         const run = async () => {
             try {
-                // ✅ 1) 차량 목록 조회 (/api/cars)
+                //  1) 차량 목록 조회 (/api/cars)
                 const qs = new URLSearchParams({
                     pickupBranchId: normalizedParams.pickupBranchId,
-                    returnBranchId: normalizedParams.returnBranchId,
+
                     // cars API 쪽은 기존 스펙이 startDateTime/endDateTime 일 수도 있어서,
                     // 현재 백엔드가 startDate/endDate를 받는다면 그대로 쓰고,
                     // startDateTime을 요구한다면 여기 키만 바꾸면 됩니다.
@@ -98,7 +95,7 @@ const CarMonthList = () => {
                 const carList = carRes.data ?? [];
                 setCars(carList);
 
-                // ✅ 2) 가격 조회 준비
+                // 2) 가격 조회 준비
                 const branchId = normalizedParams.pickupBranchId;
                 const startDate = normalizedParams.startDate;
                 const endDate = normalizedParams.endDate;

@@ -100,13 +100,11 @@ const HomeRentHeader = ({
 
     const params = new URLSearchParams({
       pickupBranchId: String(pickupBranchId),
-      returnBranchId: String(pickupBranchId),
       rentType: type,
       startDate: formatKST(dateRange.startDate),
       endDate: formatKST(dateRange.endDate),
       ...(isLong ? { months: String(m) } : {}),
       pickupBranchName: pickupBranchName || "",
-      returnBranchName: pickupBranchName || "",
     });
 
     // 기존 코드는 무조건 /day로 가게 되어 있어서 장기 렌트가 안 됐던 것임
@@ -150,19 +148,16 @@ const HomeRentHeader = ({
 
     const params = new URLSearchParams({
       pickupBranchId: String(pickupBranchId),
-      returnBranchId: String(pickupBranchId),
       rentType: type,
       startDate: formatKST(startDate),
       endDate: formatKST(endDate),
       ...(isLong ? { months: String(m) } : {}),
       pickupBranchName: pickupBranchName || "",
-      returnBranchName: pickupBranchName || "",
     });
 
     const path = isLong ? "/month" : "/day";
     navigate(`${path}?${params.toString()}`);
   };
-
   // ✅ 선택 처리 (primitive로만 관리)
   const handleSelectBranch = (branchId, branchName) => {
     const idNum = Number(branchId);

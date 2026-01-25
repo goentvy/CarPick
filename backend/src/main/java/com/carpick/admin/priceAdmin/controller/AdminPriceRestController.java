@@ -1,5 +1,6 @@
 package com.carpick.admin.priceAdmin.controller;
 
+
 import com.carpick.admin.priceAdmin.dto.AdminPriceDto;
 import com.carpick.admin.priceAdmin.service.AdminPriceService;
 import lombok.RequiredArgsConstructor;
@@ -7,75 +8,103 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/admin/price")
 @Slf4j
+@RestController
+@RequestMapping("/api/admin/price")
+@RequiredArgsConstructor
 public class AdminPriceRestController {
 
     private final AdminPriceService priceService;
 
-    /** ✅ 가격 목록 조회 (JSON) */
-    @GetMapping("/list")
-    public List<AdminPriceDto> getPriceList() {
-        // 단순히 JSON 배열로 내려보내면 됩니다.
-        return priceService.getPriceList();
+    // ======================================================
+    //  🔎 조회
+    // ======================================================
+
+
+    /**
+     * [1] 전체 목록 조회
+     * GET /api/admin/price
+     */
+    @GetMapping
+    public ResponseEntity<List<AdminPriceDto>> getPriceList() {
+        List<AdminPriceDto> list = priceService.getPriceList();
+        return ResponseEntity.ok(list);
     }
 
-
-    @PostMapping("/save")
-    public ResponseEntity<Map<String, Object>> savePrice(@RequestBody AdminPriceDto dto) {
-        return executeLogic(
-                () -> priceService.savePriceAndDiscount(dto),
-                "가격 정보가 정상적으로 저장되었습니다."
-        );
-    }
-
+    /**
+     * [2] 단건 조회
+     * GET /api/admin/price/{specId}
+     */
     @GetMapping("/{specId}")
-    public ResponseEntity<?> getPriceDetail(@PathVariable Long specId) {
+    public ResponseEntity<AdminPriceDto> getPriceBySpecId(@PathVariable Long specId) {
+        AdminPriceDto dto = priceService.getPriceBySpecId(specId);
+        return ResponseEntity.ok(dto);
+    }
+
+    // ======================================================
+    //  📝 저장 (INSERT / UPDATE)
+    // ======================================================
+
+    /**
+     * [3] 가격 저장 (신규 등록 / 수정 통합)
+     * POST /api/admin/price
+     *
+     * - priceId == null → INSERT
+     * - priceId != null → UPDATE (낙관적 락)
+     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> savePrice(@RequestBody AdminPriceDto dto) {
         try {
-            AdminPriceDto result = priceService.getPriceBySpecId(specId);
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            log.warn("❌ 가격 조회 실패: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            log.error("❌ 가격 조회 중 시스템 오류", e);
-            return ResponseEntity.internalServerError()
-                    .body("가격 정보를 불러오는 중 오류가 발생했습니다.");
+            priceService.savePrice(dto);
+            return ResponseEntity.ok(Map.of("success", true, "message", "가격 정보가 저장되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(409).body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 
-    // ===== 공통 응답 헬퍼 =====
-    private ResponseEntity<Map<String, Object>> executeLogic(Runnable action, String successMessage) {
-        Map<String, Object> response = new HashMap<>();
+    // ======================================================
+    //  🚨 긴급 비활성화 / 복구
+    // ======================================================
+
+    /**
+     * [4] 긴급 비활성화 (운영 사고 대응)
+     * PATCH /api/admin/price/{priceId}/deactivate
+     */
+    @PatchMapping("/{priceId}/deactivate")
+    public ResponseEntity<Map<String, Object>> deactivatePrice(
+            @PathVariable Long priceId,
+            @RequestParam Integer version) {
+        log.info("[ADMIN][PRICE] deactivate request priceId={}, version={}", priceId, version);
+
         try {
-            action.run();
-            response.put("success", true);
-            response.put("message", successMessage);
-            return ResponseEntity.ok(response);
-
-        } catch (IllegalArgumentException e) {
-            log.warn("❌ [입력 오류] {}", e.getMessage());
-            response.put("success", false);
-            response.put("message", "[입력 오류] " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-
+            priceService.deactivatePrice(priceId, version);
+            return ResponseEntity.ok(Map.of("success", true, "message", "가격이 비활성화되었습니다."));
         } catch (IllegalStateException e) {
-            log.warn("❌ [처리 불가] {}", e.getMessage());
-            response.put("success", false);
-            response.put("message", "[처리 불가] " + e.getMessage());
-            return ResponseEntity.status(409).body(response);
+            return ResponseEntity.status(409).body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
 
-        } catch (Exception e) {
-            log.error("❌ [시스템 오류]", e);
-            response.put("success", false);
-            response.put("message", "서버 오류가 발생했습니다. 관리자에게 문의해 주세요.");
-            return ResponseEntity.internalServerError().body(response);
+    /**
+     * [5] 재활성화 (복구)
+     * PATCH /api/admin/price/{priceId}/activate
+     */
+    @PatchMapping("/{priceId}/activate")
+    public ResponseEntity<Map<String, Object>> activatePrice(
+            @PathVariable Long priceId,
+            @RequestParam Integer version) {
+        log.info("[ADMIN][PRICE] activate request priceId={}, version={}", priceId, version);
+
+        try {
+            priceService.activatePrice(priceId, version);
+            return ResponseEntity.ok(Map.of("success", true, "message", "가격이 활성화되었습니다."));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(409).body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 }
+

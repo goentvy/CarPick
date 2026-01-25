@@ -18,7 +18,8 @@ const AgreementSection = ({ isLoggedIn }) => {
     const getPayPayload = useReservationStore((state) => state.getPayPayload);
 
     const rentalPeriod = useReservationStore((state) => state.rentalPeriod);
-    const totalPrice = useReservationStore((state) => state.payment.summary?.totalPrice || 0);
+    const totalPrice = useReservationStore((state) => state.payment.summary?.totalAmount || 0);
+
     const setReservationNo = useReservationStore((state) => state.setReservationNo);
 
     // ✅ 결제 버튼 클릭 시 실행
@@ -65,14 +66,14 @@ const AgreementSection = ({ isLoggedIn }) => {
 
             // ✅ URL 파라미터 추출 (MVP: startDate/endDate 기준)
             const urlPickupIdRaw = searchParams.get("pickupBranchId");
-            const urlReturnIdRaw = searchParams.get("returnBranchId");
+            const urlReturnIdRaw = null;
             const urlStart = searchParams.get("startDate"); // ✅ startDate
             const urlEnd = searchParams.get("endDate");     // ✅ endDate
             const urlRentTypeRaw = searchParams.get("rentType");
 
             console.log("[URL PARAMS]", {
                 urlPickupIdRaw,
-                urlReturnIdRaw,
+
                 urlStart,
                 urlEnd,
                 urlRentTypeRaw,
@@ -83,7 +84,7 @@ const AgreementSection = ({ isLoggedIn }) => {
             const finalEnd = urlEnd || storeEnd;
 
             const finalPickupId = Number(urlPickupIdRaw || storeCreatePayload?.pickupBranchId);
-            const finalReturnId = Number(urlReturnIdRaw || storeCreatePayload?.returnBranchId || finalPickupId);
+            const finalReturnId = Number(storeCreatePayload?.returnBranchId || finalPickupId);
 
             const finalRentType = String(urlRentTypeRaw || storeCreatePayload?.rentType || "SHORT").toUpperCase();
             // ✅ months 계산 (LONG 전용)
@@ -103,7 +104,8 @@ const AgreementSection = ({ isLoggedIn }) => {
             }
 
             // ✅ store에서는 carId로 들고있지만 백엔드는 specId 요구
-            const finalSpecId = Number(storeCreatePayload?.carId);
+            const finalSpecId = Number(useReservationStore.getState().vehicle?.specId);
+
 
             console.log("===== [FINAL VALUES] =====");
             console.log({
@@ -141,7 +143,7 @@ const AgreementSection = ({ isLoggedIn }) => {
                     rentType: finalRentType,
                     startDate: finalStart,
                     endDate: finalEnd,
-                    insuranceCode: storeCreatePayload?.insuranceCode || "STANDARD",
+                    insuranceCode: storeCreatePayload?.insuranceCode || "NONE",
                     months: finalMonths,
                     // couponCode: storeCreatePayload?.couponCode,
                 },
@@ -153,7 +155,9 @@ const AgreementSection = ({ isLoggedIn }) => {
 
             // 버튼 표시용 totalPrice를 서버값으로 덮어쓰기 (MVP)
             useReservationStore.getState().setPaymentSummary?.({
-                totalPrice: serverTotal,
+                totalAmount: serverTotal,
+                rentFee: priceRes.data?.rentFee,
+                insuranceFee: priceRes.data?.insuranceFee,
             });
 
             // ✅ driverInfo는 formData 기준으로 보내는 게 안전
@@ -164,18 +168,31 @@ const AgreementSection = ({ isLoggedIn }) => {
                 firstname: firstName,
                 lastname: lastName,
             };
+            const state = useReservationStore.getState();
+            const returnType = state.pickupReturn?.returnType || "VISIT";
+            const dropzoneId =
+                returnType === "DROPZONE" ? Number(state.pickupReturn?.dropzoneId) : null;
 
+            if (returnType === "DROPZONE" && (!dropzoneId || Number.isNaN(dropzoneId))) {
+                alert("드롭존을 선택해주세요.");
+                return;
+            }
             // ✅ 최종 create payload
             const createPayload = {
                 specId: finalSpecId,
-                startDateTime: finalStart, // 서버 create DTO가 startDateTime을 받는 구조 유지
+                startDateTime: finalStart,
                 endDateTime: finalEnd,
                 rentType: finalRentType,
                 pickupBranchId: finalPickupId,
+
                 returnBranchId: finalReturnId,
+                returnType,          // 추가
+                dropzoneId,          // 추가
+
                 insuranceCode: storeCreatePayload?.insuranceCode || "STANDARD",
                 driverInfo,
                 agreement: true,
+                ...(finalRentType === "LONG" ? { months: finalMonths } : {}),
             };
 
             console.log("🚀 FINAL CREATE payload:", createPayload);

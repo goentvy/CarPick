@@ -75,7 +75,11 @@ public class AdminController {
     public String priceAdmin() {
         return "price";
     }
-
+    // 기본 할인 관리
+    @GetMapping("/price_policies")
+    public String pricePoliciesAdmin() {
+        return "price_policies";
+    }
     ///  예약 관리 ///
     @GetMapping("/reservation")
     public String reserveAdmin() {

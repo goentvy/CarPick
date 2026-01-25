@@ -8,6 +8,7 @@
     <!-- ===== VO 매핑 ===== -->
     <resultMap id="paymentVerificationMap" type="com.carpick.domain.payment.vo.PaymentVerificationVo">
         <result property="reservationId" column="reservation_id"/>
+        <result property="vehicleId" column="vehicle_id"/>
         <result property="reservationStatus" column="reservation_status"/>
         <result property="totalAmountSnapshot" column="total_amount_snapshot"/>
         <result property="userId" column="user_id"/>
@@ -19,6 +20,7 @@
             resultMap="paymentVerificationMap">
         SELECT
             reservation_id,
+            vehicle_id,
             reservation_status,
             total_amount_snapshot,
             user_id

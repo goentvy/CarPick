@@ -35,7 +35,7 @@ public class AdminVehicleInventoryDto {
     // ===== 조인용 필드 추가 =====
     private String modelName;      // CAR_SPEC.model_name
     private String brand;          // CAR_SPEC.brand
-    private String mainImageUrl;   // CAR_SPEC.main_image_url
+
     private FuelType fuelType;     // CAR_SPEC.fuel_type
     private String branchName;     // BRANCH.branch_name
 
