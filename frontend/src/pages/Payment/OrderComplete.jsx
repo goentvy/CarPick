@@ -1,12 +1,14 @@
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useReservationStore from "../../store/useReservationStore";
+import useUserStore from "../../store/useUserStore";
 
 const OrderComplete = () => {
     const location = useLocation();
     const [searchParams] = useSearchParams();
     const reservation = useReservationStore();
-    import useUserStore from "../../store/useUserStore";
+    const { isLoggedIn } = useUserStore();
+
 
     // location.state 우선 → URL 파라미터 폴백
     const { orderId, totalPrice } = location.state || {};
