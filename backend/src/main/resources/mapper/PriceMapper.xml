@@ -7,7 +7,7 @@
 <!--    서비스에서 사용 : 결재에서 최종 확인용-->
     <sql id="priceColumns">
         price_id,
-        car_spec_id,
+        spec_id,
         daily_price,
         monthly_price,
         use_yn,
@@ -19,7 +19,7 @@
 
     <resultMap id="PriceResultMap" type="com.carpick.domain.price.entity.Price">
         <id property="priceId" column="price_id"/>
-        <result property="carSpecId" column="car_spec_id"/>
+        <result property="specId" column="spec_id"/>
         <result property="dailyPrice" column="daily_price"/>
         <result property="monthlyPrice" column="monthly_price"/>
         <result property="useYn" column="use_yn"/>
@@ -32,7 +32,7 @@
     <select id="findBySpecId" resultMap="PriceResultMap">
         SELECT <include refid="priceColumns"/>
         FROM PRICE
-        WHERE car_spec_id = #{specId}
+        WHERE spec_id = #{specId}
         AND use_yn = 'Y'
         LIMIT 1
     </select>
@@ -44,7 +44,7 @@
                 WHEN #{priceType} = 'MONTHLY' THEN monthly_price
                 END
         FROM PRICE
-        WHERE car_spec_id = #{specId}
+        WHERE spec_id = #{specId}
           AND use_yn = 'Y'
           AND deleted_at IS NULL
             LIMIT 1

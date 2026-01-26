@@ -4,11 +4,11 @@ import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto
 import com.carpick.domain.car.service.CarService;
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
 import com.carpick.domain.insurance.enums.InsuranceCode;
-import com.carpick.domain.reservation.dto.request.ReservationCreateRequestDto;
-import com.carpick.domain.reservation.dto.request.ReservationPriceRequestDto;
-import com.carpick.domain.reservation.dto.response.ReservationCreateResponseDto;
-import com.carpick.domain.reservation.dto.response.ReservationFormResponseDto;
-import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
+import com.carpick.domain.reservation.dtoV1.request.ReservationCreateRequestDto;
+import com.carpick.domain.reservation.dtoV1.request.ReservationPriceRequestDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationCreateResponseDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationFormResponseDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationPriceResponseDto;
 import com.carpick.domain.reservation.mapper.ReservationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

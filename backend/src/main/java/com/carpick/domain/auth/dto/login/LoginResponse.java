@@ -1,5 +1,6 @@
 package com.carpick.domain.auth.dto.login;
 
+import com.carpick.domain.auth.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,5 +14,6 @@ public class LoginResponse {
     private String name;
     private String email;
     private String membershipGrade;
+    private Role role;
 
 }

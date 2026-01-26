@@ -3,7 +3,7 @@ package com.carpick.domain.reservation.service.v1;
 import com.carpick.domain.car.dto.Legacycardetailpage.LegacyCarDetailResponseDto;
 import com.carpick.domain.car.service.CarService;
 import com.carpick.domain.insurance.dto.raw.InsuranceRawDto;
-import com.carpick.domain.reservation.dto.response.ReservationPriceResponseDto;
+import com.carpick.domain.reservation.dtoV1.response.ReservationPriceResponseDto;
 import com.carpick.domain.reservation.mapper.ReservationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

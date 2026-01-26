@@ -495,6 +495,13 @@ body {
   font-weight: 600;
 }
 
+.btn-admin {
+  background: #d32f2f;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
 @keyframes bounce {
   0%,
   20%,

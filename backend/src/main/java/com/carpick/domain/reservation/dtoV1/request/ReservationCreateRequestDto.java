@@ -1,4 +1,4 @@
-package com.carpick.domain.reservation.dto.request;
+package com.carpick.domain.reservation.dtoV1.request;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;

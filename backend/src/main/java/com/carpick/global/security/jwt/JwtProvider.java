@@ -21,6 +21,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
 
 @Component
 public class JwtProvider {
@@ -101,10 +102,21 @@ public class JwtProvider {
      * (필터에서 사용)
      */
     public String resolveToken(HttpServletRequest request) {
+        // 1️⃣ Authorization 헤더 우선
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
+
+        // 2️⃣ 쿠키 fallback (서버 페이지 접근용)
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
         return null;
     }
 

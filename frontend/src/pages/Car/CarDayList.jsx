@@ -127,7 +127,6 @@ const CarDayList = () => {
 
         if (!params.get("pickupBranchId")) {
             params.set("pickupBranchId", "1");
-            if (!params.get("returnBranchId")) params.set("returnBranchId", "1");
             if (!params.get("rentType")) params.set("rentType", "SHORT");
 
             const pad = (n) => String(n).padStart(2, "0");
@@ -170,7 +169,7 @@ const CarDayList = () => {
         const params = Object.fromEntries(new URLSearchParams(routerLocation.search));
 
         if (!params.pickupBranchId && params.branchId) params.pickupBranchId = params.branchId;
-        if (!params.returnBranchId && params.pickupBranchId) params.returnBranchId = params.pickupBranchId;
+
 
         params.rentType = params.rentType ? String(params.rentType).toUpperCase() : "SHORT";
 

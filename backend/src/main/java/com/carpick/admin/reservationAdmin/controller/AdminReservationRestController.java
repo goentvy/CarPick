@@ -34,7 +34,7 @@ public class AdminReservationRestController {
      *   "pagination": {...}
      * }
      */
-    @GetMapping
+    @GetMapping("list")
     public ResponseEntity<Map<String, Object>> getReservationList(
             @RequestParam(required = false) ReservationStatus status,
 

@@ -22,7 +22,7 @@ const GuestCancel = () => {
             // 백엔드 취소 API 호출 (email, reservationNumber, reason)
             const response = await axios.post('/api/guest/reservation/cancel', {
                 email: reservation.driverEmail,        // DTO 필드
-                reservationNumber: reservation.reservationNumber,  // DTO 필드
+                reservationNumber: reservation.reservationNo,  // DTO 필드
                 reason: reason
             });
 
@@ -48,7 +48,7 @@ const GuestCancel = () => {
                 <div className="bg-gray-50 rounded-xl p-6 mb-6 space-y-3">
                     <div className="flex justify-between">
                         <span className="text-sm text-gray-600">예약번호</span>
-                        <span className="font-semibold">{reservation.reservationNumber}</span>
+                        <span className="font-semibold">{reservation.reservationNo}</span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-sm text-gray-600">예약자 이메일</span>

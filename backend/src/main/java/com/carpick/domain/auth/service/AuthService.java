@@ -71,7 +71,8 @@ public class AuthService {
                 accessToken,
                 user.getName(),
                 user.getEmail(),
-                user.getMembershipGrade()
+                user.getMembershipGrade(),
+                user.getRole()
         );
 
 

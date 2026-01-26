@@ -33,7 +33,7 @@ export default function ReservationDetail() {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        // ✅ 여기 경로가 핵심
+        //  여기 경로가 핵심
         const res = await api.get(`/mypage/reservations-list/${reservationId}`);
         setDetail(res.data);
       } catch (err) {
@@ -129,17 +129,14 @@ export default function ReservationDetail() {
               <span>기본 대여료</span>
               <span>{formatPrice(detail.baseRentFeeSnapshot)}원</span>
             </div>
-            <div className="flex justify-between">
+            {/*  악성재고 할인할때 적용 */}
+            {/* <div className="flex justify-between">
               <span>기본 할인</span>
               <span>-{formatPrice(detail.rentDiscountAmountSnapshot)}원</span>
-            </div>
+            </div> */}
             <div className="flex justify-between">
               <span>보험료</span>
               <span>{formatPrice(detail.baseInsuranceFeeSnapshot)}원</span>
-            </div>
-            <div className="flex justify-between">
-              <span>보험 할인</span>
-              <span>-{formatPrice(detail.insuranceDiscountAmountSnapshot)}원</span>
             </div>
             <div className="flex justify-between">
               <span>옵션</span>

@@ -109,7 +109,7 @@
                                         <thead class="text-uppercase">
                                         <tr>
                                             <th style="width: 50px;">NO</th>
-                                            <th style="width: 80px;">이미지</th>
+
                                             <th style="width: 150px;">차종 선택</th>
                                             <th style="width: 120px;">차량번호</th>
                                             <th style="width: 80px;">연식</th>
@@ -235,7 +235,7 @@
         const mileage = item.mileage || 0;
         const status = item.operationalStatus || 'AVAILABLE';
         const updatedAt = item.updatedAt || '';
-        const imageUrl = item.mainImageUrl || '/assets/images/no-image.png';
+
         const modelName = item.modelName || '';
         const brand = item.brand || '';
 
@@ -264,9 +264,7 @@
         return `
             <tr data-id="${id}">
                 <th scope="row">${no}</th>
-                <td>
-                    <img src="${imageUrl}" alt="차량" class="car-thumbnail" id="img-${id || 'new'}">
-                </td>
+
                 <td>
                     <select class="form-control form-control-sm inventory-input" data-field="specId" onchange="updateImage(this)">
                         ${specOptions}
@@ -306,19 +304,7 @@
         `;
     }
 
-    // ================================
-    //  차종 선택 시 이미지 변경
-    // ================================
-    function updateImage(selectEl) {
-        const $tr = $(selectEl).closest('tr');
-        const id = $tr.data('id') || 'new';
-        const specId = $(selectEl).val();
 
-        const spec = specList.find(s => s.specId == specId);
-        const imageUrl = spec && spec.mainImageUrl ? spec.mainImageUrl : '/assets/images/no-image.png';
-
-        $('#img-' + id).attr('src', imageUrl);
-    }
 
     // ================================
     //  차량 등록 (빈 행)

@@ -30,8 +30,8 @@ public class AdminCarSpecDto {
     private String trunkCapacity;
     private String fuelEfficiency;
 
-    private String mainImageUrl;
-    private String imgUrl;
+
+
     private String aiKeywords;
     private String driveLabels;
 

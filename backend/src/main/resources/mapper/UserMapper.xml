@@ -8,38 +8,57 @@
     <!-- ===================== -->
     <!-- ResultMap -->
     <!-- ===================== -->
+
     <resultMap id="UserResultMap" type="com.carpick.domain.auth.entity.User">
+
         <id property="userId" column="user_id"/>
 
+        <!-- 로그인 -->
         <result property="email" column="email"/>
         <result property="password" column="password"/>
         <result property="provider" column="provider"/>
         <result property="providerId" column="provider_id"/>
+
+        <!-- 개인정보 -->
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
         <result property="birth" column="birth"/>
 
-        <!-- ✅ enum ↔ DB 변환 -->
+        <!-- enum -->
         <result property="gender"
                 column="gender"
                 typeHandler="com.carpick.global.mybatis.handler.GenderTypeHandler"/>
 
+        <!-- 정책 -->
         <result property="marketingAgree" column="marketing_agree" jdbcType="INTEGER"/>
         <result property="membershipGrade" column="membership_grade"/>
+
+        <!-- ✅ 권한 (핵심 추가) -->
+        <result property="role"
+                column="role"
+                javaType="com.carpick.domain.auth.entity.Role"/>
+
+        <!-- 토큰 -->
         <result property="accessToken" column="accesstoken"/>
 
+        <!-- audit -->
         <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
         <result property="deletedAt" column="deleted_at" javaType="java.time.LocalDateTime"/>
+
     </resultMap>
 
     <!-- ===================== -->
     <!-- SELECT -->
     <!-- ===================== -->
+
     <select id="existsByEmail" resultType="int">
-        SELECT COUNT(*) FROM users
-        WHERE email = #{email} AND deleted_at IS NULL
+        SELECT COUNT(*)
+        FROM users
+        WHERE email = #{email}
+        AND deleted_at IS NULL
     </select>
+
     <select id="findByEmail" resultMap="UserResultMap">
         SELECT *
         FROM users
@@ -62,8 +81,7 @@
         AND deleted_at IS NULL
     </select>
 
-    <select id="findDeletedByProvider"
-            resultMap="UserResultMap">
+    <select id="findDeletedByProvider" resultMap="UserResultMap">
         SELECT *
         FROM users
         WHERE provider = #{provider}
@@ -85,6 +103,7 @@
         gender,
         marketing_agree,
         membership_grade,
+        role,
         accesstoken,
         provider
         )
@@ -97,6 +116,7 @@
         #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         #{marketingAgree},
         'BASIC',
+        'USER',
         #{accessToken},
         'LOCAL'
         )
@@ -115,6 +135,7 @@
         gender,
         marketing_agree,
         membership_grade,
+        role,
         accesstoken
         )
         VALUES (
@@ -126,6 +147,7 @@
         #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         #{marketingAgree},
         'BASIC',
+        'USER',
         #{accessToken}
         )
     </insert>
@@ -152,6 +174,5 @@
         WHERE user_id = #{userId}
         AND deleted_at IS NULL
     </update>
-
 
 </mapper>

@@ -68,35 +68,37 @@ SET FOREIGN_KEY_CHECKS = 1;
 /* ==================================================
    1. 기초 정보 테이블 (Master Data)
    ================================================== */
-
 CREATE TABLE users (
-                       user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       user_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '사용자 PK',
 
     -- 로그인 식별
-                       email VARCHAR(255) NOT NULL UNIQUE,
-                       password VARCHAR(255) NULL,
+                       email VARCHAR(255) NOT NULL UNIQUE COMMENT '이메일(로그인 ID)',
+                       password VARCHAR(255) NULL COMMENT '로컬 비밀번호(소셜 로그인 NULL 가능)',
+
     -- 소셜 계정
-                       provider ENUM('LOCAL','KAKAO','NAVER') NOT NULL,
-                       provider_id VARCHAR(255) NULL,
-                       UNIQUE (provider, provider_id),
-    -- 개인정보 (선택)
-                       name VARCHAR(50) NULL,
-                       phone VARCHAR(20) NULL,
-                       birth DATE NULL,
-                       gender VARCHAR(10) NULL,
+                       provider ENUM('LOCAL','KAKAO','NAVER') NOT NULL DEFAULT 'LOCAL' COMMENT '가입 경로',
+                       provider_id VARCHAR(255) NULL COMMENT '소셜 provider 고유 식별자',
+                       UNIQUE KEY uk_provider_provider_id (provider, provider_id),
 
-    -- 정책
-                       marketing_agree TINYINT(1) NOT NULL DEFAULT 0,
-                       membership_grade ENUM('BASIC','VIP') NOT NULL DEFAULT 'BASIC',
+    -- 개인정보(선택)
+                       name VARCHAR(50) NULL COMMENT '이름',
+                       phone VARCHAR(20) NULL COMMENT '전화번호',
+                       birth DATE NULL COMMENT '생년월일',
+                       gender VARCHAR(10) NULL COMMENT '성별(M/F 등)',
 
-                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-                           ON UPDATE CURRENT_TIMESTAMP,
-                       deleted_at DATETIME NULL,
+    -- 정책/등급/권한
+                       marketing_agree TINYINT(1) NOT NULL DEFAULT 0 COMMENT '마케팅 수신 동의(0/1)',
+                       membership_grade ENUM('BASIC','VIP') NOT NULL DEFAULT 'BASIC' COMMENT '회원 등급',
+                       role ENUM('USER','ADMIN') NOT NULL DEFAULT 'USER' COMMENT '권한',
 
-    -- 토큰
-                       accesstoken VARCHAR(500)
-);
+    -- 토큰(권장: 실서비스는 별도 테이블/리프레시 토큰 분리 추천, 일단 유지)
+                       accesstoken VARCHAR(500) NULL COMMENT '액세스 토큰(임시 저장용)',
+
+                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+                       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+                       deleted_at DATETIME NULL COMMENT '삭제일(소프트 삭제)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- 테이블 carpick.admin_user 구조 내보내기
 CREATE TABLE IF NOT EXISTS `admin_user` (
@@ -216,34 +218,99 @@ CREATE TABLE IF NOT EXISTS CAR_OPTION (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+/* ==============================
+   * 가격 표시 정책 (관리자 제어용)
+   * - 실제 결제 금액에는 영향 없음
+   * - 소비자 노출용 정가/할인가 표현을 위한 정책 테이블
+   * ============================== */
+
 CREATE TABLE IF NOT EXISTS PRICE_POLICY (
-                                            price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격정책 ID',
-                                            spec_id BIGINT  NULL COMMENT '차종 ID',
-                                            branch_id BIGINT NOT NULL  COMMENT '지점 ID (NULL=전국)',
-                                            price_type ENUM('DAILY', 'MONTHLY') NOT NULL COMMENT '가격 단위',
+    /* ==============================
+     * 가격 표시 정책 (관리자 제어용)
+     * - 실제 결제 금액에는 영향 없음
+     * - 소비자 노출용 정가/할인가 표현을 위한 정책 테이블
+     * ============================== */
 
-    base_price DECIMAL(15, 2) NULL DEFAULT 0 COMMENT '정가(할인 전)',
+                                            price_policy_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '가격 정책 ID (PK)',
 
-    discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT '기본 할인율(0~100)',
+    /* ===== 적용 대상 ===== */
 
-    valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    valid_to DATETIME NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    use_yn CHAR(1) NOT NULL DEFAULT 'Y',
-    deleted_at DATETIME NULL,
+                                            spec_id BIGINT NULL COMMENT
+                                                '차종 ID (NULL이면 지점 전체 적용, 값이 있으면 특정 차종 개별 적용)',
 
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                            branch_id BIGINT NOT NULL COMMENT
+                                                '지점 ID (지점별 가격 표시 정책만 지원)',
 
-    INDEX idx_price_policy_lookup (spec_id, branch_id, price_type, is_active, use_yn, valid_from),
+                                            price_type ENUM('DAILY', 'MONTHLY') NOT NULL COMMENT
+                                                '가격 단위 (단기: DAILY, 장기: MONTHLY)',
 
-    CONSTRAINT fk_price_policy_spec
-    FOREIGN KEY (spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE,
-    CONSTRAINT fk_price_policy_branch
-    FOREIGN KEY (branch_id) REFERENCES BRANCH(branch_id) ON DELETE CASCADE,
-    CONSTRAINT chk_discount_rate CHECK (discount_rate BETWEEN 0 AND 100)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    /* ===== 가격 표시 정보 ===== */
 
+                                            base_price DECIMAL(15, 2) NULL DEFAULT 0 COMMENT
+                                                '정가(할인 전 기준 금액, 표시용)',
+
+                                            discount_rate TINYINT NOT NULL DEFAULT 0 COMMENT
+                                                '표시용 기본 할인율 (0~100%, 실제 결제 금액에는 미반영)',
+
+    /* ===== 정책 유효 기간 ===== */
+
+                                            valid_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT
+                                                '정책 적용 시작 일시',
+
+                                            valid_to DATETIME NULL COMMENT
+                                                '정책 적용 종료 일시 (NULL이면 종료 없음)',
+
+    /* ===== 정책 상태 관리 ===== */
+
+                                            is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT
+                                                '현재 활성화 여부 (운영 중 적용되는 정책인지 여부)',
+
+                                            use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT
+                                                '사용 여부 (Y/N, 관리자 논리적 비활성화용)',
+
+                                            deleted_at DATETIME NULL COMMENT
+                                                '논리 삭제 일시 (NULL이면 미삭제)',
+
+    /* ===== 공통 관리 컬럼 ===== */
+
+                                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT
+                                                '정책 생성 일시',
+
+                                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                                ON UPDATE CURRENT_TIMESTAMP COMMENT
+                                                '정책 수정 일시',
+
+    /* ===== 조회 최적화 인덱스 ===== */
+
+                                            INDEX idx_price_policy_lookup (
+                                                                           spec_id,
+                                                                           branch_id,
+                                                                           price_type,
+                                                                           is_active,
+                                                                           use_yn,
+                                                                           valid_from
+                                                ),
+
+    /* ===== 외래 키 제약 ===== */
+
+                                            CONSTRAINT fk_price_policy_spec
+                                                FOREIGN KEY (spec_id)
+                                                    REFERENCES CAR_SPEC(spec_id)
+                                                    ON DELETE CASCADE,
+
+                                            CONSTRAINT fk_price_policy_branch
+                                                FOREIGN KEY (branch_id)
+                                                    REFERENCES BRANCH(branch_id)
+                                                    ON DELETE CASCADE,
+
+    /* ===== 데이터 무결성 ===== */
+
+                                            CONSTRAINT chk_discount_rate
+                                                CHECK (discount_rate BETWEEN 0 AND 100)
+
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+    COMMENT='관리자 제어용 가격 표시 정책 테이블 (결제 로직과 분리)';
 
 CREATE TABLE IF NOT EXISTS INSURANCE (
                                          insurance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '보험 옵션 ID',
@@ -329,21 +396,43 @@ CREATE TABLE IF NOT EXISTS DROPZONE_POINT (
 
 
 CREATE TABLE IF NOT EXISTS PRICE (
-                                     price_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                     car_spec_id BIGINT NOT NULL,
+                                     price_id BIGINT AUTO_INCREMENT PRIMARY KEY
+                                         COMMENT '가격 ID (PK) - 차종별 기본 요금 식별자',
 
-                                     daily_price DECIMAL(15, 2) NOT NULL DEFAULT 0,
-    monthly_price DECIMAL(15, 2) DEFAULT 0,
+                                    spec_id BIGINT NOT NULL
+                                         COMMENT '차종 ID (FK) - CAR_SPEC 참조',
 
-    use_yn CHAR(1) NOT NULL DEFAULT 'Y' COMMENT '사용 여부(Y/N)',
-    deleted_at DATETIME NULL COMMENT '삭제 처리 일시',
-    version INT NOT NULL DEFAULT 0 COMMENT '낙관적 락 버전',
+                                     daily_price DECIMAL(15, 2) NOT NULL DEFAULT 0
+                                         COMMENT '단기 렌트 1일 기준 기본 요금(원가)',
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                     monthly_price DECIMAL(15, 2) NOT NULL DEFAULT 0
+                                         COMMENT '장기 렌트 1개월 기준 기본 요금(원가)',
 
-    FOREIGN KEY (car_spec_id) REFERENCES CAR_SPEC(spec_id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                     use_yn CHAR(1) NOT NULL DEFAULT 'Y'
+                                         COMMENT '사용 여부 (Y: 운영 중, N: 미사용/논리 삭제)',
+
+                                     deleted_at DATETIME NULL
+                                         COMMENT '삭제 처리 일시 (논리 삭제 시점 기록용)',
+
+                                     version INT NOT NULL DEFAULT 0
+                                         COMMENT '낙관적 락 버전 (동시 수정 방지용)',
+
+                                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                                         COMMENT '가격 정보 최초 생성 일시',
+
+                                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                                         COMMENT '가격 정보 최종 수정 일시',
+
+                                     CONSTRAINT fk_price_car_spec
+                                         FOREIGN KEY (spec_id)
+                                             REFERENCES CAR_SPEC(spec_id)
+                                             ON DELETE CASCADE
+
+)
+    ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COMMENT='차종별 기본 렌트 요금 관리 테이블 (일단가/월단가 원가)';
+
 
 
 /* ==================================================

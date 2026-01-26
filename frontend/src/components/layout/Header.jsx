@@ -86,11 +86,25 @@ function Header() {
                 <Link to="/login" className="gnb-link userName" onClick={closeMenu}>로그인을 해주세요.</Link>
               }
             </h3>
-            {isLoggedIn ?
-              <Link to="/mypage" className="btn btn-mypage" onClick={closeMenu}>마이페이지</Link>
-              :
+            {isLoggedIn ? (
+
+              user?.role === "ADMIN" ? (
+                // ✅ 관리자 로그인 시
+                <Link
+                  to="/admin"
+                  className="btn btn-admin"
+                  onClick={() => window.location.href = "http://localhost:8080/admin"}  // 관리자 페이지는 별도 서버로 이동
+                >
+                  관리자페이지
+                </Link>
+              ) : (
+                // ✅ 일반 사용자 로그인 시
+                <Link to="/mypage" className="btn btn-mypage" onClick={closeMenu}>마이페이지</Link>
+              )
+            ) : (
+              // 비로그인 상태
               <Link to="/signup/agree" className="btn btn-mypage" onClick={closeMenu}>회원가입</Link>
-            }
+            )}
           </div>
 
           <nav className="gnb">
@@ -116,9 +130,13 @@ function Header() {
                 </div>
               </li>
 
-              {/* <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/guest/view" className="gnb-link">예약조회</Link>
-              </li> */}
+                <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
+                    {isLoggedIn ?
+                        <Link to="/mypage/reservations" className="gnb-link">예약조회</Link>
+                        :
+                        <Link to="/guest/view" className="gnb-link">예약조회</Link>
+                    }
+                </li>
 
               <li className={`gnb-item ${location.pathname.includes("event") ? "active" : ""}`} onClick={closeMenu}>
                 <Link to="/event/list" className="gnb-link">이벤트</Link>

@@ -30,67 +30,70 @@ public class SecurityConfigProd {
     @Bean
     public SecurityFilterChain prodFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 추가
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(s ->
-                s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-        		.requestMatchers(
-        		        "/admin/upload/**",
-        		        "/upload/**"
-        		    ).permitAll()
-        	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers(
-                    "/api/branches/**",
-                    "/api/dropzones/**",
-        	    	"/api/recommend-cars",
-        	    	"/api/chat/**",
-        	        "/api/faq/**",
-        	        "/api/emergency/**", 
-        	        "/api/notice/**",
-        	        "/api/guide/**",
-        	        "/api/event/**",
-        	        "/api/auth/**",
-        	        "/api/about/values",
-        	        "/api/cars/**",
-        	        "/",
-        	        "/admin/**",
-        	        "/assets/**", 
-        	        "/css/**", 
-        	        "/js/**", 
-        	        "/images/**",
-        	        "/favicon.ico",
-        	        "/swagger-ui/**",
-        	        "/v3/api-docs/**"
-        	    ).permitAll()
-        	    .anyRequest().authenticated()
-        	)
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            )
-            .exceptionHandling(e -> e
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
-            );
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 추가
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(s ->
+                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+
+                        // ✅ 관리자 페이지는 ADMIN만 접근 가능
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/admin/upload/**",
+                                "/upload/**"
+                        ).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                "/api/branches/**",
+                                "/api/dropzones/**",
+                                "/api/recommend-cars",
+                                "/api/chat/**",
+                                "/api/faq/**",
+                                "/api/emergency/**",
+                                "/api/notice/**",
+                                "/api/guide/**",
+                                "/api/event/**",
+                                "/api/auth/**",
+                                "/api/about/values",
+                                "/api/cars/**",
+                                "/",
+                                "/admin/**",
+                                "/assets/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                );
 
         return http.build();
     }
-    
+
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         var config = new org.springframework.web.cors.CorsConfiguration();
 
         config.setAllowedOrigins(java.util.List.of(
-            "http://3.236.8.244",
-            "http://3.236.8.244:5137",
-            "https://carpick.p-e.kr",
-            "https://admin.carpick.p-e.kr"
+                "http://3.236.8.244",
+                "http://3.236.8.244:5137",
+                "https://carpick.p-e.kr",
+                "https://admin.carpick.p-e.kr"
         ));
 
         config.setAllowedMethods(java.util.List.of(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
         config.setAllowedHeaders(java.util.List.of("*"));

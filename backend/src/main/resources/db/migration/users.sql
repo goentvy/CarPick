@@ -38,3 +38,16 @@ ALTER TABLE users MODIFY gender VARCHAR(10) NULL;
 ALTER TABLE users
     CHANGE PASSWORD password VARCHAR(255),
     CHANGE NAME name VARCHAR(50);
+
+-- role 컬럼 없을 경우
+ALTER TABLE users
+    ADD role ENUM('USER','ADMIN') NOT NULL DEFAULT 'USER';
+
+-- 이미 있으면 구조 통일
+ALTER TABLE users
+    MODIFY role ENUM('USER','ADMIN') NOT NULL DEFAULT 'USER';
+
+-- 관리자 지정
+UPDATE users
+SET role='ADMIN'
+WHERE email='test0003@gmail.com';

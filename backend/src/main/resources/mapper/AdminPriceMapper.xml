@@ -5,163 +5,143 @@
 
 <mapper namespace="com.carpick.admin.priceAdmin.mapper.AdminPriceMapper">
 
-    <!-- ===================== 공통 ResultMap ===================== -->
+    <!-- ===================== ResultMap ===================== -->
     <resultMap id="AdminPriceResultMap"
                type="com.carpick.admin.priceAdmin.dto.AdminPriceDto">
 
         <!-- PK -->
-        <id     property="priceId"        column="price_id"/>
-        <result property="pricePolicyId"  column="price_policy_id"/>
-        <result property="carSpecId"      column="car_spec_id"/>
+        <id     property="priceId"     column="price_id"/>
+
+        <!-- FK (CAR_SPEC) -->
+        <result property="specId"   column="spec_id"/>
 
         <!-- 차종 정보 -->
-        <result property="brand"          column="brand"/>
-        <result property="modelName"      column="model_name"/>
-
-        <!-- 할인율 -->
-        <result property="discountRate"   column="discount_rate"/>
+        <result property="brand"       column="brand"/>
+        <result property="modelName"   column="model_name"/>
 
         <!-- 원가 -->
-        <result property="dailyPrice"     column="daily_price"/>
-        <result property="monthlyPrice"        column="monthly_price"/>
+        <result property="dailyPrice"  column="daily_price"/>
+        <result property="monthlyPrice" column="monthly_price"/>
 
+        <!-- 낙관적 락 -->
+        <result property="version"     column="version"/>
 
         <!-- 운영 상태 -->
-        <result property="useYn"          column="use_yn"/>
-        <result property="deletedAt"      column="deleted_at"/>
-        <result property="updatedAt"      column="updated_at"/>
-        <result property="version" column="version"/>
-
-
+        <result property="useYn"       column="use_yn"/>
+        <result property="deletedAt"   column="deleted_at"/>
+        <result property="updatedAt"   column="updated_at"/>
     </resultMap>
 
 
     <!-- ===================== 공통 SELECT 컬럼 ===================== -->
     <sql id="selectColumns">
         p.price_id,
-        pp.price_policy_id,
-        p.car_spec_id,
+        p.spec_id,
         s.brand,
         s.model_name,
-        pp.discount_rate,
         p.daily_price,
         p.monthly_price,
         p.version,
-        pp.use_yn       AS use_yn,
-        pp.deleted_at   AS deleted_at,
-        pp.updated_at   AS updated_at
+        p.use_yn,
+        p.deleted_at,
+        p.updated_at
     </sql>
 
 
-    <!-- ===================== 1. 전체 목록 ===================== -->
+    <!-- ===================== [1] 전체 목록 조회 ===================== -->
     <select id="selectList" resultMap="AdminPriceResultMap">
         SELECT
         <include refid="selectColumns"/>
         FROM price p
         JOIN car_spec s
-        ON p.car_spec_id = s.spec_id
-        LEFT JOIN price_policy pp
-        ON pp.spec_id = s.spec_id
-        AND pp.unit_type = 'DAILY'
-        AND pp.use_yn = 'Y'
-        WHERE p.use_yn = 'Y'
+        ON s.spec_id = p.spec_id
+
+
         ORDER BY s.brand, s.model_name
     </select>
 
 
-    <!-- ===================== 2. 단건 조회 ===================== -->
+    <!-- ===================== [2] 단건 조회 ===================== -->
     <select id="selectBySpecId"
             parameterType="long"
             resultMap="AdminPriceResultMap">
         SELECT
-            p.price_id,
-            pp.price_policy_id,
-            s.spec_id AS car_spec_id,
-            s.brand,
-            s.model_name,
-            pp.discount_rate,
-            p.daily_price,
-            p.monthly_price,
-/*  [2] 단건 조회에도 버전 추가 */
-            IFNULL(p.version, 0) AS version,
-            p.use_yn,
-            p.updated_at
-        FROM car_spec s
-                 LEFT JOIN price p
-                           ON p.car_spec_id = s.spec_id
-                               AND p.use_yn = 'Y'
-                 LEFT JOIN price_policy pp
-                           ON pp.spec_id = s.spec_id
-                               AND pp.unit_type = 'DAILY'
-                               AND pp.use_yn = 'Y'
-        WHERE s.spec_id = #{carSpecId}
-            LIMIT 1
+        <include refid="selectColumns"/>
+        FROM price p
+        JOIN car_spec s
+        ON s.spec_id = p.spec_id
+        WHERE p.spec_id = #{specId}
+
+        AND p.deleted_at IS NULL
+        LIMIT 1
     </select>
 
 
-
-    <!-- ===================== 3. 가격 수정 (PRICE) ===================== -->
-    <update id="updatePrice"
-            parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto">
-        UPDATE price
-        SET
-            daily_price = #{dailyPrice},
-            monthly_price   = #{monthlyPrice},
-            updated_at = NOW()
-        WHERE price_id = #{priceId}
-          AND use_yn = 'Y'
-    </update>
-
+    <!-- ===================== [4] 가격 수정 (낙관적 락 적용) ===================== -->
     <update id="updatePriceWithVersion"
             parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto">
         UPDATE price
         SET
-            daily_price = #{dailyPrice},
+            daily_price   = #{dailyPrice},
             monthly_price = #{monthlyPrice},
-            updated_at = NOW(),
-
-            /* ✅ [핵심] 버전 1 증가 */
-            version = version + 1
-
+            updated_at    = NOW(),
+            version       = version + 1
         WHERE price_id = #{priceId}
-            /* ✅ [핵심] 버전 체크 (일치해야만 수정됨 -> 아니면 0 리턴) */
+          AND version  = #{version}
+
+          AND deleted_at IS NULL
+    </update>
+
+
+    <!-- ===================== [5] 기본 가격 신규 등록 (Insert) ===================== -->
+    <insert id="insertPrice"
+            parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto"
+            useGeneratedKeys="true"
+            keyProperty="priceId">
+        INSERT INTO price (
+            spec_id,
+            daily_price,
+            monthly_price,
+
+            deleted_at,
+            version,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{specId},
+                     IFNULL(#{dailyPrice}, 0),
+                     IFNULL(#{monthlyPrice}, 0),
+
+                     NULL,
+                     0,
+                     NOW(),
+                     NOW()
+                 )
+    </insert>
+    <!-- ===================== [6] 논리 삭제 (긴급 비활성화) ===================== -->
+    <update id="softDeletePrice">
+        UPDATE price
+        SET
+            use_yn     = 'N',
+
+            version    = version + 1,
+            updated_at = NOW()
+        WHERE price_id = #{priceId}
           AND version = #{version}
           AND use_yn = 'Y'
     </update>
-    <!-- ===================== 4. 할인율 수정 (PRICE_POLICY) ===================== -->
-    <update id="updateDiscountRate"
-            parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto">
-        UPDATE price_policy
+
+
+    <!-- ===================== [7] 복구 (재활성화) ===================== -->
+    <update id="restorePrice">
+        UPDATE price
         SET
-            discount_rate = #{discountRate},
+            use_yn     = 'Y',
+            deleted_at = NULL,
+            version    = version + 1,
             updated_at = NOW()
-        WHERE price_policy_id = #{pricePolicyId}
-          AND use_yn = 'Y'
+        WHERE price_id = #{priceId}
+          AND version = #{version}
+          AND use_yn = 'N'
     </update>
-    <insert id="insertPrice" parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto"
-            useGeneratedKeys="true" keyProperty="priceId">
-        INSERT INTO price (
-            car_spec_id, daily_price,  monthly_price,version, use_yn, created_at, updated_at
-        ) VALUES (
-                     #{carSpecId},
-                     IFNULL(#{dailyPrice}, 0),
-                     IFNULL(#{monthlyPrice}, 0),0,
-                     'Y', NOW(), NOW()
-                 )
-    </insert>
-
-    <insert id="insertPricePolicy" parameterType="com.carpick.admin.priceAdmin.dto.AdminPriceDto"
-            useGeneratedKeys="true" keyProperty="pricePolicyId">
-        INSERT INTO price_policy (
-            spec_id, unit_type, base_price, discount_rate, use_yn, created_at, updated_at
-        ) VALUES (
-                     #{carSpecId},
-                     'DAILY',  /* 단기 정책 고정 */
-                     IFNULL(#{dailyPrice}, 0), /* 기준가는 일일 대여료로 설정 */
-                     IFNULL(#{discountRate}, 0),
-                     'Y', NOW(), NOW()
-                 )
-    </insert>
-
-
 </mapper>

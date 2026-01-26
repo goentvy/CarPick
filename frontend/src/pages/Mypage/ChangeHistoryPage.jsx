@@ -1,7 +1,7 @@
-// src/pages/mypage/ChangeHistoryPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
+import api from '../../services/api.js';
 
 function ChangeHistoryPage() {
     const navigate = useNavigate();
@@ -10,7 +10,6 @@ function ChangeHistoryPage() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // "CAR,PERIOD" -> ["CAR","PERIOD"]
     const parseChangeTypes = (changeTypes) => {
         if (!changeTypes) return [];
         return changeTypes
@@ -18,6 +17,7 @@ function ChangeHistoryPage() {
             .map((t) => t.trim())
             .filter(Boolean);
     };
+
     const formatWithoutYear = (dateStr) => {
         if (!dateStr) return "";
         const parts = dateStr.split("-");
@@ -25,17 +25,13 @@ function ChangeHistoryPage() {
         return `${parts[1]}-${parts[2]}`;
     };
 
-    // 타입 포함 여부 확인
     const hasType = (item, type) =>
         parseChangeTypes(item.changeTypes).includes(type);
 
-    // 대표 라벨
     const getMainChangeLabel = (item) => {
         if (item.actionType === "CANCEL") return "취소";
-
         const types = parseChangeTypes(item.changeTypes);
         if (types.length === 0) return "변경";
-
         if (types.length === 1) {
             switch (types[0]) {
                 case "CAR":
@@ -51,11 +47,6 @@ function ChangeHistoryPage() {
         return "복합 변경";
     };
 
-    // 예약번호 포매팅
-    const formatReservationId = (id) => {
-        return `RES-${id}`;
-    };
-
     useEffect(() => {
         const fetchHistory = async () => {
             try {
@@ -68,45 +59,27 @@ function ChangeHistoryPage() {
                     return;
                 }
 
-                const response = await fetch(
-                    "http://localhost:8080/api/mypage/change-history/me",
-                    {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            "X-User-Id": useUserStore
-                                .getState()
-                                .user?.id?.toString(),
-                        },
-                    }
-                );
-
-                console.log("Status:", response.status);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("히스토리 데이터:", data);
-                    setItems(data);
-                } else {
-                    const errorText = await response.text();
-                    console.log("에러:", errorText);
-                    setItems([]);
-                }
+                // ✅ api.js 사용 (토큰 자동 처리)
+                const { data } = await api.get('/mypage/change-history/me');
+                console.log("히스토리 데이터:", data);
+                setItems(data || []);
             } catch (error) {
-                console.error("에러:", error);
+                console.error("변경내역 로드 실패:", error);
                 setItems([]);
+                if (error.response?.status === 401) {
+                    navigate('/login');
+                }
             } finally {
                 setLoading(false);
             }
         };
         fetchHistory();
-    }, [accessToken]);
+    }, [accessToken, navigate]);
 
     const filteredItems = items.filter(
         (item) => filter === "all" || item.actionType === filter.toUpperCase()
     );
 
-    // 취소/변경 카드
     const renderChangeCard = (item) => {
         const isCancel = item.actionType === "CANCEL";
 
@@ -186,7 +159,6 @@ function ChangeHistoryPage() {
         >
             <div className="px-4 py-6 flex-1">
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    {/* 필터 탭 */}
                     <div className="px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
                         <div className="flex gap-2 text-xs">
                             {["all", "cancel", "change"].map((f) => (
@@ -209,7 +181,6 @@ function ChangeHistoryPage() {
                         </div>
                     </div>
 
-                    {/* 리스트 */}
                     <div className="divide-y divide-gray-100">
                         {filteredItems.length ? (
                             filteredItems.map((item) => {
@@ -218,7 +189,6 @@ function ChangeHistoryPage() {
                                 return (
                                     <div key={item.id} className="p-6">
                                         <div className="flex flex-col gap-3">
-                                            {/* 상단: 예약번호 | 날짜 | 액션 라벨 */}
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <div className="text-sm font-semibold text-[#1A1A1A]">
                                                     {item.reservationNo}
@@ -237,7 +207,6 @@ function ChangeHistoryPage() {
                                                 </div>
                                             </div>
 
-                                            {/* 카드 + 상세보기 버튼 */}
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                                 <div className="flex-1 min-w-0">
                                                     {(item.actionType === "CHANGE" || item.actionType === "CANCEL") && (

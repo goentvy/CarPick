@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>카픽 - 차량관리</title>
+    <title>카픽 - 가격 관리</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS -->
@@ -14,29 +14,31 @@
     <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
     <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
-
-    <!-- amchart css (CDN) -->
-    <link rel="stylesheet"
-          href="https://www.amcharts.com/lib/3/plugins/export/export.css"
-          type="text/css" media="all"/>
-
-    <!-- Others CSS -->
     <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
     <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
     <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
     <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
 
-    <!-- JS -->
-    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
-
-    <title>관리자 - 가격 정책 관리</title>
-
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px; overflow-x: auto;}
+        /* 관리자 레이아웃을 쓰므로 body 패딩은 제거 */
+        body { background-color: #f8f9fa; }
 
-        th { vertical-align: middle; text-align: center; background-color: #f1f3f5; font-size: 0.9rem; white-space: nowrap; }
-        td { vertical-align: middle; padding: 5px !important; }
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        th {
+            vertical-align: middle;
+            text-align: center;
+            background-color: #f1f3f5;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        td { vertical-align: middle; padding: 8px !important; }
 
         .form-control-sm {
             border: 1px solid #dee2e6;
@@ -48,224 +50,338 @@
             box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.1);
         }
 
-        .readonly-input {
-            background-color: #e9ecef;
-            border: none;
-            color: #495057;
-            font-weight: bold;
+        .model-name { font-weight: 700; color: #212529; }
+        .brand-name { font-size: 0.8rem; color: #868e96; }
+
+        .badge-active { background-color: #28a745; }
+        .badge-inactive { background-color: #dc3545; }
+
+        .row-inactive {
+            background-color: #f8d7da !important;
+            opacity: 0.75;
+        }
+        .row-inactive input {
+            background-color: #f5c6cb;
         }
 
-        .border-start-thick { border-left: 2px solid #dee2e6 !important; }
-
-        .model-name { font-weight: bold; color: #212529; }
-        .brand-name { font-size: 0.8rem; color: #868e96; }
+        .btn-group-action {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
     </style>
 </head>
+
 <body>
+<div class="page-container">
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold">💰 가격 및 할인 정책 관리</h3>
-        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">🔄 목록 새로고침</button>
+    <!-- ✅ 사이드바/헤더: Spec 페이지와 동일하게 -->
+    <div th:replace="fragments/fragments :: sidebar"></div>
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <div class="main-content">
+        <!-- ✅ 페이지 타이틀 영역 -->
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">가격 관리</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">홈</a></li>
+                            <li><span>가격 관리</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 clearfix">
+                    <button class="user-profile user_writeBtn pull-right" onclick="location.reload()">
+                        <i class="ti-reload"></i> 새로고침
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ 본문 -->
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12 mt-4">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="header-title mb-0">가격 목록</h4>
+                                <span class="text-muted small">
+                                    총 <b id="totalCount">0</b>개 항목
+                                </span>
+                            </div>
+
+                            <div class="table-container">
+                                <table class="table table-hover table-bordered align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 60px;">상태</th>
+                                        <th style="width: 180px;">차량 정보</th>
+                                        <th style="width: 160px;">일단가 (원)</th>
+                                        <th style="width: 160px;">월단가 (원)</th>
+                                        <th style="width: 160px;">최종 수정일</th>
+                                        <th style="width: 180px;">관리</th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody id="price-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            데이터를 불러오는 중입니다...
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="table-container">
-        <table class="table table-hover table-bordered align-middle">
-            <thead class="table-light">
-            <tr>
-                <th rowspan="2" style="width: 150px;">차량 정보</th>
-                <th rowspan="2" style="width: 80px;">할인율(%)</th>
-
-                <th colspan="2" class="border-start-thick table-warning">단기 렌트 (1일)</th>
-                <th colspan="2" class="border-start-thick table-info">장기 (1개월)</th>
-
-                <th rowspan="2" style="width: 80px;" class="border-start-thick">관리</th>
-            </tr>
-            <tr>
-                <th class="border-start-thick">원가</th>
-                <th>최종가</th>
-                <th class="border-start-thick">원가</th>
-                <th>최종가</th>
-            </tr>
-            </thead>
-
-            <!-- ✅ 여기 tbody는 JS가 채움 -->
-            <tbody id="price-tbody">
-            <tr>
-                <td colspan="7" class="text-center py-4 text-muted">
-                    데이터를 불러오는 중입니다...
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <div th:replace="fragments/fragments :: footer"></div>
 </div>
 
+<!-- ✅ 관리자 공통 JS (Spec 페이지와 동일하게) -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
 <script>
-    // 페이지 로드 시 목록 불러오기
+    // ======================================================
+    //  페이지 로드
+    // ======================================================
     document.addEventListener('DOMContentLoaded', loadPriceList);
 
-    // 금액 포맷터 (3자리 콤마 + "원")
-    function formatWon(value) {
-        if (value === null || value === undefined) return '';
+    // ======================================================
+    //  유틸 함수
+    // ======================================================
+    function formatNumber(value) {
+        if (value === null || value === undefined || value === '') return '';
         const num = Number(value);
         if (Number.isNaN(num)) return String(value);
-        return num.toLocaleString('ko-KR') + '원';
+        return num.toLocaleString('ko-KR');
     }
 
-    // ✅ 가격 목록 로딩
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ko-KR') + ' ' +
+            date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ======================================================
+    //  목록 조회
+    // ======================================================
     function loadPriceList() {
-        fetch('/api/admin/price/list')
+        fetch('/api/admin/price')
             .then(res => {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 return res.json();
             })
             .then(list => {
-                const tbody = document.getElementById('price-tbody');
-                tbody.innerHTML = '';
-
-                if (!list || list.length === 0) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="7" class="text-center py-4 text-muted">등록된 차량이 없습니다.</td></tr>';
-                    return;
-                }
-
-                list.forEach(dto => {
-                    const tr = document.createElement('tr');
-                    tr.id = 'row-' + dto.carSpecId;
-
-                    const priceId = dto.priceId != null ? dto.priceId : '';
-                    const pricePolicyId = dto.pricePolicyId != null ? dto.pricePolicyId : '';
-                    const discountRate = dto.discountRate != null ? dto.discountRate : '';
-                    const dailyPrice = dto.dailyPrice != null ? dto.dailyPrice : '';
-                    const monthlyPrice = dto.monthlyPrice != null ? dto.monthlyPrice : '';
-                    const finalDaily = dto.finalDailyPrice != null ? dto.finalDailyPrice : '';
-                    const finalMonthly = dto.finalMonthlyPrice != null ? dto.finalMonthlyPrice : '';
-                    const version = dto.version != null ? dto.version : 0;
-
-                    tr.innerHTML = `
-                        <input type="hidden" class="spec-id" value="${dto.carSpecId}">
-                        <input type="hidden" class="price-id" value="${priceId}">
-                        <input type="hidden" class="policy-id" value="${pricePolicyId}">
-                        <input type="hidden" class="version" value="${version}">
-
-                        <td>
-                            <div class="brand-name">${dto.brand}</div>
-                            <div class="model-name">${dto.modelName}</div>
-                        </td>
-
-                        <td>
-                            <input type="number"
-                                   class="form-control form-control-sm fw-bold text-danger discount-input"
-                                   min="0" max="100"
-                                   value="${discountRate}"
-                                   placeholder="0">
-                        </td>
-
-                        <td class="border-start-thick">
-                            <input type="number"
-                                   class="form-control form-control-sm daily-price"
-                                   value="${dailyPrice}"
-                                   placeholder="원가">
-                        </td>
-                        <td>
-                            <input type="text"
-                                   class="form-control form-control-sm readonly-input"
-                                   readonly
-                                   value="${finalDaily !== '' ? formatWon(finalDaily) : ''}"
-                                   tabindex="-1">
-                        </td>
-
-                        <td class="border-start-thick">
-                            <input type="number"
-                                   class="form-control form-control-sm monthly-price"
-                                   value="${monthlyPrice}"
-                                   placeholder="원가">
-                        </td>
-                        <td>
-                            <input type="text"
-                                   class="form-control form-control-sm readonly-input"
-                                   readonly
-                                   value="${finalMonthly !== '' ? formatWon(finalMonthly) : ''}"
-                                   tabindex="-1">
-                        </td>
-
-                        <td class="border-start-thick text-center">
-                            <button type="button" class="btn btn-primary btn-sm" onclick="saveRow(this)">
-                                저장
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                document.getElementById('totalCount').innerText = list?.length ?? 0;
+                renderTable(list);
             })
             .catch(err => {
                 console.error('가격 목록 조회 오류:', err);
-                const tbody = document.getElementById('price-tbody');
-                tbody.innerHTML =
-                    '<tr><td colspan="7" class="text-center py-4 text-danger">가격 정보를 불러오는 중 오류가 발생했습니다.</td></tr>';
+                document.getElementById('price-tbody').innerHTML =
+                    '<tr><td colspan="6" class="text-center py-4 text-danger">가격 정보를 불러오는 중 오류가 발생했습니다.</td></tr>';
             });
     }
 
-    /**
-     * ✅ 행 단위 저장
-     * - 버튼이 눌린 해당 행(tr)의 데이터만 서버로 전송
-     * - 낙관적 락을 위해 version도 함께 보냄
-     */
-    function saveRow(btn) {
-        const row = btn.closest('tr');
+    // ======================================================
+    //  테이블 렌더링
+    // ======================================================
+    function renderTable(list) {
+        const tbody = document.getElementById('price-tbody');
+        tbody.innerHTML = '';
 
-        const specIdInput = row.querySelector('.spec-id');
-        const priceIdInput = row.querySelector('.price-id');
-        const policyIdInput = row.querySelector('.policy-id');
-        const versionInput = row.querySelector('.version');
-
-        const discountInput = row.querySelector('.discount-input');
-        const dailyInput = row.querySelector('.daily-price');
-        const monthlyInput = row.querySelector('.monthly-price');
-
-        const data = {
-            carSpecId: Number(specIdInput.value),
-            priceId: priceIdInput.value === '' ? null : Number(priceIdInput.value),
-            pricePolicyId: policyIdInput.value === '' ? null : Number(policyIdInput.value),
-
-            // 빈 값이면 null, 숫자면 Number로 변환
-            discountRate: discountInput.value === '' ? null : Number(discountInput.value),
-            dailyPrice: dailyInput.value === '' ? null : Number(dailyInput.value),
-            monthlyPrice: monthlyInput.value === '' ? null : Number(monthlyInput.value),
-
-            // ✅ 낙관적 락 버전
-            version: versionInput.value === '' ? 0 : Number(versionInput.value)
-        };
-
-        if (data.discountRate != null && (data.discountRate < 0 || data.discountRate > 100)) {
-            alert("할인율은 0~100 사이여야 합니다.");
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">등록된 가격 정보가 없습니다.</td></tr>';
             return;
         }
 
-        fetch('/api/admin/price/save', {
+        list.forEach(dto => {
+            const isActive = dto.useYn === 'Y';
+            const tr = document.createElement('tr');
+            tr.id = 'row-' + (dto.priceId ?? 'noid');
+
+            if (!isActive) tr.classList.add('row-inactive');
+
+            const priceId = dto.priceId ?? '';
+            const specId = dto.specId ?? '';
+            const dailyPrice = dto.dailyPrice ?? '';
+            const monthlyPrice = dto.monthlyPrice ?? '';
+            const version = dto.version ?? 0;
+            const useYn = dto.useYn ?? 'Y';
+
+            tr.innerHTML = `
+                <input type="hidden" class="price-id" value="${priceId}">
+                <input type="hidden" class="spec-id" value="${specId}">
+                <input type="hidden" class="version" value="${version}">
+                <input type="hidden" class="use-yn" value="${useYn}">
+
+                <td class="text-center">
+                    <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">
+                        ${isActive ? '활성' : '비활성'}
+                    </span>
+                </td>
+
+                <td>
+                    <div class="brand-name">${dto.brand ?? ''}</div>
+                    <div class="model-name">${dto.modelName ?? ''}</div>
+                </td>
+
+                <td>
+                    <input type="text"
+                           class="form-control form-control-sm daily-price"
+                           value="${formatNumber(dailyPrice)}"
+                           placeholder="0"
+                           oninput="formatInput(this)"
+                           ${!isActive ? 'disabled' : ''}>
+                </td>
+
+                <td>
+                    <input type="text"
+                           class="form-control form-control-sm monthly-price"
+                           value="${formatNumber(monthlyPrice)}"
+                           placeholder="0"
+                           oninput="formatInput(this)"
+                           ${!isActive ? 'disabled' : ''}>
+                </td>
+
+                <td class="text-center" style="font-size: 0.85rem;">
+                    ${formatDate(dto.updatedAt)}
+                </td>
+
+                <td>
+                    <div class="btn-group-action">
+                        ${isActive ? `
+                            <button type="button" class="btn btn-primary btn-sm" onclick="saveRow(this)">저장</button>
+                            <button type="button" class="btn btn-warning btn-sm" onclick="deactivateRow(this)">비활성화</button>
+                        ` : `
+                            <button type="button" class="btn btn-success btn-sm" onclick="activateRow(this)">활성화</button>
+                        `}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ======================================================
+    //  입력 포맷팅
+    // ======================================================
+    function formatInput(input) {
+        let value = input.value.replace(/[^\d]/g, '');
+        if (value === '') { input.value = ''; return; }
+        input.value = Number(value).toLocaleString('ko-KR');
+    }
+
+    function parseNumber(str) {
+        if (!str || str === '') return null;
+        const num = Number(str.replace(/[^\d]/g, ''));
+        return isNaN(num) ? null : num;
+    }
+
+    // ======================================================
+    //  저장
+    // ======================================================
+    function saveRow(btn) {
+        const row = btn.closest('tr');
+
+        const priceId = row.querySelector('.price-id').value;
+        const specId = row.querySelector('.spec-id').value;
+        const version = row.querySelector('.version').value;
+        const dailyPrice = parseNumber(row.querySelector('.daily-price').value);
+        const monthlyPrice = parseNumber(row.querySelector('.monthly-price').value);
+
+        if (dailyPrice !== null && dailyPrice < 0) { alert('일단가는 0 이상이어야 합니다.'); return; }
+        if (monthlyPrice !== null && monthlyPrice < 0) { alert('월단가는 0 이상이어야 합니다.'); return; }
+
+        const data = {
+            priceId: priceId === '' ? null : Number(priceId),
+            specId: Number(specId),
+            dailyPrice: dailyPrice,
+            monthlyPrice: monthlyPrice,
+            version: version === '' ? 0 : Number(version)
+        };
+
+        fetch('/api/admin/price', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
                     alert(res.message);
-                    // 서버에서 최종 금액 다시 계산되므로 새로고침
-                    location.reload();
+                    loadPriceList();
                 } else {
-                    alert("실패: " + res.message);
+                    alert('저장 실패: ' + res.message);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("시스템 오류가 발생했습니다.");
+            .catch(err => {
+                console.error('저장 오류:', err);
+                alert('시스템 오류가 발생했습니다.');
+            });
+    }
+
+    // ======================================================
+    //  비활성화
+    // ======================================================
+    function deactivateRow(btn) {
+        if (!confirm('이 가격을 비활성화하시겠습니까?\n비활성화하면 고객에게 노출되지 않습니다.')) return;
+
+        const row = btn.closest('tr');
+        const priceId = row.querySelector('.price-id').value;
+        const version = row.querySelector('.version').value;
+
+        fetch(`/api/admin/price/${priceId}/deactivate?version=${version}`, { method: 'PATCH' })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) { alert(res.message); loadPriceList(); }
+                else { alert('비활성화 실패: ' + res.message); }
+            })
+            .catch(err => {
+                console.error('비활성화 오류:', err);
+                alert('시스템 오류가 발생했습니다.');
+            });
+    }
+
+    // ======================================================
+    //  활성화
+    // ======================================================
+    function activateRow(btn) {
+        if (!confirm('이 가격을 다시 활성화하시겠습니까?')) return;
+
+        const row = btn.closest('tr');
+        const priceId = row.querySelector('.price-id').value;
+        const version = row.querySelector('.version').value;
+
+        fetch(`/api/admin/price/${priceId}/activate?version=${version}`, { method: 'PATCH' })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) { alert(res.message); loadPriceList(); }
+                else { alert('활성화 실패: ' + res.message); }
+            })
+            .catch(err => {
+                console.error('활성화 오류:', err);
+                alert('시스템 오류가 발생했습니다.');
             });
     }
 </script>
-
 </body>
 </html>

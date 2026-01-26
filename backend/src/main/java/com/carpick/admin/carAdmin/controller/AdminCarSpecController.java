@@ -47,12 +47,11 @@ public class AdminCarSpecController {
      */
     @PostMapping
     public ResponseEntity<Map<String, Object>> add(
-            @ModelAttribute AdminCarSpecDto dto,
-            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
-            @RequestParam(value = "rotatableImage", required = false) MultipartFile rotatableImage
+            @ModelAttribute AdminCarSpecDto dto
+
     ) {
         // 서비스 메서드에 파일도 함께 전달하도록 수정 필요
-        return executeLogic(() -> adminCarSpecService.addCarSpec(dto, mainImage, rotatableImage),
+        return executeLogic(() -> adminCarSpecService.addCarSpec(dto),
                 "차량 스펙이 성공적으로 등록되었습니다.");
     }
 
@@ -63,15 +62,14 @@ public class AdminCarSpecController {
     @PostMapping("/{specId}")
     public ResponseEntity<Map<String, Object>> update(
             @PathVariable Long specId,
-            @ModelAttribute AdminCarSpecDto dto,
-            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
-            @RequestParam(value = "rotatableImage", required = false) MultipartFile rotatableImage
+            @ModelAttribute AdminCarSpecDto dto
+
     ) {
         // 경로 변수의 ID를 DTO에 주입
         dto.setSpecId(specId);
 
         // 서비스 메서드에 파일도 함께 전달하도록 수정 필요
-        return executeLogic(() -> adminCarSpecService.updateCarSpec(dto, mainImage, rotatableImage),
+        return executeLogic(() -> adminCarSpecService.updateCarSpec(dto),
                 "차량 스펙이 수정되었습니다.");
     }
 
