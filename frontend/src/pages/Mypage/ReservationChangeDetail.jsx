@@ -270,9 +270,9 @@ function ReservationChangeDetail() {
 
             console.log("📦 예약 변경 payload:", payload);
 
-            await api.post(`/api/reservation/${reservationId}/change`, payload);
+            await api.post(`/reservation/${reservationId}/change`, payload);
             alert("예약이 변경되었습니다.");
-            navigate("/Mypage/ReservationsList");
+            navigate("/mypage/reservations");
         } catch (err) {
             console.error("예약 변경 실패:", err);
             alert(err.response?.data?.message || "예약 변경에 실패했습니다.");
@@ -383,7 +383,7 @@ function ReservationChangeDetail() {
                                 >
                                     <div className="text-center">
                                         <div className="font-bold text-lg text-blue-600 mb-1">
-                                            +{formatPrice(option.price)}원
+                                            +{formatPrice(option.price)}
                                         </div>
                                         <div className="font-semibold text-sm mb-1">{option.label}</div>
                                         <div className="text-xs text-gray-500">{option.desc}</div>
