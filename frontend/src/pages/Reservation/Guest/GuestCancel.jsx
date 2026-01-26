@@ -111,10 +111,6 @@ const GuestCancel = () => {
                         <span className="text-sm text-gray-600">예약자 이메일</span>
                         <span className="break-all">{reservation.driverEmail}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">대여차종</span>
-                        <span>{reservation.carName || 'Carnival'}</span>
-                    </div>
                 </div>
 
                 {/* 취소 사유 선택 */}

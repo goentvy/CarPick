@@ -55,28 +55,22 @@ const GuestCancelComplete = () => {
                     titleStyle="text-center mb-6 text-xl font-bold"
                 />
 
-                <div className="bg-white rounded-xl shadow-sm p-6 space-y-6 h-full flex flex-col max-w-md mx-auto">
+                <div className="p-6 space-y-6 h-full flex flex-col max-w-md mx-auto">
                     {/* 취소 완료 메시지 (아이콘 제거) */}
                     <div className="text-center flex-1 flex flex-col justify-center">
-                        <p className="text-2xl font-bold text-gray-900 mb-2">예약이 취소되었습니다</p>
-                        <p className="text-gray-600 text-lg">예약이 안전하게 취소되었습니다.</p>
+                        <p className="text-2xl font-bold text-gray mb-2">예약이 취소되었습니다</p>
                     </div>
 
                     {/* 취소된 예약 정보 */}
                     <div className="bg-gray-50 rounded-xl p-6">
-                        <p className="text-sm text-gray-500 mb-4 font-medium">취소된 예약 정보</p>
                         <div className="space-y-3">
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-600">예약번호</span>
-                                <span className="font-semibold">{reservation.reservationNumber}</span>
+                                <span className="font-semibold">{reservation.reservationNo}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-600">예약자</span>
                                 <span className="font-semibold">{reservation.driverEmail}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-gray-600">차량</span>
-                                <span className="font-semibold">{reservation.carName || 'Carnival'}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-gray-600">대여기간</span>
