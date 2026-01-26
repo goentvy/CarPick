@@ -37,14 +37,18 @@ public class SecurityConfigProd {
                 )
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ 관리자 페이지는 ADMIN만 접근 가능
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers(
                                 "/admin/upload/**",
                                 "/upload/**"
                         ).permitAll()
+                        // ===== 2️⃣ 관리자 API =====
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // ===== 3️⃣ 관리자 화면 =====
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
+                                "/api/admin/**",   // ✅ 관리자 내부 API 허용 (필수)
                                 "/api/branches/**",
                                 "/api/dropzones/**",
                                 "/api/recommend-cars",
