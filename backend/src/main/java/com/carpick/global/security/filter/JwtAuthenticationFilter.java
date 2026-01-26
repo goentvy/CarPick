@@ -102,7 +102,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            log.info("AUTH = {}", authentication.getAuthorities());
             log.debug("[JWT-AUTH-SUCCESS] userId={}", userId);
 
             filterChain.doFilter(request, response);
