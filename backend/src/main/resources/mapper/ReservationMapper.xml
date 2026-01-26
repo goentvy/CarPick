@@ -24,7 +24,7 @@
         <result property="driverBirthdate" column="driver_birthdate"/>
         <result property="driverPhone" column="driver_phone"/>
         <result property="driverEmail" column="driver_email"/>
-        <result property="driverLicenseNo" column="driver_license_no"/>
+        <!--<result property="driverLicenseNo" column="driver_license_no"/>-->
 
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
@@ -84,7 +84,7 @@
         driver_birthdate,
         driver_phone,
         driver_email,
-        driver_license_no,
+        /*driver_license_no,*/
 
         start_date,
         end_date,

@@ -59,7 +59,7 @@ const GuestReservationDetail = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-[13px] text-gray-500 mb-1">예약번호</p>
-                            <p className="font-semibold text-lg">{state.reservationNumber}</p>
+                            <p className="font-semibold text-lg">{state.reservationNo}</p>
                         </div>
                         <span className={`px-3 py-1 ${statusBg} text-sm font-bold rounded-full border`}>
                             {statusText}
@@ -110,10 +110,10 @@ const GuestReservationDetail = () => {
                         </button>
                         {!isCanceled && (
                             <button
-                                onClick={() => navigate('/guest')}
+                                onClick={() => navigate('/home')}
                                 className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-4 rounded-xl font-medium transition-colors"
                             >
-                                예약 목록으로
+                                돌아가기
                             </button>
                         )}
                     </div>
