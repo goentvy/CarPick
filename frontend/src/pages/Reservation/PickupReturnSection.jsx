@@ -110,23 +110,25 @@ const PickupReturnSection = ({ pickup, dropoff, startDateTime, endDateTime }) =>
         </button>
       </div>
 
-      {/* 기본 지점 정보 (기존 유지) */}
+      {/* 기본 지점 정보 */}
       <div className="mt-4 p-4 border rounded-lg bg-gray-50">
         <p>
           <strong>지점: </strong>
-          {dropoff?.branchName ?? ""}
+          {pickup?.branchName ?? ""}
         </p>
-        <p>
-          <strong>운영시간: </strong>
-          {dropoff?.openHours ?? ""}
-        </p>
+
+
+
         <p>
           <strong>주소: </strong>
-          {dropoff?.address ?? ""}
+          {pickup?.address ?? ""}
         </p>
       </div>
 
-      {/* ✅ DROPZONE 선택 UI (돋보기 → 드롭다운) */}
+
+
+
+      {/*  DROPZONE 선택 UI (돋보기 → 드롭다운) */}
       {returnType === "DROPZONE" && (
         <div className="mt-4 p-4 border rounded-lg bg-white">
           <div className="flex items-center justify-between mb-2">

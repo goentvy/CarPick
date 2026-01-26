@@ -35,12 +35,20 @@
     <div class="container-fluid py-4">
 
         <!-- 페이지 헤더 -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0">예약 상세</h4>
-            <button class="btn btn-outline-secondary" onclick="goList()">
-                <i class="fas fa-list"></i> 목록
+        <div class="d-flex align-items-center mb-4 position-relative">
+            <!-- 왼쪽: 뒤로가기(화살표) -->
+            <button type="button"
+                    class="btn btn-link p-0 position-absolute start-0"
+                    onclick="goList()"
+                    aria-label="뒤로가기"
+                    style="text-decoration:none;">
+                <i class="ti-arrow-left" style="font-size:22px;"></i>
             </button>
+
+            <!-- 가운데: 제목 -->
+            <h4 class="mb-0 w-100 text-center">예약 상세</h4>
         </div>
+
 
         <!-- 예약 기본 정보 -->
         <div class="card mb-4">
@@ -440,7 +448,7 @@
         }
 
         function goList() {
-            window.location.href = '/api/admin/reservation';
+            window.location.href = '/admin/reservation';
         }
     </script>
 </th:block>
