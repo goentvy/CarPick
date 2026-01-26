@@ -189,7 +189,7 @@ const AgreementSection = ({ isLoggedIn }) => {
                 returnType,          // 추가
                 dropzoneId,          // 추가
 
-                insuranceCode: storeCreatePayload?.insuranceCode || "STANDARD",
+                insuranceCode: storeCreatePayload?.insuranceCode || "NONE",
                 driverInfo,
                 agreement: true,
                 ...(finalRentType === "LONG" ? { months: finalMonths } : {}),
@@ -211,7 +211,7 @@ const AgreementSection = ({ isLoggedIn }) => {
             // create 응답 totalPrice가 있으면 최종적으로 한 번 더 반영(없으면 serverTotal 유지)
             const createdTotalPrice = createRes.data?.totalPrice ?? serverTotal ?? 0;
             useReservationStore.getState().setPaymentSummary?.({
-                totalPrice: createdTotalPrice,
+                totalAmount: createdTotalPrice,
             });
 
             // ✅ 결제 승인

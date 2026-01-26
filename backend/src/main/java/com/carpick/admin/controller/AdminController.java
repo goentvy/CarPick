@@ -2,6 +2,9 @@ package com.carpick.admin.controller;
 
 import com.carpick.admin.carAdmin.service.AdminCarOptionService;
 import com.carpick.admin.insuranceAdmin.service.AdminInsuranceService;
+import com.carpick.admin.inventoryAdmin.service.AdminInventoryService;
+
+import com.carpick.admin.reservationAdmin.service.ReservationAdminServiceImpl;
 import com.carpick.admin.useradmin.service.UserAdminService;
 
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.LocalDateTime;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
@@ -19,6 +24,8 @@ public class AdminController {
     private  final AdminCarOptionService adminCarOptionService;
     private final AdminInsuranceService adminInsuranceService;
     private final UserAdminService userAdminService;
+    private final AdminInventoryService adminInventoryService;
+    private final ReservationAdminServiceImpl reservationAdminService;
 
     ///  관리자 메인 ///
     @GetMapping()
@@ -29,7 +36,29 @@ public class AdminController {
         model.addAttribute("weeklyJoinCount", weeklyJoinCount);
         model.addAttribute("monthlyJoinCount", monthlyJoinCount);
         model.addAttribute("recentUsers",userAdminService.getRecentJoinedUsers(7));
-        
+        // ✅ (1) 총 재고 차량(대)
+        int totalInventoryCount = adminInventoryService.getAllVehicles().size();
+        model.addAttribute("totalInventoryCount", totalInventoryCount);
+
+        // ✅ (2) 이번주 예약 차량(대)  -> ReservationAdminService의 count 재사용
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime weekStart = now.toLocalDate()
+                .with(java.time.DayOfWeek.MONDAY)
+                .atStartOfDay();
+        LocalDateTime weekEnd = weekStart.plusWeeks(1);
+
+        int weeklyReservationCount = reservationAdminService.getReservationCount(
+                null, weekStart, weekEnd, null
+        );
+        model.addAttribute("weeklyReservationCount", weeklyReservationCount);
+
+        // ✅ (3) 최근 예약된 차량 목록(5건)
+        model.addAttribute("recentReservations",
+                reservationAdminService.getReservationList(
+                        null, null, null, null, 1, 5
+                )
+        );
+
         return "index";
     }
     ///  관리자 메인 ///
@@ -94,7 +123,11 @@ public class AdminController {
     public String reserveDetailAdmin(@PathVariable Long reservationId) {
         return "reservationDetail"; // 여기도 파일명만 적어주세요 (확장자 제외)
     }
-
+// 예약 상태 변경(임시용 서비스가 시작되면 삭제하기)\
+@GetMapping("/demo/reservations")
+public String reservationDemoStatusPage() {
+    return "reservationDemoStatus";
+}
     ///  지점 관리 ///
     @GetMapping("/spot")
     public String spotAdmin() {

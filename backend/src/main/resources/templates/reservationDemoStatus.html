@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>카픽 - 예약 상태 관리(데모)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS (기존 관리자 템플릿 그대로) -->
+    <link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/common.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/metisMenu.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/owl.carousel.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/slicknav.min.css}">
+
+    <!-- amchart css (CDN) -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+    <!-- Others CSS -->
+    <link rel="stylesheet" th:href="@{/assets/css/typography.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/default-css.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+
+    <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
+
+    <style>
+        .table td, .table th { vertical-align: middle; }
+        .status-badge { font-size: 12px; padding: 6px 10px; border-radius: 12px; }
+
+        /* 상태별 배지(필요시 프로젝트 상태 enum에 맞게 추가) */
+        .st-PENDING { background: #f6c23e; color: #111; }
+        .st-CONFIRMED { background: #1cc88a; color: #fff; }
+        .st-CANCELED { background: #e74a3b; color: #fff; }
+        .st-COMPLETED { background: #4e73df; color: #fff; }
+        .st-ACTIVE { background: #36b9cc; color: #fff; }
+        .st-UNKNOWN { background: #858796; color: #fff; }
+
+        /* 모달 라벨 */
+        .modal-body label { font-weight: 600; margin-top: 10px; }
+    </style>
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- ✅ 사이드바 -->
+    <div th:replace="fragments/fragments :: sidebar"></div>
+
+    <!-- ✅ 헤더 -->
+    <div th:replace="fragments/fragments :: header"></div>
+
+    <div class="main-content">
+        <div class="page-title-area">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <div class="breadcrumbs-area clearfix">
+                        <h4 class="page-title pull-left">예약 상태 관리(데모)</h4>
+                        <ul class="breadcrumbs pull-left">
+                            <li><a href="/admin">홈</a></li>
+                            <li><span>예약 상태 관리</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 clearfix">
+                    <button class="user-profile user_writeBtn pull-right" onclick="loadReservationList()">
+                        <i class="ti-reload"></i> 새로고침
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-inner">
+            <div class="row">
+
+                <div class="col-lg-12 mt-4">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="header-title mb-0">예약 목록</h4>
+                                <span class="text-muted small">총 <b id="totalCount">0</b>건</span>
+                            </div>
+
+                            <div class="single-table">
+                                <div class="table-responsive">
+                                    <table class="table text-center table-hover">
+                                        <thead class="text-uppercase bg-light">
+                                        <tr>
+                                            <th scope="col" width="8%">예약ID</th>
+                                            <th scope="col" width="18%">예약번호</th>
+                                            <th scope="col">모델명</th>
+                                            <th scope="col" width="15%">차량번호</th>
+                                            <th scope="col" width="15%">예약상태</th>
+                                            <th scope="col" width="15%">관리</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="reservationBody">
+                                        <!-- Ajax 렌더링 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="text-muted small mt-3">
+                                ※ 이 페이지는 <code>/api/admin/demo/reservations</code> (GET) / <code>/api/admin/demo/reservations/{id}/status</code> (PATCH) 를 사용합니다.
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ 푸터 -->
+    <div th:replace="fragments/fragments :: footer"></div>
+
+</div>
+
+<!-- ✅ 상태 변경 모달 -->
+<div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">예약 상태 변경</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="modalReservationId">
+
+                <div class="form-group">
+                    <label>예약번호</label>
+                    <input type="text" class="form-control" id="modalReservationNo" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>차량/모델</label>
+                    <input type="text" class="form-control" id="modalCarInfo" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="text-danger">변경할 예약 상태</label>
+                    <select class="form-control" id="modalStatus">
+                        <!-- ⚠️ enum에 맞게 옵션 추가/정리하세요 -->
+                        <option value="PENDING">PENDING</option>
+                        <option value="CONFIRMED">CONFIRMED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="COMPLETED">COMPLETED</option>
+
+                    </select>
+                    <small class="text-muted">※ 프로젝트 ReservationStatus enum 값과 정확히 일치해야 합니다.</small>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="submitChangeStatus()">변경 적용</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- JS (기존 관리자 템플릿 그대로) -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+    $(document).ready(function() {
+        loadReservationList();
+    });
+
+    // 1) 목록 조회
+    function loadReservationList() {
+        $.ajax({
+            url: '/api/admin/demo/reservations',
+            type: 'GET',
+            success: function(data) {
+                $('#totalCount').text(data.length);
+
+                let html = '';
+                if (!data || data.length === 0) {
+                    html = '<tr><td colspan="6" class="py-4">예약 데이터가 없습니다.</td></tr>';
+                } else {
+                    data.forEach(function(r) {
+                        const st = (r.reservationStatus || 'UNKNOWN');
+                        const badgeClass = 'status-badge st-' + st;
+
+                        html += `
+                            <tr>
+                                <td>${r.reservationId ?? '-'}</td>
+                                <td class="font-weight-bold">${r.reservationNo ?? '-'}</td>
+                                <td>${escapeHtml(r.modelName ?? '-')}</td>
+                                <td>${escapeHtml(r.vehicleNo ?? '-')}</td>
+                                <td><span class="${badgeClass}">${st}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info"
+                                            onclick='openStatusModal(${JSON.stringify(r)})'
+                                            title="상태 변경">
+                                        <i class="ti-pencil"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+                $('#reservationBody').html(html);
+            },
+            error: function(xhr) {
+                console.error(xhr);
+                alert('예약 목록 로드 실패');
+            }
+        });
+    }
+
+    // 2) 모달 열기
+    function openStatusModal(row) {
+        $('#modalReservationId').val(row.reservationId);
+        $('#modalReservationNo').val(row.reservationNo ?? '');
+        $('#modalCarInfo').val((row.modelName ?? '-') + ' / ' + (row.vehicleNo ?? '-'));
+
+        // 현재 상태를 기본 선택
+        if (row.reservationStatus) {
+            $('#modalStatus').val(row.reservationStatus);
+        }
+        $('#statusModal').modal('show');
+    }
+
+    // 3) PATCH 상태 변경
+    function submitChangeStatus() {
+        const reservationId = $('#modalReservationId').val();
+        const status = $('#modalStatus').val();
+
+        if (!reservationId) {
+            alert('reservationId가 없습니다.');
+            return;
+        }
+        if (!status) {
+            alert('변경할 상태를 선택해주세요.');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/admin/demo/reservations/' + reservationId + '/status',
+            type: 'PATCH',
+            contentType: 'application/json',
+            data: JSON.stringify({ status: status }),
+            success: function() {
+                alert('상태 변경 완료');
+                $('#statusModal').modal('hide');
+                loadReservationList();
+            },
+            error: function(xhr) {
+                console.error(xhr);
+                const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : '상태 변경 실패';
+                alert(msg);
+            }
+        });
+    }
+
+    // XSS 방지용 간단 escape
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+</script>
+
+</body>
+</html>
