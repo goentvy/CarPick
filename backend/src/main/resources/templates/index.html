@@ -78,17 +78,18 @@
 	                                <h4 class="header-title mb-0">이번주 예약 차량</h4>
 	                            </div>
 	                        </div>
-	                        <h2>12대</h2>
-	                    </div>
+							<h2 th:text="${weeklyReservationCount != null ? weeklyReservationCount : 0} + '대'">0대</h2>
+
+						</div>
 	                </div>
 	                <div class="col-xl-3 col-ml-3 col-md-6 mt-5">
 	                    <div class="single-report">
 	                        <div class="s-sale-inner pt--30 mb-3">
 	                            <div class="s-report-title d-flex justify-content-between">
-	                                <h4 class="header-title mb-0">이번달 예약 차량</h4>
+	                                <h4 class="header-title mb-0">총 재고 차량</h4>
 	                            </div>
 	                        </div>
-	                        <h2>103대</h2>
+							<h2 th:text="${totalInventoryCount != null ? totalInventoryCount : 0} + '대'">0대</h2>
 	                    </div>
 	                </div>
 	                <div class="col-xl-3 col-ml-3 col-md-6  mt-5">
@@ -115,14 +116,14 @@
 	        </div>
 	        <!-- sales report area end -->
 	        <!-- visitor graph area start -->
-	        <div class="card mt-5">
-	            <div class="card-body">
-	                <div class="d-flex justify-content-between mb-5">
-	                    <h4 class="header-title mb-0">렌트 차량 통계</h4>
-	                </div>
-	                <div id="visitor_graph"></div>
-	            </div>
-	        </div>
+<!--	        <div class="card mt-5">-->
+<!--	            <div class="card-body">-->
+<!--	                <div class="d-flex justify-content-between mb-5">-->
+<!--	                    <h4 class="header-title mb-0">렌트 차량 통계</h4>-->
+<!--	                </div>-->
+<!--	                <div id="visitor_graph"></div>-->
+<!--	            </div>-->
+<!--	        </div>-->
 	        <!-- visitor graph area end -->
 	        <!-- order list area end -->
 	        <div class="row">
@@ -136,42 +137,24 @@
 	                        <div class="table-responsive">
 	                            <table class="dbkit-table">
 	                                <tbody>
-	                                    <tr class="heading-td">
-	                                        <td>차량명</td>
-	                                        <td>차종</td>
-	                                        <td>가격</td>
-	                                        <td>할인가</td>
-	                                    </tr>
-	                                    <tr>
-	                                        <td>K3 2세대</td>
-	                                        <td>중형</td>
-	                                        <td>$160</td>
-	                                        <td>$20</td>
-	                                    </tr>
-	                                    <tr>
-	                                        <td>그랜저 GN7</td>
-	                                        <td>중형</td>
-	                                        <td>$500</td>
-	                                        <td>$20</td>
-	                                    </tr>
-	                                    <tr>
-	                                        <td>스토닉</td>
-	                                        <td>소형</td>
-	                                        <td>$500</td>
-	                                        <td>$20</td>
-	                                    </tr>
-	                                    <tr>
-	                                        <td>아반떼 CN7</td>
-	                                        <td>중형</td>
-	                                        <td>$250</td>
-	                                        <td>$10</td>
-	                                    </tr>
-	                                    <tr>
-	                                        <td>카니발 4세대 하이리무진 9인승</td>
-	                                        <td>승합</td>
-	                                        <td>$125</td>
-	                                        <td>$50</td>
-	                                    </tr>
+										<tr class="heading-td">
+											<td>차량</td>
+											<td>차량번호</td>
+											<td>총 결제금액</td>
+											<td>상태</td>
+										</tr>
+										<tr th:if="${#lists.isEmpty(recentReservations)}">
+											<td colspan="4">최근 예약 내역이 없습니다.</td>
+										</tr>
+
+										<tr th:each="r : ${recentReservations}">
+											<td th:text="${r.displayNameShort}">차량</td>
+											<td th:text="${r.carNo}">00가0000</td>
+											<td th:text="${#numbers.formatInteger(r.totalAmountSnapshot, 0, 'COMMA')} + '원'">0원</td>
+											<td th:text="${r.reservationStatus}">STATUS</td>
+										</tr>
+
+
 	                                </tbody>
 	                            </table>
 	                        </div>
