@@ -41,6 +41,23 @@ function Header() {
     closeMenu();
   }
 
+  // ============================
+  // ✅ 관리자 페이지 이동 (🔥 수정 완료)
+  // ============================
+  const moveToAdminPage = () => {
+
+    // ❗ 토큰을 URL로 보내지 않는다 (보안 + 인증 깨짐 원인)
+    // ❗ Authorization 헤더는 axios interceptor가 자동 처리
+
+    const adminUrl =
+      window.location.hostname === "localhost"
+        ? "http://localhost:8080"
+        : "https://admin.carpick.p-e.kr";
+
+    // ✅ 그냥 관리자 페이지로 이동만 한다
+    window.location.href = `${adminUrl}/admin`;
+  };
+
   return (
     <>
       <header id="head" className="intro">
@@ -90,13 +107,16 @@ function Header() {
 
               user?.role === "ADMIN" ? (
                 // ✅ 관리자 로그인 시
-                <Link
-                  to="/admin"
+                <button
                   className="btn btn-admin"
-                  onClick={() => window.location.href = "http://localhost:8080/admin"}  // 관리자 페이지는 별도 서버로 이동
+                  onClick={() => {
+                    moveToAdminPage();
+                    closeMenu();
+                  }}
                 >
                   관리자페이지
-                </Link>
+                </button>
+
               ) : (
                 // ✅ 일반 사용자 로그인 시
                 <Link to="/mypage" className="btn btn-mypage" onClick={closeMenu}>마이페이지</Link>
@@ -130,13 +150,13 @@ function Header() {
                 </div>
               </li>
 
-                <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
-                    {isLoggedIn ?
-                        <Link to="/mypage/reservations" className="gnb-link">예약조회</Link>
-                        :
-                        <Link to="/guest/view" className="gnb-link">예약조회</Link>
-                    }
-                </li>
+              <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
+                {isLoggedIn ?
+                  <Link to="/mypage/reservations" className="gnb-link">예약조회</Link>
+                  :
+                  <Link to="/guest/view" className="gnb-link">예약조회</Link>
+                }
+              </li>
 
               <li className={`gnb-item ${location.pathname.includes("event") ? "active" : ""}`} onClick={closeMenu}>
                 <Link to="/event/list" className="gnb-link">이벤트</Link>
