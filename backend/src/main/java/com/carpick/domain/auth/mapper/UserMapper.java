@@ -32,7 +32,7 @@ public interface UserMapper {
     // INSERT
     // =====================
 
-    void insertLocalUser(SignupRequest request);
+    void insertLocalUser(User user);
 
     void insertSocialUser(User user);
 

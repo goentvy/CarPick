@@ -45,12 +45,15 @@ public class SecurityConfigDev {
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 관리자 페이지는 ADMIN만 접근 가능
+
+                        .requestMatchers(
+                                "/admin/upload/**",
+                                "/upload/**"
+                        ).permitAll()
+                        // ===== 2️⃣ 관리자 API =====
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // ===== 3️⃣ 관리자 화면 =====
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                		.requestMatchers(
-            		        "/admin/upload/**",
-            		        "/upload/**"
-            		    ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 // 1. API 경로 허용
@@ -79,7 +82,7 @@ public class SecurityConfigDev {
                                 "/api/admin/price-policies",
                                 ("/api/guest/**"),
 
-                        // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
+                                // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)
                                 "/",
                                 "/admin/**",
                                 // 3. 정적 리소스 경로 허용 (CSS, JS, Images 등 - 추가됨)
@@ -88,7 +91,7 @@ public class SecurityConfigDev {
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
-                                
+
                                 // 4. Swagger 및 API 문서 관련
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
