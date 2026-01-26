@@ -37,14 +37,18 @@ public class SecurityConfigProd {
                 )
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ 관리자 페이지는 ADMIN만 접근 가능
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .requestMatchers(
                                 "/admin/upload/**",
                                 "/upload/**"
                         ).permitAll()
+                        // ===== 2️⃣ 관리자 API =====
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // ===== 3️⃣ 관리자 화면 =====
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
+
                                 "/api/branches/**",
                                 "/api/dropzones/**",
                                 "/api/recommend-cars",
@@ -58,7 +62,7 @@ public class SecurityConfigProd {
                                 "/api/about/values",
                                 "/api/cars/**",
                                 "/",
-                                "/admin/**",
+
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
@@ -67,6 +71,12 @@ public class SecurityConfigProd {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        // ✅ 관리자 전용 (여기가 핵심)
+                        .requestMatchers(
+                                "/api/admin/**",
+                                "/admin/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

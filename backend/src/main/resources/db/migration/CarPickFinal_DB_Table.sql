@@ -68,35 +68,37 @@ SET FOREIGN_KEY_CHECKS = 1;
 /* ==================================================
    1. 기초 정보 테이블 (Master Data)
    ================================================== */
-
 CREATE TABLE users (
-                       user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       user_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '사용자 PK',
 
     -- 로그인 식별
-                       email VARCHAR(255) NOT NULL UNIQUE,
-                       password VARCHAR(255) NULL,
+                       email VARCHAR(255) NOT NULL UNIQUE COMMENT '이메일(로그인 ID)',
+                       password VARCHAR(255) NULL COMMENT '로컬 비밀번호(소셜 로그인 NULL 가능)',
+
     -- 소셜 계정
-                       provider ENUM('LOCAL','KAKAO','NAVER') NOT NULL,
-                       provider_id VARCHAR(255) NULL,
-                       UNIQUE (provider, provider_id),
-    -- 개인정보 (선택)
-                       name VARCHAR(50) NULL,
-                       phone VARCHAR(20) NULL,
-                       birth DATE NULL,
-                       gender VARCHAR(10) NULL,
+                       provider ENUM('LOCAL','KAKAO','NAVER') NOT NULL DEFAULT 'LOCAL' COMMENT '가입 경로',
+                       provider_id VARCHAR(255) NULL COMMENT '소셜 provider 고유 식별자',
+                       UNIQUE KEY uk_provider_provider_id (provider, provider_id),
 
-    -- 정책
-                       marketing_agree TINYINT(1) NOT NULL DEFAULT 0,
-                       membership_grade ENUM('BASIC','VIP') NOT NULL DEFAULT 'BASIC',
+    -- 개인정보(선택)
+                       name VARCHAR(50) NULL COMMENT '이름',
+                       phone VARCHAR(20) NULL COMMENT '전화번호',
+                       birth DATE NULL COMMENT '생년월일',
+                       gender VARCHAR(10) NULL COMMENT '성별(M/F 등)',
 
-                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-                           ON UPDATE CURRENT_TIMESTAMP,
-                       deleted_at DATETIME NULL,
+    -- 정책/등급/권한
+                       marketing_agree TINYINT(1) NOT NULL DEFAULT 0 COMMENT '마케팅 수신 동의(0/1)',
+                       membership_grade ENUM('BASIC','VIP') NOT NULL DEFAULT 'BASIC' COMMENT '회원 등급',
+                       role ENUM('USER','ADMIN') NOT NULL DEFAULT 'USER' COMMENT '권한',
 
-    -- 토큰
-                       accesstoken VARCHAR(500)
-);
+    -- 토큰(권장: 실서비스는 별도 테이블/리프레시 토큰 분리 추천, 일단 유지)
+                       accesstoken VARCHAR(500) NULL COMMENT '액세스 토큰(임시 저장용)',
+
+                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+                       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+                       deleted_at DATETIME NULL COMMENT '삭제일(소프트 삭제)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- 테이블 carpick.admin_user 구조 내보내기
 CREATE TABLE IF NOT EXISTS `admin_user` (
