@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import useUserStore from "../../store/useUserStore";
+import api from '../../services/api.js';
 import StarRating from "../Home/StarRating";
 
 function ReviewHistory() {
     const navigate = useNavigate();
     const accessToken = useUserStore((state) => state.accessToken);
-
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingReview, setEditingReview] = useState(null);
@@ -22,25 +22,20 @@ function ReviewHistory() {
                     return;
                 }
 
-                const response = await fetch('http://localhost:8080/api/reviews/me', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setReviews(data);
-                }
+                // ✅ api.js 사용 (토큰 자동 처리)
+                const { data } = await api.get('/reviews/me');
+                setReviews(data || []);
             } catch (error) {
-                console.error('네트워크 에러:', error);
+                console.error('리뷰 로드 실패:', error);
+                if (error.response?.status === 401) {
+                    navigate('/login');
+                }
             } finally {
                 setLoading(false);
             }
         };
         fetchReviews();
-    }, [accessToken]);
+    }, [accessToken, navigate]);
 
     const handleEdit = (review) => {
         setEditingReview(review);
@@ -50,32 +45,17 @@ function ReviewHistory() {
 
     const handleSave = async () => {
         try {
-            const userId = useUserStore.getState().user?.id;
-            const userIdStr = userId ? userId.toString() : null;
-
-            const response = await fetch(`http://localhost:8080/api/reviews/${editingReview.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                    'X-User-Id': userIdStr || ''  // 빈 문자열도 OK
-                },
-                body: JSON.stringify({
-                    rating: editingRating,
-                    content: editContent.trim()
-                })
+            // ✅ api.js 사용 (토큰 자동 처리)
+            const { data } = await api.put(`/reviews/${editingReview.id}`, {
+                rating: editingRating,
+                content: editContent.trim()
             });
-
-            if (response.ok) {
-                const updatedReview = await response.json();
-                setReviews(prev => prev.map(r => r.id === updatedReview.id ? updatedReview : r));
-                handleCancel();
-            }
+            setReviews(prev => prev.map(r => r.id === data.id ? data : r));
+            handleCancel();
         } catch (error) {
             console.error('리뷰 수정 실패:', error);
         }
     };
-
 
     const handleCancel = () => {
         setEditingReview(null);
@@ -185,13 +165,10 @@ function ReviewHistory() {
                             <div className="flex gap-4 justify-center mb-4">
                                 {[...Array(5)].map((_, starIndex) => {
                                     const starValue = starIndex + 1;
-                                    const fullStars = Math.floor(editingRating);
-                                    const hasHalf = editingRating % 1 >= 0.5;
-
                                     let starSrc = "/images/common/star-empty.svg";
                                     if (editingRating >= starValue) {
                                         starSrc = "/images/common/star-full.svg";
-                                    } else if (hasHalf && editingRating >= starValue - 0.5) {
+                                    } else if (editingRating >= starValue - 0.5) {
                                         starSrc = "/images/common/star-half.svg";
                                     }
 
