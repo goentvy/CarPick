@@ -354,7 +354,7 @@ INSERT INTO CAR_SPEC (
 -- 5. 메인 가격표 (PRICE)
 -- ✅ 중요: PRICE 테이블에 'version' 컬럼이 추가되었으므로 Default(0)을 따름
 -- ==========================================
-INSERT INTO PRICE (car_spec_id, daily_price, monthly_price, use_yn, created_at, updated_at) VALUES
+INSERT INTO PRICE (spec_id, daily_price, monthly_price, use_yn, created_at, updated_at) VALUES
                                                                                                 (1,  50000, 150000,   'Y', NOW(), NOW()), -- 모닝
                                                                                                 (2,  65000, 300000,   'Y', NOW(), NOW()), -- K3
                                                                                                 (3,  52000, 270000,   'Y', NOW(), NOW()),
