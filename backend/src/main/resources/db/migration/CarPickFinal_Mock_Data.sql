@@ -116,6 +116,66 @@ INSERT INTO VEHICLE_INVENTORY (
       (9,1,'20자1235','VIN-IONIQ5-0002',2024,'AVAILABLE',NULL,'2026-01-09 10:00:00',24890,350000,TRUE,'Y',NULL),
       (10,1,'21차2345','VIN-TESLA3-0001',2023,'AVAILABLE',NULL,'2026-01-10 10:00:00',19840,350000,TRUE,'Y',NULL),
       (10,1,'21차2346','VIN-TESLA3-0002',2023,'AVAILABLE',NULL,'2026-01-12 10:00:00',27630,350000,TRUE,'Y',NULL);
+INSERT IGNORE INTO VEHICLE_INVENTORY (
+    spec_id, branch_id, vehicle_no, vin, model_year,
+    operational_status, mileage, last_inspected_at,
+    mileage_km, lifecycle_limit_km, is_active, use_yn, deleted_at
+)
+SELECT
+    s.spec_id,
+    b.branch_id,
+
+    /* 차량번호: 12가3456 스타일 */
+    CONCAT(
+            LPAD(11 + s.spec_id, 2, '0'),
+            CASE s.spec_id
+                WHEN 1 THEN '가' WHEN 2 THEN '나' WHEN 3 THEN '다' WHEN 4 THEN '라'
+                WHEN 5 THEN '마' WHEN 6 THEN '바' WHEN 7 THEN '사' WHEN 8 THEN '아'
+                WHEN 9 THEN '자' WHEN 10 THEN '차'
+                END,
+            LPAD((b.branch_id * 1000) + (s.spec_id * 10) + n.seq, 4, '0')
+    ) AS vehicle_no,
+
+    /* ✅ VIN: 지점 포함(중복 방지) */
+    CONCAT(
+            'VIN-',
+            CASE s.spec_id
+                WHEN 1 THEN 'RAY'
+                WHEN 2 THEN 'MINI'
+                WHEN 3 THEN 'AVANTE'
+                WHEN 4 THEN 'K3'
+                WHEN 5 THEN 'SONATA'
+                WHEN 6 THEN 'K5'
+                WHEN 7 THEN 'SELTOS'
+                WHEN 8 THEN 'SPORTAGE'
+                WHEN 9 THEN 'IONIQ5'
+                WHEN 10 THEN 'TESLA3'
+                END,
+            '-',
+            LPAD(b.branch_id, 2, '0'),
+            '-',
+            LPAD(n.seq, 4, '0')
+    ) AS vin,
+
+    2023 + (s.spec_id % 2) AS model_year,
+    'AVAILABLE',
+    NULL,
+    DATE_ADD('2026-01-01 10:00:00',
+             INTERVAL (b.branch_id * 10 + s.spec_id + n.seq) DAY),
+    10000 + (b.branch_id * 2000) + (s.spec_id * 300) + (n.seq * 1500),
+    350000,
+    TRUE,
+    'Y',
+    NULL
+FROM
+    (SELECT 1 spec_id UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL
+     SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL
+     SELECT 9 UNION ALL SELECT 10) s
+        CROSS JOIN
+    (SELECT 2 branch_id UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) b
+        CROSS JOIN
+    (SELECT 1 seq UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) n;
+
 
 
 INSERT INTO PRICE_POLICY (
@@ -123,7 +183,62 @@ INSERT INTO PRICE_POLICY (
     base_price, discount_rate,
     valid_from, valid_to, is_active, use_yn
 )
-VALUES (1, 1, 'DAILY', null, 50, NOW(), '2099-12-31', TRUE, 'Y');
+VALUES (1, 1, 'DAILY', null, 50, NOW(), '2099-12-31', TRUE, 'Y'),
+       (null, 1, 'MONTHLY', null, 50, NOW(), '2099-12-31', TRUE, 'Y');
+
+INSERT INTO PRICE_POLICY (
+    spec_id,
+    branch_id,
+    price_type,
+    base_price,
+    discount_rate,
+    valid_from,
+    valid_to,
+    is_active,
+    use_yn
+)
+SELECT
+    s.spec_id,
+    b.branch_id,
+    p.price_type,
+    NULL AS base_price,
+    FLOOR(10 + (RAND() * 41)) AS discount_rate, -- 10 ~ 50
+    NOW() AS valid_from,
+    '2099-12-31' AS valid_to,
+    TRUE AS is_active,
+    'Y' AS use_yn
+FROM
+    (
+        -- spec_id: 1~10 + NULL(전역)
+        SELECT 1 AS spec_id UNION ALL
+        SELECT 2 UNION ALL
+        SELECT 3 UNION ALL
+        SELECT 4 UNION ALL
+        SELECT 5 UNION ALL
+        SELECT 6 UNION ALL
+        SELECT 7 UNION ALL
+        SELECT 8 UNION ALL
+        SELECT 9 UNION ALL
+        SELECT 10 UNION ALL
+        SELECT NULL
+    ) s
+        CROSS JOIN
+    (
+        -- branch_id: 1~5
+        SELECT 1 AS branch_id UNION ALL
+        SELECT 2 UNION ALL
+        SELECT 3 UNION ALL
+        SELECT 4 UNION ALL
+        SELECT 5
+    ) b
+        CROSS JOIN
+    (
+        -- price_type
+        SELECT 'DAILY' AS price_type UNION ALL
+        SELECT 'MONTHLY'
+    ) p;
+
+
 
 
 INSERT INTO faq (category, question, answer) VALUES
@@ -137,12 +252,7 @@ INSERT INTO faq (category, question, answer) VALUES
 
 
 
-INSERT INTO PRICE_POLICY (
-    spec_id, branch_id, price_type,
-    base_price, discount_rate,
-    valid_from, valid_to, is_active, use_yn
-)
-VALUES (null, 1, 'MONTHLY', null, 50, NOW(), '2099-12-31', TRUE, 'Y');
+
 
 
 INSERT INTO `event`
