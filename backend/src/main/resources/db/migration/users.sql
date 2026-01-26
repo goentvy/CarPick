@@ -51,3 +51,9 @@ ALTER TABLE users
 UPDATE users
 SET role='ADMIN'
 WHERE email='test0003@gmail.com';
+
+-- accessToken 컬럼 삭제 (이게 제일 중요)
+ALTER TABLE users DROP COLUMN accesstoken;
+
+-- marketing_agree에 기본값 주기 (임시방편)
+ALTER TABLE users MODIFY marketing_agree INTEGER DEFAULT 0 NOT NULL;
