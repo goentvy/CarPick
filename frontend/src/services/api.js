@@ -34,7 +34,7 @@ const normalizeDateFields = (obj) => {
     if (obj[k]) obj[k] = toBackendDateTime(obj[k]);
   });
 };
-
+//==============================
 api.interceptors.request.use((config) => {
   const method = config.method?.toLowerCase();
   const url = config.url || "";
@@ -64,10 +64,22 @@ api.interceptors.request.use((config) => {
   const raw = localStorage.getItem("user-storage");
   if (raw) {
     try {
-      const accessToken = JSON.parse(raw)?.state?.accessToken;
-      if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
-    } catch {
-      // JSON 깨져있으면 무시
+      const parsed = JSON.parse(raw);
+
+      // ❌ 기존 (서로 다른 키라서 항상 undefined)
+      // const accessToken = parsed?.state?.accessToken;
+
+      // ✅ 수정: Header.jsx와 동일한 키로 통일
+      const token =
+        parsed?.state?.token ||   // zustand persist 구조
+        parsed?.token;            // 혹시 단순 저장된 경우 대비
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+    } catch (e) {
+      console.error("토큰 파싱 실패", e);
     }
   }
 
