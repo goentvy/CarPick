@@ -3,7 +3,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import ContentTopLogo from '../../../components/common/ContentTopLogo';
 
-
 const GuestView = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
@@ -25,6 +24,10 @@ const GuestView = () => {
             alert(message);
             console.error(err);
         }
+    };
+
+    const handleLogin = () => {
+        navigate('/login');
     };
 
     return (
@@ -58,10 +61,17 @@ const GuestView = () => {
                 </div>
                 <button
                     onClick={handleSearch}
-                    className="w-full bg-brand text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-600 transition mb-4"
+                    className="w-full bg-brand text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-600 transition mb-3"
                     disabled={!email.trim() || !reservationNumber.trim()}
                 >
                     예약조회
+                </button>
+                
+                <button
+                    onClick={handleLogin}
+                    className="w-full bg-gray-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-gray-700 transition border border-gray-400"
+                >
+                    로그인
                 </button>
             </div>
         </div>
