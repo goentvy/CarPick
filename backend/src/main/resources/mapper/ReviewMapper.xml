@@ -4,6 +4,11 @@
 
 <mapper namespace="com.carpick.domain.member.mapper.ReviewMapper">
 
+    <!-- ✅ 1. specId 조회 쿼리 추가 (맨 위) -->
+    <select id="findSpecIdByReservationId" resultType="long">
+        SELECT spec_id FROM reservations WHERE reservation_id = #{reservationId}
+    </select>
+
     <select id="findByUserId" resultType="com.carpick.domain.member.dto.ReviewResponse">
         SELECT id, reservation_id as reservationId, car_name as carName, rating, content, period, DATE_FORMAT(created_at, '%Y-%m-%d') as createdAt
         FROM reviews
@@ -23,9 +28,10 @@
         WHERE id = #{reviewId} AND user_id = #{userId}
     </select>
 
+    <!-- ✅ 2. INSERT에서 1 → #{specId}로 변경 -->
     <insert id="createReview">
         INSERT INTO reviews (user_id, reservation_id, spec_id, car_name, rating, content, period, created_at)
-        VALUES (#{userId}, #{reservationId}, 1, #{carName}, #{rating}, #{content}, 'N/A', CURRENT_TIMESTAMP)
+        VALUES (#{userId}, #{reservationId}, #{specId}, #{carName}, #{rating}, #{content}, 'N/A', CURRENT_TIMESTAMP)
     </insert>
 
     <select id="findByReservationId" resultType="com.carpick.domain.member.dto.ReviewResponse">
