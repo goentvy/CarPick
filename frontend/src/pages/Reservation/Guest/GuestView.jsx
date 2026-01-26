@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import ContentTopLogo from '../../../components/common/ContentTopLogo';
 
+
 const GuestView = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ const GuestView = () => {
         }
 
         try {
-            const res = await axios.get('http://localhost:8080/api/guest/reservation', {
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/guest/reservation`,{
                 params: { email: email.trim(), reservationNumber: reservationNumber.trim() }
             });
             navigate('/guest/reservation-detail', { state: res.data });

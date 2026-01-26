@@ -46,7 +46,7 @@ const YearPage = () => {
       });
   }, []);
 
-  if (loading) return <div className="loading-container">데이터 로딩 중...</div>;
+  if (loading) return <div className="loading-container"></div>;
 
   return (
     <div className="year-container">
