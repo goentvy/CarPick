@@ -22,15 +22,26 @@ public class GuestReservationDto {
     private String status;
 
     public static GuestReservationDto from(Reservation reservation) {
+        String driverName = "";
+        if (reservation.getDriverLastName() != null) driverName += reservation.getDriverLastName();
+        if (reservation.getDriverFirstName() != null) driverName += reservation.getDriverFirstName();
+
         return new GuestReservationDto(
                 reservation.getReservationNo(),
                 reservation.getDriverEmail(),
-                reservation.getDriverLastName() + reservation.getDriverFirstName(),
-                reservation.getDriverPhone(),
-                reservation.getStartDate().toLocalDate(),
-                reservation.getEndDate().toLocalDate(),
-                reservation.getTotalAmountSnapshot().longValue(),
-                reservation.getReservationStatus().name()
+                driverName.isEmpty() ? "비회원" : driverName,
+                reservation.getDriverPhone() != null ? reservation.getDriverPhone() : "",
+
+                // 날짜 null-safe
+                reservation.getStartDate() != null ? reservation.getStartDate().toLocalDate() : null,
+                reservation.getEndDate() != null ? reservation.getEndDate().toLocalDate() : null,
+
+                // BigDecimal null-safe
+                reservation.getTotalAmountSnapshot() != null ? reservation.getTotalAmountSnapshot().longValue() : 0L,
+
+                // Enum null-safe
+                reservation.getReservationStatus() != null ? reservation.getReservationStatus().name() : "UNKNOWN"
         );
     }
+
 }
