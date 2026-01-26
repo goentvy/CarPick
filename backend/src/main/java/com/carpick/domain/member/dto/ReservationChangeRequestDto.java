@@ -26,7 +26,7 @@ public class ReservationChangeRequestDto {
     private String oldCarName;
 
     @NotNull
-    private Integer oldPrice;
+    private Long oldPrice;
 
     @NotBlank
     private String newStartDate;
@@ -41,11 +41,15 @@ public class ReservationChangeRequestDto {
     private String newCarName;
 
     @NotNull
-    private Integer newPrice;
+    private Long newPrice;
 
     @NotNull
-    private Integer priceDifference;
+    private Long priceDifference;
 
     @NotNull
     private Integer days;
+
+
+    private Long insuranceExtraDailyPrice;
+    private Integer insuranceId;
 }

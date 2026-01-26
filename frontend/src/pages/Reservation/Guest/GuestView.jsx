@@ -66,7 +66,7 @@ const GuestView = () => {
                 >
                     예약조회
                 </button>
-                
+
                 <button
                     onClick={handleLogin}
                     className="w-full bg-gray-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-gray-700 transition border border-gray-400"
