@@ -342,12 +342,12 @@ INSERT INTO PRICE (spec_id, daily_price, monthly_price, use_yn, created_at, upda
                                                                                                 (2,  65000, 300000,   'Y', NOW(), NOW()), -- K3
                                                                                                 (3,  52000, 270000,   'Y', NOW(), NOW()),
                                                                                                 (4,  68000, 250000,   'Y', NOW(), NOW()),
-                                                                                                (5,  55000, 0,   'Y', NOW(), NOW()),
-                                                                                                (6,  85000, 0,   'Y', NOW(), NOW()), -- K5
-                                                                                                (7,  70000, 0,   'Y', NOW(), NOW()), -- 아반떼
-                                                                                                (8,  90000, 0,   'Y', NOW(), NOW()), -- 쏘나타
-                                                                                                (9,  60000, 0,   'Y', NOW(), NOW()), -- 레이
-                                                                                                (10, 95000, 0,   'Y', NOW(), NOW());
+                                                                                                (5,  55000, 300000,   'Y', NOW(), NOW()),
+                                                                                                (6,  85000, 400000,   'Y', NOW(), NOW()), -- K5
+                                                                                                (7,  70000, 500000,   'Y', NOW(), NOW()), -- 아반떼
+                                                                                                (8,  90000, 600000,   'Y', NOW(), NOW()), -- 쏘나타
+                                                                                                (9,  60000, 700000,   'Y', NOW(), NOW()), -- 레이
+                                                                                                (10, 95000, 800000,   'Y', NOW(), NOW());
 
 
 
@@ -487,6 +487,50 @@ INSERT INTO `event` (`id`, `title`, `content`, `startDate`, `endDate`, `thumbnai
                                                                                                                     (13, '[OPEN] 카픽 부산역점 실시간 예약 가능', '<p><img style="width: 730px;" src="/upload/editor/adcbcc8a-4e2c-4212-a1a5-b50abb1319fa.png"><br></p>', '2025-12-01', '2026-01-15', '897c5c03-368b-4e95-bb87-884aaeade275.png', '2025-12-16 17:23:41', '2025-12-16 17:23:41'),
                                                                                                                     (14, '[EVENT] 홈페이지 예약하면 무제한 포인트 적립!', '<p><img style="width: 730px;" src="/upload/editor/3acbfbf7-6687-43be-ae96-fe72aed2b234.png"><br></p>', '2025-12-21', '2026-02-28', 'f333814f-f616-431e-bc80-0ef6ee226911.png', '2025-12-16 17:25:21', '2025-12-16 17:25:21');
 
+
+INSERT IGNORE INTO VEHICLE_INVENTORY (
+    spec_id, branch_id, vehicle_no, vin, model_year,
+    operational_status, mileage, last_inspected_at,
+    mileage_km, lifecycle_limit_km, is_active, use_yn, deleted_at
+)
+SELECT
+    cs.spec_id AS spec_id,
+    b.branch_id,
+
+    /* 차량번호: 기존 스타일 유지 */
+    CONCAT(
+            LPAD(11 + cs.spec_id, 2, '0'),
+            SUBSTRING(cs.display_name_short, 1, 1),
+            LPAD((b.branch_id * 1000) + (cs.spec_id * 10) + n.seq, 4, '0')
+    ) AS vehicle_no,
+
+    /* ✅ VIN에 차 이름 포함 */
+    CONCAT(
+            'VIN-',
+            UPPER(cs.display_name_short),
+            '-',
+            LPAD(n.seq, 4, '0')
+    ) AS vin,
+
+    cs.model_year_base AS model_year,
+    'AVAILABLE' AS operational_status,
+    NULL AS mileage,
+    DATE_ADD('2026-01-01 10:00:00',
+             INTERVAL (b.branch_id * 10 + cs.spec_id + n.seq) DAY) AS last_inspected_at,
+    10000
+        + (b.branch_id * 2000)
+        + (cs.spec_id * 300)
+        + (n.seq * 1500) AS mileage_km,
+    350000 AS lifecycle_limit_km,
+    TRUE AS is_active,
+    'Y' AS use_yn,
+    NULL AS deleted_at
+FROM
+    CAR_SPEC cs
+        CROSS JOIN
+    (SELECT 2 branch_id UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) b
+        CROSS JOIN
+    (SELECT 1 seq UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) n;
 
 
 
