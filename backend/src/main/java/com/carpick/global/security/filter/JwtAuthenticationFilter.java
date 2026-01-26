@@ -81,13 +81,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (user.getDeletedAt() != null) {
                 throw new AuthenticationException(ErrorCode.AUTH_CREDENTIALS_EXPIRED);
             }
+// ✅ JWT에서 권한 추출
+            String role = jwtProvider.getRole(token);  // "ADMIN" or "USER"
 
+// ✅ Spring Security 형식으로 변환
+            String securityRole = "ROLE_" + role;
             // 5️⃣ SecurityContext 등록
             CustomUserDetails userDetails = new CustomUserDetails(
                     user.getUserId(),
                     user.getEmail(),
                     user.getPassword(),
-                    "ROLE_USER"
+                    securityRole   // 👉 ROLE_ADMIN / ROLE_USE
             );
 
             UsernamePasswordAuthenticationToken authentication =
