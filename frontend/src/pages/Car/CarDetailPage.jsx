@@ -388,9 +388,6 @@ export default function CarDetailPage() {
                       <div className="text-sm font-semibold text-[#1A1A1A]">
                         {review.carName}
                       </div>
-                      <div className="text-xs text-[#888888] mt-1">
-                        {review.period}
-                      </div>
                     </div>
 
                     <div className="flex items-center">
