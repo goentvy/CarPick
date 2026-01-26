@@ -42,15 +42,8 @@ const PickupLocationModal = ({ onClose, onSelect }) => {
             onClick={() => onClose()} />
         </div>
       </div>
-      <div className="flex w-full p-2 bg-blue-50 border border-gray-300 rounded-md mb-3">
-        <span><i className="fa-solid fa-magnifying-glass"></i></span>
-        <input type="search" placeholder="주소를 입력해주세요." className="w-full outline-none pl-4" />
-      </div>
-      <div className="flex">
-        <button type="button" className="w-full bg-blue-50 border border-gray-300 rounded-md py-3 mb-3 font-bold cursor-pointer">현재 위치에서 검색</button>
-      </div>
       <div className="flex flex-row justify-between w-full">
-        <div className="w-full">
+        <div className="px-3 w-full">
           <ul>
             {domestic.map((loc) => (
               <li
