@@ -31,7 +31,8 @@ const schema = yup.object().shape({
     gender: yup.string().required("성별을 선택해주세요"),
     marketingAgree: yup
         .string()
-        .oneOf(["agree"], "회원가입은 수신동의 시에만 가능합니다")
+        // .oneOf(["agree"], "회원가입은 수신동의 시에만 가능합니다")
+        // .required("정보제공 수신 여부를 선택해주세요"),
         .required("정보제공 수신 여부를 선택해주세요"),
 });
 
@@ -93,8 +94,25 @@ const SignupJoinus = () => {
         const { confirmPassword: _confirmPassword, ...payload } = formData;
         try {
             const data = await signup({
-                ...payload,
-                marketingAgree: formData.marketingAgree === 'agree',
+                // ...payload,
+                // marketingAgree: formData.marketingAgree === 'agree',
+                email: formData.email,
+                password: formData.password,
+                name: formData.name,
+
+                // ✅ 하이픈 제거 (서버 validation 안정화)
+                phone: formData.phone.replaceAll("-", ""),
+
+                // ✅ LocalDate 대응 포맷
+                birth: formData.birth,
+
+                // ✅ DTO 필드명 맞추기
+                genderStr: formData.gender,
+
+                // ✅ boolean → int 변환
+                marketingAgree: formData.marketingAgree === "agree" ? 1 : 0,
+
+                provider: "LOCAL"
             });
 
             if (data.success) {

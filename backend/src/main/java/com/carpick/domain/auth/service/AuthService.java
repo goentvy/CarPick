@@ -1,11 +1,13 @@
 package com.carpick.domain.auth.service;
 
-
 import java.util.Optional;
 
+import com.carpick.domain.auth.entity.Gender;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.carpick.domain.auth.dto.login.LoginRequest;
 import com.carpick.domain.auth.dto.login.LoginResponse;
@@ -18,53 +20,37 @@ import com.carpick.global.exception.AuthenticationException;
 import com.carpick.global.exception.enums.ErrorCode;
 import com.carpick.global.security.jwt.JwtProvider;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-    //토큰 객체, 비밀번호 해쉬 변환 객체 , 유저매퍼(db핸들링) 주입
+
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     public LoginResponse login(LoginRequest request) {
-        //일반 로그인 메서드
-        User user = userMapper.findByEmail(request.getEmail());
-        // ✅ 여기 (검증 직전)
         log.info("login attempt email={}", request.getEmail());
-        log.info("login raw password = {}", request.getPassword());
-        log.info("db encoded password = {}", user != null ? user.getPassword() : null);
 
-        //로그인 검증용 메서드 (비밀번호 평문 그대로 비교하지 않음.)
-        if (user == null ||
-                !passwordEncoder.matches(
-                        request.getPassword(),
-                        user.getPassword()
-                )
-        ) {
-            // ✅ 예외 기반 처리
+        User user = Optional.ofNullable(userMapper.findByEmail(request.getEmail()))
+                .orElseThrow(() -> new AuthenticationException(
+                        ErrorCode.UNAUTHORIZED,
+                        "아이디 혹은 비밀번호가 틀렸습니다."
+                ));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AuthenticationException(
                     ErrorCode.UNAUTHORIZED,
                     "아이디 혹은 비밀번호가 틀렸습니다."
             );
-
         }
 
         String role = Optional.ofNullable(user.getRole())
                 .orElse(Role.USER)
                 .name();
 
-        //토큰을 발급받음. 차후 개인정보수정 탈퇴할때 쓰임
-        String accessToken = jwtProvider.generateToken(
-                user.getUserId(),
-                role
-        );
+        String accessToken = jwtProvider.generateToken(user.getUserId(), role);
 
-
-        //포스트맨에서 로그인 성공후에 나오는 메시지
         return new LoginResponse(
                 true,
                 "로그인 성공",
@@ -74,10 +60,7 @@ public class AuthService {
                 user.getMembershipGrade(),
                 user.getRole()
         );
-
-
     }
-
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
@@ -86,39 +69,77 @@ public class AuthService {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
 
-        // 2. 가입 유형 파악 (provider가 있으면 소셜, 없으면 로컬)
-        boolean isSocial = request.getProvider() != null && !request.getProvider().equalsIgnoreCase("local");
+        // 2. 가입 유형 파악 (provider가 null이거나 "LOCAL"이면 일반 가입)
+        boolean isSocial = request.getProvider() != null
+                && !request.getProvider().equalsIgnoreCase("local");
+
+        User user = new User();
+
+        // 필수 필드 set
+        user.setEmail(request.getEmail());
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
+        user.setBirth(request.getBirth());
+
+        // =====================
+// 성별 변환 (프론트에서 "M" / "F" enum 그대로 받음)
+// =====================
+
+        try {
+            user.setGender(Gender.valueOf(request.getGenderStr()));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("성별 값이 올바르지 않습니다.");
+        }
+
+        // 마케팅 동의 기본 비동의 (법적으로 안전)
+        user.setMarketingAgree(
+                request.getMarketingAgree() != null ? request.getMarketingAgree() : 0
+        );
+
+        // 기본값들
+        user.setMembershipGrade("BASIC");
+        user.setRole(Role.USER);
+
+        String accessToken = null;
 
         if (!isSocial) {
-            // [일반 가입 로직]
-            // 현재 request.password에는 사용자가 입력한 '1234' 같은 평문이 들어있음
-            String rawPassword = request.getPassword();
-
-            if (rawPassword == null || rawPassword.isEmpty()) {
+            // 일반 가입
+            if (request.getPassword() == null || request.getPassword().isEmpty()) {
                 throw new IllegalArgumentException("일반 회원가입 시 비밀번호는 필수입니다.");
             }
 
-            // 평문을 암호화해서 다시 그 자리에(passwordHash) 덮어씌움
-            String encodedPassword = passwordEncoder.encode(rawPassword);
-            request.setPassword(encodedPassword);
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            user.setPassword(encodedPassword);
+            user.setProvider("LOCAL");
+            user.setProviderId(null);  // 일반 가입은 providerId 없음
 
-            // DB 저장 (일반 가입 전용 매퍼 호출)
-            userMapper.insertLocalUser(request);
+            userMapper.insertLocalUser(user);
         } else {
-            // [소셜 가입 로직]
-            // 소셜은 비밀번호가 없으므로 암호화 없이 바로 저장
+            // 소셜 가입
+            if (request.getProviderId() == null || request.getProviderId().isEmpty()) {
+                throw new IllegalArgumentException("소셜 회원가입 시 providerId는 필수입니다.");
+            }
 
+            user.setPassword(null);  // 소셜은 비밀번호 없음
+            user.setProvider(request.getProvider().toUpperCase());  // "KAKAO", "NAVER" 등 대문자 정규화
+            user.setProviderId(request.getProviderId());
+
+            userMapper.insertSocialUser(user);
         }
 
-        return new SignupResponse(true, "회원가입 성공", null, request.getEmail());
+        // insert 후 userId 자동 바인딩 확인 (안전장치)
+        if (user.getUserId() == null) {
+            throw new RuntimeException("회원가입 실패: 사용자 ID가 생성되지 않았습니다.");
+        }
+
+        // 가입 후 즉시 토큰 발급 (자동 로그인)
+        accessToken = jwtProvider.generateToken(user.getUserId(), user.getRole().name());
+
+        return new SignupResponse(true, "회원가입 성공", accessToken, user.getEmail());
     }
 
-    // ▼▼▼ [추가할 코드] 이메일 중복 확인 전용 메서드 ▼▼▼
-    @Transactional // 읽기 전용이라 성능에 유리
+    @Transactional(readOnly = true)
     public boolean checkEmailDuplicate(String email) {
-        // count가 0보다 크면(1 이상이면) 이미 존재하는 것 -> true 반환
         return userMapper.existsByEmail(email) > 0;
     }
-
-
 }

@@ -33,18 +33,17 @@
         <result property="marketingAgree" column="marketing_agree" jdbcType="INTEGER"/>
         <result property="membershipGrade" column="membership_grade"/>
 
-        <!-- ✅ 권한 (핵심 추가) -->
+        <!-- ✅ 권한 -->
         <result property="role"
                 column="role"
                 javaType="com.carpick.domain.auth.entity.Role"/>
-
-        <!-- 토큰 -->
-        <result property="accessToken" column="accesstoken"/>
 
         <!-- audit -->
         <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
         <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
         <result property="deletedAt" column="deleted_at" javaType="java.time.LocalDateTime"/>
+
+        <!-- accessToken 컬럼 삭제했으니 result도 없앰 -->
 
     </resultMap>
 
@@ -93,7 +92,8 @@
     <!-- INSERT -->
     <!-- ===================== -->
 
-    <insert id="insertLocalUser">
+    <insert id="insertLocalUser" parameterType="com.carpick.domain.auth.entity.User" useGeneratedKeys="true"
+            keyProperty="userId">
         INSERT INTO users (
         email,
         password,
@@ -104,7 +104,6 @@
         marketing_agree,
         membership_grade,
         role,
-        accesstoken,
         provider
         )
         VALUES (
@@ -115,40 +114,34 @@
         #{name},
         #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         #{marketingAgree},
-        'BASIC',
-        'USER',
-        #{accessToken},
-        'LOCAL'
+        #{membershipGrade},
+        #{role},
+        #{provider}
         )
     </insert>
 
-    <insert id="insertSocialUser"
+    <insert id="insertSocialUser" parameterType="com.carpick.domain.auth.entity.User"
             useGeneratedKeys="true"
-            keyProperty="userId"
-            keyColumn="user_id">
+            keyProperty="userId">
         INSERT INTO users (
         email,
-        password,
         name,
         provider,
         provider_id,
         gender,
         marketing_agree,
         membership_grade,
-        role,
-        accesstoken
+        role
         )
         VALUES (
         #{email},
-        #{password},
         #{name},
         #{provider},
         #{providerId},
         #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
         #{marketingAgree},
-        'BASIC',
-        'USER',
-        #{accessToken}
+        #{membershipGrade},
+        #{role}
         )
     </insert>
 
@@ -167,12 +160,6 @@
         AND deleted_at IS NULL
     </update>
 
-    <update id="updateAccessToken">
-        UPDATE users
-        SET accesstoken = #{accessToken},
-        updated_at = NOW()
-        WHERE user_id = #{userId}
-        AND deleted_at IS NULL
-    </update>
+    <!-- updateAccessToken 삭제함. JWT 토큰 DB 저장하지 마라 개새끼야 -->
 
 </mapper>
