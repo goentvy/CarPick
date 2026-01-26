@@ -3,7 +3,14 @@ import { useEffect } from "react";
 import useReservationStore from "../../store/useReservationStore";
 
 const DriverInfoSection = () => {
-    const { register, setValue, reset, formState: { errors } } = useFormContext();
+    const {
+        register,
+        setValue,
+        reset,
+        watch,
+        formState: { errors },
+    } = useFormContext();
+
     const driverInfo = useReservationStore((state) => state.driverInfo);
 
     // 컴포넌트 마운트 시 Zustand 값으로 폼 복원
@@ -13,19 +20,49 @@ const DriverInfoSection = () => {
         }
     }, [driverInfo, reset]);
 
-    // 입력 시 Zustand에도 반영
+    // =========================
+    // 휴대폰 자동 하이픈
+    // =========================
+    const phoneValue = watch("phone") || "";
+
+    const formatPhoneNumber = (value) => {
+        if (!value) return "";
+        const numbers = String(value).replace(/[^0-9]/g, "");
+        if (numbers.length <= 3) return numbers;
+        if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+    };
+
+    // =========================
+    // 입력 시 Zustand + RHF 반영
+    // =========================
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setValue(name, value, { shouldValidate: true });
+
+        setValue(name, value, { shouldValidate: true, shouldDirty: true });
+
         useReservationStore.getState().setDriverInfo({
             ...driverInfo,
             [name]: value,
         });
     };
 
+    // 휴대폰만 포맷 적용해서 저장
+    const handlePhoneChange = (e) => {
+        const formatted = formatPhoneNumber(e.target.value);
+
+        setValue("phone", formatted, { shouldValidate: true, shouldDirty: true });
+
+        useReservationStore.getState().setDriverInfo({
+            ...driverInfo,
+            phone: formatted,
+        });
+    };
+
     return (
         <section className="w-full max-w-[640px] xx:p-2 sm:p-4">
             <h2 className="xx:text-base sm:text-lg font-semibold mb-4">운전자 정보</h2>
+
             <div className="space-y-4 xx:space-y-2">
                 {/* 성 / 이름 */}
                 <div className="w-full flex xx:flex-col sm:flex-row xx:gap-2 sm:gap-4">
@@ -41,6 +78,7 @@ const DriverInfoSection = () => {
                             <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
                         )}
                     </div>
+
                     <div className="sm:flex-1">
                         <input
                             type="text"
@@ -62,6 +100,7 @@ const DriverInfoSection = () => {
                         placeholder="생년월일 (YYYYMMDD)"
                         {...register("birth")}
                         onChange={handleChange}
+                        inputMode="numeric"
                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     {errors.birth && (
@@ -69,15 +108,20 @@ const DriverInfoSection = () => {
                     )}
                 </div>
 
-                {/* 휴대폰 번호 */}
+                {/* 휴대폰 번호 (자동 하이픈) */}
                 <div>
                     <input
                         type="tel"
                         placeholder="휴대폰 번호"
-                        {...register("phone")}
-                        onChange={handleChange}
+                        value={phoneValue}            // ✅ 보이는 값은 하이픈 포함
+                        onChange={handlePhoneChange}  // ✅ 입력 시 자동 포맷 + store 반영
+                        inputMode="numeric"
+                        maxLength={13}
                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
+                    {/* ✅ yup/register는 유지 (RHF 내부 값은 setValue로 갱신됨) */}
+                    <input type="hidden" {...register("phone")} />
+
                     {errors.phone && (
                         <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
                     )}

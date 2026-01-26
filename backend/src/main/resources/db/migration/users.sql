@@ -57,3 +57,8 @@ ALTER TABLE users DROP COLUMN accesstoken;
 
 -- marketing_agree에 기본값 주기 (임시방편)
 ALTER TABLE users MODIFY marketing_agree INTEGER DEFAULT 0 NOT NULL;
+
+UPDATE users
+SET role='ADMIN'
+WHERE email='
+kim1@naver.com';
