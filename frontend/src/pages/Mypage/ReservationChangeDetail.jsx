@@ -5,7 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import useReservationStore from "../../store/useReservationStore";
 import api from "../../services/api";
 import CardPaymentForm from "../Payment/CardPaymentForm.jsx";
-import ReservationInsurance from "../../pages/Reservation/ReservationInsurance.jsx";
+import InsuranceDetailModal from "../../pages/Reservation/InsuranceDetailModal.jsx"; // ✅ 추가
 
 const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -36,7 +36,14 @@ function ReservationChangeDetail() {
     const { reservationId } = useParams();
     const setCardPayment = useReservationStore((state) => state.setCardPayment);
 
-    const insurance = useReservationStore((s) => s.insurance);
+    // ✅ 로컬 보험 상태
+    const [localInsurance, setLocalInsurance] = useState({
+        code: "NONE",
+        extraDailyPrice: 0,
+        price: 0
+    });
+    // ✅ 모달 상태
+    const [showInsuranceModal, setShowInsuranceModal] = useState(false);
 
     const [reservation, setReservation] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -66,7 +73,6 @@ function ReservationChangeDetail() {
         }
     });
 
-    // ✅ 가격 계산 함수 useCallback으로 변경
     const calculateNewPrice = useCallback(() => {
         if (!selectedCarId || !startDate || !endDate) return 0;
         if (new Date(endDate) <= new Date(startDate)) return 0;
@@ -78,7 +84,7 @@ function ReservationChangeDetail() {
         const carDailyPrice = Number(
             selectedCar.dailyPrice || selectedCar.originalPrice || 0
         );
-        const extraDailyInsurance = Number(insurance?.extraDailyPrice || 0);
+        const extraDailyInsurance = Number(localInsurance?.extraDailyPrice || 0);
 
         const totalPerDay = carDailyPrice + extraDailyInsurance;
         const total = totalPerDay * days;
@@ -93,19 +99,17 @@ function ReservationChangeDetail() {
         });
 
         return total;
-    }, [selectedCarId, startDate, endDate, cars, insurance?.extraDailyPrice]);
+    }, [selectedCarId, startDate, endDate, cars, localInsurance?.extraDailyPrice]);
 
-    // ✅ newPrice useMemo으로 최적화
     const newPrice = useMemo(() => calculateNewPrice(), [calculateNewPrice]);
     const oldPrice = reservation?.totalAmountSnapshot || 0;
     const priceDifference = newPrice - oldPrice;
     const isValidSelection =
         startDate && endDate && new Date(endDate) > new Date(startDate);
 
-    // ✅ useEffect 의존성 수정: insurance → insurance?.extraDailyPrice
     useEffect(() => {
         console.log("📊 의존성 변경 감지:", {
-            insurance: insurance?.extraDailyPrice,
+            insurance: localInsurance?.extraDailyPrice,
             startDate,
             endDate,
             selectedCarId
@@ -123,9 +127,8 @@ function ReservationChangeDetail() {
         });
 
         setShowPaymentForm(currentNewPrice - oldPriceVal > 0);
-    }, [startDate, endDate, selectedCarId, reservation, cars, insurance?.extraDailyPrice]);
+    }, [startDate, endDate, selectedCarId, reservation, cars, localInsurance?.extraDailyPrice]);
 
-    // 예약 상세 + 지점 + 차량 조회
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -135,7 +138,6 @@ function ReservationChangeDetail() {
                 const currentReservation = res.data;
                 console.log("📋 현재 예약 정보:", currentReservation);
 
-                // 브랜치
                 const branchId = currentReservation.pickupBranchId;
                 if (!branchId) throw new Error("브랜치 ID가 존재하지 않습니다.");
 
@@ -150,20 +152,14 @@ function ReservationChangeDetail() {
                         currentReservation.pickupAddress || "픽업 지점";
                 }
 
-                // 날짜 포맷
                 const formatDateForAPI = (dateString) =>
                     dateString
                         ? new Date(dateString).toISOString().split("T")[0]
                         : null;
 
-                const formattedStartDate = formatDateForAPI(
-                    currentReservation.startDate
-                );
-                const formattedEndDate = formatDateForAPI(
-                    currentReservation.endDate
-                );
+                const formattedStartDate = formatDateForAPI(currentReservation.startDate);
+                const formattedEndDate = formatDateForAPI(currentReservation.endDate);
 
-                // 차량 조회 + originalPrice → dailyPrice
                 let carsData = [];
                 if (formattedStartDate && formattedEndDate) {
                     const carsParams = {
@@ -187,25 +183,13 @@ function ReservationChangeDetail() {
                         specId: car.specId
                     }));
 
-                    console.table(
-                        carsData.map((car) => ({
-                            specId: car.specId,
-                            name: car.displayNameShort,
-                            originalPrice: car.originalPrice,
-                            dailyPrice: car.dailyPrice
-                        }))
-                    );
-
                     setCars(carsData);
 
-                    // 현재 차량 자동 선택
                     const currentSpecId =
                         currentReservation.specId ||
                         currentReservation.vehicleId ||
                         currentReservation.carId;
-                    const matched = carsData.find(
-                        (car) => car.specId === currentSpecId
-                    );
+                    const matched = carsData.find((car) => car.specId === currentSpecId);
                     if (matched) {
                         setSelectedCarId(matched.specId);
                         console.log("🎯 현재 차량 선택:", matched.displayNameShort);
@@ -228,7 +212,7 @@ function ReservationChangeDetail() {
     }, [reservationId]);
 
     const resolveInsuranceId = () => {
-        const extra = Number(insurance?.extraDailyPrice || 0);
+        const extra = Number(localInsurance?.extraDailyPrice || 0);
         if (extra === 0) return 1;
         if (extra === 15000) return 2;
         if (extra === 30000) return 3;
@@ -276,7 +260,7 @@ function ReservationChangeDetail() {
                 newPrice,
                 priceDifference,
                 days,
-                insuranceExtraDailyPrice: Number(insurance?.extraDailyPrice || 0),
+                insuranceExtraDailyPrice: Number(localInsurance?.extraDailyPrice || 0),
                 insuranceId: resolveInsuranceId()
             };
 
@@ -317,251 +301,279 @@ function ReservationChangeDetail() {
     }
 
     return (
-        <FormProvider {...methods}>
-            <form onSubmit={handleSubmit} className="max-w-[640px] mx-auto p-4">
-                <div className="mb-6">
-                    <button
-                        type="button"
-                        onClick={() => navigate("/Mypage/ReservationsList")}
-                        className="text-sm text-[#1D6BF3] hover:underline"
-                    >
-                        &lt; 돌아가기
-                    </button>
-                </div>
-
-                <h2 className="text-xl font-bold mb-2 ml-2 py-3">예약 변경</h2>
-
-                {/* 현재 예약 정보 */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
-                    <h3 className="text-lg font-semibold mb-4">현재 예약 정보</h3>
-                    <div className="space-y-3 text-sm">
-                        <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                            <span className="text-gray-600">픽업 위치</span>
-                            <span className="flex items-center">
-                                <span className="px-2 py-1 bg-gray-100 text-xs text-gray-500 rounded-full mr-2">
-                                    변경 불가
-                                </span>
-                                <span className="font-medium text-gray-900">
-                                    {pickupLocation}
-                                </span>
-                            </span>
-                        </div>
-                        <div className="flex justify-between pb-3 border-b border-gray-200">
-                            <span className="text-gray-600">차종</span>
-                            <span className="font-medium text-gray-900">
-                                {reservation.brand} {reservation.displayNameShort}
-                            </span>
-                        </div>
-                        <div className="flex justify-between pb-3 border-b border-gray-200">
-                            <span className="text-gray-600">픽업 날짜</span>
-                            <span className="font-medium text-gray-900">
-                                {formatDate(reservation.startDate)}
-                            </span>
-                        </div>
-                        <div className="flex justify-between pb-3 border-b border-gray-200">
-                            <span className="text-gray-600">반납 날짜</span>
-                            <span className="font-medium text-gray-900">
-                                {formatDate(reservation.endDate)}
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">결제 금액</span>
-                            <span className="font-bold text-lg text-gray-900">
-                                {formatPrice(oldPrice)}원
-                            </span>
-                        </div>
+        <>
+            <FormProvider {...methods}>
+                <form onSubmit={handleSubmit} className="max-w-[640px] mx-auto p-4">
+                    <div className="mb-6">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/Mypage/ReservationsList")}
+                            className="text-sm text-[#1D6BF3] hover:underline"
+                        >
+                            &lt; 돌아가기
+                        </button>
                     </div>
-                </div>
 
-                {/* 보험 선택 (ReservationInsurance) */}
-                <ReservationInsurance
-                    options={[
-                        {
-                            code: "NONE",
-                            label: "미가입",
-                            desc: "사고 시 고객부담금 전액",
-                            extraDailyPrice: 0
-                        },
-                        {
-                            code: "STANDARD",
-                            label: "일반자차",
-                            desc: "사고 시 고객부담금 30만원",
-                            extraDailyPrice: 15000
-                        },
-                        {
-                            code: "FULL",
-                            label: "완전자차",
-                            desc: "사고 시 고객부담금 면제",
-                            extraDailyPrice: 30000
-                        }
-                    ]}
-                />
+                    <h2 className="text-xl font-bold mb-2 ml-2 py-3">예약 변경</h2>
 
-                {/* 차종 선택 */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
-                    <h3 className="text-lg font-semibold mb-4">변경할 차종</h3>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        차종 선택
-                    </label>
-                    <select
-                        value={selectedCarId || ""}
-                        onChange={(e) => setSelectedCarId(Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
-                        disabled={cars.length === 0}
-                    >
-                        <option value="">
-                            {cars.length === 0
-                                ? "차량 정보를 불러오는 중..."
-                                : "차종을 선택해주세요"}
-                        </option>
-                        {cars.map((car) => {
-                            const carSpecId = car.specId;
-                            const carDailyPrice = Number(
-                                car.dailyPrice || car.originalPrice || 0
-                            );
-                            return (
-                                <option key={carSpecId} value={carSpecId}>
-                                    {car.displayNameShort} -{" "}
-                                    {formatPrice(carDailyPrice)}원/일
-                                </option>
-                            );
-                        })}
-                    </select>
-                    {cars.length === 0 && (
-                        <p className="text-xs text-gray-500 mt-1">
-                            지점 차량 정보를 불러오는 중...
-                        </p>
-                    )}
-                </div>
-
-                {/* 기간 선택 */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
-                    <h3 className="text-lg font-semibold mb-4">변경할 기간</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                픽업 날짜
-                            </label>
-                            <input
-                                ref={startDateRef}
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
-                                min={new Date().toISOString().split("T")[0]}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                반납 날짜
-                            </label>
-                            <input
-                                ref={endDateRef}
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* 금액 계산 (보험 반영) */}
-                <div
-                    className={`mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 ${
-                        isValidSelection ? "" : "opacity-70"
-                    }`}
-                >
-                    <h4 className="font-semibold text-gray-900 mb-3">
-                        금액 계산
-                    </h4>
-                    <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">기존 금액</span>
-                            <span className="text-gray-900">
-                                {formatPrice(oldPrice)}원
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">새 금액</span>
-                            <span
-                                className={`font-medium ${
-                                    isValidSelection
-                                        ? "text-gray-900"
-                                        : "text-gray-400"
-                                }`}
-                            >
-                                {formatPrice(newPrice)}원
-                            </span>
-                        </div>
-                        <div className="border-t border-blue-200 pt-2 flex justify-between items-start">
-                            <div>
-                                <span className="font-medium text-gray-900 block">
-                                    {priceDifference > 0 ? "추가 결제" : "환불"}
+                    {/* 현재 예약 정보 */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold mb-4">현재 예약 정보</h3>
+                        <div className="space-y-3 text-sm">
+                            <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                                <span className="text-gray-600">픽업 위치</span>
+                                <span className="flex items-center">
+                                    <span className="px-2 py-1 bg-gray-100 text-xs text-gray-500 rounded-full mr-2">
+                                        변경 불가
+                                    </span>
+                                    <span className="font-medium text-gray-900">
+                                        {pickupLocation}
+                                    </span>
                                 </span>
-                                {priceDifference <= 0 && (
-                                    <p className="text-xs text-blue-600 mt-1">
-                                        영업일 기준 1~3일 이내 초기 결제 수단으로
-                                        환불됩니다
-                                    </p>
-                                )}
                             </div>
+                            <div className="flex justify-between pb-3 border-b border-gray-200">
+                                <span className="text-gray-600">차종</span>
+                                <span className="font-medium text-gray-900">
+                                    {reservation.brand} {reservation.displayNameShort}
+                                </span>
+                            </div>
+                            <div className="flex justify-between pb-3 border-b border-gray-200">
+                                <span className="text-gray-600">픽업 날짜</span>
+                                <span className="font-medium text-gray-900">
+                                    {formatDate(reservation.startDate)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between pb-3 border-b border-gray-200">
+                                <span className="text-gray-600">반납 날짜</span>
+                                <span className="font-medium text-gray-900">
+                                    {formatDate(reservation.endDate)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">결제 금액</span>
+                                <span className="font-bold text-lg text-gray-900">
+                                    {formatPrice(oldPrice)}원
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ✅ 인라인 보험 선택 + 모달 링크 */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold mb-4">보험 선택</h3>
+
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                            {[
+                                { code: "NONE", label: "미가입", desc: "고객부담 전액", price: 0 },
+                                { code: "STANDARD", label: "일반자차", desc: "고객부담 30만", price: 15000 },
+                                { code: "FULL", label: "완전자차", desc: "고객부담 면제", price: 30000 }
+                            ].map((option) => (
+                                <div
+                                    key={option.code}
+                                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                                        localInsurance?.price === option.price
+                                            ? "border-blue-500 bg-blue-50 shadow-md"
+                                            : "border-gray-300 hover:border-gray-400"
+                                    }`}
+                                    onClick={() => setLocalInsurance({
+                                        code: option.code,
+                                        extraDailyPrice: option.price,
+                                        price: option.price
+                                    })}
+                                >
+                                    <div className="text-center">
+                                        <div className="font-bold text-lg text-blue-600 mb-1">
+                                            +{formatPrice(option.price)}원
+                                        </div>
+                                        <div className="font-semibold text-sm mb-1">{option.label}</div>
+                                        <div className="text-xs text-gray-500">{option.desc}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="text-center">
                             <span
-                                className={`font-bold text-lg ${
-                                    priceDifference > 0
-                                        ? "text-red-600"
-                                        : "text-blue-600"
-                                }`}
+                                className="text-sm text-blue-600 cursor-pointer hover:underline"
+                                onClick={() => setShowInsuranceModal(true)}
                             >
-                                {priceDifference > 0 ? "+" : ""}
-                                {formatPrice(Math.abs(priceDifference))}원
+                                보장내용을 알아볼까요?
                             </span>
                         </div>
-                        <div className="text-xs text-red-500">
-                            <p>
-                                픽업 위치, 운전자 변경은 취소 후 다시
-                                예약해주세요
+                    </div>
+
+                    {/* 차종 선택 */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold mb-4">변경할 차종</h3>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            차종 선택
+                        </label>
+                        <select
+                            value={selectedCarId || ""}
+                            onChange={(e) => setSelectedCarId(Number(e.target.value))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
+                            disabled={cars.length === 0}
+                        >
+                            <option value="">
+                                {cars.length === 0
+                                    ? "차량 정보를 불러오는 중..."
+                                    : "차종을 선택해주세요"}
+                            </option>
+                            {cars.map((car) => {
+                                const carSpecId = car.specId;
+                                const carDailyPrice = Number(
+                                    car.dailyPrice || car.originalPrice || 0
+                                );
+                                return (
+                                    <option key={carSpecId} value={carSpecId}>
+                                        {car.displayNameShort} -{" "}
+                                        {formatPrice(carDailyPrice)}원/일
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        {cars.length === 0 && (
+                            <p className="text-xs text-gray-500 mt-1">
+                                지점 차량 정보를 불러오는 중...
                             </p>
+                        )}
+                    </div>
+
+                    {/* 기간 선택 */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+                        <h3 className="text-lg font-semibold mb-4">변경할 기간</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    픽업 날짜
+                                </label>
+                                <input
+                                    ref={startDateRef}
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
+                                    min={new Date().toISOString().split("T")[0]}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    반납 날짜
+                                </label>
+                                <input
+                                    ref={endDateRef}
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* 결제 폼 */}
-                {showPaymentForm && priceDifference > 0 && (
-                    <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-orange-200">
-                        <div className="flex items-center mb-4">
-                            <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                            <h3 className="text-lg font-semibold text-red-600">
-                                추가 결제 정보 입력
-                            </h3>
+                    {/* 금액 계산 */}
+                    <div
+                        className={`mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 ${
+                            isValidSelection ? "" : "opacity-70"
+                        }`}
+                    >
+                        <h4 className="font-semibold text-gray-900 mb-3">
+                            금액 계산
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">기존 금액</span>
+                                <span className="text-gray-900">
+                                    {formatPrice(oldPrice)}원
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">새 금액</span>
+                                <span
+                                    className={`font-medium ${
+                                        isValidSelection
+                                            ? "text-gray-900"
+                                            : "text-gray-400"
+                                    }`}
+                                >
+                                    {formatPrice(newPrice)}원
+                                </span>
+                            </div>
+                            <div className="border-t border-blue-200 pt-2 flex justify-between items-start">
+                                <div>
+                                    <span className="font-medium text-gray-900 block">
+                                        {priceDifference > 0 ? "추가 결제" : "환불"}
+                                    </span>
+                                    {priceDifference <= 0 && (
+                                        <p className="text-xs text-blue-600 mt-1">
+                                            영업일 기준 1~3일 이내 초기 결제 수단으로
+                                            환불됩니다
+                                        </p>
+                                    )}
+                                </div>
+                                <span
+                                    className={`font-bold text-lg ${
+                                        priceDifference > 0
+                                            ? "text-red-600"
+                                            : "text-blue-600"
+                                    }`}
+                                >
+                                    {priceDifference > 0 ? "+" : ""}
+                                    {formatPrice(Math.abs(priceDifference))}원
+                                </span>
+                            </div>
+                            <div className="text-xs text-red-500">
+                                <p>
+                                    픽업 위치, 운전자 변경은 취소 후 다시
+                                    예약해주세요
+                                </p>
+                            </div>
                         </div>
-                        <CardPaymentForm />
                     </div>
-                )}
 
-                {/* 버튼 */}
-                <div className="flex gap-3 pt-4">
-                    <button
-                        type="button"
-                        onClick={() => navigate("/mypage/reservations")}
-                        className="flex-1 px-6 py-3 text-sm text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50 border border-gray-300 rounded-xl"
-                    >
-                        취소
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={
-                            !isValidSelection ||
-                            isSubmitting ||
-                            (showPaymentForm && !methods.formState.isValid)
-                        }
-                        className="flex-1 px-6 py-3 bg-[#2C7FFF] text-white font-medium rounded-xl shadow-sm hover:bg-[#1E5BBF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        {isSubmitting ? "처리 중..." : "변경하기"}
-                    </button>
-                </div>
-            </form>
-        </FormProvider>
+                    {/* 결제 폼 */}
+                    {showPaymentForm && priceDifference > 0 && (
+                        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-orange-200">
+                            <div className="flex items-center mb-4">
+                                <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                                <h3 className="text-lg font-semibold text-red-600">
+                                    추가 결제 정보 입력
+                                </h3>
+                            </div>
+                            <CardPaymentForm />
+                        </div>
+                    )}
+
+                    {/* 버튼 */}
+                    <div className="flex gap-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/mypage/reservations")}
+                            className="flex-1 px-6 py-3 text-sm text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50 border border-gray-300 rounded-xl"
+                        >
+                            취소
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={
+                                !isValidSelection ||
+                                isSubmitting ||
+                                (showPaymentForm && !methods.formState.isValid)
+                            }
+                            className="flex-1 px-6 py-3 bg-[#2C7FFF] text-white font-medium rounded-xl shadow-sm hover:bg-[#1E5BBF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {isSubmitting ? "처리 중..." : "변경하기"}
+                        </button>
+                    </div>
+                </form>
+            </FormProvider>
+
+                      {/* ✅ 보험 상세 모달 */}
+            <InsuranceDetailModal
+                isOpen={showInsuranceModal}
+                onClose={() => setShowInsuranceModal(false)}
+            />
+        </>
     );
 }
 
