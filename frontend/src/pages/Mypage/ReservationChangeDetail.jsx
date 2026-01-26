@@ -1,11 +1,11 @@
 // src/pages/Mypage/ReservationChangeDetail.jsx
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
-import useUserStore from "../../store/useUserStore";
 import useReservationStore from "../../store/useReservationStore";
 import api from "../../services/api";
 import CardPaymentForm from "../Payment/CardPaymentForm.jsx";
+import ReservationInsurance from "../../pages/Reservation/ReservationInsurance.jsx";
 
 const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -19,7 +19,7 @@ const formatDate = (dateString) => {
 };
 
 const formatPrice = (price) => {
-    if (!price) return "0";
+    if (!price && price !== 0) return "0";
     return Number(price).toLocaleString();
 };
 
@@ -36,23 +36,25 @@ function ReservationChangeDetail() {
     const { reservationId } = useParams();
     const setCardPayment = useReservationStore((state) => state.setCardPayment);
 
-    const initialReservation = location.state?.reservation;
+    const insurance = useReservationStore((s) => s.insurance);
+
     const [reservation, setReservation] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     const [selectedCarId, setSelectedCarId] = useState(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [cars, setCars] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [pickupLocation, setPickupLocation] = useState("김포공항");
+    const [pickupLocation, setPickupLocation] = useState("");
     const [showPaymentForm, setShowPaymentForm] = useState(false);
-    const [insurancePricePerDay, setInsurancePricePerDay] = useState(0);
 
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
 
     const methods = useForm({
+        mode: "onChange",
         defaultValues: {
             cardNumber: "",
             expiry: "",
@@ -64,134 +66,174 @@ function ReservationChangeDetail() {
         }
     });
 
+    // ✅ 가격 계산 함수 useCallback으로 변경
+    const calculateNewPrice = useCallback(() => {
+        if (!selectedCarId || !startDate || !endDate) return 0;
+        if (new Date(endDate) <= new Date(startDate)) return 0;
+
+        const days = calculateDays(startDate, endDate);
+        const selectedCar = cars.find((c) => c.specId === selectedCarId);
+        if (!selectedCar) return 0;
+
+        const carDailyPrice = Number(
+            selectedCar.dailyPrice || selectedCar.originalPrice || 0
+        );
+        const extraDailyInsurance = Number(insurance?.extraDailyPrice || 0);
+
+        const totalPerDay = carDailyPrice + extraDailyInsurance;
+        const total = totalPerDay * days;
+
+        console.log("💰 금액 계산:", {
+            car: selectedCar.displayNameShort,
+            carDailyPrice,
+            extraDailyInsurance,
+            days,
+            totalPerDay,
+            total
+        });
+
+        return total;
+    }, [selectedCarId, startDate, endDate, cars, insurance?.extraDailyPrice]);
+
+    // ✅ newPrice useMemo으로 최적화
+    const newPrice = useMemo(() => calculateNewPrice(), [calculateNewPrice]);
+    const oldPrice = reservation?.totalAmountSnapshot || 0;
+    const priceDifference = newPrice - oldPrice;
+    const isValidSelection =
+        startDate && endDate && new Date(endDate) > new Date(startDate);
+
+    // ✅ useEffect 의존성 수정: insurance → insurance?.extraDailyPrice
+    useEffect(() => {
+        console.log("📊 의존성 변경 감지:", {
+            insurance: insurance?.extraDailyPrice,
+            startDate,
+            endDate,
+            selectedCarId
+        });
+
+        if (!reservation) return;
+
+        const currentNewPrice = calculateNewPrice();
+        const oldPriceVal = reservation?.totalAmountSnapshot || 0;
+
+        console.log("✅ 최종 가격 업데이트:", {
+            newPrice: currentNewPrice,
+            oldPrice: oldPriceVal,
+            priceDiff: currentNewPrice - oldPriceVal
+        });
+
+        setShowPaymentForm(currentNewPrice - oldPriceVal > 0);
+    }, [startDate, endDate, selectedCarId, reservation, cars, insurance?.extraDailyPrice]);
+
+    // 예약 상세 + 지점 + 차량 조회
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                let currentReservation;
 
-                if (initialReservation) {
-                    currentReservation = initialReservation;
-                } else {
-                    const res = await api.get(`/api/mypage/reservations-list/${reservationId}`);
-                    currentReservation = res.data;
-                }
-
+                const res = await api.get(`/mypage/reservations-list/${reservationId}`);
+                const currentReservation = res.data;
                 console.log("📋 현재 예약 정보:", currentReservation);
 
-                const formatDateForAPI = (dateString) => {
-                    if (!dateString) return null;
-                    return new Date(dateString).toISOString().split('T')[0];
-                };
+                // 브랜치
+                const branchId = currentReservation.pickupBranchId;
+                if (!branchId) throw new Error("브랜치 ID가 존재하지 않습니다.");
 
-                const formattedStartDate = formatDateForAPI(currentReservation.startDate);
-                const formattedEndDate = formatDateForAPI(currentReservation.endDate);
+                let pickupLocationName = "";
+                try {
+                    const branchRes = await api.get(`/branches/${branchId}`);
+                    pickupLocationName =
+                        branchRes.data.name || branchRes.data.branchName || "픽업 지점";
+                } catch (branchErr) {
+                    console.error("❌ 브랜치 에러:", branchErr);
+                    pickupLocationName =
+                        currentReservation.pickupAddress || "픽업 지점";
+                }
 
-                const branchId = currentReservation.branchId;
-                const pickupLocationName = currentReservation.pickupLocation;
+                // 날짜 포맷
+                const formatDateForAPI = (dateString) =>
+                    dateString
+                        ? new Date(dateString).toISOString().split("T")[0]
+                        : null;
 
-                console.log("🏢 branchId:", branchId);
-                console.log("📍 pickupLocation:", pickupLocationName);
-                console.log("📅 startDate:", formattedStartDate);
-                console.log("📅 endDate:", formattedEndDate);
+                const formattedStartDate = formatDateForAPI(
+                    currentReservation.startDate
+                );
+                const formattedEndDate = formatDateForAPI(
+                    currentReservation.endDate
+                );
 
-                if (branchId && formattedStartDate && formattedEndDate) {
-                    try {
-                        const carsRes = await api.get(`/cars`, {
-                            params: {
-                                pickupBranchId: branchId,
-                                returnBranchId: branchId,
-                                rentType: 'SHORT',
-                                startDate: `${formattedStartDate} 10:00:00`,
-                                endDate: `${formattedEndDate} 10:00:00`,
-                                pickupBranchName: pickupLocationName,
-                                returnBranchName: pickupLocationName
-                            }
-                        });
+                // 차량 조회 + originalPrice → dailyPrice
+                let carsData = [];
+                if (formattedStartDate && formattedEndDate) {
+                    const carsParams = {
+                        pickupBranchId: String(branchId),
+                        returnBranchId: String(branchId),
+                        rentType: "SHORT",
+                        startDate: `${formattedStartDate} 10:00:00`,
+                        endDate: `${formattedEndDate} 10:00:00`
+                    };
 
-                        console.log("🚗 차량 리스트:", carsRes.data);
-                        const carsData = Array.isArray(carsRes.data) ? carsRes.data : carsRes.data?.cars || [];
-                        setCars(carsData);
+                    const carsRes = await api.get(`/cars`, { params: carsParams });
+                    console.log("✅ 차량 API 응답:", carsRes.data);
 
-                        // 🔥 보험 역산 계산 (cars 로드 완료 후)
-                        const oldDays = Math.max(1, calculateDays(currentReservation.startDate, currentReservation.endDate));
-                        const oldCar = carsData.find(c => (c.specId || c.id) === currentReservation.carId);
-                        const oldCarPricePerDay = Number(oldCar?.finalPrice || 0);
-                        const oldPrice = currentReservation.totalAmountSnapshot || 0;
+                    carsData = Array.isArray(carsRes.data)
+                        ? carsRes.data
+                        : carsRes.data?.cars || [];
 
-                        const calculatedInsurance = (oldPrice / oldDays) - oldCarPricePerDay;
-                        const finalInsurance = Math.max(0, calculatedInsurance);
+                    carsData = carsData.map((car) => ({
+                        ...car,
+                        dailyPrice: Number(car.originalPrice || car.finalPrice || 0),
+                        specId: car.specId
+                    }));
 
-                        setInsurancePricePerDay(finalInsurance);
+                    console.table(
+                        carsData.map((car) => ({
+                            specId: car.specId,
+                            name: car.displayNameShort,
+                            originalPrice: car.originalPrice,
+                            dailyPrice: car.dailyPrice
+                        }))
+                    );
 
-                        console.log("🔢 역산 계산:", {
-                            oldDays,
-                            oldPrice,
-                            oldCarPricePerDay,
-                            calculatedInsurance,
-                            finalInsurance,
-                            검증: `${oldCarPricePerDay} * ${oldDays} + ${finalInsurance} * ${oldDays} = ${(oldCarPricePerDay + finalInsurance) * oldDays}`
-                        });
+                    setCars(carsData);
 
-                    } catch (apiErr) {
-                        console.error("❌ 차량 조회 실패:", apiErr);
-                        setCars([]);
+                    // 현재 차량 자동 선택
+                    const currentSpecId =
+                        currentReservation.specId ||
+                        currentReservation.vehicleId ||
+                        currentReservation.carId;
+                    const matched = carsData.find(
+                        (car) => car.specId === currentSpecId
+                    );
+                    if (matched) {
+                        setSelectedCarId(matched.specId);
+                        console.log("🎯 현재 차량 선택:", matched.displayNameShort);
                     }
-                } else {
-                    console.warn("⚠️ branchId 또는 날짜 정보 부족");
-                    setCars([]);
                 }
 
                 setReservation(currentReservation);
                 setPickupLocation(pickupLocationName);
-                setSelectedCarId(currentReservation.carId);
                 setStartDate(formattedStartDate);
                 setEndDate(formattedEndDate);
-
             } catch (err) {
-                console.error("데이터 조회 실패:", err);
+                console.error("❌ 데이터 조회 실패:", err);
                 setError("예약 정보를 불러올 수 없습니다.");
             } finally {
                 setLoading(false);
             }
         };
 
-        if (reservationId) {
-            fetchData();
-        }
-    }, [reservationId, initialReservation]);
+        if (reservationId) fetchData();
+    }, [reservationId]);
 
-    useEffect(() => {
-        if (!reservation) return;
-
-        const newPrice = calculateNewPrice();
-        const oldPrice = reservation?.totalAmountSnapshot || 0;
-        const priceDifference = newPrice - oldPrice;
-        const needsAdditionalPayment = priceDifference > 0;
-
-        setShowPaymentForm(needsAdditionalPayment);
-
-        if (!needsAdditionalPayment) {
-            methods.reset();
-            setCardPayment(null);
-        }
-    }, [startDate, endDate, selectedCarId, reservation, cars, insurancePricePerDay]);
-
-    const calculateNewPrice = () => {
-        if (!selectedCarId || !startDate || !endDate) return 0;
-        if (new Date(endDate) <= new Date(startDate)) return 0;
-
-        const newDays = calculateDays(startDate, endDate);
-        const selectedCar = cars.find(c => (c.specId || c.id) === selectedCarId);
-        const carPricePerDay = Number(selectedCar?.finalPrice || 0);
-
-        return (carPricePerDay + insurancePricePerDay) * newDays;
+    const resolveInsuranceId = () => {
+        const extra = Number(insurance?.extraDailyPrice || 0);
+        if (extra === 0) return 1;
+        if (extra === 15000) return 2;
+        if (extra === 30000) return 3;
+        return null;
     };
-
-    const newPrice = calculateNewPrice();
-    const oldPrice = reservation?.totalAmountSnapshot || 0;
-    const priceDifference = newPrice - oldPrice;
-    const isValidSelection = startDate && endDate && new Date(endDate) > new Date(startDate);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -200,48 +242,51 @@ function ReservationChangeDetail() {
             alert("유효한 기간을 선택해주세요.");
             return;
         }
-
-        if (!selectedCarId || cars.length === 0) {
+        if (!selectedCarId) {
             alert("차종을 선택해주세요.");
             return;
         }
 
         if (priceDifference > 0) {
-            const isFormValid = await methods.trigger();
-            if (!isFormValid || !methods.getValues("agree")) {
+            const isValidForm = await methods.trigger();
+            if (!isValidForm || !methods.getValues("agree")) {
                 alert("결제 정보를 모두 입력하고 동의를 해주세요.");
                 return;
             }
-            const paymentData = methods.getValues();
-            setCardPayment(paymentData);
+            setCardPayment(methods.getValues());
         }
 
         setIsSubmitting(true);
         try {
-            const selectedCar = cars.find(c => (c.id || c.carId || c.specId) === selectedCarId);
-            const newDays = calculateDays(startDate, endDate);
+            const selectedCar = cars.find((c) => c.specId === selectedCarId);
+            const days = calculateDays(startDate, endDate);
 
             const payload = {
-                actionType: 'CHANGE',
+                actionType: "CHANGE",
                 oldStartDate: reservation.startDate,
                 oldEndDate: reservation.endDate,
                 oldCarName: `${reservation.brand} ${reservation.displayNameShort}`,
-                oldPrice: oldPrice,
+                oldPrice,
                 newStartDate: startDate,
                 newEndDate: endDate,
-                newCarName: `${selectedCar?.brand || reservation.brand} ${selectedCar?.displayNameShort || reservation.displayNameShort}`,
+                newCarName: `${selectedCar?.brand || reservation.brand} ${
+                    selectedCar?.displayNameShort || reservation.displayNameShort
+                }`,
                 newCarId: selectedCarId,
-                newPrice: newPrice,
-                priceDifference: priceDifference,
-                days: newDays
+                newPrice,
+                priceDifference,
+                days,
+                insuranceExtraDailyPrice: Number(insurance?.extraDailyPrice || 0),
+                insuranceId: resolveInsuranceId()
             };
 
             if (priceDifference > 0) {
                 payload.paymentInfo = methods.getValues();
             }
 
-            await api.post(`/api/reservation/${reservationId}/change`, payload);
+            console.log("📦 예약 변경 payload:", payload);
 
+            await api.post(`/api/reservation/${reservationId}/change`, payload);
             alert("예약이 변경되었습니다.");
             navigate("/Mypage/ReservationsList");
         } catch (err) {
@@ -264,7 +309,9 @@ function ReservationChangeDetail() {
     if (error || !reservation) {
         return (
             <div className="flex justify-center items-center min-h-[300px]">
-                <p className="text-red-500">{error || "예약을 찾을 수 없습니다."}</p>
+                <p className="text-red-500">
+                    {error || "예약을 찾을 수 없습니다."}
+                </p>
             </div>
         );
     }
@@ -284,6 +331,7 @@ function ReservationChangeDetail() {
 
                 <h2 className="text-xl font-bold mb-2 ml-2 py-3">예약 변경</h2>
 
+                {/* 현재 예약 정보 */}
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
                     <h3 className="text-lg font-semibold mb-4">현재 예약 정보</h3>
                     <div className="space-y-3 text-sm">
@@ -293,7 +341,9 @@ function ReservationChangeDetail() {
                                 <span className="px-2 py-1 bg-gray-100 text-xs text-gray-500 rounded-full mr-2">
                                     변경 불가
                                 </span>
-                                <span className="font-medium text-gray-900">{pickupLocation}</span>
+                                <span className="font-medium text-gray-900">
+                                    {pickupLocation}
+                                </span>
                             </span>
                         </div>
                         <div className="flex justify-between pb-3 border-b border-gray-200">
@@ -304,22 +354,55 @@ function ReservationChangeDetail() {
                         </div>
                         <div className="flex justify-between pb-3 border-b border-gray-200">
                             <span className="text-gray-600">픽업 날짜</span>
-                            <span className="font-medium text-gray-900">{formatDate(reservation.startDate)}</span>
+                            <span className="font-medium text-gray-900">
+                                {formatDate(reservation.startDate)}
+                            </span>
                         </div>
                         <div className="flex justify-between pb-3 border-b border-gray-200">
                             <span className="text-gray-600">반납 날짜</span>
-                            <span className="font-medium text-gray-900">{formatDate(reservation.endDate)}</span>
+                            <span className="font-medium text-gray-900">
+                                {formatDate(reservation.endDate)}
+                            </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">결제 금액</span>
-                            <span className="font-bold text-lg text-gray-900">{formatPrice(oldPrice)}원</span>
+                            <span className="font-bold text-lg text-gray-900">
+                                {formatPrice(oldPrice)}원
+                            </span>
                         </div>
                     </div>
                 </div>
 
+                {/* 보험 선택 (ReservationInsurance) */}
+                <ReservationInsurance
+                    options={[
+                        {
+                            code: "NONE",
+                            label: "미가입",
+                            desc: "사고 시 고객부담금 전액",
+                            extraDailyPrice: 0
+                        },
+                        {
+                            code: "STANDARD",
+                            label: "일반자차",
+                            desc: "사고 시 고객부담금 30만원",
+                            extraDailyPrice: 15000
+                        },
+                        {
+                            code: "FULL",
+                            label: "완전자차",
+                            desc: "사고 시 고객부담금 면제",
+                            extraDailyPrice: 30000
+                        }
+                    ]}
+                />
+
+                {/* 차종 선택 */}
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
                     <h3 className="text-lg font-semibold mb-4">변경할 차종</h3>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">차종 선택</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        차종 선택
+                    </label>
                     <select
                         value={selectedCarId || ""}
                         onChange={(e) => setSelectedCarId(Number(e.target.value))}
@@ -327,40 +410,51 @@ function ReservationChangeDetail() {
                         disabled={cars.length === 0}
                     >
                         <option value="">
-                            {cars.length === 0 ? "차량 정보를 불러오는 중..." : "차종을 선택해주세요"}
+                            {cars.length === 0
+                                ? "차량 정보를 불러오는 중..."
+                                : "차종을 선택해주세요"}
                         </option>
                         {cars.map((car) => {
-                            const carSpecId = car.specId || car.id;
-                            const carPricePerDay = Number(car.finalPrice || 0);
-                            const totalPricePerDay = carPricePerDay + insurancePricePerDay;
+                            const carSpecId = car.specId;
+                            const carDailyPrice = Number(
+                                car.dailyPrice || car.originalPrice || 0
+                            );
                             return (
                                 <option key={carSpecId} value={carSpecId}>
-                                    {car.displayNameShort} - {formatPrice(totalPricePerDay)}원/일
+                                    {car.displayNameShort} -{" "}
+                                    {formatPrice(carDailyPrice)}원/일
                                 </option>
                             );
                         })}
                     </select>
                     {cars.length === 0 && (
-                        <p className="text-xs text-gray-500 mt-1">지점 차량 정보를 불러오는 중...</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            지점 차량 정보를 불러오는 중...
+                        </p>
                     )}
                 </div>
 
+                {/* 기간 선택 */}
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
                     <h3 className="text-lg font-semibold mb-4">변경할 기간</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">픽업 날짜</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                픽업 날짜
+                            </label>
                             <input
                                 ref={startDateRef}
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
-                                min={new Date().toISOString().split('T')[0]}
+                                min={new Date().toISOString().split("T")[0]}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">반납 날짜</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                반납 날짜
+                            </label>
                             <input
                                 ref={endDateRef}
                                 type="date"
@@ -372,16 +466,31 @@ function ReservationChangeDetail() {
                     </div>
                 </div>
 
-                <div className={`mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 ${isValidSelection ? '' : 'opacity-70'}`}>
-                    <h4 className="font-semibold text-gray-900 mb-3">금액 계산</h4>
+                {/* 금액 계산 (보험 반영) */}
+                <div
+                    className={`mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 ${
+                        isValidSelection ? "" : "opacity-70"
+                    }`}
+                >
+                    <h4 className="font-semibold text-gray-900 mb-3">
+                        금액 계산
+                    </h4>
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-gray-600">기존 금액</span>
-                            <span className="text-gray-900">{formatPrice(oldPrice)}원</span>
+                            <span className="text-gray-900">
+                                {formatPrice(oldPrice)}원
+                            </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">새 금액</span>
-                            <span className={`font-medium ${isValidSelection ? 'text-gray-900' : 'text-gray-400'}`}>
+                            <span
+                                className={`font-medium ${
+                                    isValidSelection
+                                        ? "text-gray-900"
+                                        : "text-gray-400"
+                                }`}
+                            >
                                 {formatPrice(newPrice)}원
                             </span>
                         </div>
@@ -392,30 +501,45 @@ function ReservationChangeDetail() {
                                 </span>
                                 {priceDifference <= 0 && (
                                     <p className="text-xs text-blue-600 mt-1">
-                                        영업일 기준 1~3일 이내 초기 결제 수단으로 환불됩니다
+                                        영업일 기준 1~3일 이내 초기 결제 수단으로
+                                        환불됩니다
                                     </p>
                                 )}
                             </div>
-                            <span className={`font-bold text-lg ${priceDifference > 0 ? 'text-red-600' : 'text-blue-600'}`}>
-                                {priceDifference > 0 ? '+' : ''}{formatPrice(Math.abs(priceDifference))}원
+                            <span
+                                className={`font-bold text-lg ${
+                                    priceDifference > 0
+                                        ? "text-red-600"
+                                        : "text-blue-600"
+                                }`}
+                            >
+                                {priceDifference > 0 ? "+" : ""}
+                                {formatPrice(Math.abs(priceDifference))}원
                             </span>
                         </div>
                         <div className="text-xs text-red-500">
-                            <p>픽업 위치, 운전자 변경은 취소 후 다시 예약해주세요</p>
+                            <p>
+                                픽업 위치, 운전자 변경은 취소 후 다시
+                                예약해주세요
+                            </p>
                         </div>
                     </div>
                 </div>
 
+                {/* 결제 폼 */}
                 {showPaymentForm && priceDifference > 0 && (
                     <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-orange-200">
                         <div className="flex items-center mb-4">
                             <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                            <h3 className="text-lg font-semibold text-red-600">추가 결제 정보 입력</h3>
+                            <h3 className="text-lg font-semibold text-red-600">
+                                추가 결제 정보 입력
+                            </h3>
                         </div>
                         <CardPaymentForm />
                     </div>
                 )}
 
+                {/* 버튼 */}
                 <div className="flex gap-3 pt-4">
                     <button
                         type="button"
@@ -426,7 +550,11 @@ function ReservationChangeDetail() {
                     </button>
                     <button
                         type="submit"
-                        disabled={!isValidSelection || isSubmitting || (showPaymentForm && !methods.formState.isValid) || cars.length === 0}
+                        disabled={
+                            !isValidSelection ||
+                            isSubmitting ||
+                            (showPaymentForm && !methods.formState.isValid)
+                        }
                         className="flex-1 px-6 py-3 bg-[#2C7FFF] text-white font-medium rounded-xl shadow-sm hover:bg-[#1E5BBF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         {isSubmitting ? "처리 중..." : "변경하기"}
