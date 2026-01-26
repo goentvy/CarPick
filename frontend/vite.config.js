@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
                     // .env에 VITE_API_URL이 없으면 원격 서버를 기본값으로 사용합니다.
                     target: mode === 'development'
                         ? 'http://localhost:8080' // ✅ 로컬 Spring Boot
-                        : env.VITE_API_URL || 'https://carpick.p-e.kr', // ✅ AWS API 서버 (포트 80)
+                        : env.VITE_API_BASE_URL  || 'https://carpick.p-e.kr', // ✅ AWS API 서버 (포트 80)
                     changeOrigin: true,
                     secure: false,
                     // 백엔드 주소가 http://localhost:8080/api/notice 형식이므로
