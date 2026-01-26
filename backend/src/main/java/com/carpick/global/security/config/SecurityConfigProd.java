@@ -48,7 +48,7 @@ public class SecurityConfigProd {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                                "/api/admin/**",   // ✅ 관리자 내부 API 허용 (필수)
+
                                 "/api/branches/**",
                                 "/api/dropzones/**",
                                 "/api/recommend-cars",
@@ -62,7 +62,7 @@ public class SecurityConfigProd {
                                 "/api/about/values",
                                 "/api/cars/**",
                                 "/",
-                                "/admin/**",
+
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
@@ -71,6 +71,12 @@ public class SecurityConfigProd {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        // ✅ 관리자 전용 (여기가 핵심)
+                        .requestMatchers(
+                                "/api/admin/**",
+                                "/admin/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
