@@ -53,8 +53,8 @@ function MyPageHome() {
                     pickupDate: `픽업 날짜 : ${formatDate(ongoing.startDate)}`,
                     status: STATUS_MAP[ongoing.reservationStatus]?.label || ongoing.reservationStatus,
                     pickupLocation: "김포공항점",
-                    imgUrl: ongoing.imgUrl,      // ✅ 백엔드에서 받은 실제 이미지 URL
-                    specId: ongoing.specId       // ✅ 백업용
+                    imgUrl: ongoing.imgUrl,
+                    specId: ongoing.specId
                 }));
 
                 setOngoingOrders(orders);
@@ -114,53 +114,57 @@ function MyPageHome() {
                                 type="button"
                                 onClick={() => navigate(`/Mypage/Reservations/${ongoingOrders[0].id}`)}
                                 className="
-                  w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
-                  rounded-2xl bg-gradient-to-r from-[#0A56FF] to-white
-                  text-white shadow-lg border-0 hover:shadow-xl transition-all
-                "
+                                    w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
+                                    rounded-2xl bg-white [#1D6BF3]
+                                    text-black shadow-lg border-0 hover:shadow-xl transition-all
+                                "
                             >
-                                <div className="flex items-center px-4 py-8">
-                                    <div className="flex flex-col text-left mr-4">
-                                        <span className="text-sm font-bold mt-1">
-                                            {ongoingOrders[0].carName}
-                                        </span>
-                                        <div className="text-[11px] mt-1 opacity-90">
-                                            <div>{ongoingOrders[0].pickupDate}</div>
-                                            <div>{ongoingOrders[0].pickupLocation}</div>
-                                            <div>{ongoingOrders[0].status}</div>
-                                        </div>
+                                <div className="relative overflow-hidden rounded-2xl">
+                                    <div className="absolute right-0 top-0 w-[50%] h-full rounded-r-2xl overflow-hidden">
+                                        <img
+                                            src={ongoingOrders[0]?.imgUrl || "/images/common/car1.svg"}
+                                            alt={ongoingOrders[0]?.carName || "car"}
+                                            className="w-full h-full object-cover brightness-75"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-l from-black/50 to-transparent"></div>
                                     </div>
-                                    <div className="ml-auto flex items-center">
-                                        <div className="mr-10 w-30 h-15 rounded-xl overflow-hidden flex items-center justify-center">
-                                            {/* ✅ 실제 차량 이미지 표시! */}
-                                            <img
-                                                src={ongoingOrders[0]?.imgUrl || "/images/common/car1.svg"}
-                                                alt={ongoingOrders[0]?.carName || "car"}
-                                                className="w-full h-full object-contain"
-                                                onError={(e) => {
-                                                    e.currentTarget.src = "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
-                                                }}
-                                            />
+
+                                    {/* 왼쪽 정렬 글씨 - 원래 색상 */}
+                                    <div className="flex items-center px-4 py-6 relative z-10 pl-6">
+                                        <div className="flex-1 text-left">
+                                            <span className="block text-sm font-bold text-gray-900 leading-tight line-clamp-1 mb-2">
+                                                {ongoingOrders[0].carName}
+                                            </span>
+                                            <div className="text-xs text-black space-y-1">
+                                                <div>{ongoingOrders[0].pickupDate}</div>
+                                                <div className="truncate">{ongoingOrders[0].pickupLocation}</div>
+                                                <div className={`font-medium ${STATUS_MAP[ongoingOrders[0].status]?.color || 'text-gray-600'} bg-gray-100 px-2.5 py-1 rounded-full inline-block mt-1`}>
+                                                    {ongoingOrders[0].status}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <span className="text-base font-bold text-[#2C7FFF]">›</span>
+                                        <span className="text-base font-bold text-[#2C7FFF] ml-4 flex-shrink-0">›</span>
                                     </div>
                                 </div>
                             </button>
                         ) : (
                             <div className="
-                w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
-                px-6 py-8 rounded-2xl bg-white text-center
-                shadow-sm border border-gray-100 hover:shadow-md transition-all
-              ">
+                                    w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
+                                    px-6 py-8 rounded-2xl bg-white text-center
+                                    shadow-sm border border-gray-100 hover:shadow-md transition-all
+                                ">
                                 <p className="text-lg font-semibold text-gray-800 mb-2">진행 중인 예약이 없어요</p>
                                 <p className="text-sm text-gray-500 mb-6">나에게 딱 맞는 차량을 찾아 볼까요?</p>
                                 <button
                                     onClick={() => navigate("/")}
                                     className="
-                    w-full px-4 py-3 rounded-xl bg-gradient-to-r
-                    from-[#1D6BF3] to-[#0A56FF] text-white font-medium
-                    text-sm shadow-lg hover:shadow-xl transition-all
-                  "
+                                        w-full px-4 py-3 rounded-xl bg-gradient-to-r
+                                        from-[#1D6BF3] to-[#0A56FF] text-white font-medium
+                                        text-sm shadow-lg hover:shadow-xl transition-all
+                                    "
                                 >
                                     AI Pick 추천 받기
                                 </button>
@@ -178,11 +182,11 @@ function MyPageHome() {
                                 type="button"
                                 onClick={() => navigate(item.path)}
                                 className="
-                  w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
-                  flex items-center justify-between px-4 py-3
-                  rounded-2xl bg-white text-[13px] font-medium text-[#1A1A1A]
-                  shadow-sm hover:shadow-md hover:bg-[#F3F7FF] transition-all
-                "
+                                    w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
+                                    flex items-center justify-between px-4 py-3
+                                    rounded-2xl bg-white text-[13px] font-medium text-[#1A1A1A]
+                                    shadow-sm hover:shadow-md hover:bg-[#F3F7FF] transition-all
+                                "
                             >
                                 <span>{item.label}</span>
                                 <span className="text-[#2C7FFF] text-lg font-bold leading-none">›</span>
@@ -198,12 +202,12 @@ function MyPageHome() {
                             type="button"
                             onClick={handleLogout}
                             className="
-                w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
-                flex items-center justify-center px-4 py-2 rounded-2xl
-                bg-white text-[13px] font-semibold text-[#FF4D4F]
-                border border-[#FF4D4F]/30 shadow-sm
-                hover:shadow-md hover:bg-[#FFF5F5] transition-all
-              "
+                                    w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
+                                    flex items-center justify-center px-4 py-2 rounded-2xl
+                                    bg-white text-[13px] font-semibold text-[#FF4D4F]
+                                    border border-[#FF4D4F]/30 shadow-sm
+                                    hover:shadow-md hover:bg-[#FFF5F5] transition-all
+                                "
                         >
                             로그아웃
                         </button>
