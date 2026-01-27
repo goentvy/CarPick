@@ -29,6 +29,18 @@
     <!-- JS -->
     <script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 
+    <style>
+        /* 예약 상세 페이지 상태 배지 크기/가독성 개선 */
+        .badge {
+            font-size: 1rem;          /* 글자 크게 */
+            padding: 0.45em 0.85em;   /* 배지 자체 크게 */
+            border-radius: 0.5rem;
+            font-weight: 700;
+            color: #fff !important;   /* 글자 흰색 고정 */
+        }
+    </style>
+
+
 </head>
 
 <th:block layout:fragment="content">
@@ -237,18 +249,12 @@
                                 <td class="text-muted">기본 대여료</td>
                                 <td class="text-end" id="baseRentFee">-</td>
                             </tr>
-                            <tr>
-                                <td class="text-muted">대여료 할인</td>
-                                <td class="text-end text-danger" id="rentDiscount">-</td>
-                            </tr>
+                           
                             <tr>
                                 <td class="text-muted">보험료</td>
                                 <td class="text-end" id="insuranceFee">-</td>
                             </tr>
-                            <tr>
-                                <td class="text-muted">보험 할인</td>
-                                <td class="text-end text-danger" id="insuranceDiscount">-</td>
-                            </tr>
+
                             <tr>
                                 <td class="text-muted">옵션 요금</td>
                                 <td class="text-end" id="optionFee">-</td>
