@@ -6,6 +6,7 @@ import { getCarDetail } from "@/services/carApi.js";
 import { getBranchDetail } from "@/services/zoneApi.js";
 import { createGlobalStyle } from "styled-components";
 import StarRating from "../Home/StarRating.jsx";
+import SpinVideoWithFallback from "@/components/car/SpinVideoWithFallback.jsx";
 
 const HideHeaderFooter = createGlobalStyle`
   #head, #footer {
@@ -302,8 +303,8 @@ export default function CarDetailPage() {
             ›
           </button>
 
-          <SpinVideo
-            ref={spinRef}
+          <SpinVideoWithFallback
+            spinRef={spinRef}
             src={top?.mainVideoUrl || "http://carpicka.mycafe24.com/car_spin_video/default_spin.mp4"}
             className="w-full"
             dragWidth={640}

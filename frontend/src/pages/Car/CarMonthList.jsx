@@ -8,6 +8,9 @@ import PickupFilterModal from "../../components/common/PickupFilterModal";
 import { getBranches } from "@/services/zoneApi";
 import { filterCars } from "@/utils/carFilter";
 
+import CarCardSkeleton from "@/components/car/CarCardSkeleton";
+import CarLoadingOverlay from "@/components/common/CarLodingOverlay";
+
 const CarMonthList = () => {
     console.log("✅ RENDER: CarMonthList", window.location.href);
 
@@ -16,6 +19,7 @@ const CarMonthList = () => {
 
     // ✅ 가격 로딩 상태(단기와 동일)
     const [priceLoading, setPriceLoading] = useState(false);
+    const [showPriceHint, setShowPriceHint] = useState(false);
 
     const navigate = useNavigate();
     const routerLocation = useLocation();
@@ -32,6 +36,8 @@ const CarMonthList = () => {
     const [selectedPerson, setSelectedPerson] = useState([]);
     const [yearRange, setYearRange] = useState([2010, new Date().getFullYear()]);
     const [priceRange, setPriceRange] = useState([10000, 1000000]);
+
+    const MIN_LOADING_TIME = 1200; // 1.2초 (원하는 ms로 바꿔)
 
     // ✅ 정렬 상태
     const [sortKey, setSortKey] = useState(""); // "", PRICE_ASC, TYPE, NEW
@@ -154,6 +160,20 @@ const CarMonthList = () => {
     }, []);
 
     useEffect(() => {
+        if (!priceLoading) {
+            setShowPriceHint(false);
+            return;
+        }
+        // 800ms 이상이면 가격 문구 표시
+        const t = setTimeout(() => {
+            setShowPriceHint(true);
+        }, 700);
+
+
+        return () => clearTimeout(t);
+    }, [priceLoading]);
+
+    useEffect(() => {
         // ✅ 필수값 체크 (백엔드가 pickupBranchId required)
         if (!normalizedParams.pickupBranchId) {
             console.error("[CarMonthList] pickupBranchId 누락. API 호출 중단", {
@@ -162,13 +182,8 @@ const CarMonthList = () => {
             });
             setCars([]);
             setLoading(false);
+            setPriceLoading(false);
             return;
-        }
-
-        // 장기에서 months 없으면 price가 무조건 터지니, 여기서도 방어
-        if (!normalizedParams.months || Number(normalizedParams.months) <= 0) {
-            console.warn("[CarMonthList] months 누락/이상. 기본값 1로 보정", normalizedParams);
-            normalizedParams.months = "1";
         }
 
         // 장기에서 months 없으면 price가 무조건 터지니 방어
@@ -176,7 +191,10 @@ const CarMonthList = () => {
             ? "1"
             : normalizedParams.months;
 
+        // setLoading(true);
+        const startAt = Date.now();
         setLoading(true);
+        setPriceLoading(false); // 시작할 때 가격로딩 초기화도 같이
 
         // ✅ 가장 확실한 방식: URL에 쿼리를 직접 붙여서 요청 (params 누락 문제를 원천 차단)
         const qs = new URLSearchParams(normalizedParams).toString();
@@ -255,10 +273,16 @@ const CarMonthList = () => {
             } catch (err) {
                 console.error("[CarMonthList] 로딩 치명적 오류:", err);
             } finally {
-                if (!cancelled) {
+                if (cancelled) return;
+
+                const elapsed = Date.now() - startAt;
+                const remain = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+                setTimeout(() => {
+                    if (cancelled) return;
                     setLoading(false);
                     setPriceLoading(false);
-                }
+                }, remain);
             }
         };
 
@@ -274,10 +298,16 @@ const CarMonthList = () => {
         navigate(`/cars/detail/${specId}${routerLocation.search}`);
     };
 
-    if (loading) return <p>Loading...</p>;
-
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
+            <CarLoadingOverlay
+                show={loading}
+                label={
+                    showPriceHint
+                        ? "차량 가격 계산 중…"
+                        : "차량 리스트 불러오는 중…"
+                }
+            />
             {/* ✅ RentHeader에 branches 넣고 싶으면 아래처럼 */}
             <RentHeader type="long" location="month" branches={branches} />
 
@@ -337,13 +367,7 @@ const CarMonthList = () => {
                 </select>
             </div>
 
-            {priceLoading && cars.length > 0 && (
-                <p className="max-w-[90%] w-full mx-auto mt-2 text-sm text-gray-400">
-                    가격 계산 중...
-                </p>
-            )}
-
-            {displayCars.length === 0 ? (
+            {(!loading && displayCars.length === 0) ? (
                 <div className="text-center min-h-[200px] mt-20 space-y-4">
                     <img src="/images/common/filterNull.svg" className="mx-auto" alt="차량 없음" />
                     <h3 className="text-[24px] font-bold mb-[8px]">
@@ -362,25 +386,24 @@ const CarMonthList = () => {
                 </div>
             ) : (
                 <div className="mt-4 px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {displayCars.map((car) => (
-                        <CarCard
-                            key={car.specId}
-                            id={car.specId}
-                            title={car.displayNameShort}
-                            info={{ year: car.modelYear, seat: `${car.seatingCapacity}인승` }}
-                            baseTotalAmount={car.baseTotalAmount}
-                            price={car.finalPrice}
-                            discountRate={car.discountRate || 0}
-                            discount={(car.discountRate || 0) > 0}
-                            day={false}
-                            imageSrc={
-                                car.imgUrl ||
-                                car.mainImageUrl ||
-                                "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
-                            }
-                            onClick={() => handleClickCar(car.specId)}
-                        />
-                    ))}
+                    {loading
+                        ? Array.from({ length: 6 }).map((_, i) => <CarCardSkeleton key={i} />)
+                        : displayCars.map((car) => (
+                            <CarCard
+                                key={car.specId}
+                                id={car.specId}
+                                title={car.displayNameShort}
+                                info={{ year: car.modelYear, seat: `${car.seatingCapacity}인승` }}
+                                baseTotalAmount={car.baseTotalAmount}
+                                price={car.finalPrice}
+                                discountRate={car.discountRate || 0}
+                                features={car.driveLabels}
+                                discount={(car.discountRate || 0) > 0}
+                                day={false}
+                                imageSrc={car.imgUrl || "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"}
+                                onClick={() => handleClickCar(car.specId)}
+                            />
+                        ))}
                 </div>
             )}
         </div>
