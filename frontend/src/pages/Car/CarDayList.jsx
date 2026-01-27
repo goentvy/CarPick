@@ -6,6 +6,8 @@ import CarCard from "./CarCard";
 import PickupFilterModal from "../../components/common/PickupFilterModal";
 import { getBranches } from "@/services/zoneApi";
 import { filterCars } from "@/utils/carFilter";
+import CarCardSkeleton from "@/components/car/CarCardSkeleton";
+import CarLoadingOverlay from "@/components/common/CarLodingOverlay";
 
 // ✅ 백이 원하는 포맷: "yyyy-MM-dd HH:mm:ss"
 const pad2 = (n) => String(n).padStart(2, "0");
@@ -41,12 +43,16 @@ const CarDayList = () => {
     const type = query.get("rentType");
     const [ShowFilter, setShowFilter] = useState(false);
 
+    const [showPriceHint, setShowPriceHint] = useState(false);
+
     // ✅ 필터 상태
     const [selectedLevel, setSelectedLevel] = useState([]);
     const [selectedFuel, setSelectedFuel] = useState([]);
     const [selectedPerson, setSelectedPerson] = useState([]);
     const [yearRange, setYearRange] = useState([2010, new Date().getFullYear()]);
     const [priceRange, setPriceRange] = useState([10000, 1000000]);
+
+    const MIN_LOADING_TIME = 1200;
 
     // ✅ 정렬 상태 (AI추천순 제거, 기본은 정렬 없음)
     const [sortKey, setSortKey] = useState(""); // "", PRICE_ASC, TYPE, NEW
@@ -164,6 +170,15 @@ const CarDayList = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!priceLoading) {
+            setShowPriceHint(false);
+            return;
+        }
+        const t = setTimeout(() => setShowPriceHint(true), 700);
+        return () => clearTimeout(t);
+    }, [priceLoading]);
+
     // ✅ cars + price 로딩
     useEffect(() => {
         const params = Object.fromEntries(new URLSearchParams(routerLocation.search));
@@ -176,9 +191,11 @@ const CarDayList = () => {
         if (!params.pickupBranchId) {
             console.error("[CarDayList] pickupBranchId 누락. API 호출 중단", params);
             setLoading(false);
+            setPriceLoading(false);
             return;
         }
 
+        const startAt = Date.now();
         setLoading(true);
         setPriceLoading(false);
 
@@ -186,7 +203,8 @@ const CarDayList = () => {
 
         const run = async () => {
             try {
-                console.log("[CarDayList] GET /api/cars params =", params);
+                // ✅ cars API는 기존대로 보내도 됨 (백에서 startDateTime/endDateTime optional)
+                console.log("[CarList] GET /api/cars params =", params);
                 const carRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`, { params });
 
                 if (cancelled) return;
@@ -247,10 +265,14 @@ const CarDayList = () => {
             } catch (err) {
                 console.error("차량 리스트 로딩 치명적 오류:", err);
             } finally {
-                if (!cancelled) {
+                if (cancelled) return;
+                const elapsed = Date.now() - startAt;
+                const remain = Math.max(0, MIN_LOADING_TIME - elapsed);
+                setTimeout(() => {
+                    if (cancelled) return;
                     setLoading(false);
                     setPriceLoading(false);
-                }
+                }, remain);
             }
         };
 
@@ -265,10 +287,16 @@ const CarDayList = () => {
         navigate(`/cars/detail/${specId}${routerLocation.search}`);
     };
 
-    if (loading) return <p>Loading...</p>;
-
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
+            <CarLoadingOverlay
+                show={loading}
+                label={
+                    showPriceHint
+                        ? "차량 가격 계산 중…"
+                        : "차량 리스트 불러오는 중…"
+                }
+            />
             <RentHeader type={type} location="day" branches={branches} />
 
             <div className="overflow-x-auto max-w-[90%] w-full mx-auto">
@@ -326,14 +354,12 @@ const CarDayList = () => {
                 </select>
             </div>
 
-            {priceLoading && cars.length > 0 && (
-                <p className="max-w-[90%] w-full mx-auto mt-2 text-sm text-gray-400">가격 계산 중...</p>
-            )}
-
-            {displayCars.length === 0 ? (
+            {(!loading && displayCars.length === 0) ? (
                 <div className="text-center min-h-[200px] mt-20 space-y-4">
                     <img src="/images/common/filterNull.svg" className="mx-auto" alt="차량 없음" />
-                    <h3 className="text-[24px] font-bold mb-[8px]">필터 조건에서는 함께 떠날 차를 찾지 못했어요.</h3>
+                    <h3 className="text-[24px] font-bold mb-[8px]">
+                        필터 조건에서는 함께 떠날 차를 찾지 못했어요.
+                    </h3>
                     <p className="text-[20px] text-gray-400 font-medium mb-[42px]">
                         필터를 조금만 넓히면 더 빠르게 픽할 수 있어요.
                     </p>
@@ -347,22 +373,26 @@ const CarDayList = () => {
                 </div>
             ) : (
                 <div className="mt-4 px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {displayCars.map((car) => (
-                        <CarCard
-                            key={car.specId}
-                            id={car.specId}
-                            discount={car.discountRate > 0}
-                            discountRate={car.discountRate || 0}
-                            imageSrc={car.imgUrl || "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"}
-                            title={car.displayNameShort}
-                            info={{ year: car.modelYear, seat: car.seatingCapacity + "인승" }}
-                            features={car.driveLabels}
-                            baseTotalAmount={car.baseTotalAmount}
-                            price={car.finalPrice}
-                            day={true}
-                            onClick={handleClickCar}
-                        />
-                    ))}
+                    {loading
+                        ? Array.from({ length: 6 }).map((_, i) => (
+                            <CarCardSkeleton key={i} />
+                        ))
+                        : displayCars.map((car) => (
+                            <CarCard
+                                key={car.specId}
+                                id={car.specId}
+                                discount={car.discountRate > 0}
+                                discountRate={car.discountRate || 0}
+                                imageSrc={car.imgUrl || "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"}
+                                title={car.displayNameShort}
+                                info={{ year: car.modelYear, seat: car.seatingCapacity + "인승" }}
+                                features={car.driveLabels}
+                                baseTotalAmount={car.baseTotalAmount}
+                                price={car.finalPrice}
+                                day={true}
+                                onClick={handleClickCar}
+                            />
+                        ))}
                 </div>
             )}
         </div>

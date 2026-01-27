@@ -246,7 +246,7 @@ export default function CarPickZonePage() {
               <div className="h-20 rounded-2xl bg-[#E6F2F0] px-4 flex flex-col justify-center shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
                 <div className="text-xs text-black/60">도착하자마자 바로 픽업</div>
                 <div className="mt-0.5 text-sm font-semibold text-[#111]">
-                  센터 픽업은 딜리버리보다 최대 OO% 저렴해요
+                  센터 픽업은 딜리버리보다 최대 30% 저렴해요
                 </div>
               </div>
             </div>

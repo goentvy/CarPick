@@ -18,10 +18,10 @@ const SpinVideo = forwardRef(function SpinVideo(
     src,
     className = "",
     dragWidth = 640,
-    dragHeight = 360,
+    dragHeight = 280,
     pitchCount = 5,
     pitchSensitivity = 4,
-
+    videoProps,
     // ✅ 화살표/버튼 한 번 클릭 시 회전량(0~1 progress 기준)
     step = 0.06,
     // ✅ 위/아래 버튼도 만들고 싶으면 pitchStep
@@ -213,20 +213,9 @@ const SpinVideo = forwardRef(function SpinVideo(
         playsInline
         preload="metadata"
         draggable={false}
-        className="w-full h-auto bg-black/5 pointer-events-none"
+        className="w-full h-full bg-black/5 pointer-events-none"
+        {...videoProps}
       />
-
-      {!ready && !err && (
-        <div className="absolute inset-0 grid place-items-center text-sm text-neutral-500">
-          로딩 중…
-        </div>
-      )}
-
-      {!!err && (
-        <div className="absolute inset-0 grid place-items-center text-sm text-red-600 bg-white/70">
-          {err}
-        </div>
-      )}
 
       {ready && !err && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 text-white text-xs">

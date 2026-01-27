@@ -136,7 +136,7 @@ const GuestCancel = () => {
                 {/* 경고 메시지 */}
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
                     <p className="text-sm text-yellow-800">
-                        예약을 취소하면 복구할 수 없습니다.<br/>
+                        예약을 취소하면 복구할 수 없습니다.<br />
                         다시 예약하려면 신규 예약을 진행해주세요.
                     </p>
                 </div>
