@@ -61,11 +61,9 @@ springdoc:
   default-produces-media-type: application/json
 
 #openai:
-#  api-key: sk-
 
 openai:
-  api-key: dummy
-
+  api-key:
 file:
   upload:
     path: C:/upload
