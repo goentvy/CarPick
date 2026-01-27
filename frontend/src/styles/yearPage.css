@@ -1,7 +1,3 @@
-/* ============================================================
-   CarP!ck 장기렌트 서비스 안내 최종 스타일 
-   ============================================================ */
-
 /* 1. 전체 배경 및 컨테이너 */
 .year-container {
   max-width: 640px;
@@ -142,13 +138,6 @@
   transition: transform 0.3s ease;
 }
 
-/* 호버 시 혹은 활성화 시 살짝 더 고급스럽게 음영 강조 (선택 사항) */
-/* .adv-card:hover .adv-img-box {
-  transform: translateY(-5px);
-  transition: all 0.3s ease;
-  box-shadow: 0 15px 30px rgba(29, 107, 243, 0.1);
-} */
-
 .adv-card h4 {
   font-size: 18px;
   font-weight: 800;
@@ -167,32 +156,6 @@
   margin: 0;
   white-space: pre-wrap
 }
-
-/* 이모지 원형 배경 */
-/* .adv-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.adv-icon-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  margin-bottom: 14px;
-  background-color: #f8fafc;
-}
-
-.adv-icon-circle.blue { background-color: #ebf4ff; color: #1D6BF3; }
-.adv-icon-circle.purple { background-color: #faf5ff; color: #805ad5; }
-.adv-icon-circle.teal { background-color: #e6fffa; color: #319795; }
-
-.adv-card h4 { font-size: 16px; font-weight: 700; color: #2d3748; margin-bottom: 8px; word-break: keep-all; }
-.adv-card p { font-size: 14px; color: #718096; line-height: 1.5; word-break: keep-all; } */
 
 /* 5. [섹션 02~03] 리스트 콘텐츠 */
 .guide-list-container {

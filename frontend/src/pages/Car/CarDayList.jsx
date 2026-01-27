@@ -186,8 +186,6 @@ const CarDayList = () => {
 
         const run = async () => {
             try {
-                delete params.returnBranchId;
-                delete params.returnBranchName;
                 // ✅ cars API는 기존대로 보내도 됨 (백에서 startDateTime/endDateTime optional)
                 console.log("[CarList] GET /api/cars params =", params);
                 const carRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/cars`, { params });

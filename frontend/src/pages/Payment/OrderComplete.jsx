@@ -1,16 +1,25 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useReservationStore from "../../store/useReservationStore";
+import useUserStore from "../../store/useUserStore";
 
 const OrderComplete = () => {
     const location = useLocation();
-    const reservation = useReservationStore();  // Zustand
+    const [searchParams] = useSearchParams();
+    const reservation = useReservationStore();
+    const { isLoggedIn } = useUserStore();
 
-    // ✅ location.state (orderId, totalPrice) + Zustand (지점/날짜)
+
+    // location.state 우선 → URL 파라미터 폴백
     const { orderId, totalPrice } = location.state || {};
-    const pickupBranch = reservation.pickupBranchName || '김포공항';
-    const startDate = reservation.startDate || '날짜 없음';
-    const endDate = reservation.endDate || '날짜 없음';
+
+    // URL에서 픽업 정보 추출 (하드코딩 제거)
+    const pickupBranchName = searchParams.get('pickupBranchName') ||
+        reservation.pickupBranchName || '김포공항';
+    const startDate = searchParams.get('startDate') ||
+        reservation.startDate || '날짜 없음';
+    const endDate = searchParams.get('endDate') ||
+        reservation.endDate || '날짜 없음';
 
     const [copyHover, setCopyHover] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
@@ -33,13 +42,9 @@ const OrderComplete = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white overflow-hidden">
-            {/* 헤더 공간 */}
             <div className="h-[67px] bg-transparent" />
-
             <main className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-12">
                 <div className="max-w-lg mx-auto w-full space-y-8">
-
-                    {/* 타이틀 */}
                     <div className="text-center">
                         <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
                             예약 완료
@@ -53,11 +58,9 @@ const OrderComplete = () => {
                         </div>
                     </div>
 
-                    {/* 예약 카드 */}
                     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 space-y-6">
                         <h2 className="text-base font-semibold text-gray-900 text-center">예약 정보</h2>
 
-                        {/* 예약번호 */}
                         <div className="flex justify-between items-center py-2 border-b border-gray-100">
                             <span className="text-xs font-medium text-gray-700">예약번호</span>
                             <div className="flex items-center space-x-2">
@@ -88,11 +91,10 @@ const OrderComplete = () => {
                             </div>
                         </div>
 
-                        {/* 픽업/대여기간 - Zustand에서 읽음 */}
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-500">픽업</span>
-                                <span className="font-medium text-gray-900">{pickupBranch}</span>
+                                <span className="font-medium text-gray-900">{pickupBranchName}</span>
                             </div>
                             <div className="flex justify-between pt-1">
                                 <span className="text-gray-500">대여기간</span>
@@ -100,7 +102,6 @@ const OrderComplete = () => {
                             </div>
                         </div>
 
-                        {/* 결제금액 */}
                         <div className="pt-4 border-t border-gray-100 flex justify-between items-baseline">
                             <span className="text-xs font-medium text-gray-700">총 결제금액</span>
                             <span className="text-2xl font-bold text-green-600">
@@ -109,14 +110,23 @@ const OrderComplete = () => {
                         </div>
                     </div>
 
-                    {/* 버튼들 */}
                     <div className="flex flex-col sm:flex-row gap-3 max-w-sm mx-auto">
-                        <button
-                            onClick={() => window.location.href = "/mypage/reservations"}
-                            className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
-                        >
-                            예약 내역
-                        </button>
+                        {/* 로그인 여부에 따라 다른 링크 */}
+                        {isLoggedIn ? (
+                            <button
+                                onClick={() => window.location.href = "/mypage/reservations"}
+                                className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
+                            >
+                                마이페이지
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => window.location.href = "/guest/view"}
+                                className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
+                            >
+                                예약조회
+                            </button>
+                        )}
                         <button
                             onClick={() => window.location.href = "/"}
                             className="flex-1 px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm border"

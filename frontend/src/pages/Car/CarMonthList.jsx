@@ -154,6 +154,7 @@ const CarMonthList = () => {
     }, []);
 
     useEffect(() => {
+        // ✅ 필수값 체크 (백엔드가 pickupBranchId required)
         if (!normalizedParams.pickupBranchId) {
             console.error("[CarMonthList] pickupBranchId 누락. API 호출 중단", {
                 search: routerLocation.search,
@@ -164,13 +165,24 @@ const CarMonthList = () => {
             return;
         }
 
+        // 장기에서 months 없으면 price가 무조건 터지니, 여기서도 방어
+        if (!normalizedParams.months || Number(normalizedParams.months) <= 0) {
+            console.warn("[CarMonthList] months 누락/이상. 기본값 1로 보정", normalizedParams);
+            normalizedParams.months = "1";
+        }
+
         // 장기에서 months 없으면 price가 무조건 터지니 방어
         const safeMonths = !normalizedParams.months || Number(normalizedParams.months) <= 0
             ? "1"
             : normalizedParams.months;
 
         setLoading(true);
-        setPriceLoading(false);
+
+        // ✅ 가장 확실한 방식: URL에 쿼리를 직접 붙여서 요청 (params 누락 문제를 원천 차단)
+        const qs = new URLSearchParams(normalizedParams).toString();
+        const url = `${import.meta.env.VITE_API_BASE_URL}/api/cars?${qs}`;
+
+        console.log("[CarMonthList] GET", url);
 
         let cancelled = false;
 
@@ -255,6 +267,7 @@ const CarMonthList = () => {
         return () => {
             cancelled = true;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [normalizedParams, routerLocation.search]);
 
     const handleClickCar = (specId) => {

@@ -15,7 +15,7 @@ const GuestView = () => {
         }
 
         try {
-            const res = await axios.get('http://localhost:8080/api/guest/reservation', {
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/guest/reservation`,{
                 params: { email: email.trim(), reservationNumber: reservationNumber.trim() }
             });
             navigate('/guest/reservation-detail', { state: res.data });
@@ -24,6 +24,10 @@ const GuestView = () => {
             alert(message);
             console.error(err);
         }
+    };
+
+    const handleLogin = () => {
+        navigate('/login');
     };
 
     return (
@@ -57,10 +61,17 @@ const GuestView = () => {
                 </div>
                 <button
                     onClick={handleSearch}
-                    className="w-full bg-brand text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-600 transition mb-4"
+                    className="w-full bg-brand text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-600 transition mb-3"
                     disabled={!email.trim() || !reservationNumber.trim()}
                 >
                     예약조회
+                </button>
+
+                <button
+                    onClick={handleLogin}
+                    className="w-full bg-gray-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-gray-700 transition border border-gray-400"
+                >
+                    로그인
                 </button>
             </div>
         </div>

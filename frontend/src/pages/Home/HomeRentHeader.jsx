@@ -107,7 +107,9 @@ const HomeRentHeader = ({
       pickupBranchName: pickupBranchName || "",
     });
 
-    navigate(`/day?${params.toString()}`);
+    // 기존 코드는 무조건 /day로 가게 되어 있어서 장기 렌트가 안 됐던 것임
+    const path = isLong ? "/month" : "/day";
+    navigate(`${path}?${params.toString()}`);
   };
 
   const handleRentTypeChange = (type) => {
@@ -153,7 +155,8 @@ const HomeRentHeader = ({
       pickupBranchName: pickupBranchName || "",
     });
 
-    navigate(`/day?${params.toString()}`);
+    const path = isLong ? "/month" : "/day";
+    navigate(`${path}?${params.toString()}`);
   };
   // ✅ 선택 처리 (primitive로만 관리)
   const handleSelectBranch = (branchId, branchName) => {
@@ -218,8 +221,8 @@ const HomeRentHeader = ({
           {showPickupModal && (
             <PickupLocationModal
               onClose={() => setShowPickupModal(false)}
-              onSelect={(branchId, branchName) => {
-                handleSelectBranch(branchId, branchName);
+              onSelect={(branchId, branchName) => {  //  두 개를 받기
+                handleSelectBranch(branchId, branchName); //  여기서 둘 다 처리됨
                 setShowPickupModal(false);
                 setShowDatePicker(true);
               }}

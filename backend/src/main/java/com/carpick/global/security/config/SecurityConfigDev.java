@@ -80,6 +80,7 @@ public class SecurityConfigDev {
                                 "/api/v2/reservations/price",
                                 "/api/admin/reservation/detail",
                                 "/api/admin/price-policies",
+                                "/api/admin/demo/reservations",
                                 ("/api/guest/**"),
 
                                 // 2. 관리자 뷰(Admin View) 경로 허용 (추가됨)

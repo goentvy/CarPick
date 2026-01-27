@@ -122,7 +122,10 @@ const ReservationPage = () => {
         };
 
         api.post("/reservation/form", body)
+
             .then(async (res) => {
+                console.log("pickupLocation =", res.data.pickupLocation);
+
                 const store = useReservationStore.getState();
 
                 setFormData(res.data);

@@ -34,8 +34,6 @@ public class ReservationDetailDto {
 
     private String pickupType;
     private Long pickupBranchId;
-    //브랜치아이디 필요해서 추가했습니다 -임승우
-    private Long branchId;
     private String pickupAddress;
 
     private String returnType;

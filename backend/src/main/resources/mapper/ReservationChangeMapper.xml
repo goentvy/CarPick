@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carpick.domain.member.mapper.ReservationChangeMapper">
+
+    <!-- 1. insertReservationHistory (기존) -->
+    <insert id="insertReservationHistory" parameterType="map">
+        INSERT INTO reservation_history
+        (reservation_id, action_type, change_types,
+         old_car_name, old_start_date, old_end_date, old_location,
+         new_car_name, new_start_date, new_end_date, new_location,
+         user_id, created_at)
+        VALUES
+            (#{reservationId}, #{actionType}, #{changeTypes},
+             #{oldCarName}, #{oldStartDate}, #{oldEndDate}, #{oldLocation},
+             #{newCarName}, #{newStartDate}, #{newEndDate}, #{newLocation},
+             #{userId}, NOW())
+    </insert>
+
+    <!-- 2. updateReservation (신규 추가) -->
+    <update id="updateReservation" parameterType="map">
+        UPDATE reservation
+        SET vehicle_id = #{carId},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            total_amount_snapshot = #{totalAmount},
+            insurance_id = #{insuranceId}
+        WHERE reservation_id = #{reservationId}
+    </update>
+
+</mapper>

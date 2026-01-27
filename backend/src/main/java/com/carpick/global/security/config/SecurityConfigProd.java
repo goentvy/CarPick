@@ -38,17 +38,25 @@ public class SecurityConfigProd {
                 .authorizeHttpRequests(auth -> auth
 
 
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ===== 2️⃣ 업로드 경로 허용 =====
                         .requestMatchers(
                                 "/admin/upload/**",
                                 "/upload/**"
                         ).permitAll()
-                        // ===== 2️⃣ 관리자 API =====
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // ===== 3️⃣ 관리자 화면 =====
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // ===== 3️⃣ 관리자 페이지 HTML/정적 리소스 허용 =====
                         .requestMatchers(
-                                "/api/admin/**",   // ✅ 관리자 내부 API 허용 (필수)
+                                "/admin",
+                                "/admin/",
+                                "/admin/*.html",
+                                "/admin/assets/**",
+                                "/admin/css/**",
+                                "/admin/js/**"
+                        ).permitAll()
+                        .requestMatchers(
+
                                 "/api/branches/**",
                                 "/api/dropzones/**",
                                 "/api/recommend-cars",
@@ -62,7 +70,7 @@ public class SecurityConfigProd {
                                 "/api/about/values",
                                 "/api/cars/**",
                                 "/",
-                                "/admin/**",
+
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
@@ -71,6 +79,13 @@ public class SecurityConfigProd {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+
+                        // ===== 5️⃣ 관리자 API - ADMIN 권한 필수 =====
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // ===== 6️⃣ 관리자 페이지 내부 라우팅 - ADMIN 권한 필수 =====
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // ===== 7️⃣ 그 외 모든 요청은 인증 필요 =====
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

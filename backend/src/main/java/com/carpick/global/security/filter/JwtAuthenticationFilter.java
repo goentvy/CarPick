@@ -84,6 +84,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 // ✅ JWT에서 권한 추출
             String role = jwtProvider.getRole(token);  // "ADMIN" or "USER"
 
+            if (role == null) {
+                throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
+            }
+
 // ✅ Spring Security 형식으로 변환
             String securityRole = "ROLE_" + role;
             // 5️⃣ SecurityContext 등록
@@ -102,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            log.info("AUTH = {}", authentication.getAuthorities());
             log.debug("[JWT-AUTH-SUCCESS] userId={}", userId);
 
             filterChain.doFilter(request, response);
