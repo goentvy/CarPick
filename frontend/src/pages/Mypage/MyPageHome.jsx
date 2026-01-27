@@ -30,8 +30,6 @@ const menuItems = [
     { label: "리뷰 관리", path: "/Mypage/ReviewHistory" },
     { label: "문의 내역", path: "/mypage/QnA" },
     { label: "면허 관리", path: "/Mypage/license" },
-    /*{ label: "결제 수단", path: "/Mypage/Payment" },*/
-    /*{ label: "선호 차량", path: "/Mypage/Favorites" },*/
 ];
 
 function MyPageHome() {
@@ -41,7 +39,6 @@ function MyPageHome() {
     const [ongoingOrders, setOngoingOrders] = useState([]);
     const contentMinHeight = "calc(100vh - 80px - 72px)";
 
-    // 실제 DB에서 userid에 맞는 최신 진행중 예약들 조회
     useEffect(() => {
         const fetchOngoing = async () => {
             try {
@@ -56,6 +53,8 @@ function MyPageHome() {
                     pickupDate: `픽업 날짜 : ${formatDate(ongoing.startDate)}`,
                     status: STATUS_MAP[ongoing.reservationStatus]?.label || ongoing.reservationStatus,
                     pickupLocation: "김포공항점",
+                    imgUrl: ongoing.imgUrl,      // ✅ 백엔드에서 받은 실제 이미지 URL
+                    specId: ongoing.specId       // ✅ 백업용
                 }));
 
                 setOngoingOrders(orders);
@@ -66,7 +65,6 @@ function MyPageHome() {
         fetchOngoing();
     }, []);
 
-    // 배경색 유지
     useEffect(() => {
         const prevBodyBg = document.body.style.backgroundColor;
         document.body.style.backgroundColor = "#E7EEFF";
@@ -108,11 +106,10 @@ function MyPageHome() {
                     </div>
                 </div>
 
-                {/* 진행중 주문 영역 (캐러셀 제거) */}
+                {/* 진행중 주문 영역 */}
                 <div className="px-4 pt-6">
                     <div className="flex flex-col items-center">
                         {ongoingOrders.length > 0 ? (
-                            // 최신 1개만 표시 (슬라이드 없음)
                             <button
                                 type="button"
                                 onClick={() => navigate(`/Mypage/Reservations/${ongoingOrders[0].id}`)}
@@ -124,9 +121,9 @@ function MyPageHome() {
                             >
                                 <div className="flex items-center px-4 py-8">
                                     <div className="flex flex-col text-left mr-4">
-                    <span className="text-sm font-bold mt-1">
-                      {ongoingOrders[0].carName}
-                    </span>
+                                        <span className="text-sm font-bold mt-1">
+                                            {ongoingOrders[0].carName}
+                                        </span>
                                         <div className="text-[11px] mt-1 opacity-90">
                                             <div>{ongoingOrders[0].pickupDate}</div>
                                             <div>{ongoingOrders[0].pickupLocation}</div>
@@ -135,20 +132,26 @@ function MyPageHome() {
                                     </div>
                                     <div className="ml-auto flex items-center">
                                         <div className="mr-10 w-30 h-15 rounded-xl overflow-hidden flex items-center justify-center">
-                                            <img src="/images/common/car1.svg" alt="car" className="w-full h-full object-contain" />
+                                            {/* ✅ 실제 차량 이미지 표시! */}
+                                            <img
+                                                src={ongoingOrders[0]?.imgUrl || "/images/common/car1.svg"}
+                                                alt={ongoingOrders[0]?.carName || "car"}
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png";
+                                                }}
+                                            />
                                         </div>
                                         <span className="text-base font-bold text-[#2C7FFF]">›</span>
                                     </div>
                                 </div>
                             </button>
                         ) : (
-                            // 예약 없음 카드
                             <div className="
                 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl
                 px-6 py-8 rounded-2xl bg-white text-center
                 shadow-sm border border-gray-100 hover:shadow-md transition-all
               ">
-
                                 <p className="text-lg font-semibold text-gray-800 mb-2">진행 중인 예약이 없어요</p>
                                 <p className="text-sm text-gray-500 mb-6">나에게 딱 맞는 차량을 찾아 볼까요?</p>
                                 <button

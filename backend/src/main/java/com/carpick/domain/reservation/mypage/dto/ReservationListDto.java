@@ -27,4 +27,9 @@ public class ReservationListDto {
     private BigDecimal totalAmountSnapshot;
     private String reservationStatus;  // PENDING, CONFIRMED, ACTIVE, COMPLETED, CANCELED
 
+    // 차량 이미지 & specId
+    private String imgUrl;
+    private Long specId;
+
+
 }

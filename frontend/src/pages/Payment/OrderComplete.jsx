@@ -117,14 +117,14 @@ const OrderComplete = () => {
                                 onClick={() => window.location.href = "/mypage/reservations"}
                                 className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
                             >
-                                마이페이지
+                                예약내역
                             </button>
                         ) : (
                             <button
                                 onClick={() => window.location.href = "/guest/view"}
                                 className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
                             >
-                                예약조회
+                                예약내역
                             </button>
                         )}
                         <button
