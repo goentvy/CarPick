@@ -83,7 +83,7 @@ function Header() {
       )}
 
       {/* 사이드 메뉴 */}
-      <aside id="navMenu" className={menuOpen ? "active" : ""}>
+      <aside id="navMenu" className={`m-0 ${menuOpen ? "active" : ""}`}>
         <div className="inner">
           <div className="menu_top">
             <Link to="/home" onClick={closeMenu}>
@@ -238,14 +238,15 @@ function Header() {
             </ul>
           </nav>
 
-          <div className="menu_bottom">
+          <div className="h-[50px] menu_bottom bg-[#1D6BF3] flex items-center justify-center ">
             {isLoggedIn && (
-              <span className="btn btn-logout cursor-pointer" onClick={handleLogout}>
+              <span className="btn btn-logout cursor-pointer text-white" onClick={handleLogout}>
                 로그아웃
               </span>
             )}
           </div>
         </div>
+
       </aside>
 
       <div className="fixedAI">
