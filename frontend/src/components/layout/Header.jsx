@@ -150,9 +150,13 @@ function Header() {
                 </div>
               </li>
 
-              {/* <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
-                <Link to="/guest/view" className="gnb-link">예약조회</Link>
-              </li> */}
+              <li className={`gnb-item ${location.pathname.includes("guest") ? "active" : ""}`} onClick={closeMenu}>
+                {isLoggedIn ?
+                  <Link to="/mypage/reservations" className="gnb-link">예약조회</Link>
+                  :
+                  <Link to="/guest/view" className="gnb-link">예약조회</Link>
+                }
+              </li>
 
               <li className={`gnb-item ${location.pathname.includes("event") ? "active" : ""}`} onClick={closeMenu}>
                 <Link to="/event/list" className="gnb-link">이벤트</Link>
