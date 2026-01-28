@@ -52,13 +52,7 @@ public class SecurityConfigDev {
                                 "/admin/upload/**",
                                 "/upload/**"
                         ).permitAll()
-
-                        // ============================
-                        // 관리자 보호 영역 (우선 적용)
-                        // ============================
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-
+                        
                         // ============================
                         // Preflight
                         // ============================
@@ -90,6 +84,7 @@ public class SecurityConfigDev {
                                 "/api/admin/reservation/detail",
                                 "/api/admin/price-policies",
                                 "/api/admin/demo/reservations",
+                                "/api/admin/**",
                                 ("/api/guest/**"),
                                 "/api/guest/**",
 
@@ -99,6 +94,7 @@ public class SecurityConfigDev {
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
+                                "/admin/**",
 
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
