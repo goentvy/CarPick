@@ -311,7 +311,6 @@
     // ================================
     function addEmptyRow() {
         const $tbody = $('#inventory-table-body');
-        const no = $tbody.children('tr').length + 1;
 
         const empty = {
             vehicleId: null,
@@ -324,9 +323,19 @@
             updatedAt: '',
             mainImageUrl: ''
         };
-        const rowHtml = createRowHtml(empty, no);
-        $tbody.append(rowHtml);
+
+        const rowHtml = createRowHtml(empty, 1);
+
+        // ✅ 맨 위에 추가
+        $tbody.prepend(rowHtml);
+
+        // ✅ NO 다시 매기기 (아래 함수 추가)
+        renumberRows();
+
+        // ✅ 바로 보이게 스크롤
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
 
     // ================================
     //  저장 (신규/수정 공통)
