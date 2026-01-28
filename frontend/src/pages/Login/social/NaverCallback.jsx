@@ -19,7 +19,7 @@ const NaverCallback = () => {
       (async () => {
         try {
           const minTime = new Promise((resolve) => setTimeout(resolve, 1000));
-          const loginRequest = api.post("/auth/login/naver", { code, state: receivedState });
+          const loginRequest = api.post("/auth/oauth/naver", { code, state: receivedState });
 
           const [, res] = await Promise.all([minTime, loginRequest]);
 
@@ -30,7 +30,7 @@ const NaverCallback = () => {
                 name: res.data.name,
                 membershipGrade: res.data.membershipGrade,
               },
-              accessToken: res.data.token,
+              accessToken: res.data.accessToken,
             });
             navigate("/home");
           } else {

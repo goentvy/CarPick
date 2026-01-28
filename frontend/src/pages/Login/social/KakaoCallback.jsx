@@ -17,7 +17,7 @@ const KakaoCallback = () => {
       (async () => {
         try {
           const minTime = new Promise((resolve) => setTimeout(resolve, 1000));
-          const loginRequest = api.post("/auth/login/kakao", { code });
+          const loginRequest = api.post("/auth/oauth/kakao", { code });
 
           const [, res] = await Promise.all([minTime, loginRequest]);
 
@@ -27,7 +27,7 @@ const KakaoCallback = () => {
               name: res.data.name,
               membershipGrade: res.data.membershipGrade,
             },
-            accessToken: res.data.token,
+            accessToken: res.data.accessToken,
           });
           navigate("/home");
         } catch (err) {

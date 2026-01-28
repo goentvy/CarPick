@@ -14,7 +14,13 @@ const ProfilePage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { logout } = useUserStore();
 
+    // ✅ JWT 준비될 때까지 기다렸다가 호출하도록 수정
+    const accessToken = useUserStore(state => state.accessToken);
+
     useEffect(() => {
+        if (!accessToken) return;   // ⭐ 핵심: 토큰 없으면 호출 금지
+
+
         api.get("/users/me")
             .then((res) => {
                 setUserInfo(res.data);
@@ -24,7 +30,7 @@ const ProfilePage = () => {
                 }));
             })
             .catch((err) => console.error("회원정보 불러오기 실패:", err));
-    }, []);
+    }, [accessToken]);
 
     // 스크롤 방지
     useEffect(() => {
@@ -149,7 +155,7 @@ const ProfilePage = () => {
             "confirm",
             async () => {
                 try {
-                    await api.post(`/auth/unlink/${provider.toLowerCase()}`);
+                    await api.post(`/auth/oauth/unlink/${provider.toLowerCase()}`);
                     openModal(null, `${provider} 연동이 해제되었습니다.`, "success", () => {
                         closeModal();
                         performLogout();

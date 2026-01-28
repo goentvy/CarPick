@@ -88,7 +88,7 @@ export default function Home() {
 
   // 2) AI → specIds → /cars 실데이터 → merge
   useEffect(() => {
-    if (!segment) return;
+    if (!segment || !branches.length) return;
 
     const fetchData = async () => {
       try {
