@@ -150,7 +150,7 @@ function ReservationsList() {
             const userId = useUserStore.getState().user?.id;
 
             // ✅ api 인스턴스 사용 (VITE_API_BASE_URL 자동 적용)
-            const response = await api.post("/api/reviews", {
+            const response = await api.post("/reviews", {
                 reservationId: Number(editingReview.reservationId),
                 carName: `${editingReview.brand} ${editingReview.displayShort || editingReview.displayNameShort}`,
                 rating: editingRating,
