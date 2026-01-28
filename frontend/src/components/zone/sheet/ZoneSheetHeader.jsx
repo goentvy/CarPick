@@ -15,7 +15,7 @@ export default function ZoneSheetHeader({
   openStatus,
   openLabel, // "영업중" | "영업종료"
   imageUrl,
-
+  images,
   crowdBadge = null, // 드롭존 혼잡도 배지
   metaLabel = "", // ✅ DROP용: "24시간 반납 가능"
 }) {
@@ -37,23 +37,22 @@ export default function ZoneSheetHeader({
 
   // 단일 URL 우선, 없으면 image[0]
   const coverImg =
-    (typeof imageUrl === "string" && imageUrl.trim() ? imageUrl : null);
+    (typeof imageUrl === "string" && imageUrl.trim() ? imageUrl : null) ||
+    (Array.isArray(images) && images.length > 0 ? images[0] : null);
 
-  console.log("[ZoneSheetHeader] imageUrl:", imageUrl);
-
-  console.log("[ZoneSheetHeader] coverImg:", coverImg);
+  console.log("[ZoneSheetHeader] coverImg:", coverImg, { imageUrl, images });
 
   return (
-    <div className="px-5 pt-1 ">
+    <div className="px-5 pt-2">
       {/* 상단: 좌(정보) / 우(배지) */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-
-          {/* 이름 + 서브라벨(작게) */}
+          {/* 이름 + 서브라벨 */}
           <div className="flex items-end gap-2 min-w-0">
             <div className="text-[16px] font-semibold text-[#111] truncate">
               {name || "-"}
             </div>
+
 
             {subLabel ? (
               <div className="text-[11px] text-black/45 truncate">
@@ -62,7 +61,8 @@ export default function ZoneSheetHeader({
             ) : null}
           </div>
 
-          {/*영업정보 자리(여기에 DROP: 24시간 반납 가능)*/}
+
+          {/* ✅ 영업/메타 라벨: 여백 규칙 고정 */}
           {displayLabel ? (
             <div className="mt-1 text-xs font-semibold text-[#0A56FF]">
               {displayLabel}
@@ -70,7 +70,7 @@ export default function ZoneSheetHeader({
           ) : null}
 
 
-          {/* 주소(한 줄) */}
+          {/* 주소 */}
           {address ? (
             <div className="mt-1 text-xs text-black/45 truncate">
               {address}
@@ -78,14 +78,15 @@ export default function ZoneSheetHeader({
           ) : null}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
 
-          {/* (1) 상태 배지 — 드롭존일 때만 */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* 드롭존 혼잡도 배지 */}
           {kind === "DROP" && crowdBadge && (
             <span className={`${pillBase} ${crowdBadge.cls}`}>
               {crowdBadge.label}
             </span>
           )}
+
 
           {/* 종류 배지 */}
           <span className={[pillBase, kindPillCls].join(" ")}>
@@ -94,23 +95,21 @@ export default function ZoneSheetHeader({
         </div>
       </div>
 
-      {/* 대표 이미지 */}
 
-      <div className="mt-2 mb-3">
+      {/* ✅ 대표 이미지: 위/아래 마진을 고정해서 안정화 */}
+      <div className="mt-3 mb-3">
         <div className="rounded-2xl overflow-hidden border border-black/5 bg-black/10">
           {coverImg ? (
             <img
               src={coverImg}
               alt=""
-              className="w-full h-[270px] object-cover"
+              className="w-full h-[280px] object-cover"
               onError={() => console.log("[IMG ERROR]", coverImg)}
             />
           ) : (
-            // 이미지 없을 때도 영역 유지
-            <div className="w-full h-[270px]" />
-
+            // ✅ 이미지 없을 때도 동일 높이 유지 → 간격 흔들림 방지
+            <div className="w-full h-[280px]" />
           )}
-
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 
 import "../../styles/common.css";
+import { div } from "framer-motion/client";
 
 function Header() {
   const navigate = useNavigate();
@@ -242,14 +243,17 @@ function Header() {
             </ul>
           </nav>
 
-          <div className="menu_bottom">
+          <div className=" menu_bottom ">
             {isLoggedIn && (
-              <span className="btn btn-logout cursor-pointer" onClick={handleLogout}>
-                로그아웃
-              </span>
+              <div className="h-[50px] bg-[#1D6BF3] flex items-center justify-center">
+                <span className="btn btn-logout cursor-pointer text-white" onClick={handleLogout}>
+                  로그아웃
+                </span>
+              </div>
             )}
           </div>
         </div>
+
       </aside>
 
       <div className="fixedAI">
