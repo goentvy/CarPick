@@ -8,7 +8,7 @@ const CardPaymentForm = () => {
 
   // 카드번호 포맷 함수
   const formatCardNumber = (value) =>
-    value.replace(/\D/g, "").slice(0, 12).replace(/(\d{4})(?=\d)/g, "$1-");
+    value.replace(/\D/g, "").slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1-");
 
   // 유효기간 포맷 함수
   const formatExpiry = (value) =>
@@ -29,34 +29,17 @@ const CardPaymentForm = () => {
         {/* 카드번호 */}
         <div>
           <label className="block text-sm text-gray-600">카드번호</label>
-
-          <div className="relative mt-1">
-            {/* 입력칸 안에 보이는 고정 프리픽스 */}
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 select-none">
-              1234 -
-            </span>
-
-            <input
-              type="text"
-              {...register("cardNumberRest")}
-              onChange={(e) =>
-                setValue(
-                  "cardNumberRest",
-                  formatCardNumber(e.target.value),
-                  { shouldValidate: true }
-                )
-              }
-              placeholder="####-####-####"
-              className="w-full border rounded px-3 py-2 pl-[60px]"  // ← 왼쪽 여백 핵심!
-            />
-          </div>
-
-          {errors.cardNumberRest && (
-            <p className="text-red-500 text-sm">{errors.cardNumberRest.message}</p>
-          )}
+          <input
+            type="text"
+            {...register("cardNumber")}
+            onChange={(e) =>
+              setValue("cardNumber", formatCardNumber(e.target.value), { shouldValidate: true })
+            }
+            placeholder="####-####-####-####"
+            className="w-full border rounded px-3 py-2"
+          />
+          {errors.cardNumber && <p className="text-red-500 text-sm">{errors.cardNumber.message}</p>}
         </div>
-
-
 
         {/* 유효기간 + CVC */}
         <div className="flex space-x-4">
