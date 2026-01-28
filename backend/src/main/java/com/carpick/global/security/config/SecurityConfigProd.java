@@ -29,34 +29,37 @@ public class SecurityConfigProd {
 
     @Bean
     public SecurityFilterChain prodFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 추가
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
 
-
+                        // ============================
+                        // Preflight
+                        // ============================
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ===== 2️⃣ 업로드 경로 허용 =====
+                        // ============================
+                        // 업로드 공개
+                        // ============================
                         .requestMatchers(
                                 "/admin/upload/**",
                                 "/upload/**"
                         ).permitAll()
 
-                        // ===== 3️⃣ 관리자 페이지 HTML/정적 리소스 허용 =====
-                        .requestMatchers(
-                                "/admin",
-                                "/admin/",
-                                "/admin/*.html",
-                                "/admin/assets/**",
-                                "/admin/css/**",
-                                "/admin/js/**"
-                        ).permitAll()
-                        .requestMatchers(
+                        // ============================
+                        // 관리자 영역 (🔥 최우선 보호)
+                        // ============================
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        // ============================
+                        // 공개 API + 정적 리소스
+                        // ============================
+                        .requestMatchers(
                                 "/api/branches/**",
                                 "/api/dropzones/**",
                                 "/api/recommend-cars",
@@ -69,29 +72,23 @@ public class SecurityConfigProd {
                                 "/api/auth/**",
                                 "/api/about/values",
                                 "/api/cars/**",
-                                "/",
 
+                                "/",
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/favicon.ico",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/favicon.ico"
                         ).permitAll()
 
-                        // ===== 5️⃣ 관리자 API - ADMIN 권한 필수 =====
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                        // ===== 6️⃣ 관리자 페이지 내부 라우팅 - ADMIN 권한 필수 =====
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        // ===== 7️⃣ 그 외 모든 요청은 인증 필요 =====
+                        // ============================
+                        // 나머지는 인증 필요
+                        // ============================
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                )
+
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler)
@@ -102,11 +99,10 @@ public class SecurityConfigProd {
 
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+
         var config = new org.springframework.web.cors.CorsConfiguration();
 
         config.setAllowedOrigins(java.util.List.of(
-                "http://3.236.8.244",
-                "http://3.236.8.244:5137",
                 "https://carpick.p-e.kr",
                 "https://admin.carpick.p-e.kr"
         ));
@@ -118,14 +114,9 @@ public class SecurityConfigProd {
         config.setAllowedHeaders(java.util.List.of("*"));
         config.setAllowCredentials(true);
 
-
-        config.addExposedHeader("Access-Control-Allow-Private-Network");
-
         var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return source;
     }
-
-
 }

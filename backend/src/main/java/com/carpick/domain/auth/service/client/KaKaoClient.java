@@ -132,7 +132,7 @@ public class KaKaoClient {
                 .providerId(String.valueOf(body.get("id")))
                 .membershipGrade("BASIC")
                 .marketingAgree(0)
-                .accessToken(accessToken)   // unlink 시 필요
+//                .accessToken(accessToken)   // unlink 시 필요
                 .password("")               // 기본값 세팅
                 .build();
     }

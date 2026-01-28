@@ -2,6 +2,7 @@ package com.carpick.domain.auth.service;
 
 import com.carpick.domain.auth.dto.oauth.OAuthLoginRequest;
 import com.carpick.domain.auth.dto.oauth.OAuthLoginResponse;
+import com.carpick.domain.auth.entity.Role;
 import com.carpick.domain.auth.entity.User;
 import com.carpick.domain.auth.mapper.UserMapper;
 import com.carpick.domain.auth.service.client.KaKaoClient;
@@ -25,36 +26,37 @@ public class OAuthService {
     private final JwtProvider jwtProvider;
 
     /* ==================================================
-       소셜 로그인 (실서버 안정)
-    ================================================== */
+       ✅ 소셜 로그인 (JWT 분리형 구조)
+       ================================================== */
     @Transactional
     public OAuthLoginResponse login(String provider, OAuthLoginRequest request) {
 
         String normalizedProvider = provider.toUpperCase();
         User socialUser;
 
-        /* 1️⃣ 토큰 + 프로필 */
+        /* =====================
+           1️⃣ OAuth 인증
+           ===================== */
         try {
             if ("KAKAO".equals(normalizedProvider)) {
-                String accessToken = kakaoClient.getAccessToken(request.getCode());
-                socialUser = kakaoClient.getProfile(accessToken);
-                socialUser.setAccessToken(accessToken);
+                String oauthToken = kakaoClient.getAccessToken(request.getCode());
+                socialUser = kakaoClient.getProfile(oauthToken);
                 socialUser.setProvider("KAKAO");
 
             } else if ("NAVER".equals(normalizedProvider)) {
-                String accessToken = naverClient.getAccessToken(
+                String oauthToken = naverClient.getAccessToken(
                         request.getCode(),
                         request.getState()
                 );
-                socialUser = naverClient.getProfile(accessToken);
-                socialUser.setAccessToken(accessToken);
+                socialUser = naverClient.getProfile(oauthToken);
                 socialUser.setProvider("NAVER");
 
             } else {
                 throw new AuthenticationException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
             }
+
         } catch (Exception e) {
-            log.error("OAuth 토큰/프로필 실패", e);
+            log.error("OAuth 인증 실패", e);
             throw new AuthenticationException(ErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED);
         }
 
@@ -62,13 +64,17 @@ public class OAuthService {
             throw new AuthenticationException(ErrorCode.OAUTH_PROVIDER_ERROR);
         }
 
-        /* 2️⃣ 기존 계정 */
+        /* =====================
+           2️⃣ 기존 계정 조회
+           ===================== */
         User existUser = userMapper.findByProvider(
                 socialUser.getProvider(),
                 socialUser.getProviderId()
         );
 
-        /* 3️⃣ 삭제 계정 복구 */
+        /* =====================
+           3️⃣ 삭제 계정 복구
+           ===================== */
         if (existUser == null) {
             User deletedUser = userMapper.findDeletedByProvider(
                     socialUser.getProvider(),
@@ -76,9 +82,8 @@ public class OAuthService {
             );
 
             if (deletedUser != null) {
-                userMapper.reviveSocialUserFull(
+                userMapper.reviveSocialUserBasic(
                         deletedUser.getUserId(),
-                        socialUser.getAccessToken(),
                         resolveEmail(socialUser),
                         socialUser.getName()
                 );
@@ -86,11 +91,14 @@ public class OAuthService {
             }
         }
 
-        /* 4️⃣ 신규 가입 */
+        /* =====================
+           4️⃣ 신규 가입
+           ===================== */
         if (existUser == null) {
             socialUser.setEmail(resolveEmail(socialUser));
-            socialUser.setPassword("");
+            socialUser.setPassword(null);
             socialUser.setMembershipGrade("BASIC");
+            socialUser.setRole(Role.USER);
             socialUser.setGender(null);
             socialUser.setMarketingAgree(
                     socialUser.getMarketingAgree() != null ? socialUser.getMarketingAgree() : 0
@@ -100,33 +108,33 @@ public class OAuthService {
             existUser = userMapper.findById(socialUser.getUserId());
         }
 
-        /* 5️⃣ 최종 방어 */
         if (existUser == null || existUser.getUserId() == null) {
             throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
 
-        /* 6️⃣ JWT */
-        String token = jwtProvider.generateToken(
+        /* =====================
+           5️⃣ JWT 발급 (Role 기반)
+           ===================== */
+        String accessToken = jwtProvider.generateAccessToken(
                 existUser.getUserId(),
-                existUser.getMembershipGrade() != null
-                        ? existUser.getMembershipGrade()
-                        : "BASIC"
+                existUser.getRole().name()
         );
 
         return OAuthLoginResponse.builder()
                 .success(true)
-                .token(token)
+                .accessToken(accessToken)
                 .name(existUser.getName())
                 .email(existUser.getEmail())
                 .provider(existUser.getProvider())
+                .role(existUser.getRole())
                 .build();
     }
+
     /* ==================================================
-          소셜 연동 해제 (컨트롤러용)
-          ❗ 실서버 안정 목적: 최소 동작
+       ✅ 소셜 연동 해제
        ================================================== */
     @Transactional
-    public void unlinkSocial(String provider, String jwtToken) {
+    public void unlinkSocial(String jwtToken) {
 
         Long userId = jwtProvider.getUserId(jwtToken);
 
@@ -135,11 +143,14 @@ public class OAuthService {
             throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
         }
 
-        // 연동 해제 = accessToken만 제거
-        userMapper.updateAccessToken(userId, null);
+        userMapper.unlinkSocialAccount(userId);
 
-        log.info("소셜 연동 해제 완료 userId={}, provider={}", userId, provider);
+        log.info("소셜 연동 해제 완료 userId={}", userId);
     }
+
+    /* =====================
+       이메일 fallback 생성
+       ===================== */
     private String resolveEmail(User user) {
         if (user.getEmail() != null && !user.getEmail().isBlank()) {
             return user.getEmail();

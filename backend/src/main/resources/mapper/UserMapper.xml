@@ -13,42 +13,34 @@
 
         <id property="userId" column="user_id"/>
 
-        <!-- 로그인 -->
         <result property="email" column="email"/>
         <result property="password" column="password"/>
         <result property="provider" column="provider"/>
         <result property="providerId" column="provider_id"/>
 
-        <!-- 개인정보 -->
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
         <result property="birth" column="birth"/>
 
-        <!-- enum -->
         <result property="gender"
                 column="gender"
                 typeHandler="com.carpick.global.mybatis.handler.GenderTypeHandler"/>
 
-        <!-- 정책 -->
-        <result property="marketingAgree" column="marketing_agree" jdbcType="INTEGER"/>
+        <result property="marketingAgree" column="marketing_agree"/>
         <result property="membershipGrade" column="membership_grade"/>
 
-        <!-- ✅ 권한 -->
         <result property="role"
                 column="role"
                 javaType="com.carpick.domain.auth.entity.Role"/>
 
-        <!-- audit -->
-        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
-        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
-        <result property="deletedAt" column="deleted_at" javaType="java.time.LocalDateTime"/>
-
-        <!-- accessToken 컬럼 삭제했으니 result도 없앰 -->
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="deletedAt" column="deleted_at"/>
 
     </resultMap>
 
     <!-- ===================== -->
-    <!-- SELECT -->
+    <!-- SELECT (🔥 명시 컬럼) -->
     <!-- ===================== -->
 
     <select id="existsByEmail" resultType="int">
@@ -59,14 +51,44 @@
     </select>
 
     <select id="findByEmail" resultMap="UserResultMap">
-        SELECT *
+        SELECT
+        user_id,
+        email,
+        password,
+        provider,
+        provider_id,
+        name,
+        phone,
+        birth,
+        gender,
+        marketing_agree,
+        membership_grade,
+        role,
+        created_at,
+        updated_at,
+        deleted_at
         FROM users
         WHERE email = #{email}
         AND deleted_at IS NULL
     </select>
 
     <select id="findByProvider" resultMap="UserResultMap">
-        SELECT *
+        SELECT
+        user_id,
+        email,
+        password,
+        provider,
+        provider_id,
+        name,
+        phone,
+        birth,
+        gender,
+        marketing_agree,
+        membership_grade,
+        role,
+        created_at,
+        updated_at,
+        deleted_at
         FROM users
         WHERE provider = #{provider}
         AND provider_id = #{providerId}
@@ -74,14 +96,44 @@
     </select>
 
     <select id="findById" resultMap="UserResultMap">
-        SELECT *
+        SELECT
+        user_id,
+        email,
+        password,
+        provider,
+        provider_id,
+        name,
+        phone,
+        birth,
+        gender,
+        marketing_agree,
+        membership_grade,
+        role,
+        created_at,
+        updated_at,
+        deleted_at
         FROM users
         WHERE user_id = #{userId}
         AND deleted_at IS NULL
     </select>
 
     <select id="findDeletedByProvider" resultMap="UserResultMap">
-        SELECT *
+        SELECT
+        user_id,
+        email,
+        password,
+        provider,
+        provider_id,
+        name,
+        phone,
+        birth,
+        gender,
+        marketing_agree,
+        membership_grade,
+        role,
+        created_at,
+        updated_at,
+        deleted_at
         FROM users
         WHERE provider = #{provider}
         AND provider_id = #{providerId}
@@ -89,11 +141,14 @@
     </select>
 
     <!-- ===================== -->
-    <!-- INSERT -->
+    <!-- INSERT (기존 유지) -->
     <!-- ===================== -->
 
-    <insert id="insertLocalUser" parameterType="com.carpick.domain.auth.entity.User" useGeneratedKeys="true"
+    <insert id="insertLocalUser"
+            parameterType="com.carpick.domain.auth.entity.User"
+            useGeneratedKeys="true"
             keyProperty="userId">
+
         INSERT INTO users (
         email,
         password,
@@ -120,9 +175,11 @@
         )
     </insert>
 
-    <insert id="insertSocialUser" parameterType="com.carpick.domain.auth.entity.User"
+    <insert id="insertSocialUser"
+            parameterType="com.carpick.domain.auth.entity.User"
             useGeneratedKeys="true"
             keyProperty="userId">
+
         INSERT INTO users (
         email,
         name,
@@ -151,7 +208,8 @@
 
     <update id="updateUserInfo">
         UPDATE users
-        SET name = #{name},
+        SET
+        name = #{name},
         phone = #{phone},
         birth = #{birth},
         gender = #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
@@ -159,7 +217,27 @@
         WHERE user_id = #{userId}
         AND deleted_at IS NULL
     </update>
+    <!-- ===================== -->
+    <!-- 소셜 계정 복구 -->
+    <!-- ===================== -->
+    <update id="reviveSocialUserBasic">
+        UPDATE users
+        SET
+        email = #{email},
+        name = #{name},
+        deleted_at = NULL
+        WHERE user_id = #{userId}
+    </update>
+    <!-- ===================== -->
+    <!-- 소셜 계정 연동 해제 -->
+    <!-- ===================== -->
+    <update id="unlinkSocialAccount">
+        UPDATE users
+        SET
+        provider = 'LOCAL',
+        provider_id = NULL
+        WHERE user_id = #{userId}
+    </update>
 
-    <!-- updateAccessToken 삭제함. JWT 토큰 DB 저장하지 마라 개새끼야 -->
 
 </mapper>

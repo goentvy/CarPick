@@ -71,8 +71,11 @@ api.interceptors.request.use((config) => {
 
       // ✅ 수정: Header.jsx와 동일한 키로 통일
       const token =
-        parsed?.state?.token ||   // zustand persist 구조
-        parsed?.token;            // 혹시 단순 저장된 경우 대비
+        parsed?.state?.accessToken ||   // zustand persist 구조
+        parsed?.accessToken ||
+        parsed?.state?.token ||
+        parsed?.token;
+      // 혹시 단순 저장된 경우 대비
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;

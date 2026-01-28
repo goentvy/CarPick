@@ -66,4 +66,12 @@ public interface UserMapper {
     void softDeleteSocialUser(@Param("userId") Long userId);
 
     void hardDeleteSocialUser(@Param("userId") Long userId);
+
+    void reviveSocialUserBasic(
+            Long userId,
+            String email,
+            String name
+    );
+    void unlinkSocialAccount(Long userId);
+
 }

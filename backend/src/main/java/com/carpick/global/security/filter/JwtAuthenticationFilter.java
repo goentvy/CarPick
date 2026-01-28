@@ -1,5 +1,6 @@
 package com.carpick.global.security.filter;
 
+import com.carpick.domain.auth.entity.Role;
 import com.carpick.domain.userinfo.entity.UserInfo;
 import com.carpick.domain.userinfo.mapper.UserInfoMapper;
 import com.carpick.global.exception.AuthenticationException;
@@ -31,9 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserInfoMapper userInfoMapper;
 
-    /**
-     * ✅ JWT 필터 제외 대상 (운영 기준)
-     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
@@ -53,24 +51,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String uri = request.getRequestURI();
-        String method = request.getMethod();
 
-        log.debug("[JWT-FILTER] {} {}", method, uri);
+        log.debug("[JWT-FILTER] {} {}", request.getMethod(), uri);
 
-        // 1️⃣ JWT 추출
         String token = jwtProvider.resolveToken(request);
 
-        // 2️⃣ 토큰 없음 → 공개 API 또는 비인증 요청
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // 3️⃣ 토큰 검증
             jwtProvider.validateToken(token);
 
-            // 4️⃣ 사용자 조회
             Long userId = jwtProvider.getUserId(token);
             UserInfo user = userInfoMapper.findById(userId);
 
@@ -81,21 +74,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (user.getDeletedAt() != null) {
                 throw new AuthenticationException(ErrorCode.AUTH_CREDENTIALS_EXPIRED);
             }
-// ✅ JWT에서 권한 추출
-            String role = jwtProvider.getRole(token);  // "ADMIN" or "USER"
 
-            if (role == null) {
+            // ============================
+            // 🔥 권한 enum 변환 (정석)
+            // ============================
+            String roleValue = jwtProvider.getRole(token);
+
+            if (roleValue == null) {
                 throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
             }
 
-// ✅ Spring Security 형식으로 변환
-            String securityRole = "ROLE_" + role;
-            // 5️⃣ SecurityContext 등록
+            Role role = Role.from(roleValue);
+
+            // ============================
+            // Security Context 등록
+            // ============================
             CustomUserDetails userDetails = new CustomUserDetails(
                     user.getUserId(),
                     user.getEmail(),
                     user.getPassword(),
-                    securityRole   // 👉 ROLE_ADMIN / ROLE_USE
+                    role.securityRole()
             );
 
             UsernamePasswordAuthenticationToken authentication =
@@ -106,14 +104,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("AUTH = {}", authentication.getAuthorities());
-            log.debug("[JWT-AUTH-SUCCESS] userId={}", userId);
+
+            log.info("[JWT-AUTH] userId={} role={}", userId, role);
 
             filterChain.doFilter(request, response);
 
         } catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
-            log.warn("[JWT-AUTH-FAIL] {} {} {}", method, uri, e.getErrorCode().name());
             throw e;
 
         } catch (ExpiredJwtException e) {
@@ -129,7 +126,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new AuthenticationException(ErrorCode.AUTH_TOKEN_UNSUPPORTED);
 
         } catch (Exception e) {
-            log.error("[JWT-UNKNOWN-ERROR] {} {}", method, uri, e);
+            log.error("[JWT-UNKNOWN]", e);
             throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
     }
