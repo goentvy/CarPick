@@ -95,6 +95,10 @@ public class OAuthService {
            4️⃣ 신규 가입
            ===================== */
         if (existUser == null) {
+
+            socialUser.setProvider(normalizedProvider);   // ✅ 무조건 다시 박아라 (핵심)
+            socialUser.setProviderId(socialUser.getProviderId()); // 안전성
+
             socialUser.setEmail(resolveEmail(socialUser));
             socialUser.setPassword(null);
             socialUser.setMembershipGrade("BASIC");
@@ -103,7 +107,9 @@ public class OAuthService {
             socialUser.setMarketingAgree(
                     socialUser.getMarketingAgree() != null ? socialUser.getMarketingAgree() : 0
             );
-
+            log.info("INSERT SOCIAL provider={}, providerId={}",
+                    socialUser.getProvider(),
+                    socialUser.getProviderId());
             userMapper.insertSocialUser(socialUser);
             existUser = userMapper.findById(socialUser.getUserId());
         }
