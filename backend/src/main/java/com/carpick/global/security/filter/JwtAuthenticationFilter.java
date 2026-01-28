@@ -44,90 +44,135 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String uri = request.getRequestURI();
-
         log.debug("[JWT-FILTER] {} {}", request.getMethod(), uri);
 
-        String token = jwtProvider.resolveToken(request);
+        String accessToken = jwtProvider.resolveToken(request);
 
-        if (token == null) {
+        if (accessToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            jwtProvider.validateToken(token);
-
-            Long userId = jwtProvider.getUserId(token);
-            UserInfo user = userInfoMapper.findById(userId);
-
-            if (user == null) {
-                throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
-            }
-
-            if (user.getDeletedAt() != null) {
-                throw new AuthenticationException(ErrorCode.AUTH_CREDENTIALS_EXPIRED);
-            }
-
-            // ============================
-            // 🔥 권한 enum 변환 (정석)
-            // ============================
-            String roleValue = jwtProvider.getRole(token);
-
-            if (roleValue == null) {
-                throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
-            }
-
-            Role role = Role.from(roleValue);
-
-            // ============================
-            // Security Context 등록
-            // ============================
-            CustomUserDetails userDetails = new CustomUserDetails(
-                    user.getUserId(),
-                    user.getEmail(),
-                    user.getPassword(),
-                    role.securityRole()
-            );
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            log.info("[JWT-AUTH] userId={} role={}", userId, role);
+            // ===================== ✅ Access Token 정상 =====================
+            jwtProvider.validateToken(accessToken);
+            authenticate(accessToken);
 
             filterChain.doFilter(request, response);
-
-        } catch (AuthenticationException e) {
-            SecurityContextHolder.clearContext();
-            throw e;
+            return;
 
         } catch (ExpiredJwtException e) {
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_EXPIRED);
+
+            // ===================== ♻ Access 만료 → Refresh 처리 =====================
+            handleRefresh(request, response, filterChain);
+            return;
 
         } catch (SignatureException e) {
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_SIGNATURE_INVALID);
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
 
         } catch (MalformedJwtException e) {
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_MALFORMED);
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
 
         } catch (UnsupportedJwtException e) {
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_UNSUPPORTED);
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
 
         } catch (Exception e) {
             log.error("[JWT-UNKNOWN]", e);
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
+    }
+
+    // =====================================================
+    // ♻ Refresh Token 재발급 처리
+    // =====================================================
+    private void handleRefresh(HttpServletRequest request,
+                               HttpServletResponse response,
+                               FilterChain filterChain) throws IOException, ServletException {
+
+        String refreshToken = jwtProvider.resolveRefreshToken(request);
+
+        if (refreshToken == null) {
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        try {
+            jwtProvider.validateRefreshToken(refreshToken);
+
+            Long userId = jwtProvider.getUserId(refreshToken);
+            UserInfo user = userInfoMapper.findById(userId);
+
+            if (user == null || user.getDeletedAt() != null) {
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            Role role = user.getRole();
+
+            // ✅ 새 Access Token 발급
+            String newAccessToken =
+                    jwtProvider.generateAccessToken(userId, role.name());
+
+            // ✅ 클라이언트에 전달
+            response.setHeader("Authorization", "Bearer " + newAccessToken);
+
+            // ✅ 인증 재설정
+            authenticate(newAccessToken);
+
+            log.info("[JWT-REFRESH] userId={} role={}", userId, role);
+
+            filterChain.doFilter(request, response);
+
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+    }
+
+    // =====================================================
+    // 🔐 인증 세팅
+    // =====================================================
+    private void authenticate(String token) {
+
+        Long userId = jwtProvider.getUserId(token);
+
+        UserInfo user = userInfoMapper.findById(userId);
+        if (user == null) {
+            throw new AuthenticationException(ErrorCode.AUTH_USER_NOT_FOUND);
+        }
+
+        Role role = Role.from(jwtProvider.getRole(token));
+
+        CustomUserDetails userDetails =
+                new CustomUserDetails(
+                        user.getUserId(),
+                        user.getEmail(),
+                        user.getPassword(),
+                        role.securityRole()
+                );
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
