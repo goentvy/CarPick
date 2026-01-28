@@ -1,5 +1,6 @@
 // src/services/api.js
 import axios from "axios";
+import useUserStore from "../store/useUserStore";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
@@ -60,30 +61,15 @@ api.interceptors.request.use((config) => {
   // ✅ [추가] 비공개 API는 body 날짜도 통일
   normalizeDateFields(config.data);
 
+  const storeToken = useUserStore.getState().accessToken;
+  console.log("JWT:", storeToken);
+
   // ✅ 나머지는 토큰 붙이기
-  const raw = localStorage.getItem("user-storage");
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
+  // ✅ JWT는 zustand에서만 관리한다 (localStorage 직접 접근 금지)
+  const token = useUserStore.getState().accessToken;
 
-      // ❌ 기존 (서로 다른 키라서 항상 undefined)
-      // const accessToken = parsed?.state?.accessToken;
-
-      // ✅ 수정: Header.jsx와 동일한 키로 통일
-      const token =
-        parsed?.state?.accessToken ||   // zustand persist 구조
-        parsed?.accessToken ||
-        parsed?.state?.token ||
-        parsed?.token;
-      // 혹시 단순 저장된 경우 대비
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-    } catch (e) {
-      console.error("토큰 파싱 실패", e);
-    }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;
