@@ -57,6 +57,12 @@ ALTER TABLE users DROP COLUMN accesstoken;
 
 -- marketing_agree에 기본값 주기 (임시방편)
 ALTER TABLE users MODIFY marketing_agree INTEGER DEFAULT 0 NOT NULL;
+drop table refresh_tokens;
+CREATE TABLE refresh_tokens (
+                                user_id BIGINT PRIMARY KEY,
+                                token VARCHAR(500) NOT NULL
+);
+
 
 UPDATE users
 SET role='ADMIN'
