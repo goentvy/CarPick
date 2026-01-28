@@ -1,16 +1,18 @@
 package com.carpick.domain.userinfo.entity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
+import com.carpick.domain.auth.entity.Role;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 public class UserInfo {
 
     private Long userId;
+
     private String email;
     private String password;
 
@@ -19,14 +21,17 @@ public class UserInfo {
 
     private String name;
     private String phone;
-    private LocalDate birth;
 
+    private LocalDate birth;
     private String gender;
+
     private boolean marketingAgree;
 
-    private String membershipGrade;
+    // ⭐ 권한 (JWT + Security에서 사용하는 핵심 필드)
+    private Role role;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+
 }

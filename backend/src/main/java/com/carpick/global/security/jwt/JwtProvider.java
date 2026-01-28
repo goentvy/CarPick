@@ -17,7 +17,6 @@ import java.util.Date;
 public class JwtProvider {
 
     private final Key key;
-
     private final long accessExpiration;
     private final long refreshExpiration;
 
@@ -31,9 +30,9 @@ public class JwtProvider {
         this.refreshExpiration = refreshExpiration;
     }
 
-    /* =====================================================
-       ✅ Access Token 생성
-       ===================================================== */
+    // =====================================================
+    // ✅ Access Token 생성
+    // =====================================================
     public String generateAccessToken(Long userId, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
@@ -44,9 +43,9 @@ public class JwtProvider {
                 .compact();
     }
 
-    /* =====================================================
-       ✅ Refresh Token 생성
-       ===================================================== */
+    // =====================================================
+    // ✅ Refresh Token 생성
+    // =====================================================
     public String generateRefreshToken(Long userId) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
@@ -56,24 +55,21 @@ public class JwtProvider {
                 .compact();
     }
 
-    /* =====================================================
-       ✅ Access Token 추출 (Authorization 헤더)
-       ===================================================== */
+    // =====================================================
+    // ✅ Access Token 추출 (Authorization 헤더)
+    // =====================================================
     public String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
-
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
-
         return null;
     }
 
-    /* =====================================================
-       ✅ Refresh Token 추출 (HttpOnly 쿠키)
-       ===================================================== */
+    // =====================================================
+    // ✅ Refresh Token 추출 (Cookie)
+    // =====================================================
     public String resolveRefreshToken(HttpServletRequest request) {
-
         if (request.getCookies() == null) return null;
 
         for (Cookie cookie : request.getCookies()) {
@@ -84,18 +80,21 @@ public class JwtProvider {
         return null;
     }
 
-    /* =====================================================
-       ✅ 토큰 검증 (공통)
-       ===================================================== */
+    // =====================================================
+    // ✅ 토큰 검증 (🔥 만료는 그대로 던진다)
+    // =====================================================
     public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
+                    .setAllowedClockSkewSeconds(30)
                     .build()
                     .parseClaimsJws(token);
 
         } catch (ExpiredJwtException e) {
-            throw new AuthenticationException(ErrorCode.AUTH_TOKEN_EXPIRED);
+            // ⭐ 절대 AuthenticationException으로 감싸지 마라
+            throw e;
+
         } catch (JwtException | IllegalArgumentException e) {
             throw new AuthenticationException(ErrorCode.AUTH_TOKEN_INVALID);
         }
@@ -105,9 +104,9 @@ public class JwtProvider {
         validateToken(token);
     }
 
-    /* =====================================================
-       ✅ 정보 추출
-       ===================================================== */
+    // =====================================================
+    // ✅ 정보 추출
+    // =====================================================
     public Long getUserId(String token) {
         return Long.parseLong(parseClaims(token).getSubject());
     }
@@ -119,6 +118,7 @@ public class JwtProvider {
     private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
+                .setAllowedClockSkewSeconds(30)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
