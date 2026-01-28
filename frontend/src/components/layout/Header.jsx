@@ -56,7 +56,7 @@ function Header() {
         : "https://admin.carpick.p-e.kr";
 
     // ✅ 그냥 관리자 페이지로 이동만 한다
-    window.location.href = `${adminUrl}/admin`;
+    window.location.href = `${adminUrl}/`;
   };
 
   return (
