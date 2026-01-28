@@ -283,7 +283,7 @@ body {
 #navMenu .gnb .gnb-item:nth-child(4).has-submenu.active .submenu .submenu-list {
   height: 135px;
 }
-#navMenu .gnb .gnb-item:nth-child(6).has-submenu.active .submenu .submenu-list {
+#navMenu .gnb .gnb-item:nth-child(7).has-submenu.active .submenu .submenu-list {
   height: 230px;
 }
 #navMenu .gnb .gnb-item.has-submenu.active .submenu .submenu-list {
@@ -498,8 +498,13 @@ body {
 .btn-admin {
   background: #d32f2f;
   color: #fff;
-  font-weight: 700;
-  border-radius: 6px;
+  border-radius: 100px;
+  height: 32px;
+  padding: 0 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes bounce {

@@ -53,10 +53,10 @@ function Header() {
     const adminUrl =
       window.location.hostname === "localhost"
         ? "http://localhost:8080"
-        : "https://admin.carpick.p-e.kr";
+        : "http://3.236.8.244:8080";
 
     // ✅ 그냥 관리자 페이지로 이동만 한다
-    window.location.href = `${adminUrl}/`;
+    window.location.href = `${adminUrl}/admin`;
   };
 
   return (
