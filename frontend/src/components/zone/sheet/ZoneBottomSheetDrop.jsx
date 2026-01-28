@@ -3,6 +3,10 @@ import ZoneSheetHeader from "./ZoneSheetHeader.jsx";
 import { getCrowdBadge } from "../utils/zoneFormat.js";
 import { getDropzoneStatus } from "@/services/zoneApi.js"; // ✅ 이미 만들어둔 API
 
+const DROPZONE_IMAGES = [
+  "/images/common/dropzone_01.png",
+];
+
 export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightChange }) {
   const show = Boolean(open && dropZone);
   const sheetRef = useRef(null);
@@ -22,8 +26,20 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
 
     (async () => {
       try {
-        const dropzoneId = Number(dropZone.dropzoneId);
+        const dropzoneId = Number(dropZone?.dropzoneId ?? dropZone?.id);
+
+
+        // ✅ id 없으면 상태 정리하고 종료
+        if (!Number.isFinite(dropzoneId)) {
+          if (alive) {
+            setStatusDto(null);
+            setStatusLoading(false);
+          }
+          return;
+        }
+
         setStatusLoading(true);
+
         const res = await getDropzoneStatus(dropzoneId);
         if (!alive) return;
 
@@ -38,7 +54,7 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
     return () => {
       alive = false;
     };
-  }, [show, dropZone?.dropzoneId]);
+  }, [show, dropZone?.dropzoneId, dropZone?.id]);
 
   // ✅ 헤더에 넘길 crowdBadge 만들기
   const crowdBadge = useMemo(() => {
@@ -81,21 +97,21 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
           "relative z-90 rounded-t-3xl bg-white border border-black/5",
           "shadow-[0_-10px_40px_rgba(0,0,0,0.18)]",
           "transition-[height,transform] duration-300 ease-out",
-          "h-[30dvh]",
+          "max-h-[clamp(320px,40dvh,420px)]",
           show ? "translate-y-0" : "translate-y-[105%]",
         ].join(" ")}
       >
         <div className="w-full pt-3 pb-2 flex justify-center">
-          <div className="w-10 h-1 rounded-full bg-black/10" />
+          <div className="w-10 h-1 rounded-full bg-black/20" />
         </div>
 
-        <div className="h-[calc(100%-20px)] overflow-hidden pb-3">
+        <div className="overflow-hidden pb-3">
           <ZoneSheetHeader
             kind="DROP"
             name={dropZone?.name}
             subLabel={dropZone?.subLabel ?? "공용 주차장"}
             address={dropZone?.address}
-            images={dropZone?.images}
+            images={DROPZONE_IMAGES}
             crowdBadge={crowdBadge}
             metaLabel="24시간 반납 가능"
           // ✅ (선택) 혼잡도 로딩 중 표시를 하고 싶으면 header에 prop 하나 더
@@ -104,7 +120,7 @@ export default function ZoneBottomSheetDrop({ open, onClose, dropZone, onHeightC
 
           {/* (선택) 로딩 텍스트를 시트 안에 간단히 추가 */}
           {statusLoading && (
-            <div className="px-4 mt-2 text-xs text-black/40">혼잡도 불러오는 중...</div>
+            <div className="px-5 mt-2 text-xs text-black/40">혼잡도 불러오는 중...</div>
           )}
         </div>
       </div>

@@ -65,27 +65,22 @@ export default function ZoneBottomSheetBranch({
           "relative z-90 rounded-t-3xl bg-white border border-black/5",
           "shadow-[0_-10px_40px_rgba(0,0,0,0.18)]",
           "transition-[height,transform] duration-300 ease-out",
-          "h-[clamp(320px,37dvh,420px)]",
+          "max-h-[clamp(320px,40dvh,420px)]",
           show ? "translate-y-0" : "translate-y-[105%]",
         ].join(" ")}
       >
-        {/* ✅ grabber(스샷에 있는 회색 바) */}
-        <div className="h-[calc(100%-20px)] overflow-hidden pb-3">
-          {/* ✅ Grabber → 상세 페이지 이동 */}
+        {/* ✅ Sheet Content Wrapper: 내부 패딩/간격을 하나로 통일 */}
+        <div className="overflow-hidden pb-3">
+          {/* ✅ Grabber */}
           <div className="w-full pt-3 pb-2 flex justify-center">
             <button
               type="button"
               aria-label="카픽존 상세 페이지로 이동"
               onClick={onDetail}
-              className="w-14 h-6 flex items-center justify-center group"
+              className="w-10 h-1 flex items-center justify-center group"
             >
               <div
-                className="
-          w-10 h-1 rounded-full bg-black/20
-          transition-all duration-200
-          group-hover:w-12
-          group-hover:bg-black/40
-        "
+                className="w-10 h-1 rounded-full bg-black/20 transition-all duration-200 group-hover:w-12 group-hover:bg-black/40"
               />
             </button>
           </div>

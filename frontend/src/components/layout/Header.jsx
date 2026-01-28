@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import useUserStore from "../../store/useUserStore";
 
 import "../../styles/common.css";
+import { div } from "framer-motion/client";
 
 function Header() {
   const navigate = useNavigate();
@@ -83,7 +84,7 @@ function Header() {
       )}
 
       {/* 사이드 메뉴 */}
-      <aside id="navMenu" className={`m-0 ${menuOpen ? "active" : ""}`}>
+      <aside id="navMenu" className={menuOpen ? "active" : ""}>
         <div className="inner">
           <div className="menu_top">
             <Link to="/home" onClick={closeMenu}>
@@ -242,11 +243,13 @@ function Header() {
             </ul>
           </nav>
 
-          <div className="h-[50px] menu_bottom bg-[#1D6BF3] flex items-center justify-center ">
+          <div className=" menu_bottom ">
             {isLoggedIn && (
-              <span className="btn btn-logout cursor-pointer text-white" onClick={handleLogout}>
-                로그아웃
-              </span>
+              <div className="h-[50px] bg-[#1D6BF3] flex items-center justify-center">
+                <span className="btn btn-logout cursor-pointer text-white" onClick={handleLogout}>
+                  로그아웃
+                </span>
+              </div>
             )}
           </div>
         </div>
