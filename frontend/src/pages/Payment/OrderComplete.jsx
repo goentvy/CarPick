@@ -1,11 +1,14 @@
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useReservationStore from "../../store/useReservationStore";
+import useUserStore from "../../store/useUserStore";
 
 const OrderComplete = () => {
     const location = useLocation();
     const [searchParams] = useSearchParams();
     const reservation = useReservationStore();
+    const { isLoggedIn } = useUserStore();
+
 
     // location.state 우선 → URL 파라미터 폴백
     const { orderId, totalPrice } = location.state || {};
@@ -109,19 +112,19 @@ const OrderComplete = () => {
 
                     <div className="flex flex-col sm:flex-row gap-3 max-w-sm mx-auto">
                         {/* 로그인 여부에 따라 다른 링크 */}
-                        {reservation.isLoggedIn ? (
+                        {isLoggedIn ? (
                             <button
                                 onClick={() => window.location.href = "/mypage/reservations"}
                                 className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
                             >
-                                마이페이지
+                                예약내역
                             </button>
                         ) : (
                             <button
                                 onClick={() => window.location.href = "/guest/view"}
                                 className="flex-1 px-6 py-3 bg-brand hover:bg-brand/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm"
                             >
-                                예약조회
+                                예약내역
                             </button>
                         )}
                         <button

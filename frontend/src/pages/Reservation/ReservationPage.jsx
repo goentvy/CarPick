@@ -122,7 +122,10 @@ const ReservationPage = () => {
         };
 
         api.post("/reservation/form", body)
+
             .then(async (res) => {
+                console.log("pickupLocation =", res.data.pickupLocation);
+
                 const store = useReservationStore.getState();
 
                 setFormData(res.data);
@@ -186,7 +189,7 @@ const ReservationPage = () => {
 
     return (
         <FormProvider {...methods}>
-            <div className="flex flex-col justify-center items-center mt-[60px]">
+            <div className="flex flex-col justify-center items-center ">
                 {formData && (
                     <>
                         <ReservationBanner formData={formData} />

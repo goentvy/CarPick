@@ -153,6 +153,7 @@
             cs.fuel_efficiency    AS fuelEfficiency,
             cs.ai_summary         AS aiSummary,
             cs.car_options        AS carOptions,
+            cs.img_url AS imgUrl,
             /* BRANCH (사용자 선택 pickupBranchId) */
             b.branch_id           AS branchId,
             b.branch_name         AS branchName,

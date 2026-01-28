@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  layout:decorate="~{admin/layout/admin-layout}">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head>
-
 	<meta charset="UTF-8">
-
-	<title>예약 관리</title>
+	<title>카픽 - 예약 관리</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- CSS -->
+
+	<!-- CSS (지점관리와 동일) -->
 	<link rel="shortcut icon" type="image/png" href="assets/images/icon/favicon.ico">
 	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/font-awesome.min.css}">
@@ -28,171 +25,209 @@
 	<link rel="stylesheet" th:href="@{/assets/css/styles.css}">
 	<link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
 
-	<!-- JS -->
+	<!-- JS (헤더에서 필요) -->
 	<script th:src="@{/assets/js/vendor/modernizr-2.8.3.min.js}"></script>
 
+	<style>
+		/* 예약 관리 페이지에서만 쓰는 소소한 보정 */
+		.table td, .table th { vertical-align: middle !important; }
+		.badge {
+			font-size: 1.0rem;      /* 글자 키우기 */
+			padding: 0.45em 0.75em; /* 배지 자체도 키우기 */
+			border-radius: 0.5rem;  /* 조금 더 둥글게(선택) */
+			font-weight: 700;       /* 더 또렷하게(선택) */
+		}
+
+	</style>
 </head>
 
-<th:block layout:fragment="content">
-	<div class="container-fluid py-4">
+<body>
 
-		<!-- 페이지 헤더 -->
-		<div class="d-flex justify-content-between align-items-center mb-4">
-			<h4 class="mb-0">예약 관리</h4>
-		</div>
+<div class="page-container">
 
-		<!-- 검색 필터 -->
-		<div class="card mb-4">
-			<div class="card-body">
-				<form id="searchForm" class="row g-3">
-					<!-- 상태 필터 -->
-					<div class="col-md-2">
-						<label class="form-label">예약 상태</label>
-						<select id="status" class="form-select">
-							<option value="">전체</option>
-							<option value="PENDING">대기</option>
-							<option value="CONFIRMED">확정</option>
-							<option value="ACTIVE">이용중</option>
-							<option value="COMPLETED">완료</option>
-							<option value="CANCELED">취소</option>
-						</select>
+	<!-- 사이드바 -->
+	<div th:replace="fragments/fragments :: sidebar"></div>
+
+	<!-- 헤더 -->
+	<div th:replace="fragments/fragments :: header"></div>
+
+	<!-- 본문 -->
+	<div class="main-content">
+		<div class="page-title-area">
+			<div class="row align-items-center">
+				<div class="col-sm-6">
+					<div class="breadcrumbs-area clearfix">
+						<h4 class="page-title pull-left">예약 관리</h4>
+						<ul class="breadcrumbs pull-left">
+							<li><a href="/admin">홈</a></li>
+							<li><span>예약 관리</span></li>
+						</ul>
 					</div>
-
-					<!-- 시작일 -->
-					<div class="col-md-2">
-						<label class="form-label">시작일</label>
-						<input type="date" id="fromDate" class="form-control">
-					</div>
-
-					<!-- 종료일 -->
-					<div class="col-md-2">
-						<label class="form-label">종료일</label>
-						<input type="date" id="toDate" class="form-control">
-					</div>
-
-					<!-- 검색어 -->
-					<div class="col-md-4">
-						<label class="form-label">검색</label>
-						<input type="text" id="keyword" class="form-control"
-							   placeholder="예약번호, 예약자명, 차량번호">
-					</div>
-
-					<!-- 검색 버튼 -->
-					<div class="col-md-2 d-flex align-items-end">
-						<button type="button" id="btnSearch" class="btn btn-primary w-100">
-							<i class="fas fa-search"></i> 검색
-						</button>
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 
-		<!-- 목록 테이블 -->
-		<div class="card">
-			<div class="card-body">
-				<div class="table-responsive">
-					<table class="table table-hover">
-						<thead class="table-light">
-						<tr>
-							<th>No</th>
-							<th>예약번호</th>
-							<th>예약자</th>
-							<th>차량</th>
-							<th>차량번호</th>
-							<th>대여기간</th>
-							<th>결제금액</th>
-							<th>상태</th>
-							<th>관리</th>
-						</tr>
-						</thead>
-						<tbody id="reservationTableBody">
-						<!-- JS로 동적 렌더링 -->
-						</tbody>
-					</table>
-				</div>
+		<div class="main-content-inner">
+			<div class="row">
+				<div class="col-lg-12 mt-3">
 
-				<!-- 데이터 없음 -->
-				<div id="noData" class="text-center py-5" style="display: none;">
-					<p class="text-muted">조회된 예약이 없습니다.</p>
-				</div>
+					<!-- 검색 필터 -->
+					<div class="card mb-4">
+						<div class="card-body">
+							<form id="searchForm" class="row g-3">
+								<div class="col-md-2">
+									<label class="form-label">예약 상태</label>
+									<select id="status" class="form-control">
+										<option value="">전체</option>
+										<option value="PENDING">대기</option>
+										<option value="CONFIRMED">확정</option>
+										<option value="ACTIVE">이용중</option>
+										<option value="COMPLETED">완료</option>
+										<option value="CANCELED">취소</option>
+									</select>
+								</div>
 
-				<!-- 페이지네이션 -->
-				<nav id="paginationNav" class="d-flex justify-content-center mt-4">
-					<ul class="pagination" id="pagination">
-						<!-- JS로 동적 렌더링 -->
-					</ul>
-				</nav>
+								<div class="col-md-2">
+									<label class="form-label">시작일</label>
+									<input type="date" id="fromDate" class="form-control">
+								</div>
+
+								<div class="col-md-2">
+									<label class="form-label">종료일</label>
+									<input type="date" id="toDate" class="form-control">
+								</div>
+
+								<div class="col-md-4">
+									<label class="form-label">검색</label>
+									<input type="text" id="keyword" class="form-control"
+										   placeholder="예약번호, 예약자명, 차량번호">
+								</div>
+
+								<div class="col-md-2 d-flex align-items-end">
+									<button type="button" id="btnSearch" class="btn btn-primary w-100">
+										<i class="fa fa-search"></i> 검색
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+
+					<!-- 목록 테이블 -->
+					<div class="card">
+						<div class="card-body">
+							<div class="single-table">
+								<div class="table-responsive">
+									<table class="table table-hover text-center">
+										<thead class="text-uppercase">
+										<tr>
+											<th>No</th>
+											<th>예약번호</th>
+											<th>예약자</th>
+											<th>차량</th>
+											<th>차량번호</th>
+											<th>대여기간</th>
+											<th>결제금액</th>
+											<th>상태</th>
+											<th>관리</th>
+										</tr>
+										</thead>
+										<tbody id="reservationTableBody"></tbody>
+									</table>
+								</div>
+							</div>
+
+							<!-- 데이터 없음 -->
+							<div id="noData" class="text-center py-5" style="display:none;">
+								<p class="text-muted">조회된 예약이 없습니다.</p>
+							</div>
+
+							<!-- 페이지네이션 -->
+							<nav id="paginationNav" class="d-flex justify-content-center mt-4">
+								<ul class="pagination" id="pagination"></ul>
+							</nav>
+						</div>
+					</div>
+
+				</div>
 			</div>
 		</div>
 	</div>
-</th:block>
 
-<th:block layout:fragment="script">
-	<script>
-		// 전역 변수
-		let currentPage = 1;
-		const pageSize = 10;
+	<!-- 푸터 -->
+	<div th:replace="fragments/fragments :: footer"></div>
 
-		// 페이지 로드 시
-		document.addEventListener('DOMContentLoaded', function() {
+</div>
+
+<!-- JS (지점관리와 동일) -->
+<script th:src="@{/assets/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/assets/js/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+<script th:src="@{/assets/js/metisMenu.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/assets/js/jquery.slicknav.min.js}"></script>
+<script th:src="@{/assets/js/plugins.js}"></script>
+<script th:src="@{/assets/js/scripts.js}"></script>
+
+<script>
+	let currentPage = 1;
+	const pageSize = 10;
+
+	document.addEventListener('DOMContentLoaded', function() {
+		loadReservationList();
+
+		document.getElementById('btnSearch').addEventListener('click', function() {
+			currentPage = 1;
 			loadReservationList();
-
-			// 검색 버튼 클릭
-			document.getElementById('btnSearch').addEventListener('click', function() {
-				currentPage = 1;
-				loadReservationList();
-			});
-
-			// 엔터키 검색
-			document.getElementById('keyword').addEventListener('keypress', function(e) {
-				if (e.key === 'Enter') {
-					currentPage = 1;
-					loadReservationList();
-				}
-			});
 		});
 
-		// 예약 목록 조회
-		function loadReservationList() {
-			const status = document.getElementById('status').value;
-			const fromDate = document.getElementById('fromDate').value;
-			const toDate = document.getElementById('toDate').value;
-			const keyword = document.getElementById('keyword').value;
-
-			const params = new URLSearchParams();
-			if (status) params.append('status', status);
-			if (fromDate) params.append('fromDate', fromDate);
-			if (toDate) params.append('toDate', toDate);
-			if (keyword) params.append('keyword', keyword);
-			params.append('page', currentPage);
-			params.append('size', pageSize);
-
-			fetch(`/api/admin/reservation/list?${params.toString()}`)
-					.then(response => response.json())
-					.then(result => {
-						renderTable(result.data);
-						renderPagination(result.pagination);
-					})
-					.catch(error => {
-						console.error('Error:', error);
-						alert('데이터 조회 중 오류가 발생했습니다.');
-					});
-		}
-
-		// 테이블 렌더링
-		function renderTable(list) {
-			const tbody = document.getElementById('reservationTableBody');
-			const noData = document.getElementById('noData');
-
-			if (!list || list.length === 0) {
-				tbody.innerHTML = '';
-				noData.style.display = 'block';
-				return;
+		document.getElementById('keyword').addEventListener('keypress', function(e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				currentPage = 1;
+				loadReservationList();
 			}
+		});
+	});
 
-			noData.style.display = 'none';
+	function loadReservationList() {
+		const status = document.getElementById('status').value;
+		const fromDate = document.getElementById('fromDate').value;
+		const toDate = document.getElementById('toDate').value;
+		const keyword = document.getElementById('keyword').value;
 
-			tbody.innerHTML = list.map((item, index) => `
+		const params = new URLSearchParams();
+		if (status) params.append('status', status);
+		if (fromDate) params.append('fromDate', fromDate);
+		if (toDate) params.append('toDate', toDate);
+		if (keyword) params.append('keyword', keyword);
+		params.append('page', currentPage);
+		params.append('size', pageSize);
+
+		fetch(`/api/admin/reservation/list?${params.toString()}`)
+				.then(r => r.json())
+				.then(result => {
+					renderTable(result.data);
+					renderPagination(result.pagination);
+				})
+				.catch(err => {
+					console.error(err);
+					alert('데이터 조회 중 오류가 발생했습니다.');
+				});
+	}
+
+	function renderTable(list) {
+		const tbody = document.getElementById('reservationTableBody');
+		const noData = document.getElementById('noData');
+
+		if (!list || list.length === 0) {
+			tbody.innerHTML = '';
+			noData.style.display = 'block';
+			return;
+		}
+		noData.style.display = 'none';
+
+		tbody.innerHTML = list.map((item, index) => `
             <tr>
                 <td>${index + 1 + (currentPage - 1) * pageSize}</td>
                 <td>${item.reservationNo || '-'}</td>
@@ -206,89 +241,79 @@
                 <td>${formatCurrency(item.totalAmountSnapshot)}</td>
                 <td>${renderStatusBadge(item.reservationStatus)}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary"
-                            onclick="goDetail(${item.reservationId})">
-                        <i class="fas fa-file-alt"></i>
+                    <button class="btn btn-sm btn-outline-primary" onclick="goDetail(${item.reservationId})">
+                        <i class="fa fa-file-text-o"></i>
                     </button>
                 </td>
             </tr>
         `).join('');
+	}
+
+	function renderStatusBadge(status) {
+		const statusMap = {
+			'PENDING': { text: '대기', class: 'badge badge-warning' },
+			'CONFIRMED': { text: '확정', class: 'badge badge-success' },
+			'ACTIVE': { text: '이용중', class: 'badge badge-primary' },
+			'COMPLETED': { text: '완료', class: 'badge badge-secondary' },
+			'CANCELED': { text: '취소', class: 'badge badge-danger' },
+			'CHANGED': { text: '변경', class: 'badge badge-info' }
+		};
+
+		const info = statusMap[status] || { text: status, class: 'badge badge-secondary' };
+		return `<span class="${info.class}">${info.text}</span>`;
+	}
+
+	function renderPagination(pagination) {
+		const nav = document.getElementById('pagination');
+
+		if (!pagination || pagination.totalPage === 0) {
+			nav.innerHTML = '';
+			return;
 		}
 
-		// 상태 배지 렌더링
-		function renderStatusBadge(status) {
-			const statusMap = {
-				'PENDING': { text: '대기', class: 'bg-warning' },
-				'CONFIRMED': { text: '확정', class: 'bg-success' },
-				'ACTIVE': { text: '이용중', class: 'bg-primary' },
-				'COMPLETED': { text: '완료', class: 'bg-secondary' },
-				'CANCELED': { text: '취소', class: 'bg-danger' },
-				'CHANGED': { text: '변경', class: 'bg-info' }
-			};
+		let html = '';
 
-			const info = statusMap[status] || { text: status, class: 'bg-secondary' };
-			return `<span class="badge ${info.class}">${info.text}</span>`;
+		if (pagination.prev) {
+			html += `<li class="page-item">
+                <a class="page-link" href="#" onclick="goPage(${pagination.startPage - 1});return false;">이전</a>
+            </li>`;
 		}
 
-		// 페이지네이션 렌더링
-		function renderPagination(pagination) {
-			const nav = document.getElementById('pagination');
-
-			if (!pagination || pagination.totalPage === 0) {
-				nav.innerHTML = '';
-				return;
-			}
-
-			let html = '';
-
-			// 이전 버튼
-			if (pagination.prev) {
-				html += `<li class="page-item">
-                        <a class="page-link" href="#" onclick="goPage(${pagination.startPage - 1})">이전</a>
-                     </li>`;
-			}
-
-			// 페이지 번호
-			for (let i = pagination.startPage; i <= pagination.endPage; i++) {
-				const active = (i === pagination.currentPage) ? 'active' : '';
-				html += `<li class="page-item ${active}">
-                        <a class="page-link" href="#" onclick="goPage(${i})">${i}</a>
-                     </li>`;
-			}
-
-			// 다음 버튼
-			if (pagination.next) {
-				html += `<li class="page-item">
-                        <a class="page-link" href="#" onclick="goPage(${pagination.endPage + 1})">다음</a>
-                     </li>`;
-			}
-
-			nav.innerHTML = html;
+		for (let i = pagination.startPage; i <= pagination.endPage; i++) {
+			const active = (i === pagination.currentPage) ? 'active' : '';
+			html += `<li class="page-item ${active}">
+                <a class="page-link" href="#" onclick="goPage(${i});return false;">${i}</a>
+            </li>`;
 		}
 
-		// 페이지 이동
-		function goPage(page) {
-			currentPage = page;
-			loadReservationList();
+		if (pagination.next) {
+			html += `<li class="page-item">
+                <a class="page-link" href="#" onclick="goPage(${pagination.endPage + 1});return false;">다음</a>
+            </li>`;
 		}
 
-		// 상세 페이지 이동
-		function goDetail(reservationId) {
-			window.location.href = `/api/admin/reservation/detail/${reservationId}`;
-		}
+		nav.innerHTML = html;
+	}
 
-		// 날짜 포맷
-		function formatDateTime(dateStr) {
-			if (!dateStr) return '-';
-			return dateStr.replace('T', ' ').substring(0, 16);
-		}
+	function goPage(page) {
+		currentPage = page;
+		loadReservationList();
+	}
 
-		// 금액 포맷
-		function formatCurrency(amount) {
-			if (!amount) return '₩0';
-			return '₩' + Number(amount).toLocaleString();
-		}
-	</script>
-</th:block>
+	function goDetail(reservationId) {
+		window.location.href = `/api/admin/reservation/detail/${reservationId}`;
+	}
 
+	function formatDateTime(dateStr) {
+		if (!dateStr) return '-';
+		return dateStr.replace('T', ' ').substring(0, 16);
+	}
+
+	function formatCurrency(amount) {
+		const n = Number(amount ?? 0);
+		return '₩' + n.toLocaleString();
+	}
+</script>
+
+</body>
 </html>

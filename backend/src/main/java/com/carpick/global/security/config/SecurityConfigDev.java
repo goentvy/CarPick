@@ -87,6 +87,10 @@ public class SecurityConfigDev {
                                 "/api/price",
                                 "/api/rent/year/details",
                                 "/api/v2/reservations/price",
+                                "/api/admin/reservation/detail",
+                                "/api/admin/price-policies",
+                                "/api/admin/demo/reservations",
+                                ("/api/guest/**"),
                                 "/api/guest/**",
 
                                 "/",

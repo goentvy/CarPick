@@ -78,7 +78,8 @@ function ReservationChangeDetail() {
         if (new Date(endDate) <= new Date(startDate)) return 0;
 
         const days = calculateDays(startDate, endDate);
-        const selectedCar = cars.find((c) => c.specId === selectedCarId);
+        const selectedCar = cars.find((c) => String(c.specId) === String(selectedCarId)
+        );
         if (!selectedCar) return 0;
 
         const carDailyPrice = Number(
@@ -256,7 +257,7 @@ function ReservationChangeDetail() {
                 newCarName: `${selectedCar?.brand || reservation.brand} ${
                     selectedCar?.displayNameShort || reservation.displayNameShort
                 }`,
-                newCarId: selectedCarId,
+                newCarId: Number(selectedCarId),
                 newPrice,
                 priceDifference,
                 days,
@@ -410,7 +411,7 @@ function ReservationChangeDetail() {
                         </label>
                         <select
                             value={selectedCarId || ""}
-                            onChange={(e) => setSelectedCarId(Number(e.target.value))}
+                            onChange={(e) => setSelectedCarId(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2C7FFF] text-sm"
                             disabled={cars.length === 0}
                         >
@@ -420,14 +421,13 @@ function ReservationChangeDetail() {
                                     : "차종을 선택해주세요"}
                             </option>
                             {cars.map((car) => {
-                                const carSpecId = car.specId;
+                                const carSpecId = String(car.specId);
                                 const carDailyPrice = Number(
                                     car.dailyPrice || car.originalPrice || 0
                                 );
                                 return (
                                     <option key={carSpecId} value={carSpecId}>
-                                        {car.displayNameShort} -{" "}
-                                        {formatPrice(carDailyPrice)}원/일
+                                        {car.displayNameShort} - {formatPrice(carDailyPrice)}원/일
                                     </option>
                                 );
                             })}

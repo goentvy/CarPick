@@ -62,3 +62,9 @@ CREATE TABLE refresh_tokens (
                                 user_id BIGINT PRIMARY KEY,
                                 token VARCHAR(500) NOT NULL
 );
+
+
+UPDATE users
+SET role='ADMIN'
+WHERE email='
+kim1@naver.com';

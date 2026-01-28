@@ -3,6 +3,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import RentHeader from "./RentHeader";
 import CarCard from "./CarCard";
+import PickupFilterModal from "../../components/common/PickupFilterModal";
+
+import { getBranches } from "@/services/zoneApi";
+import { filterCars } from "@/utils/carFilter";
+
+import CarCardSkeleton from "@/components/car/CarCardSkeleton";
+import CarLoadingOverlay from "@/components/common/CarLodingOverlay";
 
 const CarMonthList = () => {
     console.log("✅ RENDER: CarMonthList", window.location.href);
@@ -12,9 +19,94 @@ const CarMonthList = () => {
 
     // ✅ 가격 로딩 상태(단기와 동일)
     const [priceLoading, setPriceLoading] = useState(false);
+    const [showPriceHint, setShowPriceHint] = useState(false);
 
     const navigate = useNavigate();
     const routerLocation = useLocation();
+
+    // ✅ 지점 목록 (단기와 동일하게)
+    const [branches, setBranches] = useState([]);
+
+    // ✅ 필터 모달
+    const [ShowFilter, setShowFilter] = useState(false);
+
+    // ✅ 필터 상태 (단기와 동일)
+    const [selectedLevel, setSelectedLevel] = useState([]);
+    const [selectedFuel, setSelectedFuel] = useState([]);
+    const [selectedPerson, setSelectedPerson] = useState([]);
+    const [yearRange, setYearRange] = useState([2010, new Date().getFullYear()]);
+    const [priceRange, setPriceRange] = useState([10000, 1000000]);
+
+    const MIN_LOADING_TIME = 1200; // 1.2초 (원하는 ms로 바꿔)
+
+    // ✅ 정렬 상태
+    const [sortKey, setSortKey] = useState(""); // "", PRICE_ASC, TYPE, NEW
+
+    const handleApplyFilter = (f) => {
+        setSelectedLevel(f.selectedLevel ?? []);
+        setSelectedFuel(f.selectedFuel ?? []);
+        setSelectedPerson(f.selectedPerson ?? []);
+        setYearRange(f.yearRange ?? [2010, new Date().getFullYear()]);
+        setPriceRange(f.priceRange ?? [10000, 1000000]);
+        setShowFilter(false);
+    };
+
+    const handleResetFilter = () => {
+        setSelectedLevel([]);
+        setSelectedFuel([]);
+        setSelectedPerson([]);
+        setYearRange([2010, new Date().getFullYear()]);
+        setPriceRange([10000, 1000000]);
+        setSortKey("");
+    };
+
+    // ✅ 필터 객체 & 결과 (단기와 동일)
+    const filters = useMemo(
+        () => ({
+            selectedLevel,
+            selectedFuel,
+            selectedPerson,
+            yearRange,
+            priceRange,
+        }),
+        [selectedLevel, selectedFuel, selectedPerson, yearRange, priceRange]
+    );
+
+    const filteredCars = useMemo(() => filterCars(cars, filters), [cars, filters]);
+
+    // ✅ 필터 + 정렬 결과
+    const displayCars = useMemo(() => {
+        const arr = [...filteredCars];
+
+        switch (sortKey) {
+            case "PRICE_ASC": {
+                arr.sort((a, b) => {
+                    const ap = a.finalPrice ?? Number.POSITIVE_INFINITY;
+                    const bp = b.finalPrice ?? Number.POSITIVE_INFINITY;
+                    return ap - bp;
+                });
+                break;
+            }
+            case "NEW": {
+                arr.sort((a, b) => (b.modelYear ?? 0) - (a.modelYear ?? 0));
+                break;
+            }
+            case "TYPE": {
+                arr.sort((a, b) => {
+                    const ac = (a.carClass ?? "").toString();
+                    const bc = (b.carClass ?? "").toString();
+                    if (ac !== bc) return ac.localeCompare(bc);
+                    return (a.displayNameShort ?? "").localeCompare(b.displayNameShort ?? "");
+                });
+                break;
+            }
+            default:
+                // 정렬 없음
+                break;
+        }
+
+        return arr;
+    }, [filteredCars, sortKey]);
 
     const ensureSeconds = (s) => {
         if (!s) return "";
@@ -22,22 +114,21 @@ const CarMonthList = () => {
         return s;
     };
 
-    // ✅ 가격 API는 startDate/endDate 키를 받으니, 최종적으로 둘 다 만들어두는 게 안전합니다.
+    // ✅ price API는 startDate/endDate 키를 받으니, 최종적으로 둘 다 만들어두는 게 안전합니다.
     const normalizedParams = useMemo(() => {
         const raw = Object.fromEntries(new URLSearchParams(routerLocation.search));
 
         // 1) pickupBranchId 보정
         if (!raw.pickupBranchId && raw.branchId) raw.pickupBranchId = raw.branchId;
 
-
-        // 3) rentType 보정
+        // 2) rentType 보정
         const rentType = raw.rentType ? String(raw.rentType).toUpperCase() : "LONG";
 
-        // 4) 날짜: 어떤 키로 오든 startDate/endDate로 통일 (price API용)
+        // 3) 날짜 키 통일
         const startDate = ensureSeconds(raw.startDate || raw.startDateTime || "");
         const endDate = ensureSeconds(raw.endDate || raw.endDateTime || "");
 
-        // 5) months (장기 필수) : 어떤 팀원이 rentMonths로 만들었을 가능성까지 흡수
+        // 4) months 보정
         const months = raw.months ?? raw.rentMonths ?? "1";
 
         return {
@@ -49,7 +140,41 @@ const CarMonthList = () => {
         };
     }, [routerLocation.search]);
 
+    // ✅ 지점 목록 로드 (단기와 동일)
     useEffect(() => {
+        let alive = true;
+        (async () => {
+            try {
+                const res = await getBranches();
+                if (!alive) return;
+                setBranches(res.data ?? []);
+            } catch (e) {
+                console.error("[CarMonthList] getBranches fail", e);
+                if (!alive) return;
+                setBranches([]);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!priceLoading) {
+            setShowPriceHint(false);
+            return;
+        }
+        // 800ms 이상이면 가격 문구 표시
+        const t = setTimeout(() => {
+            setShowPriceHint(true);
+        }, 700);
+
+
+        return () => clearTimeout(t);
+    }, [priceLoading]);
+
+    useEffect(() => {
+        // ✅ 필수값 체크 (백엔드가 pickupBranchId required)
         if (!normalizedParams.pickupBranchId) {
             console.error("[CarMonthList] pickupBranchId 누락. API 호출 중단", {
                 search: routerLocation.search,
@@ -57,30 +182,33 @@ const CarMonthList = () => {
             });
             setCars([]);
             setLoading(false);
+            setPriceLoading(false);
             return;
         }
 
-        // 장기에서 months 없으면 price가 무조건 터지니, 여기서도 방어
-        if (!normalizedParams.months || Number(normalizedParams.months) <= 0) {
-            console.warn("[CarMonthList] months 누락/이상. 기본값 1로 보정", normalizedParams);
-            normalizedParams.months = "1";
-        }
+        // 장기에서 months 없으면 price가 무조건 터지니 방어
+        const safeMonths = !normalizedParams.months || Number(normalizedParams.months) <= 0
+            ? "1"
+            : normalizedParams.months;
 
+        // setLoading(true);
+        const startAt = Date.now();
         setLoading(true);
-        setPriceLoading(false);
+        setPriceLoading(false); // 시작할 때 가격로딩 초기화도 같이
+
+        // ✅ 가장 확실한 방식: URL에 쿼리를 직접 붙여서 요청 (params 누락 문제를 원천 차단)
+        const qs = new URLSearchParams(normalizedParams).toString();
+        const url = `${import.meta.env.VITE_API_BASE_URL}/api/cars?${qs}`;
+
+        console.log("[CarMonthList] GET", url);
 
         let cancelled = false;
 
         const run = async () => {
             try {
-                //  1) 차량 목록 조회 (/api/cars)
+                // 1) 차량 목록 조회 (/api/cars)
                 const qs = new URLSearchParams({
                     pickupBranchId: normalizedParams.pickupBranchId,
-
-                    // cars API 쪽은 기존 스펙이 startDateTime/endDateTime 일 수도 있어서,
-                    // 현재 백엔드가 startDate/endDate를 받는다면 그대로 쓰고,
-                    // startDateTime을 요구한다면 여기 키만 바꾸면 됩니다.
-                    // 우선은 선생님이 쓰던 방식대로 startDateTime/endDateTime으로 맞추고 싶으면 아래 두 줄을 바꾸세요.
                     startDateTime: normalizedParams.startDate,
                     endDateTime: normalizedParams.endDate,
                     rentType: normalizedParams.rentType,
@@ -100,32 +228,23 @@ const CarMonthList = () => {
                 const startDate = normalizedParams.startDate;
                 const endDate = normalizedParams.endDate;
                 const rentType = normalizedParams.rentType || "LONG";
-                const months = normalizedParams.months;
+                const months = safeMonths;
 
                 if (!branchId || !startDate || !endDate || carList.length === 0) return;
 
                 setPriceLoading(true);
 
-                // ✅ 3) /api/price 호출 + 병합
+                // 3) /api/price 호출 + 병합
                 const results = await Promise.all(
                     carList.map(async (car) => {
                         const specId = car.specId;
                         if (!specId) return [null, null];
 
                         try {
-                            const priceParams = {
-                                specId,
-                                branchId,
-                                startDate,
-                                endDate,
-                                rentType,
-                                months, // ⭐ 장기 핵심
-                            };
-
+                            const priceParams = { specId, branchId, startDate, endDate, rentType, months };
                             const resp = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/price`, {
                                 params: priceParams,
                             });
-
                             return [specId, resp.data];
                         } catch (e) {
                             console.warn(`[CarMonthList] 가격 조회 실패 (specId: ${specId})`, e);
@@ -143,14 +262,9 @@ const CarMonthList = () => {
                         const p = priceMap[car.specId];
                         if (!p) return car;
 
-                        const rentMonthsNum = Number(p.months ?? 1);
-                        const basePriceNum = Number(p.basePrice ?? 0);
-                        const totalNum = Number(p.estimatedTotalAmount ?? 0);
-
-                        // [유지] 정가(취소선) = 단가 * 일수, 최종가 = 총액
                         return {
                             ...car,
-                            baseTotalAmount: Number(p.baseTotalAmount ?? 0),  // ✅ 추가
+                            baseTotalAmount: Number(p.baseTotalAmount ?? 0),
                             finalPrice: Number(p.estimatedTotalAmount ?? 0),
                             discountRate: p.discountRate ?? 0,
                         };
@@ -159,10 +273,16 @@ const CarMonthList = () => {
             } catch (err) {
                 console.error("[CarMonthList] 로딩 치명적 오류:", err);
             } finally {
-                if (!cancelled) {
+                if (cancelled) return;
+
+                const elapsed = Date.now() - startAt;
+                const remain = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+                setTimeout(() => {
+                    if (cancelled) return;
                     setLoading(false);
                     setPriceLoading(false);
-                }
+                }, remain);
             }
         };
 
@@ -178,45 +298,112 @@ const CarMonthList = () => {
         navigate(`/cars/detail/${specId}${routerLocation.search}`);
     };
 
-    if (loading) return <p>Loading...</p>;
-
     return (
         <div className="flex flex-col w-full max-w-[640px] min-h-screen bg-white pb-10 mt-[59px] mx-auto">
-            <RentHeader type="long" location="month" />
+            <CarLoadingOverlay
+                show={loading}
+                label={
+                    showPriceHint
+                        ? "차량 가격 계산 중…"
+                        : "차량 리스트 불러오는 중…"
+                }
+            />
+            {/* ✅ RentHeader에 branches 넣고 싶으면 아래처럼 */}
+            <RentHeader type="long" location="month" branches={branches} />
 
-            {priceLoading && cars.length > 0 && (
-                <p className="max-w-[90%] w-full mx-auto mt-2 text-sm text-gray-400">
-                    가격 계산 중...
-                </p>
-            )}
+            {/* ✅ 필터 버튼 + 키워드 칩 (단기와 동일) */}
+            <div className="overflow-x-auto max-w-[90%] w-full mx-auto">
+                <div className="w-max flex items-center whitespace-nowrap">
+                    <button
+                        className="btn flex items-center rounded-[50px] px-4 py-1.5 cursor-pointer font-bold bg-blue-50 mt-[14px] max-w-[150px]"
+                        onClick={() => setShowFilter((prev) => !prev)}
+                    >
+                        <img src="/images/common/car_filter-solid.svg" className="pr-2" />
+                        필터
+                    </button>
 
-            {cars.length === 0 ? (
+                    <div className="keyword flex flex-wrap gap-2 mt-[14px] ml-2">
+                        {[...selectedLevel, ...selectedFuel, ...selectedPerson].map((item) => (
+                            <span key={item} className="bg-blue-50 px-4 py-1.5 rounded-full font-bold">
+                                {item}
+                            </span>
+                        ))}
+                    </div>
+
+                    {ShowFilter && (
+                        <PickupFilterModal
+                            onClose={() => setShowFilter(false)}
+                            selectedLevel={selectedLevel}
+                            setSelectedLevel={setSelectedLevel}
+                            selectedFuel={selectedFuel}
+                            setSelectedFuel={setSelectedFuel}
+                            selectedPerson={selectedPerson}
+                            setSelectedPerson={setSelectedPerson}
+                            yearRange={yearRange}
+                            setYearRange={setYearRange}
+                            priceRange={priceRange}
+                            setPriceRange={setPriceRange}
+                            onApply={handleApplyFilter}
+                            onReset={handleResetFilter}
+                        />
+                    )}
+                </div>
+            </div>
+
+            {/* ✅ 총 대수 + 정렬 (단기와 동일) */}
+            <div className="max-w-[90%] w-full flex justify-between items-center mx-auto mt-[30px]">
+                <h4 className="font-bold">
+                    총 <span>{displayCars.length}</span>대
+                </h4>
+
+                <select
+                    className="bg-blue-50 px-2 py-1 rounded-[50px] font-bold"
+                    value={sortKey}
+                    onChange={(e) => setSortKey(e.target.value)}
+                >
+                    <option value="NEW">신차순</option>
+                    <option value="PRICE_ASC">낮은가격순</option>
+                    <option value="TYPE">차종류순</option>
+                </select>
+            </div>
+
+            {(!loading && displayCars.length === 0) ? (
                 <div className="text-center min-h-[200px] mt-20 space-y-4">
                     <img src="/images/common/filterNull.svg" className="mx-auto" alt="차량 없음" />
-                    <h3 className="text-[24px] font-bold mb-[8px]">조건에 맞는 차량이 없습니다.</h3>
-                    <p className="text-[16px] text-gray-400 font-medium">대여 지점/기간을 다시 확인해 주세요.</p>
+                    <h3 className="text-[24px] font-bold mb-[8px]">
+                        필터 조건에서는 함께 떠날 차를 찾지 못했어요.
+                    </h3>
+                    <p className="text-[20px] text-gray-400 font-medium mb-[42px]">
+                        필터를 조금만 넓히면 더 빠르게 픽할 수 있어요.
+                    </p>
+                    <button
+                        type="button"
+                        className="bg-blue-50 px-4 py-2 rounded-[50px] border border-blue-500 font-bold"
+                        onClick={handleResetFilter}
+                    >
+                        필터 초기화
+                    </button>
                 </div>
             ) : (
                 <div className="mt-4 px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {cars.map((car) => (
-                        <CarCard
-                            key={car.specId}
-                            id={car.specId}
-                            title={car.displayNameShort}
-                            info={{ year: car.modelYear, seat: `${car.seatingCapacity}인승` }}
-                            baseTotalAmount={car.baseTotalAmount}  // 변경: cost → baseTotalAmount
-                            price={car.finalPrice}
-                            discountRate={car.discountRate}        // 추가
-                            discount={car.discountRate > 0}        //  추가
-                            day={false}
-                            imageSrc={
-                                car.imgUrl ||
-                                car.mainImageUrl ||
-                                "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
-                            }
-                            onClick={() => handleClickCar(car.specId)}
-                        />
-                    ))}
+                    {loading
+                        ? Array.from({ length: 6 }).map((_, i) => <CarCardSkeleton key={i} />)
+                        : displayCars.map((car) => (
+                            <CarCard
+                                key={car.specId}
+                                id={car.specId}
+                                title={car.displayNameShort}
+                                info={{ year: car.modelYear, seat: `${car.seatingCapacity}인승` }}
+                                baseTotalAmount={car.baseTotalAmount}
+                                price={car.finalPrice}
+                                discountRate={car.discountRate || 0}
+                                features={car.driveLabels}
+                                discount={(car.discountRate || 0) > 0}
+                                day={false}
+                                imageSrc={car.imgUrl || "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"}
+                                onClick={() => handleClickCar(car.specId)}
+                            />
+                        ))}
                 </div>
             )}
         </div>

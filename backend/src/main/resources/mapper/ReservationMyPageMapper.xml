@@ -12,22 +12,22 @@
             resultType="com.carpick.domain.reservation.mypage.dto.ReservationListDto">
 
         SELECT
-            r.reservation_id        AS reservationId,
+        r.reservation_id        AS reservationId,
+        r.reservation_no        AS reservationNo,
 
+        cs.brand                AS brand,
+        cs.display_name_short   AS displayNameShort,
+        cs.img_url              AS imgUrl,
+        cs.spec_id              AS specId,
 
-            cs.brand                AS brand,
-            cs.display_name_short   AS displayNameShort,
+        r.start_date            AS startDate,
+        r.end_date              AS endDate,
+        r.total_amount_snapshot AS totalAmountSnapshot,
+        r.reservation_status    AS reservationStatus
 
-            r.start_date            AS startDate,
-            r.end_date              AS endDate,
-
-            r.total_amount_snapshot AS totalAmountSnapshot,
-            r.reservation_status    AS reservationStatus
         FROM reservation r
-                 JOIN vehicle_inventory vi
-                      ON r.vehicle_id = vi.vehicle_id
-                 JOIN car_spec cs
-                      ON vi.spec_id = cs.spec_id
+        JOIN vehicle_inventory vi ON r.vehicle_id = vi.vehicle_id
+        JOIN car_spec cs         ON vi.spec_id = cs.spec_id
         WHERE r.user_id = #{userId}
         ORDER BY r.created_at DESC
 

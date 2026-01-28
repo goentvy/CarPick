@@ -91,7 +91,6 @@ const CarCard = ({
             </span>
 
 
-
             <span className="text-2xl font-bold text-brand">
               {!day && <span className="text-3 mr-1">월</span>}
               {Number(price ?? 0).toLocaleString()}원
