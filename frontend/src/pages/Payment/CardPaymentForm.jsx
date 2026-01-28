@@ -18,8 +18,17 @@ const CardPaymentForm = () => {
   useEffect(() => {
     if (cardPayment) {
       reset(cardPayment);
+
+      //  reset이 값 다 채운 다음에 cardNumber만 덮어쓰기
+      // (짧은 딜레이를 주면 확실)
+      setTimeout(() => {
+        setValue("cardNumber", "1234-", { shouldValidate: false, shouldDirty: true });
+      }, 0);
+
+    } else {
+      setValue("cardNumber", "1234-", { shouldValidate: false, shouldDirty: true });
     }
-  }, [cardPayment, reset]);
+  }, [cardPayment, reset, setValue]);
 
   return (
     <div className="w-full max-w-[640px] xx:p-2 sm:p-4">
