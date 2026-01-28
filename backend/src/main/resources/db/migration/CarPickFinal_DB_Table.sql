@@ -115,6 +115,11 @@ CREATE TABLE IF NOT EXISTS `admin_user`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_uca1400_ai_ci;
 
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+                                user_id BIGINT PRIMARY KEY,
+                                token VARCHAR(500) NOT NULL
+);
+
 -- 테이블 데이터 carpick.admin_user:~0 rows (대략적) 내보내기
 DELETE
 FROM `admin_user`;

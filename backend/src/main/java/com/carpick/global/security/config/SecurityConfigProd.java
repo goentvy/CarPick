@@ -49,16 +49,6 @@ public class SecurityConfigProd {
                                 "/admin/upload/**",
                                 "/upload/**"
                         ).permitAll()
-
-                        // ============================
-                        // 관리자 영역 (🔥 최우선 보호)
-                        // ============================
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // ============================
-                        // 공개 API + 정적 리소스
-                        // ============================
                         .requestMatchers(
                                 "/api/branches/**",
                                 "/api/dropzones/**",
@@ -72,18 +62,16 @@ public class SecurityConfigProd {
                                 "/api/auth/**",
                                 "/api/about/values",
                                 "/api/cars/**",
+                                "/api/admin/**",
 
                                 "/",
+                                "/admin/**",
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico"
                         ).permitAll()
-
-                        // ============================
-                        // 나머지는 인증 필요
-                        // ============================
                         .anyRequest().authenticated()
                 )
 
