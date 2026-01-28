@@ -348,8 +348,7 @@ export default function BranchDetailPage() {
                         <CarCard
                           key={id} // ✅ FIX: car.specId -> id
                           id={id}
-                          discount={car.discountRate !== null}
-                          discountRate={car.discountRate || 0}
+                          discountRate={car.discountRate ?? car.discount}
                           imageSrc={
                             car.imgUrl ||
                             "http://carpicka.mycafe24.com/car_thumbnail/default_car_thumb.png"
@@ -360,8 +359,8 @@ export default function BranchDetailPage() {
                             seat: (car.seatingCapacity ?? "") + "인승", // ✅ FIX: null 방어
                           }}
                           features={car.driveLabels}
-                          cost={car.originalPrice}
-                          price={car.finalPrice}
+                          baseTotalAmount={car.baseTotalAmount ?? car.originalPrice ?? 0} // ✅ 핵심
+                          price={car.finalPrice ?? 0} // ✅ 핵심
                           day={true}
                           onClick={handleClickCar}
                         />

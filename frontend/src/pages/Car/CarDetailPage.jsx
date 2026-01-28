@@ -70,16 +70,16 @@ function normalizeCards(cards) {
           displayText = `${valueText} 차량이에요.`;
           break;
         case "YEAR":
-          displayText = `${valueText}식이에요.`;
+          displayText = `${valueText}년 식이에요.`;
           break;
         case "SEATS":
-          displayText = `최대 ${valueText} 탑승 가능해요.`;
+          displayText = `최대 ${valueText}명 탑승 가능해요.`;
           break;
         case "CAREER":
-          displayText = `운전경력 ${valueText} 필요해요.`;
+          displayText = `운전경력 ${valueText}년 이상 필요해요.`;
           break;
         case "AGE":
-          displayText = `만 ${valueText}만 이용 가능해요.`;
+          displayText = `만 ${valueText}세 이상만 이용 가능해요.`;
           break;
         case "FUEL_EFF":
           displayText = `약 ${valueText}예요.`;

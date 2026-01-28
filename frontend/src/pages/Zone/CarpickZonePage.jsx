@@ -288,7 +288,7 @@ export default function CarPickZonePage() {
             open={sheetOpen && selected?.kind === "DROP"}
             onClose={closeOverlays}
             dropZone={selected?.kind === "DROP" ? selected : null}
-            parentZone={parentZone}
+            // parentZone={parentZone}
             onHeightChange={
               sheetOpen && selected?.kind === "DROP" ? setSheetH : undefined
             }
