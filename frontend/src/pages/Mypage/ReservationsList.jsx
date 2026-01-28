@@ -148,33 +148,41 @@ function ReservationsList() {
     const handleSave = async () => {
         try {
             const userId = useUserStore.getState().user?.id;
-            const response = await fetch('http://localhost:8080/api/reviews', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                    'X-User-Id': userId?.toString() || ''
-                },
-                body: JSON.stringify({
-                    reservationId: Number(editingReview.reservationId),
-                    carName: `${editingReview.brand} ${editingReview.displayNameShort}`,
-                    rating: editingRating,
-                    content: editContent.trim()
-                })
+
+            // ✅ api 인스턴스 사용 (VITE_API_BASE_URL 자동 적용)
+            const response = await api.post("/reviews", {
+                reservationId: Number(editingReview.reservationId),
+                carName: `${editingReview.brand} ${editingReview.displayShort || editingReview.displayNameShort}`,
+                rating: editingRating,
+                content: editContent.trim()
+                // specId, period는 백엔드에서 자동 처리
             });
 
-            if (response.ok) {
-                setReviewedReservations(prev => new Set([...prev, editingReview.reservationId]));
-                handleCloseReview();
-                setModalType('success');
-                setModalData({ message: '리뷰가 작성되었습니다!' });
-                setShowModal(true);
-            }
-        } catch (error) {
-            console.error('리뷰 작성 실패:', error);
-            setModalType('error');
-            setModalData({ message: '리뷰 작성에 실패했습니다.' });
+            console.log("✅ 리뷰 작성 성공:", response.data);
+
+            // ✅ 상태 즉시 업데이트
+            setReviewedReservations(prev => new Set([...prev, editingReview.reservationId]));
+            handleCloseReview();
+
+            // ✅ 성공 모달
+            setModalType('success');
+            setModalData({
+                message: '리뷰가 작성되었습니다!',
+                type: 'review_success'
+            });
             setShowModal(true);
+
+            // ✅ 리뷰 목록 새로고침 (선택사항)
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+
+        } catch (error) {
+            console.error('❌ 리뷰 작성 실패:', error.response?.data || error.message);
+
+            // 서버 에러 메시지 사용자에게 표시
+            const errorMsg = error.response?.data?.message || '리뷰 작성에 실패했습니다.';
+            alert(errorMsg);
         }
     };
 
@@ -237,7 +245,6 @@ function ReservationsList() {
                                         <span className="font-bold text-[15px]">
                                             {formatDate(item.startDate)} 예약
                                         </span>
-
                                     </div>
 
                                     <div className="p-4 flex">
@@ -301,7 +308,7 @@ function ReservationsList() {
                                                     className={`px-4 py-2 text-sm rounded-lg transition font-medium shadow-sm ${isReviewed
                                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                         : 'bg-[#2C7FFF] text-white hover:bg-[#1E5BBF]'
-                                                        }`}
+                                                    }`}
                                                 >
                                                     {isReviewed ? '리뷰작성됨' : '리뷰작성'}
                                                 </button>
@@ -315,9 +322,10 @@ function ReservationsList() {
                 )}
             </div>
 
+            {/* 리뷰 작성 모달 */}
             {editingReview && (
                 <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-[1000] p-4 animate-in fade-in zoom-in duration-200"
-                    style={{ backdropFilter: 'blur(4px)' }}>
+                     style={{ backdropFilter: 'blur(4px)' }}>
                     <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl border border-white/50">
                         <h3 className="text-lg font-semibold text-[#1A1A1A] mb-4">리뷰 작성</h3>
 
@@ -336,11 +344,11 @@ function ReservationsList() {
                                     return (
                                         <div key={starIndex} className="relative w-[56px] h-[56px]">
                                             <button type="button" onClick={() => handleStarClick(starIndex, 0)}
-                                                className="absolute left-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
+                                                    className="absolute left-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
                                             <button type="button" onClick={() => handleStarClick(starIndex, 1)}
-                                                className="absolute right-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
+                                                    className="absolute right-0 top-0 w-1/2 h-full z-20 hover:scale-[1.08]" />
                                             <img src={starSrc} alt="" width={56} height={56}
-                                                className="w-full h-full object-contain hover:scale-[1.08] transition-all cursor-pointer" />
+                                                 className="w-full h-full object-contain hover:scale-[1.08] transition-all cursor-pointer" />
                                         </div>
                                     );
                                 })}
@@ -382,15 +390,25 @@ function ReservationsList() {
                 </div>
             )}
 
-            {showModal && modalData && (
+            {/* 리뷰 성공 모달 - 환불 문구 없음 */}
+            {showModal && modalType === 'success' && modalData?.type === 'review_success' && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200 text-center">
+                        <h3 className="text-lg font-semibold text-green-600 mb-4">
+                            {modalData.message}
+                        </h3>
+                    </div>
+                </div>
+            )}
+
+            {/* 취소/변경/에러 모달 - 환불 문구 있음 */}
+            {showModal && ["cancel", "change", "error"].includes(modalType) && modalData && (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[2000] p-4 animate-in fade-in zoom-in duration-200">
                     <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-gray-200">
-                        {modalType === 'success' && (
+                        {modalType === 'success' && modalData.carInfo && (
                             <div className="text-center">
                                 <h3 className="text-lg font-semibold text-green-600 mb-2">{modalData.message}</h3>
-                                {modalData.carInfo && (
-                                    <p className="text-sm text-gray-600 mb-4">{modalData.carInfo}</p>
-                                )}
+                                <p className="text-sm text-gray-600 mb-4">{modalData.carInfo}</p>
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
                                     <p className="text-xs text-blue-700">
                                         결제 수단으로 <span className="font-semibold">1~3일 영업일 이내</span>에 환불됩니다.
@@ -446,7 +464,7 @@ function ReservationsList() {
                                         className={`px-6 py-2 text-sm text-white font-medium rounded-xl shadow-sm border-2 transition-all flex-1 flex items-center justify-center ${!cancelReason
                                             ? 'bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed'
                                             : 'bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600'
-                                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                                     >
                                         {isProcessing ? (
                                             <>

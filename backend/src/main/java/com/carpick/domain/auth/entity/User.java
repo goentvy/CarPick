@@ -1,6 +1,7 @@
 package com.carpick.domain.auth.entity;
 
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -16,11 +17,11 @@ public class User {
     // 로그인 식별
     // =====================
 
-    private String email;        // nullable (소셜 로그인 고려)
+    private String email;
     private String password;
 
-    private String provider;     // LOCAL / NAVER / KAKAO
-    private String providerId;   // 소셜 고유 ID
+    private String provider;
+    private String providerId;
 
     // =====================
     // 개인정보
@@ -28,9 +29,9 @@ public class User {
 
     private String name;
     private String phone;
-    private LocalDate birth;     // DATE
+    private LocalDate birth;
 
-    private Gender gender;       // ✅ enum (TypeHandler 대상)
+    private Gender gender;
 
     // =====================
     // 정책
@@ -44,12 +45,6 @@ public class User {
     // =====================
 
     private Role role;
-
-    // =====================
-    // 토큰
-    // =====================
-
-    private String accessToken;
 
     // =====================
     // Audit

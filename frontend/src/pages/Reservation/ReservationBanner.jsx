@@ -11,11 +11,12 @@ const ReservationBanner = ({ formData }) => {
         <img
           src={formData?.car?.imageUrl || "/images/common/car1.svg"}
           alt={formData?.car?.title ?? ""}
-          className="w-[400px] h-auto pt-8 object-cover"
+          className="w-full max-w-[640px] h-auto pt-8 object-contain"
           onError={(e) => {
             e.currentTarget.src = "/images/common/car1.svg";
           }}
         />
+
       </div>
 
       {/* 차량 정보 */}

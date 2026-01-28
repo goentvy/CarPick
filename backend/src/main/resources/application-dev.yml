@@ -43,3 +43,7 @@ logging:
 
     org.springframework.security: DEBUG
     com.carpick.domain.auth.mapper: TRACE
+jwt:
+  secret: VERY_LONG_SECRET_KEY_32BYTE_MINIMUM
+  access-expiration: 900000        # 15분
+  refresh-expiration: 1209600000   # 14일

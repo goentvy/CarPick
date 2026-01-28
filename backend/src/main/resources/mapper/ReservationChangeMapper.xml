@@ -1,60 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.carpick.domain.member.mapper.ReservationChangeMapper">
 
-    <!-- 1. 히스토리 저장 (기존) -->
-    <insert id="insertReservationHistory" parameterType="map">
-        INSERT INTO reservation_history
-        (reservation_id, action_type, change_types,
-         old_car_name, old_start_date, old_end_date, old_location,
-         new_car_name, new_start_date, new_end_date, new_location,
-         user_id, created_at)
-        VALUES
-            (#{reservationId}, #{actionType}, #{changeTypes},
-             #{oldCarName}, #{oldStartDate}, #{oldEndDate}, #{oldLocation},
-             #{newCarName}, #{newStartDate}, #{newEndDate}, #{newLocation},
-             #{userId}, NOW())
-    </insert>
-
-    <!-- 2. 현재 예약 조회 (인터페이스에 있음 → XML 추가) -->
+    <!-- 1. 현재 예약 조회 (이름 포함) -->
     <select id="getCurrentReservation" resultType="com.carpick.domain.member.dto.CurrentReservationDto">
-        SELECT
-        r.vehicle_id as vehicleId,
-        vi.spec_id as specId,
-        cs.brand,
-        cs.display_name_short as carName,
-        r.start_date as startDate,
-        r.end_date as endDate,
-        r.total_amount_snapshot as price
+        SELECT r.vehicle_id as vehicleId,
+               vi.spec_id as specId,
+               cs.brand,
+               cs.display_name_short as carName,
+               r.start_date as startDate,
+               r.end_date as endDate
         FROM reservation r
-        JOIN vehicle_inventory vi ON r.vehicle_id = vi.vehicle_id
-        JOIN car_spec cs ON vi.spec_id = cs.spec_id
+                 JOIN vehicle_inventory vi ON r.vehicle_id = vi.vehicle_id
+                 JOIN car_spec cs ON vi.spec_id = cs.spec_id
         WHERE r.reservation_id = #{reservationId}
     </select>
 
-    <!-- 3. specId로 AVAILABLE 차량 조회 (인터페이스에 있음 → XML 추가) -->
+    <!-- 2. specId로 차량 정보 (이름 포함! ⭐ 핵심) -->
     <select id="findCarBySpecId" resultType="com.carpick.domain.member.dto.CarInfoDto">
-        SELECT
-        vi.vehicle_id as vehicleId,
+        SELECT vi.vehicle_id as vehicleId,
         vi.spec_id as specId,
-        cs.display_name_short as carName,
-        p.daily_price as price  <!-- cs → p로 변경 -->
+        cs.display_name_short as carName,  <!-- ⭐ 차량명 추가! -->
+        vi.operational_status
         FROM vehicle_inventory vi
         JOIN car_spec cs ON vi.spec_id = cs.spec_id
-        JOIN price p ON vi.spec_id = p.spec_id  <!-- 추가 -->
         WHERE vi.spec_id = #{specId}
         AND vi.operational_status = 'AVAILABLE'
         LIMIT 1
     </select>
-    <!-- 4. 차량 상태 업데이트 (인터페이스 있음 → XML 추가 ❌누락) -->
+
+    <!-- 3. 차량 상태 업데이트 -->
     <update id="updateVehicleStatus">
         UPDATE vehicle_inventory
         SET operational_status = #{status}, updated_at = CURRENT_TIMESTAMP
         WHERE vehicle_id = #{vehicleId}
     </update>
 
-    <!-- 5. 예약 업데이트 (인터페이스에 있음 → XML 추가) -->
+    <!-- 4. 히스토리 저장 -->
+    <insert id="insertReservationHistory" parameterType="map">
+        INSERT INTO reservation_history
+        (reservation_id, action_type, change_types,
+         old_start_date, old_end_date, old_location,
+         old_car_id, old_car_name,
+         new_start_date, new_end_date, new_location,
+         new_car_id, new_car_name,
+         user_id, created_at)
+        VALUES (#{reservationId}, #{actionType}, #{changeTypes},
+                #{oldStartDate}, #{oldEndDate}, #{oldLocation},
+                #{oldCarId}, #{oldCarName},
+                #{newStartDate}, #{newEndDate}, #{newLocation},
+                #{newCarId}, #{newCarName},
+                #{userId}, NOW())
+    </insert>
+
+    <!-- 5. 예약 업데이트 -->
     <update id="updateReservation">
         UPDATE reservation
         SET vehicle_id = #{vehicleId},
@@ -64,8 +63,5 @@
             insurance_id = #{insuranceId}
         WHERE reservation_id = #{reservationId}
     </update>
-
-
-
 
 </mapper>

@@ -189,7 +189,7 @@ const ReservationPage = () => {
 
     return (
         <FormProvider {...methods}>
-            <div className="flex flex-col justify-center items-center mt-[60px]">
+            <div className="flex flex-col justify-center items-center ">
                 {formData && (
                     <>
                         <ReservationBanner formData={formData} />

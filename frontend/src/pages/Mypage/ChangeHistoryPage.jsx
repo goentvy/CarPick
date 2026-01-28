@@ -120,8 +120,8 @@ function ChangeHistoryPage() {
                 <div className="space-y-2 text-xs text-gray-700">
                     {showCar && (
                         <div className="flex items-center gap-1">
-                            <span className="text-gray-500 line-through">
-                                {item.oldCarName}
+                            <span className="text-gray-600">
+                            {item.oldCarName}
                             </span>
                             <span className="text-orange-600 font-semibold mx-1">→</span>
                             <span className="font-semibold">{item.newCarName}</span>
@@ -129,7 +129,7 @@ function ChangeHistoryPage() {
                     )}
                     {showPeriod && (
                         <div className="flex items-center gap-1">
-                            <span className="text-gray-500 line-through">
+                            <span className="text-gray-600">
                                 {formatWithoutYear(item.oldStartDate)} ~ {formatWithoutYear(item.oldEndDate)}
                             </span>
                             <span className="text-orange-600 font-semibold mx-1">→</span>
