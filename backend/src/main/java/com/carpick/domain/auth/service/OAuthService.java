@@ -84,7 +84,7 @@ public class OAuthService {
             if (deletedUser != null) {
                 userMapper.reviveSocialUserBasic(
                         deletedUser.getUserId(),
-                        resolveEmail(socialUser),
+                        normalizedProvider.toLowerCase() + "_" + socialUser.getProviderId() + "@social.local",
                         socialUser.getName()
                 );
                 existUser = userMapper.findById(deletedUser.getUserId());
@@ -96,22 +96,32 @@ public class OAuthService {
            ===================== */
         if (existUser == null) {
 
-            socialUser.setProvider(normalizedProvider);   // ✅ 무조건 다시 박아라 (핵심)
-            socialUser.setProviderId(socialUser.getProviderId()); // 안전성
-
-            socialUser.setEmail(resolveEmail(socialUser));
-            socialUser.setPassword(null);
-            socialUser.setMembershipGrade("BASIC");
-            socialUser.setRole(Role.USER);
-            socialUser.setGender(null);
-            socialUser.setMarketingAgree(
+            // ✅ 새로운 User 객체 생성 (깔끔하게)
+            User newUser = new User();
+            newUser.setProvider(normalizedProvider);  // ✅ KAKAO 또는 NAVER
+            newUser.setProviderId(socialUser.getProviderId());
+            newUser.setEmail(normalizedProvider.toLowerCase() + "_" + socialUser.getProviderId() + "@social.local");
+            newUser.setName(socialUser.getName());
+            newUser.setPassword(null);
+            newUser.setGender(null);
+            newUser.setMembershipGrade("BASIC");
+            newUser.setRole(Role.USER);
+            newUser.setMarketingAgree(
                     socialUser.getMarketingAgree() != null ? socialUser.getMarketingAgree() : 0
             );
-            log.info("INSERT SOCIAL provider={}, providerId={}",
-                    socialUser.getProvider(),
-                    socialUser.getProviderId());
-            userMapper.insertSocialUser(socialUser);
-            existUser = userMapper.findById(socialUser.getUserId());
+
+            log.info("🔥 INSERT SOCIAL - provider: {}, providerId: {}, email: {}",
+                    newUser.getProvider(),
+                    newUser.getProviderId(),
+                    newUser.getEmail());
+
+            userMapper.insertSocialUser(newUser);
+
+            // ✅ provider와 providerId로 다시 조회
+            existUser = userMapper.findByProvider(
+                    newUser.getProvider(),
+                    newUser.getProviderId()
+            );
         }
 
         if (existUser == null || existUser.getUserId() == null) {
@@ -152,17 +162,5 @@ public class OAuthService {
         userMapper.unlinkSocialAccount(userId);
 
         log.info("소셜 연동 해제 완료 userId={}", userId);
-    }
-
-    /* =====================
-       이메일 fallback 생성
-       ===================== */
-    private String resolveEmail(User user) {
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
-            return user.getEmail();
-        }
-        return user.getProvider().toLowerCase()
-                + "_" + user.getProviderId()
-                + "@social.local";
     }
 }

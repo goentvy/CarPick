@@ -141,39 +141,8 @@
     </select>
 
     <!-- ===================== -->
-    <!-- INSERT (기존 유지) -->
+    <!-- INSERT (중복 방지 추가) -->
     <!-- ===================== -->
-
-    <insert id="insertLocalUser"
-            parameterType="com.carpick.domain.auth.entity.User"
-            useGeneratedKeys="true"
-            keyProperty="userId">
-
-        INSERT INTO users (
-        email,
-        password,
-        phone,
-        birth,
-        name,
-        gender,
-        marketing_agree,
-        membership_grade,
-        role,
-        provider
-        )
-        VALUES (
-        #{email},
-        #{password},
-        #{phone},
-        #{birth},
-        #{name},
-        #{gender, typeHandler=com.carpick.global.mybatis.handler.GenderTypeHandler},
-        #{marketingAgree},
-        #{membershipGrade},
-        #{role},
-        #{provider}
-        )
-    </insert>
 
     <insert id="insertSocialUser"
             parameterType="com.carpick.domain.auth.entity.User"
@@ -202,6 +171,7 @@
         )
     </insert>
 
+
     <!-- ===================== -->
     <!-- UPDATE -->
     <!-- ===================== -->
@@ -229,14 +199,14 @@
         WHERE user_id = #{userId}
     </update>
     <!-- ===================== -->
-    <!-- 소셜 계정 연동 해제 -->
+    <!-- 소셜 계정 연동 해제 = 회원 탈퇴 -->
     <!-- ===================== -->
     <update id="unlinkSocialAccount">
         UPDATE users
         SET
-        provider = 'LOCAL',
-        provider_id = NULL
+        deleted_at = CURRENT_TIMESTAMP
         WHERE user_id = #{userId}
+        AND deleted_at IS NULL
     </update>
 
 
