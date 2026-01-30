@@ -143,6 +143,43 @@
     <!-- ===================== -->
     <!-- INSERT (중복 방지 추가) -->
     <!-- ===================== -->
+    <insert id="insertLocalUser"
+            parameterType="com.carpick.domain.auth.entity.User"
+            useGeneratedKeys="true"
+            keyProperty="userId">
+
+        INSERT INTO users (
+        email,
+        password,
+        provider,
+        provider_id,
+        name,
+        phone,
+        birth,
+        gender,
+        marketing_agree,
+        membership_grade,
+        role,
+        created_at,
+        updated_at
+        ) VALUES (
+        #{email},
+        #{password},
+        'LOCAL',
+        NULL,
+        #{name},
+        #{phone},
+        #{birth},
+        #{gender},
+        #{marketingAgree},
+        #{membershipGrade},
+        #{role},
+        NOW(),
+        NOW()
+        )
+
+    </insert>
+
 
     <insert id="insertSocialUser"
             parameterType="com.carpick.domain.auth.entity.User"
